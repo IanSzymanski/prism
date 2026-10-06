@@ -84,6 +84,7 @@ h3{font:600 9.5pt/1.3 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;margin
 .frame{border:.5pt solid #ddd;padding:8pt;background:#fff;display:flex;align-items:center;min-height:30pt}.frame.dk{background:#16161a;border-color:#16161a}.frame img{max-width:100%;max-height:70pt}.frame.orn{min-height:0}
 .pal i{display:inline-block;width:10pt;height:10pt;border:.5pt solid #ccc;vertical-align:middle;margin-right:4pt}.checks{padding-left:12pt}.checks .bad{color:#b00;font-weight:600}
 code{font:400 7.5pt ui-monospace,Menlo,Consolas,monospace;background:#f2f2f2;padding:0 2pt}`;
+fs.mkdirSync(path.dirname(out), { recursive: true });
 const base = out.replace(/\.pdf$/i, ""), mapHtml = base + "-mapping.html", mapPdf = base + "-mapping.pdf";
 // The brand stylesheet loads only for its fonts and role variables: the samples render in the brand, the page around them does not.
 fs.writeFileSync(mapHtml, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(B.name)} swatch sheet</title><link rel="stylesheet" href="file://${B.css}"><style>${css}</style></head><body>${H.join("\n")}</body></html>`);
