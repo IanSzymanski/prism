@@ -61,7 +61,7 @@ One or two sentences.
 
 ```markdown
 ::: band
-### CARA drafts, your staff decide
+### The tool drafts, your staff decide
 
 One or two sentences.
 
@@ -88,7 +88,7 @@ Data must come from a table in content.md.
 type: bar
 caption: Weekly documentation hours per caseworker, median.
 highlight: Apr-Jul
-marker: Apr | Case Amplify rollout
+marker: Apr | Rollout
 Feb: 16.4
 Mar: 16.0
 Apr: 12.8
@@ -171,4 +171,4 @@ All images share one shape: their own average when they are within 1.5× of each
 | A photo that must be seen large (a screen, a document) | figure |
 | Photo prints under 3 in (images.md) | gallery or leave it out of print; fine for social |
 
-A photo of a person must not sit directly under an `##` heading's wave: give that heading `{.no-rule}`, or put a sentence of text between them.
+A photo of a person must not sit directly under an `##` heading's section rule: give that heading `{.no-rule}`, or put a sentence of text between them.

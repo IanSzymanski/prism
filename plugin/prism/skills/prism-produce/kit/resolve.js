@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Resolves core prism- roles to a brand's values through its profile (brands/<id>/profile.json).
-// Usage: resolve.js <brand> [--out DIR] [--live DIR] [--get ROLE [--theme dark]]
+// Usage: resolve.js <brand|default> [--out DIR] [--live DIR] [--get ROLE [--theme dark]]
 // Builds always use the bundled snapshot; --live only compares a fetched design system against it.
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
 const KIT = __dirname;
@@ -145,10 +145,19 @@ function css(res) {
   return lines.join("\n") + "\n";
 }
 
-module.exports = { load, css };
+// The brand a piece uses when it names none: the one profile marked "default": true (or the only brand installed).
+function defaultBrand() {
+  const dir = path.join(KIT, "brands"), ids = fs.readdirSync(dir).filter(b => fs.existsSync(path.join(dir, b, "profile.json")));
+  const marked = ids.filter(b => JSON.parse(fs.readFileSync(path.join(dir, b, "profile.json"), "utf8")).default === true);
+  if (marked.length === 1) return marked[0];
+  if (!marked.length && ids.length === 1) return ids[0];
+  throw new Error(`[brand] ${marked.length ? "more than one brand is" : "no brand is"} marked "default": true in kit/brands; name one with brand: in the front matter`);
+}
+
+module.exports = { load, css, defaultBrand };
 
 if (require.main === module) {
-  const a = process.argv.slice(2), id = a[0], opt = k => { const i = a.indexOf(k); return i > 0 ? a[i + 1] : null; };
+  const a = process.argv.slice(2), id = a[0] === "default" ? defaultBrand() : a[0], opt = k => { const i = a.indexOf(k); return i > 0 ? a[i + 1] : null; };
   if (!id) { console.error("usage: resolve.js <brand> [--out DIR] [--live DIR] [--get ROLE [--theme T]]"); process.exit(2); }
   const res = load(id, { live: opt("--live") });
   for (const w of res.warnings.filter(w => !w.startsWith("optional"))) console.warn(`[brand] ${w}`);

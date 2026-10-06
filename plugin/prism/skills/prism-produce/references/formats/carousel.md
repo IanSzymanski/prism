@@ -1,12 +1,12 @@
 # Carousel (Instagram / LinkedIn, 1080×1350 panels)
 
-Build: `run.sh social formats/carousel.md out/carousel`. All panels render on one canvas so one wave line and the background washes run across every swipe, then the canvas is cut into PNGs named `<id>-01.png`, `-02`… Also read components.md.
+Build: `run.sh social formats/carousel.md out/carousel`. All panels render on one canvas so the brand's thread (a line or strip, when the brand draws one) and the background washes run across every swipe, then the canvas is cut into PNGs named `<id>-01.png`, `-02`… Also read components.md.
 
 ```markdown
 ::::::: {#responsible-ai .carousel}
 
 :::: {.post .panel .cover burst="0.97" note="Swipe →"}
-[Five habits for human services teams]{.eyebrow}
+[Five habits for busy teams]{.eyebrow}
 
 # Using AI in casework, *responsibly*
 
@@ -28,7 +28,7 @@ One or two sentences.
 
 One sentence.
 
-caseamplify.com
+example.com
 ::::
 
 ::: caption
@@ -39,7 +39,7 @@ Post copy and hashtags for the whole carousel.
 ```
 
 - 5–10 panels. First is `.cover` (uses `#` heading), last is `.dark .end`.
-- `burst` places each panel's wave burst (0 = left edge, 1 = right). Vary it (e.g. 0.6, 0.3, 0.7, 0.35, 0.66) so the line reads as one shape; `0.97` on the cover spills into panel 2 as a swipe cue.
+- `burst` places where the brand's thread peaks on each panel (0 = left edge, 1 = right). Vary it (e.g. 0.6, 0.3, 0.7, 0.35, 0.66) so the line reads as one shape; `0.97` on the cover spills into panel 2 as a swipe cue. Brands whose thread has no peak ignore it.
 - `note` is the counter: `"02 / 07"`; cover uses `"Swipe →"`.
 - `[01]{.num}` numbers the point on content panels.
 - Panels accept paragraphs, `checks`, `stats`, and a `steps` numbered list (`::: steps` around `1. **Review** the draft`).

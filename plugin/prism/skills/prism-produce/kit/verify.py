@@ -5,9 +5,20 @@ Social, email or carousel folder: every PNG matches the fingerprint the build re
 HTML email folder: the tagged HTML, plain text, images zip and every image match the build's fingerprints."""
 import hashlib, json, os, re, sys, zipfile
 
+
+def default_brand():
+    """The profile marked "default": true in kit/brands (or the only brand installed)."""
+    import json as _j
+    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "brands")
+    ids = sorted(b for b in os.listdir(d) if os.path.exists(os.path.join(d, b, "profile.json")))
+    marked = [b for b in ids if _j.load(open(os.path.join(d, b, "profile.json"))).get("default") is True]
+    if len(marked) == 1: return marked[0]
+    if not marked and len(ids) == 1: return ids[0]
+    sys.exit("no single brand is marked \"default\": true in kit/brands; pass the brand")
+
 KIT = os.path.dirname(os.path.abspath(__file__))
 args = sys.argv[1:]
-BRAND = args[args.index("--brand") + 1] if "--brand" in args else "case-amplify"
+BRAND = args[args.index("--brand") + 1] if "--brand" in args else default_brand()
 if "--brand" in args: i = args.index("--brand"); del args[i:i + 2]
 
 

@@ -1,15 +1,15 @@
 # Deck (editable PowerPoint)
 
-Build: `run.sh deck formats/deck.md out/<tag>.pptx` (tag: see Naming in SKILL.md). 16:9 widescreen, native PowerPoint text and charts. Fonts: CA Literata, CA Inter, CA Mono (users install `fonts/office`).
+Build: `run.sh deck formats/deck.md out/<tag>.pptx` (tag: see Naming in SKILL.md). 16:9 widescreen, native PowerPoint text and charts. Fonts: the brand's Office fonts (users install them from `brands/<brand>/office`; the first deck comes with the pack).
 
 ## Front matter
 
 ```yaml
 ---
-title: How *Cedar Hollow* got its afternoons back
+title: How *Harbor Point* got its afternoons back
 subtitle: One sentence.
 eyebrow: Case study · Illustrative example
-footer: Case Amplify · Illustrative example, fictional figures
+footer: <brand name> · Illustrative example, fictional figures
 image: images/office.jpg        # optional: the hero photo, shown on the right half of the title slide
 ---
 ```
@@ -39,12 +39,12 @@ Speaker notes, plain sentences.
 | `features` | `##` heading + bullets `[]{.icon .ph-NAME} **Title** sentence` (3 items fit best) |
 | `steps` | `##` heading + numbered list `**Step** sentence` (3–5 items). Drawn as a workflow: one line with a dot per step. Use it for any process story (conversation → draft → review → record → follow-up) instead of feature cards. |
 | `quote` | A blockquote with `[Name, Role]{.cite}`, nothing else |
-| `media` | `##` heading (drawn with a plain line, never the wave) + one image + `###` subhead, paragraphs or a short list. Image on the left (`{.slide .media .flip}` for right), sized to its orientation; add `{.fade}` on the image to fade it toward the text. |
+| `media` | `##` heading (drawn with a plain line, never the brand's section rule) + one image + `###` subhead, paragraphs or a short list. Image on the left (`{.slide .media .flip}` for right), sized to its orientation; add `{.fade}` on the image to fade it toward the text. |
 | `chart` | `##` heading + one chart block + optional 1–2 short paragraphs (takeaway beside the chart). bar, hbar, line, donut. |
 | `closing` | `[Eyebrow]{.eyebrow}` + `##` + 1–2 paragraphs; last paragraph is the URL. Dark background. Always last. |
 | `content` | `##` heading + paragraphs and bullet or numbered lists. For sources, agendas, anything without a better layout. Each paragraph and item is its own line; type shrinks as the text grows. |
 
-`{.slide .<layout> .no-rule}` swaps the heading wave for a plain line on any slide.
+`{.slide .<layout> .no-rule}` swaps the heading's section rule for a plain line on any slide.
 
 The build estimates whether each heading, card, step and text box fits and prints `[deck] slide N (<layout>): ... may not fit` when it doesn't. Shorten the text named; don't rely on PowerPoint shrinking it.
 

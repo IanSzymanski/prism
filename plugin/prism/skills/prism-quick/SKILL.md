@@ -1,10 +1,10 @@
 ---
 name: prism-quick
 description: >
-  Use for any Case Amplify file someone needs fast, with no questions or proofing first: a
+  Use for any branded file someone needs fast, with no questions or proofing first: a
   one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header. Triggers: "quick", "fast", "rush", "I need a one sheet now", "skip the proof",
-  "just make it", "quick mode". Builds one output in one pass with the Case Amplify brand kit, the only
-  allowed way to make a designed Case Amplify file. Not for pieces to be drafted and proofed first (prism-draft).
+  "just make it", "quick mode". Builds one output in one pass with the brand kit, the only
+  allowed way to make a designed branded file. Not for pieces to be drafted and proofed first (prism-draft).
 metadata:
   version: "0.16.0-dev"
 ---
@@ -15,7 +15,7 @@ For someone who needs a document now and will review it afterwards. Speed comes 
 
 ## Build route (always)
 
-Every designed Case Amplify file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
+Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
 
 ## 1. Start (one Bash call, first thing)
 
@@ -23,23 +23,24 @@ Every designed Case Amplify file (one sheet, one-sheeter, one-pager, flyer, hand
 mkdir -p <slug>/source <slug>/formats <slug>/out
 [ -d .prism-kit ] || cp -r <this skill>/../prism-produce/kit .prism-kit
 nohup bash .prism-kit/run.sh setup <sheet|social|deck> > .prism-kit/setup.log 2>&1 &
-node .prism-kit/resolve.js case-amplify --out .prism/brand/case-amplify
+node .prism-kit/resolve.js <brand> --out .prism/brand/<brand>
 ```
 
-The resolve line checks the bundled brand snapshot; if it prints an error, stop and say what it printed, never approximate the brand. A `[brand] design system changed` line is only a warning. Setup for that output type runs in the background while you write; the build later waits for it if it is still going. It takes a second or two when the tools are already there. In the same call: save pasted text to `<slug>/source/pasted.md`; copy uploaded files into `source/`, converting Word and PDF to text beside them (`pandoc file.docx -t plain -o file.txt`, `pdftotext file.pdf`); normalise photos with `python3 .prism-kit/images.py <slug>/formats/images <photos>`. Look at each photo once with Read to spot identifiable people.
+The resolve line (`<brand>`: the one the user named, else `default`) checks the bundled brand snapshot; if it prints an error, stop and say what it printed, never approximate the brand. A `[brand] design system changed` line is only a warning. Setup for that output type runs in the background while you write; the build later waits for it if it is still going. It takes a second or two when the tools are already there. In the same call: save pasted text to `<slug>/source/pasted.md`; copy uploaded files into `source/`, converting Word and PDF to text beside them (`pandoc file.docx -t plain -o file.txt`, `pdftotext file.pdf`); normalise photos with `python3 .prism-kit/images.py <slug>/formats/images <photos>`. Look at each photo once with Read to spot identifiable people.
 
 ## 2. Decide without asking
 
 - **Format:** what the user named, else a one-pager sheet. One format per quick run. Sheet and single social posts: read nothing else, use the cheat sheets below. Brochure, blog, email, carousel, deck: read that card in `../prism-produce/references/formats/` first (deck builds are slower; say so).
 - **Figures:** only numbers that appear in the source. No numbers in the source means no stats block. If the user asked for an example or mock piece, figures are illustrative and every output says so.
 - **Photos:** use uploaded photos without identifiable people freely. Photos with people only if the user said they have permission; otherwise leave them out and say so. Best landscape photo becomes the hero. Layouts crop each photo around the focal point images.py found. No photos: no image blocks (no placeholders unless asked); a photo from the brand library (`.prism-kit/run.sh library <brand>`, `![](brand:<id>)`) only when the user asks for one.
-- **Audience:** from the request, else human services program leaders.
+- **Brand:** the one the user named, else the default (`.prism-kit/run.sh brands` marks it; it also gives the brand's name, contact line and default audience). Write `brand: <id>` in the front matter when it isn't the default.
+- **Audience:** from the request, else the brand's default audience.
 
 ## 3. Write the format file in one Write call
 
 `<slug>/formats/<format>.md`. Rules that still apply:
 
-- Read the brand's rules once, `.prism-kit/brands/case-amplify/digest.md` (claims, voice, visual); every one applies.
+- Read the brand's rules once, `.prism-kit/brands/<brand>/digest.md` (claims, voice, visual); every one applies.
 - No number, quote or result that isn't in the source.
 - `{.no-rule}` on a `##` that sits right on top of a photo of a person.
 
@@ -52,9 +53,9 @@ pagetitle: Plain-text title
 doctype: One-pager
 eyebrow: Topic · Audience
 subtitle: One or two sentences.
-author: Case Amplify
+author: <brand name>
 date: <Month Year>
-contact: caseamplify.com
+contact: <brand contact line>
 legal: Fictional organization and figures   # only when illustrative
 hero: small
 ---
@@ -83,11 +84,11 @@ One or two sentences.
 :::
 
 ::: {.cta-card .small}
-[Case Amplify]{.eyebrow}
+[<brand name>]{.eyebrow}
 
 ## Closing line with *one* accent word
 
-One sentence. Start at [caseamplify.com](https://caseamplify.com).
+One sentence. Start at [example.com](https://example.com).
 :::
 ```
 
@@ -122,7 +123,7 @@ One supporting sentence.
 ::: caption
 Post copy in short paragraphs.
 
-#HumanServices #CaseManagement
+#Topic #Field
 :::
 ::::
 ```

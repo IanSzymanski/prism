@@ -62,7 +62,7 @@ function forBrand(B) {
 module.exports = { check, propose, forBrand, contrast };
 
 if (require.main === module) {
-  const B = require("./brand.js")(null, process.argv[2] || "case-amplify"), P = forBrand(B);
+  const B = require("./brand.js")(null, process.argv[2] || require("./resolve.js").defaultBrand()), P = forBrand(B);
   console.log(`${B.name} email palette: ${P.reviewed ? "reviewed" : "UNREVIEWED"}${P.why.length ? "\n  " + P.why.join("\n  ") : ""}`);
   for (const [k, v] of Object.entries(P.light)) console.log(`  ${k.padEnd(10)} ${v}   Outlook dark ${["page", "card", "tint", "hair", "button", "accentFill"].includes(k) ? bgOf(v) : flip(v)}`);
   for (const r of check(P.light)) console.log(`${r.ok ? "  ok  " : "  FAIL"} ${r.msg}${!r.ok && (P.departures || []).some(d => d.id === r.id) ? " (approved departure)" : ""}`);

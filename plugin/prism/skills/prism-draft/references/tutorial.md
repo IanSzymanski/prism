@@ -1,10 +1,11 @@
 # Prism tutorial: how to use the plugin
+<!-- tutorial-reviewed: 0.16 -->
 
 Give this rundown when someone asks how to use Prism ("how does this work", "tutorial", "what can you do"). Present it in your own words, short and scannable: a two-line intro, then the sections below as brief headed lists. When they ask about one part ("how does design mode work", "tell me about quick mode"), give only that section, in a little more depth. Never invent features; everything Prism does is in this file. End by offering a next step that fits: "Paste some notes and say 'draft this into a one-pager'", or try quick mode.
 
 ## What Prism is
 
-Prism turns raw material (notes, a transcript, a document, photos) into proofed, on-brand files: one sheets, briefs, case studies, trifold brochures, PowerPoint decks, blog posts and headers, social posts, Instagram stories, carousels, email header images and whole HTML emails. The words are written and approved once, in `content.md`, and every format is laid out from them, so nothing drifts and no number appears that isn't in the approved words. Brands: Case Amplify (the default) and Prism; a piece picks one with `brand:`.
+Prism turns raw material (notes, a transcript, a document, photos) into proofed, on-brand files: one sheets, briefs, case studies, trifold brochures, PowerPoint decks, blog posts and headers, social posts, Instagram stories, carousels, email header images and whole HTML emails. The words are written and approved once, in `content.md`, and every format is laid out from them, so nothing drifts and no number appears that isn't in the approved words. Brands come from the kit: list them with `.prism-kit/run.sh brands` (it marks the default) when presenting this; a piece picks one with `brand:`.
 
 ## Two ways to work
 
@@ -56,6 +57,7 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 - Quick mode isn't proofed. Treat it as a draft until someone has checked its claims list.
 <!-- claude-only -->
 - Design mode is Claude only, and not in quick mode; say "design mode" after a quick run to open it.
+- `/prism-tutorial` brings this rundown back at any time; add a topic (`/prism-tutorial photos`) for just that part.
 <!-- /claude-only -->
 
 ## Try it

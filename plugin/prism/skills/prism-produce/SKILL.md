@@ -1,17 +1,17 @@
 ---
 name: prism-produce
 description: >
-  Use to build or revise any designed Case Amplify file with the brand kit, the only allowed way to
+  Use to build or revise any designed branded file with the brand kit, the only allowed way to
   make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email (newsletter, announcement, outreach email). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
-  "I'm done editing", an edited format file, or a finished Markdown file in the Case Amplify format. Works from an approved content.md.
+  "I'm done editing", an edited format file, or a finished Markdown file in the Prism format. Works from an approved content.md.
 metadata:
   version: "0.16.0-dev"
 ---
 
 # Produce: approved content to finished files, and revisions
 
-Steps 5–7 of the Case Amplify content process, plus the revision loop. Inputs come from `prism-draft`.
+Steps 5–7 of the content process, plus the revision loop. Inputs come from `prism-draft`.
 
 ## Automate non-destructive steps
 
@@ -19,13 +19,13 @@ When the next step can't lose work or change meaning, take it without asking: st
 
 ## Build route (always)
 
-Every designed Case Amplify file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
+Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
 
 Files next to this SKILL.md:
 
 - `kit/`: build scripts, stylesheets, fonts, images. Entry points `setup.sh` and `run.sh`.
 - `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`) plus `components.md` shared by all.
-- `kit/brands/<brand>/digest.md`: the brand's rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, default `case-amplify`.
+- `kit/brands/<brand>/digest.md`: the brand's rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, else the default brand (`.prism-kit/run.sh brands` marks it).
 - `run.sh swatch <brand> out/<brand>-swatch.pdf`: the swatch sheet, in its own neutral format: how the brand's design system maps onto every core role, its ornaments by place, Office fonts, email palette checks, unused tokens and unmapped roles, then one sample of every sheet layout built in the brand (the layouts' Markdown is written beside it as `-layouts.md`). Make it when a brand profile is new or changed, or when asked to check a brand.
 <!-- claude-only -->
 - `references/wireframe.md`: design mode, the wireframe canvas in Claude Design for every format.
@@ -41,7 +41,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 1. Find the project folder (`<slug>/` with content.md). If the user supplied a finished format file only, create a project around it and skip to step 3.
 2. Read content.md front matter. If `status` is not `approved`, stop and send the user back to proofing (the prism-draft skill). Do not format unapproved content.
 3. Once per session: copy `kit/` to `<workspace>/.prism-kit`. Every build goes through `.prism-kit/run.sh`, which sets up the tools that output type needs the first time it is built (a sheet never waits for deck tools). If it prints `setup: MISSING ...`, install that tool (`apt-get install -y pandoc` for pandoc) and build again. Never create the `.ready-*` files by hand.
-4. Once per session, resolve the brand: `.prism-kit/run.sh resolve <brand> --out .prism/brand/<brand>` (`brand` from content.md, default `case-amplify`). It checks the brand's bundled snapshot and maps every core role to its value. An error stops the work: say what it printed and never approximate the brand. A `[brand] design system changed since this release` line is a warning: build anyway (the snapshot is what this release was checked against) and pass the line on to the user once.
+4. Once per session, resolve the brand: `.prism-kit/run.sh resolve <brand> --out .prism/brand/<brand>` (`brand` from content.md, else the default from `run.sh brands`). It checks the brand's bundled snapshot and maps every core role to its value. An error stops the work: say what it printed and never approximate the brand. A `[brand] design system changed since this release` line is a warning: build anyway (the snapshot is what this release was checked against) and pass the line on to the user once.
 <!-- claude-only -->
    Before resolving, if the Artifact tool is available, read the brand's design system once (`url` from `.prism-kit/brands/<brand>/profile.json` `source.url`, no path) and add `--live <the folder the read names>`, so a changed design system is reported. If the read fails or is refused, resolve without `--live` and say nothing.
 <!-- /claude-only -->
@@ -88,8 +88,7 @@ For each format file:
    - one-word last lines in large headings (use `\ ` non-breaking space);
    - missing fictional labels when `figures: illustrative`;
    - images: the build prints `[sheet] low resolution` or `missing image` warnings, and `[deck]` equivalents. Fix a missing path; report low-resolution images to the user with the size they print at, and move them to a smaller layout (gallery, media row) or drop them from print;
-   - no wave directly above a photo of a person; a portrait photo not squeezed into a landscape slot;
-   - wave next to a person or quote, more than one dark card, mono text on dark.
+   - the brand digest's placement rules (for example, no section ornament directly above or beside a photo of a person or a quote, one dark card at most, no mono text on dark); a portrait photo not squeezed into a landscape slot.
 5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image and HTML email folders. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
 6. Record in log.md: files built, cuts made by each formatter, check and verify results.
 
@@ -103,7 +102,7 @@ For each format file:
 - Name each file's job in the message, one line each, so nobody mistakes the source for a deliverable:
   - the PDF, PPTX or PNGs: the finished piece;
   - the captions file: the post copy to paste with each image (email: subject line and preheader);
-  - HTML email: in Zoho Campaigns, upload the `.html` and the images zip beside it (or paste the `.html` into any tool once `images/` is uploaded to the `image-base` folder), `email.txt` for the plain-text part, `preview.png` to check light and dark. Say which merge tags passed through, and that a test send to Outlook, Gmail and Apple Mail is the last check;
+  - HTML email: in the sending tool (content.md's `Send from:`, else the brand's email tool from `run.sh brands`), upload the `.html` and the images zip beside it (or paste the `.html` into any tool once `images/` is uploaded to the `image-base` folder), `email.txt` for the plain-text part, `preview.png` to check light and dark. Say which merge tags passed through, and that a test send to Outlook, Gmail and Apple Mail is the last check;
   - `formats/<format>.md`: the editable source for that output. For social it holds both the image text and the caption; edit it and ask for a rebuild rather than editing captions.md.
 - Message: one line per output, what each formatter cut, and any check the build could not fix. Remind deck users once that decks need the brand's Office fonts installed to present; the first time a deck is delivered, make the pack with `.prism-kit/run.sh fonts out/<brand>-fonts.zip <brand>` and send it.
 - Say how revisions work: reply with changes, or upload an edited content.md or format file.

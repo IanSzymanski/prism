@@ -16,9 +16,9 @@ It ships as a Claude plugin and a ChatGPT edition, both built from this reposito
 | `fixtures/` | One sample per output type, used for every regression build |
 | `guide/` | The user guide (built as a sheet) |
 | `tests/` | `resolve.test.js`, `brands.test.js`, `diff-builds.py`, and the frozen `reference-0.13.1/` sources |
-| `tools/` | `pin-profile.js` (re-pin a brand after its files change), `brand-art/` (Prism's artwork generator) |
+| `tools/` | `check-tutorial.py` (the tutorial matches the plugin; run before every build), `pin-profile.js` (re-pin a brand after its files change), `brand-art/` (Prism's artwork generator) |
 
-Brands today: `case-amplify` (default) and `prism`. A document picks one with `brand:` in its front matter.
+Brands today: `case-amplify` (default) and `prism`; `run.sh brands` lists them. A document picks one with `brand:` in its front matter; without one it uses the profile marked `"default": true`. Core never names a brand: a brand's identifying words go in its profile's `identity.terms`, and `tests/core-brand-free.test.py` keeps them out of core.
 
 ## Requirements
 
@@ -52,6 +52,8 @@ node tests/resolve.test.js            # the Case Amplify profile equals the 0.13
 node tests/brands.test.js             # core holds no brand; every brand resolves and its ornaments draw
 python3 tests/assets.test.py          # focal points, crop markup and the brand image library
 python3 tests/wire.test.py            # design mode: boards, canvas index, icons, links, brand lo-fi, edit read-back, state
+python3 tests/tutorial.test.py        # the tutorial still describes every command, format and skill (convert.py runs the same check)
+python3 tests/core-brand-free.test.py # no brand is named in core; defaults come from the profiles
 ```
 
 **Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.

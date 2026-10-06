@@ -19,7 +19,7 @@ scheme: light                   # light (default) | auto (adds dark CSS; Outlook
 ::: header
 [New case study]{.eyebrow}
 
-# How Cedar Hollow got its *afternoons* back
+# How Harbor Point got its *afternoons* back
 
 One sentence standfirst.
 :::
@@ -30,10 +30,10 @@ Opening paragraph.
 
 ![Caseworker reviewing a draft.](images/visit.jpg){.hero dark="images/visit-dark.jpg"}
 
-[Read the case study](https://caseamplify.com/...){.button}
+[Read the case study](https://example.com/...){.button}
 
 ::: footer
-Case Amplify · street address
+<brand name> · street address
 
 [Unsubscribe]($[LI:UNSUBSCRIBE]$) · [View in browser]($[LI:VIEWINBROWSER]$)
 :::
@@ -83,7 +83,7 @@ Case Amplify · street address
 
 ## Build warnings
 
-Act on every `[email]` line before delivering: missing or low-resolution images, missing alt text, links that aren't https, a wave beside a person, too many primary buttons, subject or preheader length, a shortcode that isn't closed, and `email.html` over 100 KB (Gmail clips at 102 KB).
+Act on every `[email]` line before delivering: missing or low-resolution images, missing alt text, links that aren't https, a brand ornament beside a person, too many primary buttons, subject or preheader length, a shortcode that isn't closed, and `email.html` over 100 KB (Gmail clips at 102 KB).
 
 ## Outlook markup (built in)
 

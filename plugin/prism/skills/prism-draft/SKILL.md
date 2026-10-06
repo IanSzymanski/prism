@@ -1,7 +1,7 @@
 ---
 name: prism-draft
 description: >
-  Use to start any Case Amplify content piece from raw material (notes, a transcript, a document, pasted
+  Use to start any branded content piece from raw material (notes, a transcript, a document, pasted
   text, photos): "draft this", "turn this into a case study / blog post / one sheet / flyer / brochure / deck / posts",
   "make something from these notes", "interview me first", "ask me everything up front". Also handles proofing: "approve the draft", "looks good",
   "here are my edits", or an edited content.md uploaded before anything has been produced. Also answers "how do I use Prism",
@@ -16,11 +16,11 @@ Asked how to use Prism ("how does this work", "tutorial", "what can you do"): gi
 
 If the user wants a finished document right away with no proofing first ("quick", "fast", "just make it"), use the prism-quick skill instead.
 
-This skill never builds files. Designed outputs are built only by prism-produce or prism-quick, with the Case Amplify kit.
+This skill never builds files. Designed outputs are built only by prism-produce or prism-quick, with the brand kit.
 
-This is steps 1–4 of the Case Amplify content process. It ends at a human proofing stop. Formatting and building happen in the `prism-produce` skill, never here.
+This is steps 1–4 of the content process. It ends at a human proofing stop. Formatting and building happen in the `prism-produce` skill, never here.
 
-References (read before starting): `references/content-spec.md` and the brand's rules, `../prism-produce/kit/brands/<brand>/digest.md` (`<brand>` from the request or content.md `brand:`, default `case-amplify`).
+References (read before starting): `references/content-spec.md` and the brand's rules, `../prism-produce/kit/brands/<brand>/digest.md` (`<brand>` from the request or content.md `brand:`, else the default brand; `.prism-kit/run.sh brands` lists the brands and marks the default, with its default audience).
 
 ## Running the subagents
 
@@ -69,7 +69,7 @@ Record the image answers in images.md (Role, People columns).
 
 **Keep the answers private.** Write them to `<slug>/interview.md`: the date, each question, and the answer or "skipped". It is working material for this piece, not content: never send it to the person as a file, never put it in the proof, a design canvas, a built file or any connector, and never copy it into log.md (log only "interview: done, 2 skipped"). content.md front matter carries only its usual keys (`audience`, `exports`, `figures`), filled from the answers.
 
-**Defaults** for anything skipped or unattended: audience "human services program leaders", length to suit the piece type, exports "sheet", figures "real". Note each assumed default in log.md (the default, never the person's own answers).
+**Defaults** for anything skipped or unattended: the brand's default audience (`run.sh brands`), length to suit the piece type, exports "sheet", figures "real". Note each assumed default in log.md (the default, never the person's own answers).
 
 ### Full interview
 
