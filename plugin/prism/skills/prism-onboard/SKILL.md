@@ -53,11 +53,12 @@ It copies the design system beside the draft, matches the roles it can by name, 
 
 Then finish the draft:
 
-1. **Map the rest.** For every unmapped role, read its description (`.prism-kit/roles.json`) against the unused names and their usage notes, and map the ones the design system clearly covers: `bash .prism-kit/run.sh onboard map <id> color-wash=accent-tint asset-rule-stop=assets/Rules/stop.svg`. Check the automatic matches the same way and correct any that are wrong. Put the reasons for roles left unmapped in the profile's `_gaps`.
+1. **Map the rest.** Roles listed under "Taken from another role" already build (text-meta from text-muted, the corner radii from the card radius); map one only where the design system has its own value for it. For every role under "Unmapped", read its description (`.prism-kit/roles.json`) against the unused names and their usage notes, and map the ones the design system clearly covers: `bash .prism-kit/run.sh onboard map <id> color-wash=accent-tint asset-rule-stop=assets/Rules/stop.svg`. Check the automatic matches the same way and correct any that are wrong. Put the reasons for roles left unmapped in the profile's `_gaps`.
 2. **Write the digest**, `.prism/brands/<id>/digest.md`: the brand rules every writer, reviewer and formatter reads, condensed from `snapshot/README.md`: voice, claims, the accent and its limits, type, photos, what never to do. Keep it about the length of a shipped brand's digest (`.prism-kit/brands/*/digest.md` are models). Then `bash .prism-kit/run.sh pin <id>`.
-3. **Identity terms**: in `profile.json` `identity.terms`, the words that identify the brand (its name, product and motif names), so core never uses them.
-4. **Options** from the design system's guidance: icon weight (`icons.weight`: `light` or `regular`), and `options` (`images.fade`, `charts.bars` `gradient` or `flat`, `deck.title_dark`) only where it says so.
-5. `bash .prism-kit/run.sh onboard report <id>` until its To do list holds only notes, and it says the brand builds.
+3. **Build theme**: the report names the theme builds use. Onboarding picks the design system's first theme, or its light one when the first is dark (print grounds are light). If the design system's own values for print live in another theme, set it: `onboard map <id> theme=<theme id>`. Never map a role to a stand-in value (white for a missing tint) to make a build work: an unmapped optional role takes its fallback.
+4. **Identity terms**: in `profile.json` `identity.terms`, the words that identify the brand (its name, product and motif names), so core never uses them.
+5. **Options** from the design system's guidance: icon weight (`icons.weight`: `light` or `regular`), and `options` (`images.fade`, `charts.bars` `gradient` or `flat`, `deck.title_dark`) only where it says so.
+6. `bash .prism-kit/run.sh onboard report <id>` until its To do list holds only notes, and it says the brand builds.
 
 ## 4. Review on the swatch sheet
 

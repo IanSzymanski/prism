@@ -2,8 +2,8 @@
 // Brand onboarding (D11): drafts a brand profile from a design system into the workspace (.prism/brands/<id>/), reports what is
 // mapped and what is not, and packs the finished draft as a bundle a maintainer adds to a release. Never writes to kit/brands.
 // Usage:
-//   onboard.js start <id> <design-system-dir> [--name N] [--url URL] [--outputs a,b] [--audience A] [--contact C] [--email-sender E] [--force]
-//   onboard.js map <id> <role>=<native|-> ...      (- unmaps; an assets/ path is copied into the snapshot from the source)
+//   onboard.js start <id> <design-system-dir> [--name N] [--url URL] [--theme T] [--outputs a,b] [--audience A] [--contact C] [--email-sender E] [--force]
+//   onboard.js map <id> <role>=<native|-> ... [theme=<id|->]   (- unmaps; an assets/ path is copied into the snapshot from the source)
 //   onboard.js report <id> [--json]
 //   onboard.js bundle <id> OUT.zip
 //   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
@@ -108,6 +108,18 @@ function match(N) {
   return { roles: out, how };
 }
 
+// The theme builds use: the design system's first, unless the surface it maps is dark there and another theme's is light
+// (print grounds are light). The profile's `theme` records any other choice; `map <id> theme=<id>` changes it.
+function buildTheme(T, roles) {
+  const ids = T.color.themes.map(t => t.id), tok = (T.color.tokens.find(t => t.name === roles["prism-color-surface"]) || {}).value;
+  if (!tok || typeof tok === "string") return ids[0];
+  const lum = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) return null; const n = parseInt(m[1], 16); return (0.2126 * (n >> 16) + 0.7152 * (n >> 8 & 255) + 0.0722 * (n & 255)) / 255; };
+  const first = lum(tok[ids[0]]);
+  if (first == null || first >= 0.5) return ids[0];
+  const light = ids.filter(t => (lum(tok[t]) ?? 0) >= 0.5).sort((a, b) => lum(tok[b]) - lum(tok[a]));
+  return light[0] || ids[0];
+}
+
 // ---------- Draft folder ----------
 const draftDir = id => path.join(R.DRAFTS, id);
 const readProf = id => { const f = path.join(draftDir(id), "profile.json"); if (!fs.existsSync(f)) die(`no draft "${id}" in ${R.DRAFTS} (start one with onboard.js start)`); return JSON.parse(fs.readFileSync(f, "utf8")); };
@@ -155,7 +167,7 @@ function emailFonts(T, roles) {
 function proposePalette(id, prof) {
   const res = R.load(id);
   if (res.errors.length) return false;
-  const c = n => { const r = res.roles[n] || res.roles[{ "prism-color-tint": "prism-color-wash" }[n]] || res.roles["prism-color-surface"]; return r.value[res.themes[0]]; };
+  const c = n => res.roles[n].value[res.themes[0]];
   const { propose } = require("./palette.js"), { CLIENT_RULES } = require("./outlook-sim.js");
   const roles = ["prism-color-accent", "prism-color-text-strong", "prism-color-text", "prism-color-text-muted", "prism-color-tint", "prism-color-rule-soft"];
   const m = prof.m365.email;
@@ -180,18 +192,23 @@ function report(id) {
   const pal = prof.m365 && prof.m365.email;
   let checks = [];
   if (pal && pal.palette) { const { check } = require("./palette.js"); checks = check(pal.palette.light); }
-  return { id, name: prof.name, dir, source: prof.source, outputs: (prof._onboarding || {}).outputs || [], errors: res.errors, mapped: mapped.map(r => ({ role: r.role, native: prof.roles[r.role], how: how[r.role] || "set by hand", value: res.roles && res.roles[r.role] ? res.roles[r.role].value : null, description: r.description })),
-    unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
+  const T = readTokens(path.join(dir, "snapshot")), themes = T.color.themes.map(t => t.id);
+  return { id, name: prof.name, dir, source: prof.source, theme: { builds: res.theme || prof.theme || themes[0], all: themes }, outputs: (prof._onboarding || {}).outputs || [], errors: res.errors, mapped: mapped.map(r => ({ role: r.role, native: prof.roles[r.role], how: how[r.role] || "set by hand", value: res.roles && res.roles[r.role] ? res.roles[r.role].value : null, description: r.description })),
+    unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind, uses: res.roles && res.roles[r.role] ? res.roles[r.role].from : null })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
     palette: pal ? { reviewed: pal.reviewed && pal.reviewed.onboarding, set: !!pal.palette, proposed: !!pal.proposed, failing: checks.filter(c => !c.ok).map(c => c.msg), webfonts: pal.fonts && pal.fonts.webfonts } : null, office: prof.office || null, terms, todo, gaps: prof._gaps || "" };
 }
 const short = v => v == null ? "" : typeof v === "string" ? v : v.stack ? v.stack : v.fontSize ? `${v.fontWeight} ${v.fontSize}/${v.lineHeight}` : v.path ? path.basename(v.path) : Object.values(v).join(" / ");
 function reportMd(r) {
   const L = [`# ${r.name} (${r.id}): onboarding report`, "", `Draft: ${r.dir}`, `Design system: ${(r.source && r.source.url) || (r.source && r.source.title) || "local folder"}`, ""];
+  L.push(`Builds in theme "${r.theme.builds}" of ${r.theme.all.map(t => `"${t}"`).join(", ")}${r.theme.all.length > 1 ? " (change with map <id> theme=<id>)" : ""}.`, "");
   if (r.outputs.length) L.push(`Outputs the brand will use: ${r.outputs.join(", ")}`, "");
   L.push(r.errors.length ? `**Does not build yet:**\n${r.errors.map(e => `- ${e}`).join("\n")}` : "Builds: yes (every required role resolves).", "");
   if (r.todo.length) L.push("## To do", ...r.todo.map(t => `- ${t}`), "");
   L.push(`## Mapped (${r.mapped.length} of ${r.mapped.length + r.unmapped.length})`, "| Role | Design system | Value | Matched by |", "|---|---|---|---|", ...r.mapped.map(m => `| ${m.role} | ${m.native} | ${short(m.value)} | ${m.how} |`), "");
-  if (r.unmapped.length) L.push("## Unmapped", ...r.unmapped.map(u => `- ${u.role}${u.required ? " (required)" : ""}: ${u.description}`), "");
+  // Unmapped roles that take a fallback build fine; listed apart so the ones that matter stand out.
+  const own = r.unmapped.filter(u => !u.uses), derived = r.unmapped.filter(u => u.uses);
+  if (own.length) L.push("## Unmapped", ...own.map(u => `- ${u.role}${u.required ? " (required)" : ""}: ${u.description}`), "");
+  if (derived.length) L.push("## Taken from another role (map one only where the design system differs)", ...derived.map(u => `- ${u.role} <- ${u.uses.replace(/^prism-/, "")}`), "");
   if (r.gaps) L.push(`Unmapped on purpose: ${r.gaps}`, "");
   const un = Object.entries(r.unused).filter(([, v]) => v.length);
   if (un.length) L.push("## Design system names no role uses", ...un.map(([k, v]) => `- ${k}: ${v.map(t => t.name + (t.usage ? ` (${t.usage.slice(0, 80)})` : "")).join("; ")}`), "");
@@ -226,9 +243,10 @@ if (cmd === "start") {
   // The design system as read, kept beside the draft so later mappings can copy files from it; never bundled.
   fs.mkdirSync(dir, { recursive: true }); fs.cpSync(root, path.join(dir, "source"), { recursive: true });
   const name = opt("--name") || T.name || id;
+  const theme = opt("--theme") || buildTheme(T, m.roles);
   const prof = { schema: 1, id, name, version: 1,
     source: { kind: "claude-design-system", url: opt("--url") || null, title: T.name || name, snapshot_taken: today(), _note: "Optional live source. Builds always use snapshot/; the live system is only compared against it." },
-    roles: m.roles, generators: {}, ornaments: {}, icons: { set: "phosphor", weight: "light" }, own: {}, digest: { file: "digest.md", sha256: "", readme_sha256: "" },
+    ...(theme && theme !== T.color.themes[0].id ? { theme } : {}), roles: m.roles, generators: {}, ornaments: {}, icons: { set: "phosphor", weight: "light" }, own: {}, digest: { file: "digest.md", sha256: "", readme_sha256: "" },
     content: Object.fromEntries([["audience", opt("--audience")], ["contact", opt("--contact")], ["email_sender", opt("--email-sender")]].filter(([, v]) => v)),
     options: {}, office: office(T, m.roles), m365: { email: { fonts: emailFonts(T, m.roles), logo_width: 168 } },
     library: { group: "Photos", images: {} }, identity: { terms: [name] },
@@ -244,6 +262,7 @@ if (cmd === "start") {
   const known = new Set(CORE.map(r => r.role));
   for (const pair of a.slice(2)) {
     const i = pair.indexOf("="); if (i < 1) die(`expected role=native, got ${pair}`);
+    if (pair.slice(0, i) === "theme") { const t = pair.slice(i + 1); if (t === "-") delete prof.theme; else prof.theme = t; continue; }
     const role = pair.slice(0, i).startsWith("prism-") ? pair.slice(0, i) : "prism-" + pair.slice(0, i), v = pair.slice(i + 1);
     if (!known.has(role)) die(`no core role ${role} (see roles.json)`);
     if (v === "-") { delete prof.roles[role]; delete how[role]; continue; }

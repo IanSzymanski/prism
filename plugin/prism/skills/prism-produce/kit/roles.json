@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "_note": "Core role vocabulary. Brand profiles map these to a design system's own names; builders ask for roles, never brand names.",
+ "_note": "Core role vocabulary. Brand profiles map these to a design system's own names; builders ask for roles, never brand names. An optional role the brand leaves unmapped takes its fallback role's value, or core's default (neutral: transparent, none, a plain margin); roles with neither are only read by a brand's own code or by markup that asks for them.",
  "roles": [
   {
    "role": "prism-color-surface",
@@ -30,13 +30,15 @@
    "role": "prism-color-text-faint",
    "kind": "color",
    "required": false,
-   "description": "Folio and chart axis ticks."
+   "description": "Folio and chart axis ticks.",
+   "fallback": "prism-color-text-muted"
   },
   {
    "role": "prism-color-text-meta",
    "kind": "color",
    "required": false,
-   "description": "Masthead meta line (author, date)."
+   "description": "Masthead meta line (author, date).",
+   "fallback": "prism-color-text-muted"
   },
   {
    "role": "prism-color-accent",
@@ -48,19 +50,22 @@
    "role": "prism-color-accent-strong",
    "kind": "color",
    "required": false,
-   "description": "Top of a highlighted chart bar's gradient."
+   "description": "Top of a highlighted chart bar's gradient.",
+   "fallback": "prism-color-accent"
   },
   {
    "role": "prism-color-eyebrow-on-dark",
    "kind": "color",
    "required": false,
-   "description": "Eyebrow on dark surfaces."
+   "description": "Eyebrow on dark surfaces.",
+   "fallback": "prism-color-text-on-photo"
   },
   {
    "role": "prism-color-rule",
    "kind": "color",
    "required": false,
-   "description": "Ornament rule stroke and strong hairlines."
+   "description": "Ornament rule stroke and strong hairlines.",
+   "fallback": "prism-color-rule-soft"
   },
   {
    "role": "prism-color-rule-soft",
@@ -72,91 +77,106 @@
    "role": "prism-color-link-line",
    "kind": "color",
    "required": false,
-   "description": "Link underline and flow-step rules."
+   "description": "Link underline and flow-step rules.",
+   "fallback": "prism-color-accent"
   },
   {
    "role": "prism-color-wash",
    "kind": "color",
    "required": false,
-   "description": "Title-area wash centre."
+   "description": "Title-area wash centre.",
+   "fallback": "prism-color-tint"
   },
   {
    "role": "prism-color-wash-2",
    "kind": "color",
    "required": false,
-   "description": "Second wash stop on carousels."
+   "description": "Second wash stop on carousels.",
+   "fallback": "prism-color-wash"
   },
   {
    "role": "prism-color-tint",
    "kind": "color",
    "required": false,
-   "description": "Tinted callout fill."
+   "description": "Tinted callout fill.",
+   "fallback": "prism-color-band"
   },
   {
    "role": "prism-color-tint-line",
    "kind": "color",
    "required": false,
-   "description": "Tinted callout border."
+   "description": "Tinted callout border.",
+   "fallback": "prism-color-rule-soft"
   },
   {
    "role": "prism-color-band",
    "kind": "color",
    "required": false,
-   "description": "Band fill."
+   "description": "Band fill.",
+   "fallback": "prism-color-surface"
   },
   {
    "role": "prism-color-code",
    "kind": "color",
    "required": false,
-   "description": "Inline code fill."
+   "description": "Inline code fill.",
+   "fallback": "prism-color-band"
   },
   {
    "role": "prism-color-pre",
    "kind": "color",
    "required": false,
-   "description": "Code block fill."
+   "description": "Code block fill.",
+   "fallback": "prism-color-code"
   },
   {
    "role": "prism-color-chart-grid",
    "kind": "color",
    "required": false,
-   "description": "Chart gridlines."
+   "description": "Chart gridlines.",
+   "fallback": "prism-color-rule-soft"
   },
   {
    "role": "prism-color-desk",
    "kind": "color",
    "required": false,
-   "description": "Screen surround behind previews."
+   "description": "Screen surround behind previews.",
+   "fallback": "prism-color-surface"
   },
   {
    "role": "prism-color-dark-surface",
    "kind": "color",
    "required": false,
-   "description": "The dark object's ground."
+   "description": "The dark object's ground.",
+   "fallback": "prism-color-text-strong"
   },
   {
    "role": "prism-color-dark-deep",
    "kind": "color",
    "required": false,
-   "description": "Darkest stop of dark gradients."
+   "description": "Darkest stop of dark gradients.",
+   "fallback": "prism-color-dark-surface"
   },
   {
    "role": "prism-color-dark-high",
    "kind": "color",
    "required": false,
-   "description": "Lightest stop of dark gradients."
+   "description": "Lightest stop of dark gradients.",
+   "fallback": "prism-color-dark-surface"
   },
   {
    "role": "prism-color-dark-glow",
    "kind": "color",
    "required": false,
-   "description": "Glow on dark slides, one side."
+   "description": "Glow on dark slides, one side.",
+   "fallback": "prism-color-dark-surface"
   },
   {
    "role": "prism-color-dark-glow-2",
    "kind": "color",
    "required": false,
-   "description": "Glow on dark slides, the other side."
+   "description": "Glow on dark slides, the other side.",
+   "fallback": "prism-color-dark-glow"
   },
   {
    "role": "prism-color-rule-on-dark",
@@ -168,7 +188,8 @@
    "role": "prism-color-text-on-photo",
    "kind": "color",
    "required": false,
-   "description": "Running text over a dark photo fade."
+   "description": "Running text over a dark photo fade.",
+   "fallback": "prism-color-surface"
   },
   {
    "role": "prism-color-chart-1",
@@ -324,7 +345,8 @@
    "role": "prism-type-heading-1",
    "kind": "type",
    "required": false,
-   "description": "In-body h1."
+   "description": "In-body h1.",
+   "fallback": "prism-type-heading-2"
   },
   {
    "role": "prism-type-heading-2",
@@ -336,37 +358,43 @@
    "role": "prism-type-heading-3",
    "kind": "type",
    "required": false,
-   "description": "h3."
+   "description": "h3.",
+   "fallback": "prism-type-heading-2"
   },
   {
    "role": "prism-type-cta-heading",
    "kind": "type",
    "required": false,
-   "description": "Dark object heading."
+   "description": "Dark object heading.",
+   "fallback": "prism-type-heading-2"
   },
   {
    "role": "prism-type-quote",
    "kind": "type",
    "required": false,
-   "description": "Pull quote."
+   "description": "Pull quote.",
+   "fallback": "prism-type-heading-3"
   },
   {
    "role": "prism-type-stat",
    "kind": "type",
    "required": false,
-   "description": "Stat figure."
+   "description": "Stat figure.",
+   "fallback": "prism-type-heading-2"
   },
   {
    "role": "prism-type-card-title",
    "kind": "type",
    "required": false,
-   "description": "Callout and card titles."
+   "description": "Callout and card titles.",
+   "fallback": "prism-type-heading-3"
   },
   {
    "role": "prism-type-lede",
    "kind": "type",
    "required": false,
-   "description": "Lede."
+   "description": "Lede.",
+   "fallback": "prism-type-body"
   },
   {
    "role": "prism-type-body",
@@ -378,37 +406,43 @@
    "role": "prism-type-small",
    "kind": "type",
    "required": false,
-   "description": "Stat labels and notes."
+   "description": "Stat labels and notes.",
+   "fallback": "prism-type-body"
   },
   {
    "role": "prism-type-eyebrow",
    "kind": "type",
    "required": false,
-   "description": "Label above a heading."
+   "description": "Label above a heading.",
+   "fallback": "prism-type-small"
   },
   {
    "role": "prism-type-eyebrow-on-dark",
    "kind": "type",
    "required": false,
-   "description": "Eyebrow on dark."
+   "description": "Eyebrow on dark.",
+   "fallback": "prism-type-eyebrow"
   },
   {
    "role": "prism-type-label",
    "kind": "type",
    "required": false,
-   "description": "h4 label."
+   "description": "h4 label.",
+   "fallback": "prism-type-eyebrow"
   },
   {
    "role": "prism-type-caption",
    "kind": "type",
    "required": false,
-   "description": "Captions and folio."
+   "description": "Captions and folio.",
+   "fallback": "prism-type-small"
   },
   {
    "role": "prism-type-cite",
    "kind": "type",
    "required": false,
-   "description": "Quote attribution."
+   "description": "Quote attribution.",
+   "fallback": "prism-type-caption"
   },
   {
    "role": "prism-space-paragraph",
@@ -420,37 +454,43 @@
    "role": "prism-space-heading-gap",
    "kind": "space",
    "required": false,
-   "description": "Heading to its rule."
+   "description": "Heading to its rule.",
+   "fallback": "prism-space-paragraph"
   },
   {
    "role": "prism-space-section",
    "kind": "space",
    "required": false,
-   "description": "Above a section heading."
+   "description": "Above a section heading.",
+   "default": "32px"
   },
   {
    "role": "prism-space-page-x",
    "kind": "space",
    "required": false,
-   "description": "Side page margin."
+   "description": "Side page margin.",
+   "default": "72px"
   },
   {
    "role": "prism-space-page-top",
    "kind": "space",
    "required": false,
-   "description": "Top page margin."
+   "description": "Top page margin.",
+   "default": "72px"
   },
   {
    "role": "prism-radius-code",
    "kind": "radius",
    "required": false,
-   "description": "Inline code."
+   "description": "Inline code.",
+   "fallback": "prism-radius-card"
   },
   {
    "role": "prism-radius-button",
    "kind": "radius",
    "required": false,
-   "description": "Buttons."
+   "description": "Buttons.",
+   "fallback": "prism-radius-card"
   },
   {
    "role": "prism-radius-card",
@@ -462,31 +502,36 @@
    "role": "prism-radius-figure",
    "kind": "radius",
    "required": false,
-   "description": "Figures."
+   "description": "Figures.",
+   "fallback": "prism-radius-card"
   },
   {
    "role": "prism-radius-hero",
    "kind": "radius",
    "required": false,
-   "description": "Hero image and dark object."
+   "description": "Hero image and dark object.",
+   "fallback": "prism-radius-card"
   },
   {
    "role": "prism-shadow-lift",
    "kind": "shadow",
    "required": false,
-   "description": "The one standout image."
+   "description": "The one standout image.",
+   "default": "none"
   },
   {
    "role": "prism-shadow-sheet",
    "kind": "shadow",
    "required": false,
-   "description": "Screen preview of a page."
+   "description": "Screen preview of a page.",
+   "default": "none"
   },
   {
    "role": "prism-shadow-screen",
    "kind": "shadow",
    "required": false,
-   "description": "A screenshot card over a header."
+   "description": "A screenshot card over a header.",
+   "default": "none"
   },
   {
    "role": "prism-asset-logo",
@@ -546,7 +591,8 @@
    "role": "prism-asset-mark",
    "kind": "asset",
    "required": false,
-   "description": "The brand's mark alone (glyph), for small spaces."
+   "description": "The brand's mark alone (glyph), for small spaces.",
+   "fallback": "prism-asset-logo"
   },
   {
    "role": "prism-generator-rule",

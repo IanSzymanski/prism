@@ -12,19 +12,19 @@ const B = require("./brand.js")(null, id), R = B.res.roles, prof = JSON.parse(fs
 const core = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
 const PAL = require("./palette.js"), sim = require("./outlook-sim.js");
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const themes = B.res.themes, unmapped = core.filter(r => !R[r.role]);
+const themes = B.res.themes, unmapped = core.filter(r => !R[r.role]), derived = core.filter(r => R[r.role] && R[r.role].native == null);
 const ver = fs.readFileSync(path.join(KIT, "VERSION"), "utf8").trim();
-const name = r => `<span class="r">${r.role}</span><span class="n">${R[r.role] ? esc(R[r.role].native) : "unmapped"}</span>`;
+const name = r => `<span class="r">${r.role}</span><span class="n">${!R[r.role] ? "unmapped" : R[r.role].native != null ? esc(R[r.role].native) : `from ${esc(R[r.role].from.replace(/^prism-/, ""))}`}</span>`;
 const none = r => `<div class="cell gone">${name(r)}${r.required ? `<span class="v">required: builds stop</span>` : ""}</div>`;
 const H = [];
 // A draft brand (onboarding, not yet shipped) says so on the sheet, so a review copy is never taken for the release.
 const where = B.res.draft ? `.prism/brands/${id}/profile.json (draft, not in a release)` : `kit/brands/${id}/profile.json`;
 
 // ---------- Part one: the mapping, neutral ----------
-H.push(`<section><h1>${esc(B.name)}</h1><p class="lead">How the ${esc(B.name)} design system maps onto Prism's ${core.length} core roles: ${core.length - unmapped.length} mapped, ${unmapped.length} unmapped.</p>
+H.push(`<section><h1>${esc(B.name)}</h1><p class="lead">How the ${esc(B.name)} design system maps onto Prism's ${core.length} core roles: ${core.length - unmapped.length - derived.length} mapped, ${derived.length} taken from another role or core's default, ${unmapped.length} unmapped.</p>
 <table class="kv"><tr><td>Profile</td><td>${esc(where)}</td></tr><tr><td>Design system</td><td>${esc((prof.source || {}).url || "none")}</td></tr>
 <tr><td>Snapshot</td><td>${Object.keys(prof.snapshot.files).length} files, ${Object.keys(prof.snapshot.blobs).length} uploads pinned, taken ${esc((prof.source || {}).snapshot_taken || "")}</td></tr>
-<tr><td>Themes</td><td>${themes.map(esc).join(", ")}</td></tr><tr><td>Icons</td><td>Phosphor ${esc(B.icons.weight)}</td></tr>
+<tr><td>Themes</td><td>${themes.map(esc).join(", ")} (builds in ${esc(themes[0])})</td></tr><tr><td>Icons</td><td>Phosphor ${esc(B.icons.weight)}</td></tr>
 <tr><td>Options</td><td>${esc(JSON.stringify(B.res.options))}</td></tr><tr><td>Layers</td><td>${Object.entries(B.res.layers).map(([k, v]) => `${k}: ${esc(v)}`).join(", ") || "none"}</td></tr>
 <tr><td>Ornaments</td><td>${esc(prof.ornaments_module || "none")}: ${Object.keys(B.ornaments).map(esc).join(", ") || "none"}</td></tr><tr><td>Kit</td><td>${esc(ver)}</td></tr></table></section>`);
 

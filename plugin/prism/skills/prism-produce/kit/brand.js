@@ -21,6 +21,8 @@ module.exports = function brand(md, forceId) {
     // A colour role's value in a theme (default the first), e.g. color("prism-color-accent") -> "#3366CC".
     color: (n, theme) => { const v = role(n); return v[theme || res.themes[0]] ?? v[res.themes[0]]; },
     asset: n => role(n).path,
+    // Whether the brand has a role at all (mapped or derived); for optional assets such as the logo on dark grounds.
+    has: n => !!res.roles[n],
     // Fills {{role}} and {{role@theme}} in a stylesheet (|uri encodes for data URIs) and returns the filled copy's path.
     stylesheet(file) {
       const out = path.join(dir, (file.startsWith(res.dir) ? "brand-" : "") + path.basename(file));

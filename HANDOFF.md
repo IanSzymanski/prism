@@ -246,3 +246,15 @@ Decided by Ian (Oct 6): drafts live in the workspace; a finished brand is a bund
 - **Proof:** `tests/drafts.test.js` (21), `tests/onboard.test.js` (41); every other suite unchanged; brief, brochure, newsletter, carousel and Prism swatch identical to the pre-D11 build (`diff-builds.py`: 0 differences). End to end checked locally: a draft from Prism's design system bundled, merged with `add-brand.py` (all brand tests passed with three brands), then removed; a changed Case Amplify design system updated, bundled and merged with `--replace` (resolve test failed on the changed accent, as it should), then restored.
 - **Not confirmed live:** the Cowork run (Artifact read of a design system, the onboarding canvas, delivering the bundle) and the ChatGPT upload path.
 
+
+## Optional roles and the build theme (D15 core, D17)
+
+Found in Ian's onboarding tests: palette.js and prism-charts.lua crashed when the optional tint and fifth chart colour weren't mapped, and a design system whose print values aren't its first theme needed a white-tint workaround. A brand with only the 16 required roles crashed in every format (email: tint; charts: RULE; deck: eyebrow-on-dark, chart-2; brochure: logo-on-dark).
+
+- **Fallbacks in `roles.json`:** 46 optional roles name a `fallback` role (same kind; every chain ends at a required role) or a core `default` (spaces as plain margins, shadows `none`). The resolver fills an unmapped optional role from its chain and marks it derived (`native: null`, `from`). A mapped role is never replaced. Roles with neither stay unmapped: the blog-header stops, the dark glows' brand art and the rule images are read only by brand code (D14), and `rule-on-dark` only by brochure CSS, where unset still means no line (a transparent default added a border width and moved Prism's brochure).
+- **Chart colours are never made up:** charts use chart-1 and as many of 2–5 as the brand defines; a line chart with more series, or a donut, says how many colours the brand has (`prism-charts.lua`, `build-deck.js`).
+- **Logo on dark grounds is optional:** missing, the brochure and the deck's dark title go without a logo (with a note), never the light-ground logo on dark; emails skip the dark-mode swap. `B.has(role)` tells mapped or derived roles from missing ones.
+- **Build theme:** profile `theme` (a design-system theme id) is the theme builds use (`res.theme`, `themes[0]`, `:root` in prism.css); the others stay available by id. An unknown id stops the build. Onboarding picks the design system's first theme, or its lightest when the mapped surface is dark there; `onboard map <id> theme=<id>` changes it; the report and swatch name it.
+- **Reports:** the onboarding report lists derived roles apart from unmapped ones; the swatch counts mapped, derived and unmapped and labels derived roles "from <role>".
+- **Proof:** `tests/roles.test.js` (113 checks); every fixture in Case Amplify and Prism identical to main (`diff-builds.py`, 0 differences; only the two swatches change, as intended). All 11 fixtures build in a brand with only the required roles.
+

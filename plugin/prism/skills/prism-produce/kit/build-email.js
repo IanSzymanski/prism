@@ -165,7 +165,7 @@ const text = [];   // plain-text part
 const kinds = [];  // block kinds in order, for the brand divider's placement rules
 
 function logoHtml(width = B.logo.width) {
-  return img({ src: BR.asset("prism-asset-logo"), dark: BR.asset("prism-asset-logo-on-dark"), alt: BR.name, width, halo: L.card, link: meta["logo-link"] });
+  return img({ src: BR.asset("prism-asset-logo"), dark: BR.has("prism-asset-logo-on-dark") ? BR.asset("prism-asset-logo-on-dark") : null, alt: BR.name, width, halo: L.card, link: meta["logo-link"] });
 }
 
 function header(b) {

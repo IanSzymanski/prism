@@ -57,6 +57,7 @@ python3 tests/tutorial.test.py        # the tutorial still describes every comma
 python3 tests/core-brand-free.test.py # no brand is named in core; defaults come from the profiles
 node tests/drafts.test.js             # onboarding drafts build like shipped brands, say so, and are never the default
 node tests/onboard.test.js            # onboarding: draft from a design system, map, bundle, update
+node tests/roles.test.js              # optional roles fall back, a required-only brand resolves, the profile's build theme
 ```
 
 **Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.

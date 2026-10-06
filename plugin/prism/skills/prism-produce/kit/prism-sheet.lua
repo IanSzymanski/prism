@@ -29,6 +29,11 @@ function Image(img)
   img.attributes.focus = nil
   if name then
     local p = os.getenv("PRISM_ASSET_" .. name:upper():gsub("-", "_"))
+    -- A brand without a logo for dark grounds loses the logo there (never its light-ground logo on dark); other missing assets stop the build.
+    if not p and name == "logo-on-dark" then
+      io.stderr:write("[sheet] the brand has no logo for dark grounds (prism-asset-logo-on-dark): left out\n")
+      return {}
+    end
     if not p then error("prism-sheet.lua: the brand has no asset \"" .. name .. "\" (prism-asset-" .. name .. ")") end
     img.src = "file://" .. p
   elseif lib then
