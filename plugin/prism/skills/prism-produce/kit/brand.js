@@ -21,6 +21,18 @@ module.exports = function brand(md, forceId) {
     // A colour role's value in a theme (default the first), e.g. color("prism-color-accent") -> "#3366CC".
     color: (n, theme) => { const v = role(n); return v[theme || res.themes[0]] ?? v[res.themes[0]]; },
     asset: n => role(n).path,
+    // The core block a brand component behaves like (profile components[].like), by the class a format file gives it:
+    // `::: testimonial` or `::: {.quote .testimonial}`. Decks and HTML emails, which can't use the brand's CSS, draw it as that block.
+    // Only the component's own class counts: in `{.quote .testimonial}` that is testimonial, never the core quote.
+    likeOf(...classes) {
+      for (const [cid, c] of Object.entries(res.components || {})) {
+        if (!c.like) continue;
+        const dotted = (String(c.markup || "").match(/\.([\w-]+)/g) || []).map(x => x.slice(1)), bare = (/^:{3,}\s*([\w-]+)\s*$/.exec(c.markup || "") || [])[1];
+        const ownClass = bare || dotted[dotted.length - 1];
+        if (classes.some(k => k === cid || k === ownClass)) return c.like;
+      }
+      return null;
+    },
     // Whether the brand has a role at all (mapped or derived); for optional assets such as the logo on dark grounds.
     has: n => !!res.roles[n],
     // Fills {{role}} and {{role@theme}} in a stylesheet (|uri encodes for data URIs) and returns the filled copy's path.

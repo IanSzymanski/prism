@@ -53,6 +53,32 @@ for (const f of [path.join(ROOT, "plugin", "prism", "agents", "prism-formatter.m
   const t = fs.readFileSync(f, "utf8"); ok(/never more often than their `max`/.test(t) && /following every one of their `rules`/.test(t) && /Vary the close/.test(t), `${path.basename(path.dirname(f))} formatter keeps limits and rules and varies the close`);
 }
 
+// 4. One component, every format: the brand's sheet CSS reaches sheets and social posts; decks and HTML email draw it as the
+// core block it is like (a quote), instead of dropping it to plain text.
+r = onboard("component", "acme", "testimonial", "--use", "A client's words.", "--markup", "::: testimonial", "--like", "quote", "--sample", path.join(TMP, "t.md"));
+ok(r.status === 0 && prof().components.testimonial.like === "quote", "a component records the core block it is like");
+ok(onboard("component", "acme", "bad", "--use", "x", "--markup", "::: bad", "--like", "poster").status !== 0, "--like names a core block");
+ok(onboard("component", "acme", "band2", "--use", "x", "--markup", "::: {.callout .band2}").status === 0 && prof().components.band2.like === "callout", "--like is taken from markup that starts with a core block");
+ok(onboard("component", "acme", "band2", "--remove").status === 0, "remove it again");
+fs.writeFileSync(path.join(DRAFTS, "acme", "digest.md"), "# Acme\n"); node(path.join(KIT, "pin.js"), "acme");
+const run = (...a) => spawnSync("bash", [path.join(KIT, "run.sh"), ...a], { env: process.env, encoding: "utf8" });
+const quote = "> Notes are done before I leave the house.\n>\n> [Dana, case manager]{.cite}";
+const em = path.join(TMP, "em.md");
+fs.writeFileSync(em, `---\nbrand: acme\nlayout: email\ntemplate: letter\nsubject: Test\npreheader: Test\n---\n\nHi there,\n\n::: testimonial\n${quote}\n:::\n\nThanks,\n`);
+r = run("email", em, path.join(TMP, "em"));
+const html = r.status === 0 ? fs.readdirSync(path.join(TMP, "em")).filter(f => f.endsWith(".html")).map(f => fs.readFileSync(path.join(TMP, "em", f), "utf8")).join("") : "";
+ok(r.status === 0 && !/unknown block ::: testimonial/.test(r.stdout + r.stderr), `HTML email takes the component without "unknown block": ${(r.stdout + r.stderr).split("\n").filter(l => /unknown|rror/.test(l)).join("; ")}`);
+ok(/Notes are done before I leave the house/.test(html) && /font-size:20px/.test(html), "HTML email draws it as a quote");
+const dk = path.join(TMP, "dk.md");
+fs.writeFileSync(dk, `---\nbrand: acme\ntitle: Test\n---\n\n:::: {.slide .title}\n::::\n\n:::: {.slide .testimonial}\n${quote}\n::::\n`);
+r = run("deck", dk, path.join(TMP, "dk.pptx"));
+const xml = r.status === 0 ? spawnSync("unzip", ["-p", path.join(TMP, "dk.pptx"), "ppt/slides/slide2.xml"], { encoding: "utf8" }).stdout : "";
+ok(r.status === 0 && /Notes are done before I leave the house/.test(xml) && /sz="4000"/.test(xml), `a deck draws the component slide as a quote slide: ${r.stderr.slice(-200)}`);
+const sh = path.join(TMP, "sh.md");
+fs.writeFileSync(sh, `---\nbrand: acme\ntitle: Test\n---\n\n::: testimonial\n${quote}\n:::\n`);
+r = run("sheet", sh, path.join(TMP, "sh.pdf"), "--html");
+ok(r.status === 0 && /class="testimonial"/.test(fs.readFileSync(sh.replace(/\.md$/, ".sheet.html"), "utf8")), "a sheet keeps the component's class for the brand's CSS");
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

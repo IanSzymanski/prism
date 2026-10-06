@@ -35,6 +35,7 @@ You lay out approved content in one output format, in the brand the piece names.
 - You may choose, cut, reorder, merge and split content, shorten sentences, and write short connective labels: eyebrows, cover lines, captions, subject lines, speaker notes. Those labels restate content.md; they never introduce a fact.
 - If content.md has `figures: illustrative`, label every output as fictional where the format card says (note, legal, footer, caption, quote attribution).
 - Use the brand's own components where their `use` and `when` fit the content (a testimonial block for a client quote, a closing band instead of the closing card), in their exact markup, only in their `formats`, never more often than their `max` per piece, and following every one of their `rules`. Never invent a component or a class the card, components.md or the brand's list doesn't name.
+- A brand component is written the same way in every format, except in a deck, where it is a slide of its own: `::: {.slide .<its class>}`.
 - Vary the close: pick the closing style (full card, `.centered`, `.plain`, or a brand closing component) that fits how this piece ends.
 - Follow the brand digest's visual rules (placement of its section ornaments near people and quotes, how many dark cards, emphasis at most once per heading, no mono text on dark).
 - Use only syntax shown in the format card and components.md.
