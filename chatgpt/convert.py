@@ -127,10 +127,10 @@ for f in glob.glob("skills/*/references/agents/*.md"):
 for f in glob.glob("skills/**/*.md", recursive=True):
     t = open(f).read(); t2 = re.sub(r"\n?<!-- claude-only -->[\s\S]*?<!-- /claude-only -->\n?", "\n", t)
     if t2 != t: open(f, "w").write(t2)
-for f in ["skills/prism-produce/references/wireframe.md", "skills/prism-produce/kit/build-wire.js", "skills/prism-produce/kit/wire_diff.py"]:
+for f in ["skills/prism-produce/references/wireframe.md", "skills/prism-produce/kit/build-wire.js", "skills/prism-produce/kit/wire_diff.py", "skills/prism-produce/kit/state.js"]:
     if os.path.exists(f): os.remove(f)
 k = "skills/prism-produce/kit/run.sh"; t = open(k).read()
-t = t.replace('  wire)    node "$KIT/build-wire.js" "$@" ;;\n  wire-diff) python3 "$KIT/wire_diff.py" "$@" ;;\n', "").replace("|wire|wire-diff", "").replace("|wire)", ")")
+t = t.replace('  wire)    node "$KIT/build-wire.js" "$@" ;;\n  wire-diff) python3 "$KIT/wire_diff.py" "$@" ;;\n', "").replace('  state)   node "$KIT/state.js" "$@" ;;\n', "").replace("|wire|wire-diff", "").replace("|state", "").replace("|wire)", ")")
 open(k, "w").write(t)
 
 # Nothing Claude-specific may remain.

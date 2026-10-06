@@ -93,9 +93,9 @@ The build itself takes seconds; most of the wait is the writing.
 
 ### Rearrange it by hand, rebuilt on brand
 
-Once the layout exists, a plain wireframe opens on a Claude Design canvas, one board per format: the real words in their blocks, rough spacing, no styling. Sheets, briefs and blogs flow as one page. Slides, posts, stories, emails, carousel panels and brochure panels are frames at their real proportions.
+Once the layout exists, a plain wireframe opens on a Claude Design canvas, one board per format: the real words in their blocks, the real icons, each link's address, and the brand's own touches sketched in grey. Sheets, briefs and blogs flow as one page. Slides, posts, stories, emails, carousel panels and brochure panels are frames at their real proportions.
 
-Retype a headline, drag a slide or a card row into a new order, delete a block, add a line. Nothing is built while it's open. Then say **done**: the edits go back into the Markdown and every file builds once, in the brand styles. The canvas never becomes the deliverable, so nothing drifts off brand.
+Retype a headline, drag a slide or a card row into a new order, delete a block, add a line. Then say **done**: the edits go back into the Markdown, every file is exported in the brand styles, and the canvas updates to match. After that, any change you ask for is exported again straight away. The canvas never becomes the deliverable, so nothing drifts off brand.
 :::
 
 ::: {.features .three}
@@ -312,7 +312,7 @@ Make a trifold with the left + spread inside layout.
 ### Getting the layout you want
 
 - **Use the canvas for arrangement, chat for intent.** Drag things where you want them; say "make the quote post dark" for a styling choice the wireframe can't show.
-- **Say done once.** Make all your canvas edits and chat requests, then say done; you get one build at the end. Want files straight away? Choose "Build the files now".
+- **Say done once.** Make your first round of canvas edits and chat requests, then say done for the files. After that, every change exports straight away.
 - **Talk in layout terms for layout changes.** "Move the chart above the table", "make the quote post dark" or "use the three-panel inside" touch only that one output.
 - **Tell a process as a flow.** "Show it as steps" gets a workflow slide or flow block instead of a row of feature cards.
 - **Tight one sheet?** Ask for `hero: x-small` and the slim closing card before cutting words.

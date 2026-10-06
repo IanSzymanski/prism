@@ -6,7 +6,7 @@ description: >
   "make something from these notes", "interview me first", "ask me everything up front". Also handles proofing: "approve the draft", "looks good",
   "here are my edits", or an edited content.md uploaded before anything has been produced.
 metadata:
-  version: "0.15.0-dev"
+  version: "0.16.0-dev"
 ---
 
 # Draft: raw material to an approved content.md
