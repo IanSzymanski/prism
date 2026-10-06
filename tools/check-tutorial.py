@@ -21,7 +21,7 @@ TUTORIAL = os.path.join(PLUGIN, "skills", "prism-draft", "references", "tutorial
 PHRASES = {
     "format:sheet": ["one sheet"], "format:brochure": ["brochure"], "format:deck": ["deck"], "format:social": ["social post", "stories"],
     "format:email": ["email header"], "format:html-email": ["HTML email"], "format:carousel": ["carousel"], "format:blog": ["blog post"],
-    "skill:prism-draft": ["Full process", "Proof"], "skill:prism-produce": ["Produce", "Revising"], "skill:prism-quick": ["Quick mode"],
+    "skill:prism-draft": ["Full process", "Proof"], "skill:prism-produce": ["Produce", "Revising"], "skill:prism-quick": ["Quick mode"], "skill:prism-onboard": ["Add a brand"],
 }
 CARDS_NOT_FORMATS = {"components"}
 

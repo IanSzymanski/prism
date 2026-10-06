@@ -16,3 +16,6 @@ fixtures/*-layouts.md
 __pycache__/
 *.pyc
 .DS_Store
+
+# Onboarding drafts made while running the kit from the repo (in a workspace they sit beside .prism-kit)
+plugin/prism/skills/prism-produce/.prism/

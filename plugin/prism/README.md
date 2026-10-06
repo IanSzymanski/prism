@@ -12,6 +12,8 @@ Raw material in, on-brand files out, with a human proof in between. Brands live 
    - Wording, facts and numbers go into content.md and are patched into every output, keeping the layouts you approved.
    - Layout changes (move, split, restyle) touch only that one output.
 
+**Add a brand.** Say "add a brand" (or run `/prism-onboard`) with a design system's link or files. Prism maps its colours, fonts, type and logos onto its own roles without changing the design system, shows the result on a swatch sheet (in design mode first), and on "done" packs a brand bundle for the next release. Until then the brand works where it was made, as a draft.
+
 **New to Prism?** Run `/prism-tutorial` for a rundown (add a topic, such as `/prism-tutorial design mode`, for just that part).
 
 **Quick mode.** Need a document now? Say "quick one-pager from this" (or "quick brochure"). No questions and no proof stop: one output is written, number-checked against your source, built and sent back in one pass, with a list of every number and claim to check afterwards. Say "full proof" later to move it into the normal process.

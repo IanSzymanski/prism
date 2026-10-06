@@ -8,7 +8,7 @@ const { chromium } = require("playwright");
 const KIT = __dirname;
 const id = process.argv[2], out = path.resolve(process.argv[3] || `${id}-swatch.pdf`);
 if (!id) { console.error("usage: swatch.js <brand> OUT.pdf"); process.exit(2); }
-const B = require("./brand.js")(null, id), R = B.res.roles, prof = JSON.parse(fs.readFileSync(path.join(KIT, "brands", id, "profile.json"), "utf8"));
+const B = require("./brand.js")(null, id), R = B.res.roles, prof = JSON.parse(fs.readFileSync(path.join(B.res.dir, "profile.json"), "utf8"));
 const core = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
 const PAL = require("./palette.js"), sim = require("./outlook-sim.js");
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -17,10 +17,12 @@ const ver = fs.readFileSync(path.join(KIT, "VERSION"), "utf8").trim();
 const name = r => `<span class="r">${r.role}</span><span class="n">${R[r.role] ? esc(R[r.role].native) : "unmapped"}</span>`;
 const none = r => `<div class="cell gone">${name(r)}${r.required ? `<span class="v">required: builds stop</span>` : ""}</div>`;
 const H = [];
+// A draft brand (onboarding, not yet shipped) says so on the sheet, so a review copy is never taken for the release.
+const where = B.res.draft ? `.prism/brands/${id}/profile.json (draft, not in a release)` : `kit/brands/${id}/profile.json`;
 
 // ---------- Part one: the mapping, neutral ----------
 H.push(`<section><h1>${esc(B.name)}</h1><p class="lead">How the ${esc(B.name)} design system maps onto Prism's ${core.length} core roles: ${core.length - unmapped.length} mapped, ${unmapped.length} unmapped.</p>
-<table class="kv"><tr><td>Profile</td><td>kit/brands/${esc(id)}/profile.json</td></tr><tr><td>Design system</td><td>${esc((prof.source || {}).url || "none")}</td></tr>
+<table class="kv"><tr><td>Profile</td><td>${esc(where)}</td></tr><tr><td>Design system</td><td>${esc((prof.source || {}).url || "none")}</td></tr>
 <tr><td>Snapshot</td><td>${Object.keys(prof.snapshot.files).length} files, ${Object.keys(prof.snapshot.blobs).length} uploads pinned, taken ${esc((prof.source || {}).snapshot_taken || "")}</td></tr>
 <tr><td>Themes</td><td>${themes.map(esc).join(", ")}</td></tr><tr><td>Icons</td><td>Phosphor ${esc(B.icons.weight)}</td></tr>
 <tr><td>Options</td><td>${esc(JSON.stringify(B.res.options))}</td></tr><tr><td>Layers</td><td>${Object.entries(B.res.layers).map(([k, v]) => `${k}: ${esc(v)}`).join(", ") || "none"}</td></tr>
@@ -63,7 +65,7 @@ H.push(`<section><h2>Email palette</h2><p>${P.reviewed ? "From the profile, revi
 <table class="pal"><tr><th>Key</th><th>Light</th><th>Outlook dark</th><th>Own dark CSS</th></tr>${Object.entries(P.light).map(([k, v]) => { const o = surf(k) ? sim.background(v) : sim.text(v), d = P.dark[k];
   return `<tr><td>${k}</td><td><i style="background:${v}"></i>${v}</td><td><i style="background:${o}"></i>${o}</td><td>${d ? `<i style="background:${d}"></i>${d}` : ""}</td></tr>`; }).join("")}</table>
 <ul class="checks">${PAL.check(P.light).map(r => `<li class="${r.ok ? "ok" : "bad"}">${r.ok ? "ok" : "fails"}: ${esc(r.msg)}</li>`).join("")}</ul></section>`);
-const T = JSON.parse(fs.readFileSync(path.join(KIT, "brands", id, "snapshot", "tokens.json"), "utf8")), used = new Set(Object.values(R).map(r => r.native));
+const T = JSON.parse(fs.readFileSync(path.join(B.res.dir, "snapshot", "tokens.json"), "utf8")), used = new Set(Object.values(R).map(r => r.native));
 const spare = [...Object.entries(T).filter(([, v]) => v && Array.isArray(v.tokens)).flatMap(([k, v]) => v.tokens.map(t => [k, t.name])), ...T.type.groups.flatMap(g => g.styles.map(s => ["type", s.name])), ...Object.keys(T.type.families).map(f => ["family", f])].filter(([, n]) => !used.has(n));
 H.push(`<section><h2>Design system tokens no role uses</h2><p>${spare.length ? spare.map(([k, n]) => `<code>${esc(n)}</code> ${esc(k)}`).join(", ") : "None."}</p></section>`);
 H.push(`<section><h2>Unmapped roles</h2>${unmapped.length ? `<div class="grid">${unmapped.map(none).join("")}</div>` : "<p>None.</p>"}</section>`);
@@ -82,13 +84,14 @@ h3{font:600 9.5pt/1.3 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;margin
 .frame{border:.5pt solid #ddd;padding:8pt;background:#fff;display:flex;align-items:center;min-height:30pt}.frame.dk{background:#16161a;border-color:#16161a}.frame img{max-width:100%;max-height:70pt}.frame.orn{min-height:0}
 .pal i{display:inline-block;width:10pt;height:10pt;border:.5pt solid #ccc;vertical-align:middle;margin-right:4pt}.checks{padding-left:12pt}.checks .bad{color:#b00;font-weight:600}
 code{font:400 7.5pt ui-monospace,Menlo,Consolas,monospace;background:#f2f2f2;padding:0 2pt}`;
+fs.mkdirSync(path.dirname(out), { recursive: true });
 const base = out.replace(/\.pdf$/i, ""), mapHtml = base + "-mapping.html", mapPdf = base + "-mapping.pdf";
 // The brand stylesheet loads only for its fonts and role variables: the samples render in the brand, the page around them does not.
 fs.writeFileSync(mapHtml, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(B.name)} swatch sheet</title><link rel="stylesheet" href="file://${B.css}"><style>${css}</style></head><body>${H.join("\n")}</body></html>`);
 
 // ---------- Part two: one sample of every sheet layout, in the brand ----------
 const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `pagetitle: ${B.name} layout samples`, "doctype: Swatch sheet",
-  "eyebrow: Prism swatch · layouts", `subtitle: Every sheet layout in the shared component markup, built in ${B.name}.`, "author: Prism", `date: Kit ${ver}`, `legal: Generated from kit/brands/${id}/profile.json`, "---", "",
+  "eyebrow: Prism swatch · layouts", `subtitle: Every sheet layout in the shared component markup, built in ${B.name}.`, "author: Prism", `date: Kit ${ver}`, `legal: Generated from ${where}`, "---", "",
   "::: hero-image", "![](prism:placeholder){.fade}", ":::", "",
   "## Sections with an *accent* word", "", "A section heading and its ornament. Body text with a [link](https://example.com) and **bold** text.", "",
   "::: stats", "- **41%** sample figure with a short label", "- **Same day** sample figure two", "- **94%** sample figure three", ":::", "",

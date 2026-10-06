@@ -10,6 +10,7 @@ module.exports = function brand(md, forceId) {
   if (cache[id]) return cache[id];
   const res = load(id);
   if (res.errors.length) { for (const e of res.errors) console.error(`[brand] ${e}`); console.error(`[brand] ${id}: cannot build; never approximate the brand`); process.exit(1); }
+  for (const w of res.warnings.filter(w => w.startsWith("draft:"))) console.warn(`[brand] ${w}`);
   const dir = path.join(KIT, "cache", "brand", id);
   fs.mkdirSync(dir, { recursive: true });
   const brandCss = path.join(dir, "prism.css");

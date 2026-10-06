@@ -40,7 +40,7 @@ The resolve line (`<brand>`: the one the user named, else `default`) checks the 
 
 `<slug>/formats/<format>.md`. Rules that still apply:
 
-- Read the brand's rules once, `.prism-kit/brands/<brand>/digest.md` (claims, voice, visual); every one applies.
+- Read the brand's rules once, its `digest` from `.prism-kit/run.sh brands --json` (claims, voice, visual); every one applies.
 - No number, quote or result that isn't in the source.
 - `{.no-rule}` on a `##` that sits right on top of a photo of a person.
 
@@ -154,7 +154,7 @@ Read `../prism-produce/references/formats/brochure.md` and use the full-spread i
    - a one-pager on two pages: `hero: x-small` and `{.cta-card .x-small}`; still two, cut the last section;
    - `[deck] slide N ... may not fit` or `[sheet] brochure ... runs past the panel bottom`: shorten that text.
 3. One quick look: `.prism-kit/run.sh preview <slug>/out/preview.png <built file>` and look at the image once (for a deck only when LibreOffice, `soffice`, is installed). Fix only clipped or overlapping text or an empty page, then rebuild once. No second review round.
-4. `.prism-kit/run.sh verify <built file or image folder>`. Deliver only on `OK`; on `FAIL`, rebuild through `run.sh`.
+4. `.prism-kit/run.sh verify <built file or image folder>` (add `--brand <brand>` when the piece is not in the default brand). Deliver only on `OK`; on `FAIL`, rebuild through `run.sh`.
 5. Send the PDF (or the PNGs and the captions file, or the PPTX) and the format file with SendUserFile.
 6. Message, short:
    - one line on what it is, then one line per file saying what it is for (the file roles listed under "3. Deliver" in the prism-produce skill);

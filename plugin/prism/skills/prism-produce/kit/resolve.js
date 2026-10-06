@@ -4,14 +4,30 @@
 // Builds always use the bundled snapshot; --live only compares a fetched design system against it.
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
 const KIT = __dirname;
+// Draft brands from onboarding live in the workspace, beside .prism-kit, until a release ships them (PRISM_DRAFTS overrides).
+const DRAFTS = process.env.PRISM_DRAFTS || path.join(path.dirname(KIT), ".prism", "brands");
+const hasProfile = (d, b) => fs.existsSync(path.join(d, b, "profile.json"));
+// Where a brand lives: a workspace draft wins over the shipped brand of the same id, so a re-run can be previewed.
+function brandDir(id) {
+  if (fs.existsSync(DRAFTS) && hasProfile(DRAFTS, id)) return { dir: path.join(DRAFTS, id), draft: true };
+  return { dir: path.join(KIT, "brands", id), draft: false };
+}
+// Every brand this kit can build in: [{id, dir, draft, shipped}], sorted by id.
+function brandList() {
+  const ids = new Set(), list = d => (fs.existsSync(d) ? fs.readdirSync(d).filter(b => hasProfile(d, b)) : []);
+  const shipped = new Set(list(path.join(KIT, "brands")));
+  for (const b of [...shipped, ...list(DRAFTS)]) ids.add(b);
+  return [...ids].sort().map(id => ({ id, ...brandDir(id), shipped: shipped.has(id) }));
+}
 const sha = p => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
 
 function load(id, opts = {}) {
-  const dir = path.join(KIT, "brands", id), snap = path.join(dir, "snapshot");
-  if (!fs.existsSync(path.join(dir, "profile.json"))) throw new Error(`no brand profile "${id}" in ${path.join(KIT, "brands")}`);
+  const { dir, draft } = brandDir(id), snap = path.join(dir, "snapshot");
+  if (!fs.existsSync(path.join(dir, "profile.json"))) throw new Error(`no brand profile "${id}" in ${path.join(KIT, "brands")} or ${DRAFTS}`);
   const prof = JSON.parse(fs.readFileSync(path.join(dir, "profile.json"), "utf8"));
   const core = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
   const errors = [], warnings = [];
+  if (draft) warnings.push(`draft: ${id} is built from ${dir}, not from a release; onboarding is not finished until the bundle ships`);
 
   // 1. The snapshot must be complete and unchanged, or the brand would be approximated.
   for (const [f, h] of Object.entries(prof.snapshot.files)) {
@@ -94,7 +110,7 @@ function load(id, opts = {}) {
   }
   // Every colour token in the design system, aliases resolved per theme, for the brand's own layers (--brand-<name>).
   const native = Object.fromEntries(Object.keys(colors).map(n => [n, Object.fromEntries(themes.map(t => [t, color(n, t)]))]));
-  return { brand: prof.id, name: prof.name, themes, roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => path.join(dir, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
+  return { brand: prof.id, name: prof.name, draft, themes, roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => path.join(dir, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
            library, libraryGroup: (prof.library && prof.library.group) || null, digest: path.join(dir, prof.digest.file), errors, warnings };
 }
 
@@ -145,16 +161,17 @@ function css(res) {
   return lines.join("\n") + "\n";
 }
 
-// The brand a piece uses when it names none: the one profile marked "default": true (or the only brand installed).
+// The brand a piece uses when it names none: the one shipped profile marked "default": true (or the only brand shipped).
+// Drafts never count: a piece is only built in a draft brand when it names it.
 function defaultBrand() {
-  const dir = path.join(KIT, "brands"), ids = fs.readdirSync(dir).filter(b => fs.existsSync(path.join(dir, b, "profile.json")));
+  const dir = path.join(KIT, "brands"), ids = fs.readdirSync(dir).filter(b => hasProfile(dir, b));
   const marked = ids.filter(b => JSON.parse(fs.readFileSync(path.join(dir, b, "profile.json"), "utf8")).default === true);
   if (marked.length === 1) return marked[0];
   if (!marked.length && ids.length === 1) return ids[0];
   throw new Error(`[brand] ${marked.length ? "more than one brand is" : "no brand is"} marked "default": true in kit/brands; name one with brand: in the front matter`);
 }
 
-module.exports = { load, css, defaultBrand };
+module.exports = { load, css, defaultBrand, brandDir, brandList, DRAFTS };
 
 if (require.main === module) {
   const a = process.argv.slice(2), id = a[0] === "default" ? defaultBrand() : a[0], opt = k => { const i = a.indexOf(k); return i > 0 ? a[i + 1] : null; };
@@ -171,6 +188,6 @@ if (require.main === module) {
   fs.mkdirSync(out, { recursive: true });
   fs.writeFileSync(path.join(out, "resolved.json"), JSON.stringify(res, null, 1));
   fs.writeFileSync(path.join(out, "prism.css"), css(res));
-  const unmapped = res.warnings.filter(w => w.startsWith("optional")).length;
-  console.log(`[brand] ${res.name}: ${Object.keys(res.roles).length} roles resolved${unmapped ? `, ${unmapped} optional unmapped` : ""}${res.warnings.length - unmapped ? `, ${res.warnings.length - unmapped} drift warning(s)` : ""} -> ${out}`);
+  const unmapped = res.warnings.filter(w => w.startsWith("optional")).length, drift = res.warnings.filter(w => w.startsWith("design system changed")).length;
+  console.log(`[brand] ${res.name}${res.draft ? " (draft)" : ""}: ${Object.keys(res.roles).length} roles resolved${unmapped ? `, ${unmapped} optional unmapped` : ""}${drift ? `, ${drift} drift warning(s)` : ""} -> ${out}`);
 }

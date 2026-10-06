@@ -49,6 +49,23 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 - Reusable shots (team, office, product) belong in the brand's design system photo library, so any piece can use them.
 - Send the largest file you have: anything that prints under 150 dpi moves to a smaller layout or stays out of print.
 
+## Add a brand
+
+Prism builds in any brand whose design system has a `tokens.json`. Say "add a brand" and upload the design system's files:
+<!-- claude-only -->
+or give its Claude Design System link.
+<!-- /claude-only -->
+
+1. A few questions: the design system, the brand name, which outputs it will be used for, and the defaults for its pieces (audience, contact line, email tool). Only the design system is needed.
+2. Prism maps its core roles (colours, fonts, type, spacing, corners, logos) to the design system's own names, and writes the brand rules every writer and reviewer follows. The design system itself is never changed.
+3. The swatch sheet shows every mapping, the type, the email colours in light and Outlook dark, and a sample of every layout in the brand. Ask for changes; it rebuilds each time.
+<!-- claude-only -->
+   It opens in design mode first as a lo-fi board; say "export" for the full styles. Start with `/prism-onboard` if you like.
+<!-- /claude-only -->
+4. Say **"done"** for the brand bundle. It goes to the Prism maintainer and ships with the next release; until then the brand works where it was made, as a draft (name it with `brand:` in a piece).
+
+When a brand's design system changes, the same skill updates it and shows only what moved.
+
 ## Good to know
 
 - Decks need the brand's Office fonts installed to present; the first deck comes with the font pack.
