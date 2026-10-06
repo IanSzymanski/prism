@@ -8,7 +8,7 @@ Build: `run.sh social formats/email.md out/email`. Same builder as social posts.
 :::: {#case-study-light .post .email .split note="Illustrative example"}
 [New case study]{.eyebrow}
 
-## How Cedar Hollow got its *afternoons* back
+## How Harbor Point got its *afternoons* back
 
 One sentence.
 
@@ -29,7 +29,7 @@ Photo: what the photo should show.
 | `.email` | 1200×420 | Logo top-left |
 | `.email.short` | 1200×300 | Newsletter mastheads |
 | `.email.tall` | 1200×520 | Headers with a photo and more copy |
-| `.split` | modifier | Photo fills the right half and fades in; the heading wave is removed |
+| `.split` | modifier | Photo fills the right half and fades in; the heading's section rule is removed |
 | `.dark` / `.hero` | modifiers | As in social posts |
 
 - Photo slot: use the project's hero image from images.md when there is one; otherwise `![](prism:placeholder){.photo}` or `prism:placeholder-dark` until the user supplies a real photo. Paths are relative to the format file; the orchestrator copies placeholders and user photos into `formats/images/`.

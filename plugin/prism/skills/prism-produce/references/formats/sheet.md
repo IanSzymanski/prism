@@ -6,14 +6,14 @@ Build: `run.sh sheet formats/sheet.md out/<tag>.pdf` (tag: see Naming in SKILL.m
 
 ```yaml
 ---
-title: How *Cedar Hollow* got its afternoons back   # accent word in *asterisks*
-pagetitle: Cedar Hollow case study                  # plain text: PDF title and page footer
+title: How *Harbor Point* got its afternoons back   # accent word in *asterisks*
+pagetitle: Harbor Point case study                  # plain text: PDF title and page footer
 doctype: Case study                                 # top-right label: White paper, Research brief, One-pager
 eyebrow: Child & family services · Illustrative example
 subtitle: One or two sentences.
-author: Case Amplify
+author: <brand name>
 date: September 2026
-contact: caseamplify.com                            # closing line, left
+contact: example.com                                # closing line, left (default: the brand's contact line)
 legal: Fictional organization, people and figures   # closing line, right (required when figures: illustrative)
 hero: small                                         # optional: small | x-small title area for tight pages
 ---
@@ -21,9 +21,9 @@ hero: small                                         # optional: small | x-small 
 
 ## Body
 
-- `##` headings carry the wave rule. `## Long heading {.stack}` puts the rule below; `{.no-rule}` removes it.
+- `##` headings carry the brand's section rule. `## Long heading {.stack}` puts the rule below; `{.no-rule}` removes it.
 - `###` subheading, `####` small label.
-- `---` is a centered wave "full stop" between major parts. Use at most twice, usually once before the closing card.
+- `---` is the brand's centered "full stop" between major parts. Use at most twice, usually once before the closing card.
 - Footnotes (`[^id]`) become a numbered Notes list at the end. Each footnote id can be used once only; cite a second mention in text instead.
 - Images: `![Caption](path.png)`; wrap in `::: shadow` for lift.
 - `::: page-break` forces a new page. Use only when a section would otherwise split badly.
@@ -32,13 +32,13 @@ hero: small                                         # optional: small | x-small 
 
 ```markdown
 ::: cta-card
-[Case Amplify]{.eyebrow}
+[<brand name>]{.eyebrow}
 
 ## Picture this with *your* programs
 
 One sentence.
 
-Start at [caseamplify.com](https://caseamplify.com).
+Start at [example.com](https://example.com).
 :::
 ```
 

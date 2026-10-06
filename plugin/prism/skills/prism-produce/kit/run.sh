@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One entry point for every build: ./run.sh sheet|deck|social|blog|email|tag|check|preview|images|verify|fonts|vet|resolve|library|state|palette|swatch <args>
+# One entry point for every build: ./run.sh sheet|deck|social|blog|email|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|state|palette|swatch <args>
 # Runs the setup a build needs the first time it is used, so no separate setup step is required.
 KIT="$(cd "$(dirname "$0")" && pwd)"
 cmd="$1"; shift
@@ -23,10 +23,11 @@ case "$cmd" in
   wire-diff) python3 "$KIT/wire_diff.py" "$@" ;;
   vet)     python3 "$KIT/vet.py" "$@" ;;
   resolve) node "$KIT/resolve.js" "$@" ;;
+  brands)  node "$KIT/brands.js" "$@" ;;
   library) node "$KIT/library.js" "$@" ;;
   state)   node "$KIT/state.js" "$@" ;;
   palette) node "$KIT/palette.js" "$@" ;;
   swatch)  node "$KIT/swatch.js" "$@" ;;
   setup)   bash "$KIT/setup.sh" "$@" ;;
-  *) echo "usage: run.sh sheet|deck|social|blog|email|tag|check|preview|images|verify|fonts|vet|resolve|library|state|palette|swatch|wire|wire-diff|setup <args>"; exit 2 ;;
+  *) echo "usage: run.sh sheet|deck|social|blog|email|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|state|palette|swatch|wire|wire-diff|setup <args>"; exit 2 ;;
 esac

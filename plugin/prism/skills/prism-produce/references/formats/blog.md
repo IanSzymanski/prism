@@ -35,7 +35,7 @@ The page already shows the title, author, tags and the site logo, so the header 
 
 - The slug seeds the gradient's angle, glow, tone and the image's side: the same slug always gives the same header, different slugs different ones. Keep the slug stable once published.
 - To steer one: `tone: light | mist | deep | vivid`, `image-side: left | right`, or `header: gradient | image | screen | series`.
-- No waves on blog headers.
+- No section rules or other ornaments on blog headers beyond the brand's header art.
 - Photos come from the user, uploaded with the notes; ask for one at intake for posts that carry weight (a flagship piece, a launch, a customer story). Photos of people need the same permission as everywhere else; a screenshot must be real product UI with no client data.
 
 ## Charts in posts

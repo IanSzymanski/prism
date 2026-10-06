@@ -1,6 +1,6 @@
 # Prism
 
-Raw material in, branded Case Amplify files out, with a human proof in between.
+Raw material in, on-brand files out, with a human proof in between. Brands live in the kit (`run.sh brands` lists them); a piece names one with `brand:`.
 
 ## How to use it
 
@@ -20,19 +20,19 @@ Raw material in, branded Case Amplify files out, with a human proof in between.
 | Output | File | Notes |
 |---|---|---|
 | sheet | PDF, Letter | One-pagers, briefs, case studies, white papers. Photos as a hero band, media rows beside text, galleries or figures. |
-| brochure | PDF, Letter trifold | Two sides, three panels each; wave headers throughout, and one design across the inside center and right |
+| brochure | PDF, Letter trifold | Two sides, three panels each; the brand's section rules throughout, and one design across the inside center and right |
 | blog | header PNG + post.md/html | A 16:9 header whose design follows the post type, chart PNGs, and the post text for WordPress |
 | deck | PPTX, 16:9 | Editable text and charts; photo on the title slide and media slides. Install the brand's Office fonts (`skills/prism-produce/kit/brands/<brand>/office`, sent as a zip with the first deck) to edit or present. |
 | social | PNGs + captions | Square, portrait and wide posts, and 1080×1920 stories kept inside the app's safe area |
 | email | PNGs at 2x + subject lines | Light, dark, and photo-split headers |
 | html-email | Email-safe HTML, plain text, images zip | Announcement, newsletter or letter; light-only, Outlook-safe palette, Zoho-ready |
-| carousel | PNG panels + caption | One wave line runs across every panel |
+| carousel | PNG panels + caption | One brand ornament line can run across every panel |
 
 ## What's inside
 
 - Skills: `prism-draft` (steps 1–4, ends at the proof), `prism-produce` (formatting, builds, revisions) and `prism-quick` (one document, one pass).
 - Writer, reviewer and formatter instructions in each skill's `references/agents/`, run as separate passes.
-- `skills/prism-produce/kit`: build scripts, brand stylesheet, fonts (Literata, Inter, IBM Plex Mono; SIL Open Font License), Phosphor Light icons (MIT), logo and imagery.
+- `skills/prism-produce/kit`: build scripts, brand stylesheet, the core stylesheets and layouts, and one folder per brand under `brands/` (its design system snapshot: fonts, logos, imagery, tokens), Phosphor icons (MIT).
 - `skills/prism-produce/references/formats`: the Markdown syntax each output accepts.
 
 ## Requirements (ChatGPT)

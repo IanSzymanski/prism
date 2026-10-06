@@ -6,10 +6,10 @@ Run by tests/tutorial.test.py and by chatgpt/convert.py before every build, so a
 What it checks:
 - every command in plugin/prism/commands is named (/prism-...), inside a Claude-only section;
 - every output format (a card in prism-produce/references/formats) and every skill has its phrase in the tutorial;
-- every brand in kit/brands is named;
+- the brands are listed at run time with `run.sh brands` (core names no brand);
 - the ChatGPT copy (Claude-only sections removed) names no command;
 - the "tutorial-reviewed" stamp matches the version's major.minor, so every release's changes get a look.
-A new format, skill or brand without an entry in PHRASES below fails until it is added here and in the tutorial."""
+A new format or skill without an entry in PHRASES below fails until it is added here and in the tutorial."""
 import json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -48,13 +48,8 @@ def problems(version=None):
         if key not in PHRASES: out.append(f"{key} is new: add how the tutorial names it to PHRASES in tools/check-tutorial.py, and describe it in the tutorial"); continue
         for p in PHRASES[key]:
             if not has(p): out.append(f"{key}: the tutorial never says \"{p}\"")
-    # Brands, by the name in their profile.
-    bdir = os.path.join(PLUGIN, "skills", "prism-produce", "kit", "brands")
-    for b in sorted(os.listdir(bdir)):
-        pf = os.path.join(bdir, b, "profile.json")
-        if os.path.exists(pf):
-            name = json.load(open(pf, encoding="utf8"))["name"]
-            if name not in t: out.append(f"brand {name} ({b}) is not in the tutorial")
+    # Brands are listed at run time (core names none, tests/core-brand-free.test.py), so the tutorial must say how.
+    if "run.sh brands" not in t: out.append("the tutorial must tell the presenter to list the brands with `run.sh brands`")
     # The reviewed stamp: one look per release (major.minor).
     if version:
         m = re.search(r"<!--\s*tutorial-reviewed:\s*([\d.]+)\s*-->", t)

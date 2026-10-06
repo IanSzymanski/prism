@@ -1,12 +1,12 @@
 // The brand a document is built in, for every builder: require("./brand.js")(mdPath).
-// Brand comes from the front matter `brand:` (default case-amplify) and resolves through its profile.
+// Brand comes from the front matter `brand:` (else the profile marked default) and resolves through its profile.
 const fs = require("fs"), path = require("path");
-const { load, css } = require("./resolve.js");
+const { load, css, defaultBrand } = require("./resolve.js");
 const KIT = __dirname, cache = {};
 
 module.exports = function brand(md, forceId) {
   const text = md && fs.existsSync(md) ? fs.readFileSync(md, "utf8") : "";
-  const fm = /^---\n([\s\S]*?)\n---/.exec(text), id = forceId || ((fm && /^brand:\s*([\w-]+)/m.exec(fm[1])) || [, "case-amplify"])[1];
+  const fm = /^---\n([\s\S]*?)\n---/.exec(text), id = forceId || ((fm && /^brand:\s*([\w-]+)/m.exec(fm[1])) || [])[1] || defaultBrand();
   if (cache[id]) return cache[id];
   const res = load(id);
   if (res.errors.length) { for (const e of res.errors) console.error(`[brand] ${e}`); console.error(`[brand] ${id}: cannot build; never approximate the brand`); process.exit(1); }

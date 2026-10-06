@@ -2,6 +2,7 @@
  "schema": 1,
  "id": "case-amplify",
  "name": "Case Amplify",
+ "default": true,
  "version": 1,
  "source": {
   "kind": "claude-design-system",
@@ -240,7 +241,9 @@
  },
  "content": {
   "contact": "caseamplify.com",
-  "_note": "Brand text core needs: the default contact line on a sheet footer. The brand name is profile.name."
+  "audience": "human services program leaders",
+  "email_sender": "Zoho Campaigns",
+  "_note": "Brand text core needs: the default contact line on a sheet footer, the audience to assume when nobody names one, and the email tool to assume when content.md names no sender. The brand name is profile.name."
  },
  "m365": {
   "email": {
@@ -331,5 +334,22 @@
   "_note": "Reusable photos uploaded to the design system's Photos group. Each id is used as ![Caption](brand:<id>); file is the snapshot path (pinned by tools/pin-profile.js). shows, people (consent), orientation, focus (x% y%) and tags help formatters pick one.",
   "group": "Photos",
   "images": {}
+ },
+ "identity": {
+  "_note": "Words that identify this brand. Core (everything outside this folder) must never use them: tests/core-brand-free.test.py.",
+  "terms": [
+   "Case Amplify",
+   "caseamplify",
+   "case-amplify",
+   "CARA",
+   "Cedar Hollow",
+   "Maple Ridge",
+   "human services",
+   "HumanServices",
+   "CA Inter",
+   "CA Literata",
+   "wave",
+   "grape"
+  ]
  }
 }

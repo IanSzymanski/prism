@@ -288,5 +288,11 @@
   "_note": "Reusable photos uploaded to the design system's Photos group. Each id is used as ![Caption](brand:<id>); file is the snapshot path (pinned by tools/pin-profile.js). shows, people (consent), orientation, focus (x% y%) and tags help formatters pick one.",
   "group": "Photos",
   "images": {}
+ },
+ "identity": {
+  "_note": "Words that identify this brand. Core must never use them (tests/core-brand-free.test.py). The brand shares its name with the product, so only its motif is listed.",
+  "terms": [
+   "spectrum"
+  ]
  }
 }

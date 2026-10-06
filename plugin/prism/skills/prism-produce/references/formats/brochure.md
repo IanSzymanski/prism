@@ -6,7 +6,7 @@ Build: `run.sh sheet formats/brochure.md out/<tag>.pdf` (tag: see Naming in SKIL
 
 ```yaml
 ---
-pagetitle: Case Amplify brochure     # plain text: PDF title
+pagetitle: Harbor Point brochure     # plain text: PDF title
 layout: brochure
 ---
 ```
@@ -34,9 +34,9 @@ Inside layouts, pick one per brochure and offer the others to the user:
 
 Use `::::` for panels so components inside keep `:::`. Each panel is about 3.6 in wide and cannot spill into the next one: content that doesn't fit is cut off, so check the preview.
 
-### Wave headers
+### Section rules
 
-Every `##` gets a wave rule under it, with its one burst at the start (on the dark panel it turns lavender). A rule never has more than one burst. The cover's `#` title has no rule. Keep a person's photo out from directly under a rule: put a paragraph between them.
+Every `##` gets the brand's section rule under it (its own shape and colour, also on the dark panel). The cover's `#` title has no rule. Keep a person's photo out from directly under a rule: put a paragraph between them.
 
 ### Cover
 
@@ -62,7 +62,7 @@ Cover photo: portrait or square works best (it crops to 3.7 × 4.35 in). No hero
 
 ### Back (dark)
 
-Eyebrow, `##` heading, one sentence, contact list in `::: contact` (`- **Web** caseamplify.com`), then a `::: push` block holding `![](prism:logo-on-dark){.logo}` and `[Legal or fictional label]{.small}`. An optional photo at the top. No mono text here; captions switch to Inter automatically.
+Eyebrow, `##` heading, one sentence, contact list in `::: contact` (`- **Web** example.com`), then a `::: push` block holding `![](prism:logo-on-dark){.logo}` and `[Legal or fictional label]{.small}`. An optional photo at the top. No mono text here; captions switch to the brand's sans automatically.
 
 ### Inside left
 
@@ -90,7 +90,7 @@ Right panel content.
 ::::
 ```
 
-The photo bleeds across both panels (1.8 in tall), and the heading's wave rule runs across the fold, so the spread reads as one piece when fully opened. Keep the heading text on the center panel (it wraps before the fold), and the photo's subject to one side of the fold; a landscape photo about 2.5:1 fits best. No people in this photo, because the wave rule sits under it. Each `::: col` is one panel of content: about five feature cards, or a short paragraph, three cards and a callout.
+The photo bleeds across both panels (1.8 in tall), and the heading's section rule runs across the fold, so the spread reads as one piece when fully opened. Keep the heading text on the center panel (it wraps before the fold), and the photo's subject to one side of the fold; a landscape photo about 2.5:1 fits best. No people in this photo, because the section rule sits under it. Each `::: col` is one panel of content: about five feature cards, or a short paragraph, three cards and a callout.
 
 ### Full spread (`.full`)
 
@@ -110,7 +110,7 @@ Inside center and right: laid out freely across the fold.
 ::::
 ```
 
-- The photo runs across all three panels (1.7 in tall). About 6.5:1; no people in it, since wave headers sit under it.
+- The photo runs across all three panels (1.7 in tall). About 6.5:1; no people in it, since section rules sit under it.
 - **Keep all of the left `::: col` inside its panel.** Opening the cover shows it beside the flap (page 1 left), so it must read on its own and nothing may cross into the center.
 - The `{.col .two}` block ignores the center/right fold: one heading across both panels, feature cards three across, and wide blocks such as `::: band`.
 - A heading may run across the center/right fold here, but check the preview for a word sitting right on the crease.
@@ -142,5 +142,5 @@ Per panel, roughly: a heading plus 110–140 words, or a heading plus a photo pl
 - Two pages exactly.
 - The dark back panel is the only dark object; no second dark card inside.
 - Fictional label or placeholder note on the back when figures or images are illustrative.
-- No wave rule with more than one burst.
+- The brand digest's rules for its section rule (for example, how often it may peak) apply on every panel.
 - `\ ` between the last two words of a heading that would end on one word.

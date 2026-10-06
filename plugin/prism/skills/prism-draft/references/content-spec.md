@@ -6,10 +6,10 @@
 
 ```markdown
 ---
-title: How *Cedar Hollow* got its afternoons back
+title: How *Harbor Point* got its afternoons back
 subtitle: One or two sentences under the title.
-audience: Program directors at human services agencies
-brand: case-amplify      # optional; a profile in kit/brands/. Default case-amplify
+audience: Operations leads at mid-size clinics
+brand: <id>              # optional; a profile in kit/brands/. Default: the brand marked default (run.sh brands)
 exports: [sheet, brochure, deck, social, email, html-email, carousel, blog]
 figures: real            # real | illustrative
 status: draft            # draft | approved
@@ -44,7 +44,7 @@ Rules:
 - **Series data**: if a chart is likely, keep the full series as a plain table (months and values). Formatters build charts only from tables in content.md.
 - **Quotes**: verbatim, with the speaker on the last line. For illustrative pieces the name carries "(fictional)".
 - **Voice**: keep the author's wording and order where it works. Fix grammar, filler and repetition; do not rewrite into a different voice.
-- **Email** (when exports include `html-email`): add an `## Email` section at the end with `Subject:`, `Preheader:`, `Send from:` (the tool, so merge tags match it: Zoho CRM, Zoho Campaigns, other), the greeting with its merge tag as written for that tool (`Hi ${Contacts.First Name},`), each call to action as `[Label](https://full-address)`, and `Footer:` with the sender's postal address. These are proofed like any other words; the formatter takes them from here.
+- **Email** (when exports include `html-email`): add an `## Email` section at the end with `Subject:`, `Preheader:`, `Send from:` (the tool, so merge tags match it: Zoho CRM, Zoho Campaigns, other; when the source doesn't say, the brand's email tool from `run.sh brands`), the greeting with its merge tag as written for that tool (`Hi ${Contacts.First Name},`), each call to action as `[Label](https://full-address)`, and `Footer:` with the sender's postal address. These are proofed like any other words; the formatter takes them from here.
 - **Reviewer flags** appear as `<!-- CHECK: reason -->` directly after the flagged sentence. They must be resolved or explicitly accepted before `status: approved`.
 
 ## claims.md

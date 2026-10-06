@@ -5,7 +5,7 @@ Give this rundown when someone asks how to use Prism ("how does this work", "tut
 
 ## What Prism is
 
-Prism turns raw material (notes, a transcript, a document, photos) into proofed, on-brand files: one sheets, briefs, case studies, trifold brochures, PowerPoint decks, blog posts and headers, social posts, Instagram stories, carousels, email header images and whole HTML emails. The words are written and approved once, in `content.md`, and every format is laid out from them, so nothing drifts and no number appears that isn't in the approved words. Brands: Case Amplify (the default) and Prism; a piece picks one with `brand:`.
+Prism turns raw material (notes, a transcript, a document, photos) into proofed, on-brand files: one sheets, briefs, case studies, trifold brochures, PowerPoint decks, blog posts and headers, social posts, Instagram stories, carousels, email header images and whole HTML emails. The words are written and approved once, in `content.md`, and every format is laid out from them, so nothing drifts and no number appears that isn't in the approved words. Brands come from the kit: list them with `.prism-kit/run.sh brands` (it marks the default) when presenting this; a piece picks one with `brand:`.
 
 ## Two ways to work
 

@@ -1,6 +1,6 @@
 # Prism
 
-Raw material in, branded Case Amplify files out, with a human proof in between.
+Raw material in, on-brand files out, with a human proof in between. Brands live in the kit (`run.sh brands` lists them); a piece names one with `brand:`.
 
 ## How to use it
 
@@ -21,12 +21,12 @@ Raw material in, branded Case Amplify files out, with a human proof in between.
 | Output | File | Notes |
 |---|---|---|
 | sheet | PDF, Letter | One-pagers, briefs, case studies, white papers. Photos as a hero band, media rows beside text, galleries or figures. |
-| brochure | PDF, Letter trifold | Two sides, three panels each; wave headers throughout, and one design across the inside center and right |
+| brochure | PDF, Letter trifold | Two sides, three panels each; the brand's section rules throughout, and one design across the inside center and right |
 | blog | header PNG + post.md/html | A 16:9 header whose design follows the post type, chart PNGs, and the post text for WordPress |
 | deck | PPTX, 16:9 | Editable text and charts; photo on the title slide and media slides. Install the brand's Office fonts (`skills/prism-produce/kit/brands/<brand>/office`, sent as a zip with the first deck) to edit or present. |
 | social | PNGs + captions | Square, portrait and wide posts, and 1080×1920 stories kept inside the app's safe area |
 | email | PNGs at 2x + subject lines | Light, dark, and photo-split headers |
-| carousel | PNG panels + caption | One wave line runs across every panel |
+| carousel | PNG panels + caption | One brand ornament line can run across every panel |
 
 New in 0.6: workflow `flow` blocks in sheets, 3–5 step workflow slides in decks, fit warnings for deck text and brochure panels, a one-look visual check in quick mode, faster per-format setup and cached deck graphics.
 
@@ -34,12 +34,12 @@ New in 0.6: workflow `flow` blocks in sheets, 3–5 step workflow slides in deck
 
 - Skills: `prism-draft` (steps 1–4, ends at the proof) and `prism-produce` (formatting, builds, revisions).
 - Agents: `prism-writer`, `prism-reviewer`, `prism-formatter`.
-- `skills/prism-produce/kit`: build scripts, brand stylesheet, fonts (Literata, Inter, IBM Plex Mono; SIL Open Font License), Phosphor Light icons (MIT), logo and imagery.
+- `skills/prism-produce/kit`: build scripts, brand stylesheet, the core stylesheets and layouts, and one folder per brand under `brands/` (its design system snapshot: fonts, logos, imagery, tokens), Phosphor icons (MIT).
 - `skills/prism-produce/references/formats`: the Markdown syntax each output accepts.
 
 Builds need pandoc, Node and Chromium. The first build of each output type checks only what that type needs (a sheet never waits for deck tools) and installs anything missing from the package registries, with a time limit on every step. Deck icons, backgrounds and rules are made once and cached with the kit.
 
-PDFs embed real TrueType fonts (Literata, Inter, IBM Plex Mono) and draw icons as vector shapes. Files are not sent for editing in other apps: changes are made in design mode or chat and rebuilt. `run.sh fonts` makes the PowerPoint font pack sent with a deck.
+PDFs embed the brand's own TrueType fonts and draw icons as vector shapes. Files are not sent for editing in other apps: changes are made in design mode or chat and rebuilt. `run.sh fonts` makes the PowerPoint font pack sent with a deck.
 
 Every revision is vetted before it is rebuilt (`run.sh vet`): numbering is fixed after a reorder, headings are reunited with their text, typos in changed passages are corrected, notes to the editor are left out, and the reply lists each fix.
 
