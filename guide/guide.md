@@ -292,6 +292,8 @@ Instructions: 98
 ::: cols
 **Say who it's for and what they should do next.** "For county program directors; they should book a demo" shapes every section better than a longer brief.
 
+**Want to give the whole brief at once?** Say "interview me first" (or `/prism-interview` in Claude) and every question comes up front, before anything is drafted.
+
 **Name the outputs up front.** "A case study as a sheet, a deck and a carousel" lets the interview skip a question and the formatters plan cuts together.
 :::
 
