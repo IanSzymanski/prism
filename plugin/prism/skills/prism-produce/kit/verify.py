@@ -6,15 +6,8 @@ HTML email folder: the tagged HTML, plain text, images zip and every image match
 import hashlib, json, os, re, sys, zipfile
 
 
-def default_brand():
-    """The profile marked "default": true in kit/brands (or the only brand installed)."""
-    import json as _j
-    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "brands")
-    ids = sorted(b for b in os.listdir(d) if os.path.exists(os.path.join(d, b, "profile.json")))
-    marked = [b for b in ids if _j.load(open(os.path.join(d, b, "profile.json"))).get("default") is True]
-    if len(marked) == 1: return marked[0]
-    if not marked and len(ids) == 1: return ids[0]
-    sys.exit("no single brand is marked \"default\": true in kit/brands; pass the brand")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from brandpath import brand_dir, default_brand
 
 KIT = os.path.dirname(os.path.abspath(__file__))
 args = sys.argv[1:]
@@ -24,7 +17,7 @@ if "--brand" in args: i = args.index("--brand"); del args[i:i + 2]
 
 def brand_fonts(bid):
     """The brand's families from its profile: font roles -> the design system's family stacks -> first family, as PDFs name it."""
-    d = os.path.join(KIT, "brands", bid)
+    d = brand_dir(bid)
     prof = json.load(open(os.path.join(d, "profile.json")))
     fam = json.load(open(os.path.join(d, "snapshot", "tokens.json")))["type"]["families"]
     first = lambda r: fam[prof["roles"][r]].split(",")[0].strip().strip("'\"").replace(" ", "")
