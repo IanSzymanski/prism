@@ -228,6 +228,17 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .cta-card p:last-child{margin-bottom:0}
 .cta-card.small{margin:16pt 0 6pt;padding:17pt 24pt 15pt}
 .cta-card.x-small{margin:12pt 0 4pt;padding:11pt 18pt}
+/* Closing variants every brand has: the full-width card (default), a centred smaller card, and content only (no ground).
+   Written with two classes so they win over a brand's plain .cta-card rules whatever loads last. */
+.cta-card.centered{max-width:66%;margin-left:auto;margin-right:auto;padding:20pt 24pt 18pt}
+.cta-card.plain{background:none;border:0;border-radius:0;padding:0;box-shadow:none;color:var(--prism-color-text)}
+.cta-card.plain::before,.cta-card.plain::after{content:none}
+.cta-card.plain h2,.cta-card.plain h3{color:var(--prism-color-text-strong)}
+.cta-card.plain h2 em,.cta-card.plain h3 em{color:var(--prism-color-accent)}
+.cta-card.plain p,.cta-card.plain .note{color:var(--prism-color-text)}
+.cta-card.plain .eyebrow,.cta-card.plain .prism-kicker{color:var(--prism-color-text-muted)}
+.cta-card.plain strong{color:var(--prism-color-text-strong)}
+.cta-card.plain a{color:var(--prism-color-text-strong);text-decoration-color:var(--prism-color-link-line)}
 
 /* Charts — generated from ```chart blocks by prism-charts.lua. Sizes are in chart units (640 wide). */
 .prism-chart{margin:14pt 0 18pt;break-inside:avoid}

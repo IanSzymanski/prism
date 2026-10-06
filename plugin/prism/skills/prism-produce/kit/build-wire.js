@@ -53,7 +53,7 @@ a.wlink{color:inherit;text-decoration:underline;text-decoration-color:#7DA2D6}
 .wfz{display:flex;flex-direction:column;gap:14px}
 .wnote{background:#F7F7F9;padding:24px 14px 12px}
 .wnote .wx{font-size:13px}
-.wcta{background:#EDEDF0}
+.wcta{background:#EDEDF0}.wcentered{max-width:66%;margin-left:auto;margin-right:auto}
 .wmeta-t{margin:0;font:700 34px/1.3 system-ui,sans-serif;color:#1C1C24}
 .wmeta-e{margin:0;font:600 12px/1.3 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6A6A73}
 .wmeta-s{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#1C1C24}
@@ -197,7 +197,7 @@ function wireOne(md, B) {
     if ((m = /^(#{1,4})\s+(.*)$/.exec(first)) && b.split("\n").length === 1) return heading(m[1].length, m[2], id, !framed && meta.layout !== "email");
     if ((m = /^:{3,}\s*\{?\s*\.?([\w-]+)/.exec(first))) {
       const cls = m[1], classes = first.match(/\.[\w-]+/g) || [`.${cls}`];
-      const kind = cls === "hero-image" ? "hero image" : cls === "cta-card" ? "closing card" : cls;
+      const kind = cls === "hero-image" ? "hero image" : cls === "cta-card" ? (classes.includes(".plain") ? "closing (content only)" : classes.includes(".centered") ? "closing card, centred" : "closing card") : cls;
       if (["stats", "features", "checks", "flow", "cards"].includes(cls)) {
         const items = listItems(inner), cols = cls === "checks" ? 1 : cls === "cards" ? 2 : cls === "features" ? (meta.layout === "email" ? 1 : classes.includes(".three") ? 3 : 2) : Math.min(items.length, 5);
         return wrap(`${kind} ×${items.length}`, `<div class="wrow" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr))">${items.map((t, i) =>
@@ -215,7 +215,8 @@ function wireOne(md, B) {
         return wrap("image + text", `<div style="display: flex; gap: 18px; align-items: center">${flip ? txt + pic : pic + txt}</div>`); }
       if (cls === "ornament" && !inner.trim()) return wrap("brand divider", W_.divider ? W_.divider({}, B) : `<div class="wdiv"></div>`);
       // callout, closing card, band and anything else: its text in order.
-      const lofi = cls === "cta-card" ? (W_.closing ? W_.closing({}, B) : "wcta") : "";
+      // The closing card in lo-fi: the brand's card, centred and narrower for .centered, no ground for .plain (content only).
+      const lofi = cls !== "cta-card" || classes.includes(".plain") ? "" : `${W_.closing ? W_.closing({}, B) : "wcta"}${classes.includes(".centered") ? " wcentered" : ""}`;
       return wrap(kind, chunks(inner).map(t => /^#{2,4}\s/.test(t) && !t.includes("\n") ? `<p class="wx wstrong">${inline(t.replace(/^#+\s*/, "").replace(/\s*\{[^}]*\}\s*$/, ""))}</p>`
         : render(t, "x").replace(/data-(block|item)="[^"]*"/g, 'data-part=""')).join(""), lofi);
     }
