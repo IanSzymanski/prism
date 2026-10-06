@@ -307,7 +307,10 @@ async function chartSlide(slide, blocks) {
   let n = 0;
   for (const div of slides) {
     n++;
-    const kind = div.c[0][1].find(c => c !== "slide") || "content";
+    // A brand component slide takes the slide layout of the core block it is like (PowerPoint can't carry the brand's CSS).
+    const DECK_KIND = { quote: "quote", stats: "stats", features: "features", cards: "features", checks: "features", flow: "steps", media: "media", "cta-card": "closing", chart: "chart" };
+    const like = B.likeOf(...div.c[0][1].filter(c => c !== "slide"));
+    const kind = (like && (DECK_KIND[like] || "content")) || div.c[0][1].find(c => c !== "slide") || "content";
     SLIDE_N = n; KIND = kind;
     const blocks = div.c[1].filter(b => !(b.t === "Div" && b.c[0][1].includes("notes")));
     const notes = div.c[1].find(b => b.t === "Div" && b.c[0][1].includes("notes"));

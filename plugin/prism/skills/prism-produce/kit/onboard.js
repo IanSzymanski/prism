@@ -7,7 +7,7 @@
 //   onboard.js report <id> [--json]
 //   onboard.js bundle <id> OUT.zip
 //   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
-//   onboard.js component <id> <cid> --use T --markup M [--when T] [--max N] [--rule T ...] [--formats a,b] [--sample FILE] [--from NAME] [--remove]
+//   onboard.js component <id> <cid> --use T --markup M [--like BLOCK] [--when T] [--max N] [--rule T ...] [--formats a,b] [--sample FILE] [--from NAME] [--remove]
 //   onboard.js palette <id> [--keep]                 (core's proposal for the email palette, or keep it against the current colours)
 const fs = require("fs"), path = require("path"), crypto = require("crypto"), { execFileSync } = require("child_process");
 const R = require("./resolve.js");
@@ -266,7 +266,7 @@ function report(id) {
     unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind, uses: res.roles && res.roles[r.role] ? res.roles[r.role].from : null,
       candidates: candidates(r, N[r.kind] || [], used, res.theme || themes[0]) })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
     palette: pal ? { reviewed: pal.reviewed && pal.reviewed.onboarding, set: !!pal.palette, proposed: !!pal.proposed, failing: checks.filter(c => !c.ok).map(c => c.msg), webfonts: pal.fonts && pal.fonts.webfonts } : null, office: prof.office || null, terms, todo, gaps: prof._gaps || "",
-    components: Object.entries(prof.components || {}).map(([k, c]) => ({ id: k, use: c.use || "", markup: c.markup || "", when: c.when || "", max: c.max || null, rules: c.rules || [], formats: c.formats || [] })) };
+    components: Object.entries(prof.components || {}).map(([k, c]) => ({ id: k, use: c.use || "", markup: c.markup || "", when: c.when || "", max: c.max || null, rules: c.rules || [], formats: c.formats || [], like: c.like || null })) };
 }
 const short = v => v == null ? "" : typeof v === "string" ? v : v.stack ? v.stack : v.fontSize ? `${v.fontWeight} ${v.fontSize}/${v.lineHeight}` : v.path ? path.basename(v.path) : Object.values(v).join(" / ");
 function reportMd(r) {
@@ -291,7 +291,7 @@ function reportMd(r) {
   if (r.office) L.push(`Office fonts: ${[...new Set(Object.values(r.office.fonts || {}))].join(", ") || "none"}${Object.keys(r.office.files || {}).length ? "" : " (no TrueType or OpenType files: decks fall back to Office's fonts)"}`);
   L.push(`Identity terms: ${r.terms.join(", ") || "none"}`);
   L.push(`Brand components: ${r.components.length ? "" : "none yet (core's components, and the closing card's full, centred and content-only styles)"}`);
-  for (const c of r.components) L.push(`- ${c.id}: \`${c.markup}\` ${c.use}${c.when ? ` When: ${c.when}.` : ""}${c.max ? ` At most ${c.max} per piece.` : ""}${c.rules.length ? ` Rules: ${c.rules.join("; ")}.` : ""}${c.formats.length ? ` In: ${c.formats.join(", ")}.` : ""}`);
+  for (const c of r.components) L.push(`- ${c.id}: \`${c.markup}\` ${c.use}${c.when ? ` When: ${c.when}.` : ""}${c.max ? ` At most ${c.max} per piece.` : ""}${c.rules.length ? ` Rules: ${c.rules.join("; ")}.` : ""}${c.formats.length ? ` In: ${c.formats.join(", ")}.` : ""}${c.like ? ` Decks and HTML email draw it as a ${c.like}.` : " No --like: decks and HTML email can't draw it (they show its text plainly)."}`);
   return L.join("\n") + "\n";
 }
 
@@ -450,7 +450,7 @@ if (cmd === "start") {
 } else if (cmd === "component") {
   // Records one of the brand's own components from the interview: what it is for, when, how often, its rules, where it goes.
   const id = a[1], cid = a[2];
-  if (!id || !cid || !/^[a-z0-9-]+$/.test(cid)) die("usage: onboard.js component <id> <component-id> [--use T] [--when T] [--max N] [--rule T ...] [--formats a,b] [--markup M] [--sample FILE] [--from NAME] [--remove]");
+  if (!id || !cid || !/^[a-z0-9-]+$/.test(cid)) die("usage: onboard.js component <id> <component-id> [--use T] [--when T] [--max N] [--rule T ...] [--formats a,b] [--markup M] [--like BLOCK] [--sample FILE] [--from NAME] [--remove]");
   const prof = readProf(id), comps = prof.components = prof.components || {};
   if (a.includes("--remove")) delete comps[cid];
   else {
@@ -464,6 +464,10 @@ if (cmd === "start") {
     if (opt("--markup")) c.markup = opt("--markup");
     if (opt("--sample")) c.sample = fs.readFileSync(opt("--sample"), "utf8").trim();
     if (opt("--from")) c.from = opt("--from");
+    // The core block it behaves like, for the formats that can't use the brand's CSS (decks, HTML email).
+    const LIKE = ["quote", "callout", "stats", "features", "cards", "checks", "flow", "media", "cta-card", "band", "cols", "gallery"];
+    if (opt("--like")) { if (!LIKE.includes(opt("--like"))) die(`--like is one of ${LIKE.join(", ")}`); c.like = opt("--like"); }
+    if (!c.like) { const first = (/\{\s*\.([\w-]+)\s+\./.exec(c.markup || "") || [])[1]; if (LIKE.includes(first)) c.like = first; }
     if (!c.markup || !c.use) die(`component ${cid} needs --markup (how a format file writes it) and --use (what it is for)`);
   }
   writeProf(id, prof);

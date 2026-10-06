@@ -197,7 +197,11 @@ function render(b) {
     return row(heading(lvl, first.replace(/^#+\s+/, "")), `${lvl === 2 ? 14 : 4}px ${P}px ${lvl === 4 ? 8 : 12}px`);
   }
   if ((m = /^:{3,}\s*\{?\s*\.?([\w-]+)([^}]*)\}?\s*$/.exec(first))) {
-    const cls = m[1], a = attrs(first), x = inner(b);
+    // A brand component takes the core block it is like (an email can't carry the brand's CSS); its own class stays for the record.
+    const like = BR.likeOf(...(first.match(/\.([\w-]+)/g) || []).map(k => k.slice(1)), m[1]);
+    const cls = like && ["stats", "features", "cards", "media", "callout"].includes(like) ? like : m[1], a = attrs(first), x = inner(b);
+    // Like a block email draws from its content (a quote, the closing card, a band): its content, drawn as usual.
+    if (like && cls !== like) { kinds.push(like); return chunks(x).map(render).join(""); }
     kinds.push(cls);
     if (cls === "header") return "";
     if (cls === "ornament" || cls === "divider") { text.push("", "-----", ""); return row(B.divider.kind === "ornament" && cls === "ornament" ? divider() : rule(), `10px ${P}px 26px`); }
