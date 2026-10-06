@@ -11,6 +11,8 @@ Raw material in, branded Case Amplify files out, with a human proof in between.
    - Wording, facts and numbers go into content.md and are patched into every output, keeping the layouts you approved.
    - Layout changes (move, split, restyle) touch only that one output.
 
+**New to Prism?** Ask "how do I use Prism?" for a rundown.
+
 **Quick mode.** Need a document now? Say "quick one-pager from this" (or "quick brochure"). No questions and no proof stop: one output is written, number-checked against your source, built and sent back in one pass, with a list of every number and claim to check afterwards. Say "full proof" later to move it into the normal process.
 
 ## Outputs
