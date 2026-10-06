@@ -1,6 +1,6 @@
 # Prism: handoff for continued development
 
-State as of 6 October 2026, version **0.14.0-dev** (all 0.14 backlog items done; next step is cutting 0.14.0). This repository holds everything needed to keep developing; `README.md` covers layout, build and tests.
+State as of 6 October 2026, version **0.15.0-dev** (all 0.14 items done, 0.14.0 not yet cut; 0.15 started: F1, F5, F6 implemented, not yet confirmed live). This repository holds everything needed to keep developing; `README.md` covers layout, build and tests.
 
 ## What it is
 
@@ -179,3 +179,18 @@ Small "spotlight" glows read as stains, so don't use them.
 - **Swatch additions:** a "Design system tokens no role uses" section; the swatch names its brand in front matter (it built in Case Amplify before).
 - **Core fixes found by the Prism swatch:** chart highlight falls back to `accent` when `accent-strong` is unmapped; SVG images skip the low-resolution warning; the chapter stop draws at the asset's own size (Case Amplify unchanged).
 - **Gaps still open** (backlog D13): heading rule is image-only (no generated hue rule), `.fade` and chart bar fades ignore a flat brand, icons are Phosphor Light only, placeholders are Case Amplify purple, builders other than the swatch call the wave API directly (deck, social, email would fail for Prism), deck needs dark-glow roles and Office fonts, blog headers need four tones of four stops, no roles for screen ground, on-accent, motif hues or email-safe font stacks.
+
+
+## Interview, proof doc and asset intake (0.15: F1, F5, F6)
+
+Ian's answers on the backlog (Notes on F1, F5, F6) set the design:
+
+- **Interview (F1)** replaces prism-draft's intake. Optional and fully skippable: audience, length, outputs, images (upload now, brand library, later, none), then figures and piece type only if unclear. Skipped answers take defaults; answers given later go to the writer before approval or through the produce lanes after. **Answers are kept private** in `<slug>/interview.md`: read by the writer, never sent as a file, never put in content.md, the proof doc, a canvas, a build, a connector or log.md (log notes only "interview: done, N skipped"). Template packages (F4, 0.18) are not offered yet.
+- **Proof loop (F5, Claude only):** after writer and reviewer, content.md opens in a Claude Doc ("<title> · proof": Content tab without front matter, Claims tab; each `CHECK` flag becomes a "Check:" comment; images as `[Image: images/x.jpg] caption` paragraphs). Chat edits go into the doc while it is open. On "approve": export the tab as Markdown, rebuild content.md (previous kept as `content.v<n>.md`), unresolved Check comments go back as flags, `vet --was`, reviewer on changed numbers/quotes/claims, then the usual approval rules. After approval content.md is the only source; the doc stays as the record. Without Claude Docs, and in the ChatGPT edition, the file-and-chat proof is unchanged. Quick mode skips both.
+- **Asset intake (F6):**
+  - Uploads belong to the piece and conversation (`source/`, `images/`); reusable photos belong in the brand's design system, in a **Photos** asset group.
+  - **Brand image library:** profile `library` (`group`, `images: {id: {file, shows, people, orientation, focus, tags}}`), files in the pinned snapshot (pin-profile pins them). Markup `![Caption](brand:<id>)` in content.md and format files; `B.src`, the Lua filter (`PRISM_LIBRARY_<ID>` env) and every builder resolve it. `run.sh library <brand> [--live DIR]` lists it (and live-only photos to copy into `images/`). The writer places captioned library photos when asked or when a piece clearly needs one; formatters use one before a placeholder. Both brands ship an empty library: no real photos have been uploaded to either design system yet.
+  - **Focal-point crops:** `images.py` finds a focal point per image (skin tones lead when a person is in frame, else detail and colour, centre-biased; 5% steps) and writes `images/.focus.json` plus a Focus column. Override with `{focus="x% y%"}` in a format file or by editing images.md and `.focus.json`. `kit/focus.js` centres every cover crop on the point as far as the image reaches: sheet/brochure/social/blog header in the page (`data-focus` from the Lua filter, `window.prismFocus`, and the sheet's fade/shadow bake follows it), deck via sharp `extract`, email avatars in `email_assets.py`. No focus = the old centred crop.
+  - Images added later (after approval, in design mode or after delivery): "New images later" in prism-produce; captions go into content.md, placement through the layout lane, boards republished.
+- **Proof:** every fixture, the guide and five wireframes are identical to the pre-0.15 build (no fixture has a focal point). `tests/assets.test.py` (27 checks): focal detection, Lua markup, crop maths, library resolution and refusals. resolve 129 and brands 3,400 checks unchanged. Checked by eye: an off-centre portrait in a sheet hero, deck media and title slides, a story and a blog header.
+- **Not done yet:** design mode still shows images as grey boxes (thumbnails would need canvas uploads; fits M2 in 0.16). Not confirmed live: the Docs proof round trip (export, comments back to flags) and the interview in Cowork. The guide's version line still says 0.12.

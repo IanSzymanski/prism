@@ -66,6 +66,14 @@ function load(id, opts = {}) {
     if (value == null) { errors.push(`role ${r.role} maps to "${native}", which the design system does not define`); continue; }
     out[r.role] = { kind: r.kind, native, value };
   }
+  // The brand's image library: reusable photos uploaded to the design system (profile `library`), pinned in the snapshot.
+  const library = {};
+  for (const [lid, e] of Object.entries((prof.library && prof.library.images) || {})) {
+    if (!/^[a-z0-9-]+$/.test(lid)) { errors.push(`library image id "${lid}" must be lowercase letters, digits and hyphens`); continue; }
+    const p = path.join(snap, e.file || "");
+    if (!e.file || !fs.existsSync(p) || !prof.snapshot.files[e.file]) { errors.push(`library image ${lid}: ${e.file} is not in the pinned snapshot`); continue; }
+    library[lid] = { ...e, path: p, blob: prof.snapshot.blobs[e.file] || null };
+  }
   // A generator's stroke may name a role resolved after it.
   for (const v of Object.values(out)) if (v.kind === "generator" && v.value.stroke && !v.value.stroke.value) v.value.stroke.value = out[v.value.stroke.color]?.value ?? null;
 
@@ -87,7 +95,7 @@ function load(id, opts = {}) {
   // Every colour token in the design system, aliases resolved per theme, for the brand's own layers (--brand-<name>).
   const native = Object.fromEntries(Object.keys(colors).map(n => [n, Object.fromEntries(themes.map(t => [t, color(n, t)]))]));
   return { brand: prof.id, name: prof.name, themes, roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => path.join(dir, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
-           digest: path.join(dir, prof.digest.file), errors, warnings };
+           library, libraryGroup: (prof.library && prof.library.group) || null, digest: path.join(dir, prof.digest.file), errors, warnings };
 }
 
 // CSS for page builders: --prism-* custom properties per theme, a class per type role, @font-face per font file.

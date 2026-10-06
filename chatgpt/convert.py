@@ -51,11 +51,19 @@ The writer and reviewer are separate passes you run yourself, one after the othe
 
 """, re.S)
 ed(d, "- Work in the session workspace. Create", "- Work in `/mnt/data`. Create")
-ed(d, "copy `../prism-produce/kit` to `<workspace>/.prism-kit`", "copy `../prism-produce/kit` (next to this skill's folder) to `/mnt/data/.prism-kit`")
+ed(d, "Copy `../prism-produce/kit` to `<workspace>/.prism-kit`", "Copy `../prism-produce/kit` (next to this skill's folder) to `/mnt/data/.prism-kit`")
 ed(d, "2. Look at every image with the Read tool.", "2. Look at every image yourself.")
-ed(d, "ask only for the missing ones, in one AskUserQuestion call:", "ask only for the missing ones, in one message: numbered questions, each with suggested answers the user can reply to by number:")
-ed(d, "With images, add image questions to the same AskUserQuestion call (it holds four questions; drop brief questions the request already answers first, and ask any overflow in a second call):", "With images, add image questions to the same message:")
-ed(d, "If the session is unattended, assume:", "If the user asks you to go ahead without questions, assume:")
+ed(d, "in one AskUserQuestion call. Every question offers \"Skip for now\":", "in one message: numbered questions, each with suggested answers the user can reply to by number, and \"skip\" always allowed:")
+ed(d, "Ask in a second call only what", "Ask in a second message only what")
+ed(d, "ask about them in the next AskUserQuestion call (four questions at most; any overflow in another call):", "ask about them in your next message:")
+ed(d, ", or when the session is unattended.", ", or when the user asks you to go ahead without questions.")
+ed(d, "for anything skipped or unattended:", "for anything skipped:")
+ed(d, "; \"later\" can be any time, design mode included.", "; \"later\" can be any time.")
+ed(d, " (to the proof doc instead, while one is open)", "")
+ed(d, " (and the proof doc's Content tab, while one is open)", "")
+ed(d, "never put it in the proof, a design canvas, a built file or any connector", "never put it in the proof, a built file or any connector")
+c = "skills/prism-draft/references/content-spec.md"
+ed(c, "never put in content.md, the proof, a design canvas, a built file, a connector or log.md.", "never put in content.md, the proof, a built file, a connector or log.md.")
 ed(d, "## 3. Write and review (subagents)", "## 3. Write and review (two passes)")
 ed(d, "1. Run the **prism-writer** agent. Pass:", "1. **Writer pass** (`references/agents/prism-writer.md`). Inputs:")
 ed(d, "2. Run the **prism-reviewer** agent on the result. Pass:", "2. **Reviewer pass** (`references/agents/prism-reviewer.md`) on the result. Inputs:")
@@ -79,10 +87,12 @@ sub(p, r" If a folder from the user's computer is connected, also write content\
 ed(p, "3. Patch every existing format file: run **prism-formatter** in mode `patch` per format (parallel when several), passing the change.", "3. Patch every existing format file: a formatter pass in mode `patch` per format, passing the change.")
 ed(p, "2. If numbers, quotes or claims changed, run **prism-reviewer** on the changed sections", "2. If numbers, quotes or claims changed, run the reviewer pass on the changed sections")
 ed(p, "and look at the image.", "and look at the image yourself (show it in the reply too).")
+ed(p, "(uploaded after approval, during design mode or after delivery)", "(uploaded after approval or after delivery)")
+ed(p, "4. In design mode, republish the changed boards; otherwise number check, rebuild, deliver.", "4. Number check, rebuild, deliver.")
 
 # prism-quick: setup runs inside the first build, since background processes may not survive between code calls.
 q = "skills/prism-quick/SKILL.md"
-ed(q, "no intake questions, no subagents,", "no intake questions, no separate review passes,")
+ed(q, "no interview, no subagents, no content.md, no proof stop (no proof doc),", "no interview, no separate review passes, no content.md, no proof stop,")
 sub(q, r"## 1\. Start \(one Bash call, first thing\)\n\n```bash\n.*?```\n\n.*?In the same call:", """## 1. Start (one code call, first thing)
 
 ```bash

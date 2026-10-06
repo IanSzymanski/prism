@@ -20,7 +20,8 @@ for (const line of (fmMatch ? fmMatch[1] : "").split("\n")) {
   if (m) meta[m[1]] = m[2].replace(/^["']|["']$/g, "").trim();
 }
 const plain = s => String(s || "").replace(/\*/g, "");
-const fileUrl = p => "file://" + path.resolve(path.dirname(md), p);
+// Paths are relative to the post; `prism:` and `brand:` sources come from the brand.
+const fileUrl = p => "file://" + B.src(p, path.dirname(md));
 
 // Headers carry no title, author, tags or logo: the page already shows all four.
 // A header is a brand gradient, optionally with an uploaded image faded into it (the prism-fade).
@@ -46,7 +47,9 @@ const tone = art.classes;
 // The image sits on one side and fades into the gradient with the prism-fade ramp; `image-side` can pin it.
 const side = meta["image-side"] || pick(["left", "right"]);
 const imgUrl = hasImg ? fileUrl(meta["header-image"]) : "";
-const layer = motif === "image" ? `<img class="bh-image ${side}" src="${imgUrl}">`
+// A photo's crop centres on its focal point (`header-focus`, else the one images.py found); screenshots stay pinned top left.
+const focus = hasImg ? B.focus(B.src(meta["header-image"], path.dirname(md)), meta["header-focus"]) : null;
+const layer = motif === "image" ? `<img class="bh-image ${side}" src="${imgUrl}"${focus ? ` data-focus="${focus}"` : ""}>`
   : motif === "screen" ? `<div class="bh-shot" style="--x:${between(0.18, 0.3) * W}px;--y:${between(140, 220)}px"><img src="${imgUrl}"></div>`
   : motif === "series" ? `<div class="bh-series"><div class="bh-series-name">${plain(meta.series || "Changelog")}</div>${meta.release ? `<div class="bh-series-line">${plain(meta.release)}</div>` : ""}</div>` : "";
 const headHtml = path.join(outDir, ".header.html");
@@ -76,6 +79,8 @@ if (charts.length) {
   await page.goto("file://" + headHtml, { waitUntil: "networkidle" });
   const missing = await page.evaluate(() => [...document.images].filter(i => !i.naturalWidth).map(i => decodeURI(i.src)));
   for (const m of missing) console.warn(`[blog] missing image: ${m}`);
+  await page.addScriptTag({ content: require("./focus.js").inPage });
+  await page.evaluate(() => window.prismFocus());
   await (await page.$(".bh")).screenshot({ path: path.join(outDir, named(TAG, "header", ".png")) });
 
   if (chartHtml) {

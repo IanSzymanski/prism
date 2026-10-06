@@ -113,7 +113,9 @@ Choose: bar for change over time or before/after; hbar for comparing named thing
 
 The brand's logos are `![](prism:logo){.logo}` on light grounds and `![](prism:logo-on-dark){.logo}` on dark; the build fills them from the brand. Never copy a logo file into `images/`.
 
-Images come from content.md (`![Caption](images/file.jpg)`); images.md gives each one's orientation, role and print fit. The build detects orientation itself and sizes the layout to it. Paths stay `images/<file>`.
+Images come from content.md (`![Caption](images/file.jpg)`, or `![Caption](brand:<id>)` for a photo from the brand's image library); images.md gives each one's orientation, role, print fit and focus. The build detects orientation itself and sizes the layout to it. Paths stay `images/<file>`.
+
+**Crops.** Every slot that crops (hero band, media row, gallery, slide photo, post or story photo, blog header, email avatar) keeps the image's focal point in frame: images.py finds it, library photos carry theirs. Write `{focus="x% y%"}` on an image only when this format needs a different crop (`{.fade focus="50% 20%"}` keeps the top of a tall photo).
 
 ### Hero image (sheets)
 

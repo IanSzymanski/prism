@@ -175,7 +175,7 @@ function findImage(blocks) {
   for (const b of blocks) {
     const inl = b.t === "Para" || b.t === "Plain" ? b.c : b.t === "Figure" ? (b.c[2][0] || {}).c || [] : [];
     const im = inl.find(x => x.t === "Image");
-    if (im) return { src: B.src(im.c[2][0], path.dirname(md)), classes: im.c[0][1] };
+    if (im) return { src: B.src(im.c[2][0], path.dirname(md)), classes: im.c[0][1], focus: (im.c[0][2].find(([k]) => k === "focus") || [])[1] };
   }
   return null;
 }
@@ -198,8 +198,11 @@ async function photoImage(img, wIn, hIn, fade, radiusIn = 0) {
     layers.push({ input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><linearGradient id="g" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}">${stops}</linearGradient></defs><rect width="${W}" height="${H}" fill="url(#g)"/></svg>`) });
   }
   if (R) layers.push({ input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><path fill="#${C.paper}" fill-rule="evenodd" d="M0 0H${W}V${H}H0Z M${R} 0H${W - R}A${R} ${R} 0 0 1 ${W} ${R}V${H - R}A${R} ${R} 0 0 1 ${W - R} ${H}H${R}A${R} ${R} 0 0 1 0 ${H - R}V${R}A${R} ${R} 0 0 1 ${R} 0Z"/></svg>`) });
-  const out = path.join(cache, `photo-${path.basename(img.src).replace(/\W+/g, "-")}-${W}x${H}-${fade || "none"}.jpg`);
-  await sharp(img.src).resize(W, H, { fit: "cover" }).composite(layers).flatten({ background: "#" + C.paper }).jpeg({ quality: 88 }).toFile(out);
+  // Cover crop centred on the focal point; without one, sharp's own centred cover crop.
+  const focus = B.focus(img.src, img.focus), base = sharp(img.src);
+  const out = path.join(cache, `photo-${path.basename(img.src).replace(/\W+/g, "-")}-${W}x${H}-${fade || "none"}${focus ? "-" + focus.match(/\d+/g).join("-") : ""}.jpg`);
+  if (focus) base.extract(require("./focus.js").crop(meta0.width, meta0.height, W, H, focus));
+  await base.resize(W, H, { fit: "cover" }).composite(layers).flatten({ background: "#" + C.paper }).jpeg({ quality: 88 }).toFile(out);
   return out;
 }
 

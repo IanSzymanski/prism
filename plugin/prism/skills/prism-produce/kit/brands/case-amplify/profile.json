@@ -326,5 +326,10 @@
    "quote_bar": true
   }
  },
- "ornaments_module": "ornaments.js"
+ "ornaments_module": "ornaments.js",
+ "library": {
+  "_note": "Reusable photos uploaded to the design system's Photos group. Each id is used as ![Caption](brand:<id>); file is the snapshot path (pinned by tools/pin-profile.js). shows, people (consent), orientation, focus (x% y%) and tags help formatters pick one.",
+  "group": "Photos",
+  "images": {}
+ }
 }

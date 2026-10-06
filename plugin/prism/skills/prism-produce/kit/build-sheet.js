@@ -48,6 +48,8 @@ async function prepareImages([printScale, ground, fadeOn]) {
     const portraits = list.filter(i => orient(i) === "portrait").length;
     g.style.setProperty("--ratio", alike ? String(ratios.reduce((a, b) => a + b) / ratios.length) : portraits > list.length / 2 ? "4 / 5" : "3 / 2");
   });
+  // Crops centre on each photo's focal point, now that every frame has its size.
+  window.prismFocus(imgs);
   const warnings = [];
   for (const i of imgs) {
     if (!i.naturalWidth) { warnings.push(`missing image: ${i.getAttribute("src")}`); continue; }
@@ -64,8 +66,10 @@ async function prepareImages([printScale, ground, fadeOn]) {
     c.beginPath(); c.roundRect(0, 0, W, H, radius); c.clip();
     const ir = i.naturalWidth / i.naturalHeight, br = W / H;
     let sw, sh, sx, sy;
-    if (ir > br) { sh = i.naturalHeight; sw = sh * br; sx = (i.naturalWidth - sw) / 2; sy = 0; }
-    else { sw = i.naturalWidth; sh = sw / br; sx = 0; sy = (i.naturalHeight - sh) / 2; }
+    // The crop follows object-position (the focal point; centred when none is set).
+    const [px, py] = cs.objectPosition.split(" ").map(v => v.endsWith("%") ? parseFloat(v) / 100 : 0.5);
+    if (ir > br) { sh = i.naturalHeight; sw = sh * br; sx = (i.naturalWidth - sw) * px; sy = 0; }
+    else { sw = i.naturalWidth; sh = sw / br; sx = 0; sy = (i.naturalHeight - sh) * py; }
     c.drawImage(i, sx, sy, sw, sh, 0, 0, W, H);
     if (fadeOn && i.classList.contains("fade")) {
       // Same smoothstep ramp as .prism-fade on the site, pointing toward the text in a media row.
@@ -122,6 +126,7 @@ function stamp(file) {
   await page.emulateMedia({ media: "print" });
   const missingIcons = await require("./icons.js")(page, here, B);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
+  await page.addScriptTag({ content: require("./focus.js").inPage });
   const warnings = await page.evaluate(prepareImages, [brochure ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Brochure panels clip instead of flowing on, so report any panel or column whose content runs past its bottom edge.

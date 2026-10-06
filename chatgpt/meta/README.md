@@ -4,7 +4,7 @@ Raw material in, branded Case Amplify files out, with a human proof in between.
 
 ## How to use it
 
-1. **Draft.** Attach or paste anything (notes, a transcript, a document, and photos) and say "draft this into a case study" (or one-pager, brief, posts). Say which outputs you want if you know: sheet, deck, social, email, html-email, carousel. With photos, you'll be asked which one leads the piece, which to use, and whether people in them can be shown.
+1. **Draft.** Attach or paste anything (notes, a transcript, a document, and photos) and say "draft this into a case study" (or one-pager, brief, posts). Say which outputs you want if you know: sheet, deck, social, email, html-email, carousel. An optional interview asks for the audience, length, outputs and photos; skip any question and answer it later. With photos, you'll be asked which one leads the piece, which to use, and whether people in them can be shown. Every layout crops photos around their focal point.
 2. **Proof.** You get `content.md` (the words) and `claims.md` (every number and claim with its source), plus the reviewer's flags. Reply with edits or upload an edited content.md. Say "approve" when the words are right. Nothing is designed before this.
 3. **Produce.** Say "produce a sheet and a carousel" (or any mix). Each output is laid out by its own formatter, checked so no number appears that isn't in content.md, built, previewed and sent back.
 4. **Revise.** Reply with changes or upload an edited file.
