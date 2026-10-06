@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compares an edited wireframe artboard with the one the kit wrote and reports what the person changed:
-blocks moved, removed or added, items reordered inside a row, and every text edit (old -> new).
+blocks moved, removed or added, items reordered inside a row, every text edit (old -> new), and every link whose
+address chip was changed or that was typed in as a new address.
 With --apply NEW.md it also writes the format file with the blocks in their new order and removed blocks dropped;
 text edits are left for the agent, which applies them through the content or layout lane.
 Usage: wire_diff.py wire/<format>/ edited-<format>.dc.html [--apply formats/sheet.md]
@@ -15,7 +16,7 @@ class Wire(HTMLParser):
     """Collects each data-block's text and its data-item children, in document order."""
     def __init__(self):
         super().__init__(convert_charrefs=True)
-        self.stack, self.blocks, self.cur, self.item, self.skip, self.in_root, self.loose = [], [], None, None, 0, False, []
+        self.stack, self.blocks, self.cur, self.item, self.skip, self.in_root, self.loose, self.url = [], [], None, None, 0, False, [], None
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -25,12 +26,14 @@ class Wire(HTMLParser):
         mark = None
         if "data-wire-root" in a: self.in_root = True; mark = "root"
         elif "data-block" in a and self.in_root and self.cur is None:
-            self.cur = {"id": a["data-block"], "text": [], "items": []}; mark = "block"
+            self.cur = {"id": a["data-block"], "text": [], "items": [], "links": []}; mark = "block"
         elif "data-item" in a and self.cur is not None:
             self.item = {"id": a["data-item"], "text": []}; mark = "item"
         elif "data-wire-tag" in a: self.skip += 1; mark = "tag"
+        # A link's address chip: kept apart from the block's text, compared on its own.
+        elif "data-url" in a and self.cur is not None: self.url = []; mark = "url"
         elif self.in_root and self.cur is None and len([s for s in self.stack if s[1] == "root"]) and self.stack and self.stack[-1][1] == "root":
-            self.cur = {"id": None, "text": [], "items": []}; mark = "block"
+            self.cur = {"id": None, "text": [], "items": [], "links": []}; mark = "block"
         if self.cur is not None and tag in ("p", "div", "li"):
             self.cur["text"].append(" ")
             if self.item is not None: self.item["text"].append(" ")
@@ -46,16 +49,21 @@ class Wire(HTMLParser):
             elif mark == "item":
                 self.item["text"] = norm("".join(self.item["text"])); self.cur["items"].append(self.item); self.item = None
             elif mark == "tag": self.skip -= 1
+            elif mark == "url": self.cur["links"].append(norm("".join(self.url))); self.url = None
             elif mark == "root": self.in_root = False
             if t == tag: break
 
     def handle_data(self, d):
+        if self.url is not None: self.url.append(d); return
         if self.skip or self.cur is None: return
         self.cur["text"].append(d)
         if self.item is not None: self.item["text"].append(d)
 
 
 def norm(s): return re.sub(r"\s+", " ", s).strip()
+
+
+URL = re.compile(r"(?:https?://|mailto:|www\.)[^\s)\]]+")
 
 
 def parse(path):
@@ -106,6 +114,13 @@ def main():
             for g in gone: report.append(f"REMOVED  item {g['id']} {label(g)}")
         if b["text"] != o["text"]:
             report.append(f"EDITED   {b['id']}\n  was: {o['text']}\n  now: {b['text']}")
+        ol, al = o.get("links", []), b.get("links", [])
+        for k in range(min(len(ol), len(al))):
+            if ol[k] != al[k]: report.append(f"LINK     {b['id']} {label(b, 30)} link {k + 1}: {ol[k]} -> {al[k]}")
+        for k in range(len(al), len(ol)): report.append(f"LINK     {b['id']} {label(o, 30)} link {k + 1} removed: {ol[k]}")
+        # An address typed into the text (bare or as [text](address)) is a new link to add as Markdown.
+        for u in sorted(set(URL.findall(b["text"])) - set(URL.findall(o["text"]))):
+            report.append(f"LINK     {b['id']} {label(b, 30)} new address typed in: {u}")
     print("\n".join(report) if report else "No changes.")
     if apply_to:
         mdmap = {x["id"]: x["md"] for x in snap["blocks"]}

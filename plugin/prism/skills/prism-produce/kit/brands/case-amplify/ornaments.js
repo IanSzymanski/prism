@@ -3,6 +3,15 @@
 // wave-core.js, with parameters and placement rules from the profile (prism-generator-rule).
 const wave = B => { const G = B.role("prism-generator-rule"); require(G.script); return G; };
 
+// A grey wave burst of the brand's own shape, w px wide, for design mode.
+function lofiWave(B, w) {
+  const G = wave(B), P = G.params.default, H = 24, base = H / 2, s = w / P.span;
+  const all = Wave.samples(0, w, base, { wavelength: P.wavelength * s, amplitude: Math.min(P.amplitude * s, 9), focus: P.focus * s, edge: P.edge * s, cx: w / 2 });
+  // About 24 points is plenty at this size and keeps boards small to publish and read back.
+  const k = Math.max(1, Math.floor(all.length / 24)), pts = all.filter((p, i) => i % k === 0 || i === all.length - 1);
+  return `<svg width="${w}" height="${H}" viewBox="0 0 ${w} ${H}" aria-hidden="true" style="flex: 0 0 auto"><path d="M${pts.map(p => p.map(v => Math.round(v * 10) / 10).join(",")).join("L")}" fill="none" stroke="#9A9AA2" stroke-width="2" stroke-linejoin="round"></path></svg>`;
+}
+
 module.exports = {
   // Carousel: one wave line across every panel, one burst per panel at its `burst` position; it turns lilac where the dark panel starts.
   thread({ W, H, panels, darkLeft }, B) {
@@ -69,6 +78,17 @@ module.exports = {
   },
 
   // Swatch sheet: the wave at three widths, each parameter set, and on dark.
+  // Design mode (lo-fi, greys only): the section wave as a rule running from the heading to the edge with its burst at the end,
+  // so a short heading shows a long rule as it will print; the dark closing card; the wave stop as the email divider.
+  wire: {
+    css: ".ca-dark{background:#4A4A52;border-style:solid;text-align:center}.ca-dark .wx,.ca-dark .wstrong{color:#F2F2F5}.ca-dark a.wlink{color:#F2F2F5}",
+    heading(ctx, B) {
+      return { after: `<span style="flex: 1 1 72px; min-width: 72px; display: flex; align-items: center"><span style="flex: 1; height: 1.5px; background: #B4B4BC"></span>${lofiWave(B, 110)}</span>` };
+    },
+    closing: () => "ca-dark",
+    divider: (ctx, B) => `<div style="display: flex; justify-content: center">${lofiWave(B, 160)}</div>`,
+  },
+
   preview(ctx, B) {
     const G = wave(B);
     const draw = (w, P, s, stroke) => { const H = 46, base = H / 2, cx = w * 0.7;

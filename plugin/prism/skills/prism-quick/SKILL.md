@@ -6,7 +6,7 @@ description: >
   "just make it", "quick mode". Builds one output in one pass with the Case Amplify brand kit, the only
   allowed way to make a designed Case Amplify file. Not for pieces to be drafted and proofed first (prism-draft).
 metadata:
-  version: "0.15.0-dev"
+  version: "0.16.0-dev"
 ---
 
 # Quick mode: raw material to one finished file, one pass

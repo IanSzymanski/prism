@@ -8,6 +8,15 @@ const hues = (B, t = "light") => ({ 1: tok(B, "hue-1", t), 2: tok(B, "hue-2", t)
 const file = (B, rel) => "file://" + path.join(B.res.dir, "snapshot", rel);
 
 module.exports = {
+  // Design mode (lo-fi, greys only): numbered sections with the rule under the heading, the closing card's band strip,
+  // and the mini spectrum as four grey bands.
+  wire: {
+    css: ".pr-num{font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;color:#8A8A93}.pr-close{border-style:solid;border-top:6px solid #A9A9B1}",
+    heading: ({ n }) => ({ column: true, before: `<span class="pr-num">${String(n).padStart(2, "0")}</span>`, after: `<span style="display: block; height: 3px; background: #A9A9B1"></span>` }),
+    closing: () => "pr-close",
+    divider: () => `<div style="display: flex; justify-content: center; gap: 0"><span style="width: 12px; height: 4px; background: #8A8A93"></span><span style="width: 12px; height: 4px; background: #A9A9B1"></span><span style="width: 12px; height: 4px; background: #C4C4CA"></span><span style="width: 12px; height: 4px; background: #DCDCE0"></span></div>`,
+  },
+
   // Carousel: one spectrum strip along the bottom safe line; on panel n the band of hueFor(n) widens 3x.
   thread({ W, H, panels }, B) {
     const Sp = S(B), h = 12, y = H - 250 - h / 2, pw = panels.length ? panels[0].width : W;

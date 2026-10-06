@@ -2,7 +2,7 @@
 
 Prism turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files: sheets, brochures, decks, blog posts and headers, social posts, stories, carousels, email headers and HTML emails. One approved `content.md` feeds every output, and a fixed build kit makes every file in whichever brand the content names.
 
-It ships as a Claude plugin and a ChatGPT edition, both built from this repository. **v1 is the full launch; this tree is 0.15.0-dev.** See `HANDOFF.md` for the full working notes, standing rules and design decisions.
+It ships as a Claude plugin and a ChatGPT edition, both built from this repository. **v1 is the full launch; this tree is 0.16.0-dev.** See `HANDOFF.md` for the full working notes, standing rules and design decisions.
 
 ## Layout
 
@@ -28,7 +28,7 @@ Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` ru
 
 ```bash
 # Both editions into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
-python3 chatgpt/convert.py 0.15.0-dev
+python3 chatgpt/convert.py 0.16.0-dev
 
 # One output, from a workspace with the kit copied in
 cp -r plugin/prism/skills/prism-produce/kit .prism-kit
@@ -40,6 +40,7 @@ bash .prism-kit/run.sh blog fixtures/blog.md out/blog
 bash .prism-kit/run.sh swatch prism out/prism-swatch.pdf      # how a brand maps onto Prism
 bash .prism-kit/run.sh verify out/brief.pdf                     # --brand <id> for other brands
 bash .prism-kit/run.sh library case-amplify                      # the brand's reusable photos, as brand:<id>
+bash .prism-kit/run.sh wire fixtures/*.md --out wire --canvas wire/canvas --title "Test design"   # design-mode boards + canvas index
 ```
 
 To build a fixture in another brand, add `brand: prism` to its front matter.
@@ -50,6 +51,7 @@ To build a fixture in another brand, add `brand: prism` to its front matter.
 node tests/resolve.test.js            # the Case Amplify profile equals the 0.13.1 kit's values
 node tests/brands.test.js             # core holds no brand; every brand resolves and its ornaments draw
 python3 tests/assets.test.py          # focal points, crop markup and the brand image library
+python3 tests/wire.test.py            # design mode: boards, canvas index, icons, links, brand lo-fi, edit read-back, state
 ```
 
 **Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.

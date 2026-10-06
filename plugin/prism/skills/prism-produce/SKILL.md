@@ -6,7 +6,7 @@ description: >
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
   "I'm done editing", an edited format file, or a finished Markdown file in the Case Amplify format. Works from an approved content.md.
 metadata:
-  version: "0.15.0-dev"
+  version: "0.16.0-dev"
 ---
 
 # Produce: approved content to finished files, and revisions
@@ -56,7 +56,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 <!-- claude-only -->
 ## 1b. Open design mode (every format, before building)
 
-As soon as the format files exist, open the canvas with one board per format file (`references/wireframe.md`) without asking, and say in one line that it is open and that "done" builds the files. **Do not build or deliver anything while design mode is open**; follow "Design session" in section 4 until the person says "done".
+As soon as the format files exist, open the canvas with one board per format file (`references/wireframe.md`: one wire command builds every board and the canvas index, one publish sends them) without asking, and say in one line that it is open and that "done" exports the files. **Do not build or deliver anything before the first "done"**; follow "Design session" in section 4. A later session picks up where this one stopped: `.prism-kit/run.sh state <slug> show` names the canvas, what was exported and what changed since.
 
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
 
@@ -98,7 +98,7 @@ For each format file:
 - Send the built files with SendUserFile: PDF, PPTX, PNGs (all images for social/email/carousel), each captions file, and the preview contact sheets. HTML email: the `.html`, the images zip, the `.txt` and the preview. If a folder from the user's computer is connected, also write content.md, the format files and out/ there.
 - Asked for Illustrator, Canva, InDesign, .ai, .indd or "editable" files: Prism does not send files for editing elsewhere. Say in one line that layout and wording changes are made here and rebuilt, then ask what should change.
 <!-- claude-only -->
-- Remind the person in one line that the design canvas is open; when they say "done", read the edits back (`references/wireframe.md`).
+- Remind the person in one line that the design canvas is open and now matches these files, and that any change they ask for (on the canvas or in chat) is exported again straight away.
 <!-- /claude-only -->
 - Name each file's job in the message, one line each, so nobody mistakes the source for a deliverable:
   - the PDF, PPTX or PNGs: the finished piece;
@@ -142,12 +142,12 @@ Classify each requested change before touching files. Tell the user the lane in 
 - **Needs your call**: meaning questions, and any number the check could not match to the source.
 
 <!-- claude-only -->
-**Design session** (from opening design mode until the person says "done"). The canvas and the Markdown are one piece of work, and nothing is built until "done":
+**Design session** (from opening design mode until it is closed). The canvas and the Markdown are one piece of work. Until the first "done" nothing is built; after it, every change is exported again straight away (`state <slug> show` says which of the two the session is in):
 
-1. **No files.** Never build, preview or deliver a PDF, PPTX or PNG during the session, whatever the request sounds like ("make slide 4 cards", "change the headline"). A request in chat is an edit to the session, not a build order.
-2. **Every chat request starts with a pull.** Before touching the Markdown, read the boards back from the canvas and run `wire-diff --apply` (as in "Read the edits back"), so what the person already changed on the canvas is kept and never overwritten by a republish.
-3. **Then apply the chat request** through its lane (a layout change such as "make this slide cards" edits the format file; a wording change goes into content.md and every format file). Vet the result.
-4. **Record everything in content.md.** Bump `version`, keep the previous file as `content.v<n>.md`, and add the round to the `changes:` list in its front matter: one line per change, canvas edits and chat requests alike, layout included (content.md is where the person looks for what changed; formatters ignore this field):
+1. **Before the first "done": no files.** Never build, preview or deliver a PDF, PPTX or PNG, whatever the request sounds like ("make slide 4 cards", "change the headline"). A request in chat is an edit to the session, not a build order.
+2. **Every request starts with a pull check.** List the canvas's files and run `state <slug> pull-needed --version <id>`; on `pull`, read the boards back and run `wire-diff --apply` ("Read the edits back" in `references/wireframe.md`), so what the person already changed on the canvas is kept and never overwritten by a republish. On `skip`, nobody saved the canvas since your last publish: go straight on.
+3. **Then apply the request** through its lane (a layout change such as "make this slide cards" edits the format file; a wording or link change goes into content.md and every format file). A different icon ("use a calendar icon on the second card") is a layout change: swap the `ph-` name in the format file. Vet the result.
+4. **Record everything in content.md.** Bump `version`, keep the previous file as `content.v<n>.md`, and add the round to the `changes:` list in its front matter: one line per change, canvas edits and chat requests alike, layout included (content.md is where the person looks for what changed; formatters ignore this field; `state show` lists the lines since each format's last export):
    ```yaml
    version: 4
    changes:
@@ -156,9 +156,10 @@ Classify each requested change before touching files. Tell the user the lane in 
      - "v4 · chat: slide 4 laid out as feature cards"
      - "v4 · fixed: 'recieve' to 'receive' on slide 5"
    ```
-5. **Reopen design mode.** Run `wire` again for every changed format, publish the new boards (and `canvas.json` if a size changed) to the same canvas, and open it. The new boards become the baseline for the next pull.
-6. **Read back** with the four-part message below, then say that the canvas is updated and "done" builds the files.
-7. **"Done":** a last pull and vet, then step 2 (build, check, verify) and step 3 (deliver), with the full list of this session's changes from content.md.
+5. **Republish the changed boards** ("Republish the boards" in `references/wireframe.md`) and record the version. The new boards become the baseline for the next pull.
+6. **Read back** with the four-part message below, then say that the canvas is updated and that "done" exports the files (before the first export) or which files were exported again (after it).
+7. **"Done":** a last pull check and vet, then step 2 (build, check, verify) and step 3 (deliver), with the full list of changes since the last export from content.md. Record each export (`state <slug> export <format> <files>`) and republish every exported board stamped "Exported v<n> · <date>", so the canvas matches the files.
+8. **After the first export, no more "done".** Each later change request runs the same loop and ends with step 7 for the formats it touched: export, record, republish, deliver, read back. Design mode stays open until the person closes it (`state <slug> close`).
 
 <!-- /claude-only -->
 **New export later** ("also make a carousel"): step 1 in create mode for that export only.

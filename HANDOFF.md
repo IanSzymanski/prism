@@ -1,6 +1,6 @@
 # Prism: handoff for continued development
 
-State as of 6 October 2026, version **0.15.0-dev** (all 0.14 items done, 0.14.0 not yet cut; 0.15 started: F1, F5, F6 implemented, not yet confirmed live). This repository holds everything needed to keep developing; `README.md` covers layout, build and tests.
+State as of 6 October 2026, version **0.16.0-dev** (0.14.0 not yet cut; 0.15 F1, F5, F6 and /prism-interview merged, not yet confirmed live; 0.16 design-mode items M1, M2, M3, M4, M5, M7, M8, M9 implemented on a branch, not yet confirmed live; D11 brand onboarding not started). This repository holds everything needed to keep developing; `README.md` covers layout, build and tests.
 
 ## What it is
 
@@ -195,3 +195,29 @@ Ian's answers on the backlog (Notes on F1, F5, F6) set the design:
   - Images added later (after approval, in design mode or after delivery): "New images later" in prism-produce; captions go into content.md, placement through the layout lane, boards republished.
 - **Proof:** every fixture, the guide and five wireframes are identical to the pre-0.15 build (no fixture has a focal point). `tests/assets.test.py` (27 checks): focal detection, Lua markup, crop maths, library resolution and refusals. resolve 129 and brands 3,400 checks unchanged. Checked by eye: an off-centre portrait in a sheet hero, deck media and title slides, a story and a blog header.
 - **Not done yet:** design mode still shows images as grey boxes (thumbnails would need canvas uploads; fits M2 in 0.16). Not confirmed live: the Docs proof round trip (export, comments back to flags) and the interview in Cowork. The guide's version line still says 0.12.
+
+
+## Design mode, faster and closer to the export (0.16: M1, M2, M3, M4, M5, M7, M8, M9)
+
+**Where the time went (M1, measured on a test canvas "Prism design-mode speed test", https://claude.ai/artifact/6ERtwyb9TCvCj192aQeBFJ):**
+
+| Step | Before | Now |
+|---|---|---|
+| Build boards | 0.55 s per format, 2.5 s for the first (Chromium launch is ~0.5 s of each) | one command for all: 9 boards in 0.9 s |
+| canvas.json | written by hand by the model each time (and missing `createdOnFiles`, which the Design type requires) | generated with the boards, merged with what the person changed; a `publish:` line gives the exact call |
+| Publish | ~8 s for 5 boards in one call | ~7.5 s for 10 boards in one call |
+| Pull before every chat request | ~11 s, and every small board's full text lands in context (~40 KB for 5) | skipped when nobody saved since (`state pull-needed`); the file listing is ~2 KB |
+| Board size | 122 KB for the 9 fixtures | 99 KB (shared classes instead of repeated inline styles), with icons, link chips and brand lo-fi added |
+| Photos on boards | grey boxes | optional: one asset upload call (~6 s for up to 25 files), boards show them cropped at their focus |
+
+Creating a canvas costs ~20 s once per piece (the Design type's instructions are long). Version ids start with the save time in Unix seconds; the canvas service writes a companion version in the same second as a publish, so `pull-needed` treats a version within 2 s of the recorded one as unchanged.
+
+- **M2 icons (option A):** boards draw the chosen Phosphor icon at the brand's weight from the vendored paths (~1 KB each); no measurable build time. A different icon is a chat request (layout lane: swap the `ph-` name).
+- **M3 outlines:** component guides are blue dashed outlines with a label chip sitting on the line; cards stay solid grey on white.
+- **M9 lo-fi:** brands add `wire` to `ornaments.js` (`css`, `heading({n, text})` -> `{before, after, column}`, `closing()` -> class, `divider()` -> html), greys only. Case Amplify: grey rule from the heading to the edge with the wave burst at its end (the brand's own wave-core shape, thinned to ~24 points), the dark closing card, the wave stop as the email divider. Prism: section numbers above a rule, the closing card's band strip, four grey bands as the divider. No `wire`: core's neutral look. Answers: the minimum a lo-fi style shows is shape, position and proportion (a short heading shows a long rule); the fallback is core's plain block.
+- **M7 links:** each link and button shows its address in a blue chip after the text (`data-url`); `wire_diff` reports `LINK` for a retyped chip, a removed link, or an address typed into the text. Merge tags such as `*|UNSUB|*` are kept whole. Answer to "does design mode support links today?": no (0.15 showed underlined text and dropped the address).
+- **M8 state:** `run.sh state <slug> show|canvas|export|pull-needed|close`, kept in `<slug>/.prism/state.json` (canvas link and version, each format's last export with its content version, format-file hash, delivered files and a board snapshot in `.prism/exports/<format>/v<n>/`). Pending changes are content.md's `changes:` lines newer than each export, so the change log stays where people already look. Stored in the project folder, so a later session (with the folder connected) picks it up.
+- **M4 / M5:** "done" exports, records each export and republishes every exported board stamped "Exported v<n> · <date>", so the canvas matches the files. After the first export the session stays open and every later change is exported again without another "done" (F7). ChatGPT drops `state.js` with the other design-mode files.
+- **Bugs fixed on the way:** carousel panels were laid out on a fractional grid (`repeat(3.068…)`); title/eyebrow blocks on framed boards carried two `style` attributes.
+- **Proof:** every fixture and the guide build identically except the wireframes (intended); `wire.json` snapshots are unchanged apart from board heights, so the diff and `--apply` behave as before, and 0.15 boards still parse. `tests/wire.test.py` (86 checks). Seen by eye: the sheet, newsletter and carousel boards rendered locally.
+- **Not done / open:** page breaks on sheet boards (needs the export's page positions mapped back to blocks); the test canvas above can be deleted; nothing here confirmed on a live Cowork session yet.
