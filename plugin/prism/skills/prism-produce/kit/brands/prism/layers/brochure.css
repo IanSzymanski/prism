@@ -1,0 +1,7 @@
+/* Prism brochure layer: panel headings keep the numbered hue rule (from the sheet layer); the dark back panel is Prism's dark
+   theme with the source band along its top. Loads after prism-brochure.css. */
+.brochure h2{display:block}
+.panel.dark{position:relative;background:var(--brand-bg-dark)}
+.panel.dark::before{content:"";position:absolute;left:0;right:0;top:0;height:6pt;background:linear-gradient(90deg,var(--brand-hue-1) 0 25%,var(--brand-hue-2) 25% 50%,var(--brand-hue-3) 50% 75%,var(--brand-hue-4) 75% 100%)}
+.panel.dark h2::before{color:var(--brand-hue-1-text-dark)}
+.panel.dark .contact li{border-bottom-color:var(--brand-line-dark)}

@@ -1,0 +1,144 @@
+/* ca-social.css — social images built from Markdown. Loads after ca-sheet.css and reuses its components. */
+body.ca-social{margin:0;padding:40px;background:#E9E8DF;max-width:none;box-shadow:none;display:flex;flex-direction:column;gap:40px;align-items:flex-start}
+.post{
+  --z:1.5;position:relative;overflow:hidden;flex:none;
+  background:radial-gradient(80% 70% at 50% 0%,#F0E1F4 0%,#FFFFF8 100%);
+  padding:88px 88px 150px;display:flex;flex-direction:column;justify-content:center;
+}
+.post.square{width:1080px;height:1080px}
+.post.portrait{width:1080px;height:1350px}
+.post.wide{width:1200px;height:627px;padding:56px 64px 100px;--z:1.2}
+.post > *{zoom:var(--z)}
+.post .caption{display:none}
+/* Logo bottom-left, note bottom-right. */
+.post::before{content:"";position:absolute;left:88px;bottom:62px;width:258px;height:36px;background:url("images/ca-logo.png") left center / contain no-repeat}
+.post::after{content:attr(data-note);position:absolute;right:88px;bottom:66px;font:500 20px/1 var(--mono);letter-spacing:.06em;color:#6B6B71}
+.post.wide::before{left:64px;bottom:40px;width:200px;height:28px}
+.post.wide::after{right:64px;bottom:44px;font-size:16px}
+
+.post .eyebrow{font-size:11pt;margin-bottom:12pt}
+.post h2{font-size:30pt;line-height:1.08;margin:0 0 16pt}
+.post h2::after{height:34px}
+.post p{font-size:14pt;line-height:1.45;color:var(--body)}
+.post .stats ul{border:0;padding:0;margin:10pt 0 0}
+.post .stats li{font-size:14pt;line-height:1.35}
+.post .stats li strong{font-size:54pt;margin-bottom:8pt}
+.post.hero .stats li strong{font-size:118pt;line-height:1.1;letter-spacing:-.04em;margin-bottom:.28em}
+.post .features li{font-size:11pt;padding:16pt 18pt;background:var(--paper)}
+.post .features li strong{font-size:15pt}
+.post .ca-chart{margin:4pt 0 0}
+.post .ca-chart figcaption{font-size:8pt}
+
+/* Dark post: the site's CTA colours, no mono type on dark. */
+.post.dark{background:#1D0D3A url("images/cta-card.png") center / 100% 100% no-repeat;color:var(--paper)}
+.post.dark::before{background-image:url("images/ca-logo-light.png")}
+.post.dark::after{font-family:var(--sans);color:#9C94A4}
+.post.dark h2{color:var(--paper)}
+.post.dark h2::after{content:none}
+.post.dark h2 em{color:#C77DFF}
+.post.dark .eyebrow{font:600 12pt/1.3 var(--sans);letter-spacing:.01em;color:var(--lilac)}
+.post.dark p{color:#C9C5CA}
+.post.dark blockquote{color:var(--paper);font-size:30pt;line-height:1.2;margin:0;max-width:none;text-align:left}
+.post.dark blockquote .cite{font:600 12pt/1.3 var(--sans);letter-spacing:.01em;text-transform:none;color:var(--lilac);margin-top:18pt}
+.post blockquote p{font-size:inherit;line-height:inherit;color:inherit;margin:0 0 .4em}
+.post.dark blockquote em{font-style:normal;color:#C77DFF}
+.post.portrait{--z:1.6}
+.post .stats + p{margin-top:18pt}
+.post.dark blockquote p{color:var(--paper)}
+
+/* Email headers: 600px wide in the email, rendered at 2x. Logo top-left instead of bottom. */
+.post.email{width:1200px;height:420px;padding:118px 72px 56px;--z:1.3;justify-content:center}
+.post.email.short{height:300px;padding-top:104px}
+.post.email.tall{height:520px}
+.post.email::before{top:52px;bottom:auto;left:72px;width:230px;height:32px}
+.post.email::after{right:72px;top:58px;bottom:auto;font-size:15px}
+.post.email h2{font-size:26pt;margin-bottom:10pt}
+.post.email p{font-size:12.5pt;max-width:44ch;margin:0}
+.post.email .eyebrow{margin-bottom:10pt}
+.post.email.hero .stats li strong{font-size:74pt}
+.post.email .stats li{font-size:12.5pt;max-width:30ch}
+
+/* Photo side: ![](photo.jpg){.photo} fills the right of the header and fades into the background. */
+.post.split > *{max-width:56%}
+.post > p:has(> img.photo){zoom:1;position:absolute;top:0;right:0;bottom:0;width:48%;max-width:none;margin:0}
+.post img.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:0;
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 38%);mask-image:linear-gradient(to right,transparent 0%,#000 38%)}
+/* No wave beside a photo: next to a person it reads as a heart monitor. */
+.post.split h2::after{content:none}
+.post.email.dark::after{color:#9C94A4}
+
+/* Carousel: panels sit side by side on one canvas so the background and the wave line run across every swipe. */
+.carousel{
+  position:relative;display:flex;width:max-content;flex:none;
+  background:
+    radial-gradient(900px 700px at 14.2857% 0%,#F0E1F4 0%,rgb(240 225 244 / 0) 100%),
+    radial-gradient(1000px 800px at 28.5714% 100%,#EFE3F3 0%,rgb(239 227 243 / 0) 100%),
+    radial-gradient(900px 700px at 57.1429% 0%,#F0E1F4 0%,rgb(240 225 244 / 0) 100%),
+    radial-gradient(1000px 800px at 71.4286% 100%,#EFE3F3 0%,rgb(239 227 243 / 0) 100%),
+    #FFFFF8;
+}
+.carousel > .caption{display:none}
+.carousel .post{width:1080px;height:1350px;background:transparent;padding:120px 96px 300px;--z:2.05;justify-content:center}
+.carousel .post.dark{background:#1D0D3A url("images/cta-card.png") center / 100% 100% no-repeat}
+.carousel .post::before{display:none}
+.carousel .post.cover::before,.carousel .post.end::before{display:block;top:96px;bottom:auto;left:96px}
+.carousel .post::after{right:96px;bottom:96px;font-size:22px}
+.carousel .post.cover::after{color:var(--grape);font-family:var(--sans);font-weight:600;font-size:26px}
+.carousel h1{font:600 30pt/1.04 var(--serif);letter-spacing:-.022em;color:var(--ink);margin:0 0 14pt;font-variation-settings:"opsz" var(--opsz),"wght" 600}
+.carousel h1 em{font-style:normal;color:var(--grape)}
+.carousel h2{font-size:25pt;display:block}
+.carousel h2::after{content:none}
+.carousel .num{display:block;font:500 12pt/1 var(--mono);letter-spacing:.14em;color:var(--grape);margin-bottom:14pt}
+.carousel .checks li{font-size:14pt;margin-bottom:8pt;padding-left:26pt}
+.carousel .checks li::before{font-size:17pt}
+.carousel .steps ol{list-style:none;padding:0;margin:4pt 0 16pt;display:grid;gap:8pt}
+.carousel .steps li{counter-increment:s;font-size:15pt;padding:10pt 0 10pt 34pt;border-bottom:var(--line);position:relative;margin:0}
+.carousel .steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:13pt;font:500 10pt var(--mono);color:var(--grape)}
+.carousel .steps li::marker{content:none}
+.carousel .steps li strong{font-family:var(--serif);font-weight:600}
+/* The shared wave line, drawn by build-social.js from wave-core.js. */
+.carousel .ca-thread{position:absolute;left:0;top:0;pointer-events:none}
+
+/* Stories: 1080×1920. Text stays inside the safe area the app's own UI leaves clear:
+   top 14% (270px: progress bar, profile, close), bottom 20% (384px: reply bar, stickers), sides 88px.
+   `.reel` keeps the bottom 35% (672px) clear for Reels captions and buttons. Photos may bleed past it; text may not. */
+.post.story{width:1080px;height:1920px;--safe-top:270px;--safe-bottom:384px;--side:88px;--z:2.1;
+  padding:calc(var(--safe-top) + 96px) var(--side) calc(var(--safe-bottom) + 84px);justify-content:center}
+.post.story.reel{--safe-bottom:672px}
+.post.story::before{top:calc(var(--safe-top) + 8px);bottom:auto;left:var(--side);width:280px;height:40px}
+.post.story::after{bottom:calc(var(--safe-bottom) + 24px);right:var(--side);font-size:22px}
+.post.story h2{font-size:31pt;flex-wrap:wrap;gap:6pt}
+/* Narrow column: the heading wave drops under the heading, burst first. */
+.post.story h2::after{flex:0 0 100%;min-width:0;background-image:var(--ca-wave-opener-start);background-position:left center}
+.post.story.hero .stats li strong{font-size:130pt}
+
+/* Photo at the top: bleeds off the top edge and fades into the page; text sits low in the safe area. */
+.post.story.photo-top{justify-content:flex-end}
+.post.story.photo-top > p:has(> img.photo){zoom:1;position:absolute;left:0;right:0;top:0;height:58%;width:auto;max-width:none;margin:0}
+.post.story.photo-top img.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:0;
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%)}
+.post.story.photo-top::before{top:auto;bottom:calc(var(--safe-bottom) + 20px)}
+.post.story.photo-top::after{bottom:calc(var(--safe-bottom) + 28px)}
+
+/* Full-bleed photo under a dark scrim; white text low in the safe area. Treated as a dark post (no mono). */
+.post.story.photo-full{justify-content:flex-end;background:#1D0D3A;color:var(--paper)}
+.post.story.photo-full > p:has(> img.photo){zoom:1;position:absolute;inset:0;width:auto;max-width:none;margin:0;z-index:0}
+.post.story.photo-full img.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}
+.post.story.photo-full > p:has(> img.photo)::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgb(19 8 40 / .15) 0%,rgb(19 8 40 / 0) 25%,rgb(19 8 40 / .55) 50%,rgb(19 8 40 / .92) 78%,#130828 100%)}
+.post.story.photo-full > *:not(p:has(> img.photo)){position:relative;z-index:1}
+.post.story.photo-full::before{background-image:url("images/ca-logo-light.png");z-index:1}
+.post.story.photo-full::after{font-family:var(--sans);color:#C9C5CA;z-index:1}
+.post.story.photo-full h2,.post.story.photo-full strong{color:var(--paper)}
+.post.story.photo-full h2 em{color:#C77DFF}
+.post.story.photo-full .eyebrow{font:600 12pt/1.3 var(--sans);letter-spacing:.01em;color:var(--lilac)}
+.post.story.photo-full p{color:#E4E0E6}
+
+/* Photo card: a framed photo inside the safe area, text above or below it. */
+.post.story.photo-card > p:has(> img.photo){zoom:1;position:static;width:auto;height:auto;margin:0 0 56px;max-width:none}
+.post.story.photo-card img.photo{display:block;width:100%;height:520px;object-fit:cover;border-radius:28px;-webkit-mask-image:none;mask-image:none}
+.post.story.photo-card > p:has(> img.photo):last-child{margin:56px 0 0}
+
+/* No heading wave on a story with a photo: next to a person it reads as a heart monitor. */
+.post.story:is(.photo-top,.photo-full,.photo-card) h2::after{content:none}
+.post.story:is(.photo-top,.photo-full,.photo-card) h2{display:block}

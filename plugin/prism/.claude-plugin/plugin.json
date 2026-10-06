@@ -1,0 +1,17 @@
+{
+  "name": "prism",
+  "version": "0.14.0-dev",
+  "description": "Turn raw notes, transcripts or documents into proofed Case Amplify content, then into branded PDFs, trifold brochures, PowerPoint decks, social posts, email headers, HTML emails and carousels. Includes a quick mode for a finished document in one pass.",
+  "author": {
+    "name": "Ian"
+  },
+  "keywords": [
+    "case amplify",
+    "content",
+    "brand",
+    "pdf",
+    "pptx",
+    "social",
+    "email"
+  ]
+}

@@ -1,0 +1,47 @@
+/* Case Amplify sheet layer: its masthead wash, wave headings and stop, and the dark closing card. Loaded after prism-sheet.css. */
+
+.prism-mast{
+  background:radial-gradient(90% 100% at 50% 0%,var(--prism-color-wash) 0%,var(--prism-color-surface) 100%) no-repeat;
+}
+
+h2{display:flex;align-items:center;gap:16pt}
+
+h2::after{
+  content:"";flex:1 1 72pt;min-width:72pt;height:34px;
+  background:var(--prism-asset-rule-opener-end) right center / auto 34px no-repeat;
+}
+
+/* Long headings: the rule drops below and its burst moves to the start, where reading begins. */
+h2.stack{flex-wrap:wrap;gap:6pt}
+h2.stack::after{flex-basis:100%;background-image:var(--prism-asset-rule-opener-start);background-position:left center}
+
+/* Chapter stop: the wave stop, centred at its own size. */
+hr{height:46px;background:var(--prism-asset-rule-stop) center / auto no-repeat}
+
+/* CTA card — the one dark object, one per sheet. A plain rounded card. */
+.cta-card{
+  margin:26pt 0 10pt;padding:26pt 30pt 22pt;text-align:center;
+  color:var(--prism-color-surface);border-radius:14pt;break-inside:avoid;
+  background:var(--prism-color-dark-surface) var(--prism-asset-dark-surface) center / 100% 100% no-repeat;
+}
+.cta-card .eyebrow,.cta-card .prism-kicker{font:600 9.5pt/1.3 var(--prism-font-sans);letter-spacing:.01em;color:var(--prism-color-eyebrow-on-dark)}
+.cta-card h2,.cta-card h3{
+  display:block;color:var(--prism-color-surface);font:600 20pt/1.1 var(--prism-font-serif);letter-spacing:-.02em;
+  max-width:22ch;margin:8pt auto 10pt;
+}
+.cta-card h2::after{content:none}
+.cta-card h2 em,.cta-card h3 em{font-style:normal;color:var(--prism-color-accent-dark)}
+.cta-card p{color:var(--prism-color-text-dark);max-width:46ch;margin:0 auto 10pt}
+.cta-card p:last-child{margin-bottom:0}
+.cta-card a{color:var(--prism-color-surface);text-decoration-color:var(--prism-color-link-line-dark)}
+.cta-card .note{font:400 8.5pt/1.4 var(--prism-font-sans);color:var(--prism-color-text-muted-dark)}
+/* Smaller closing cards for tight pages: ::: {.cta-card .small} or {.cta-card .x-small}. */
+.cta-card.small{margin:16pt 0 6pt;padding:17pt 24pt 15pt;border-radius:12pt}
+.cta-card.small h2,.cta-card.small h3{font-size:15pt;margin:4pt auto 6pt}
+.cta-card.small p{font-size:9pt;margin-bottom:6pt}
+.cta-card.small .eyebrow{font-size:8.5pt}
+/* x-small is a left-aligned band: eyebrow and heading on the left, text beneath, no centring. */
+.cta-card.x-small{margin:12pt 0 4pt;padding:11pt 18pt;border-radius:10pt;text-align:left}
+.cta-card.x-small h2,.cta-card.x-small h3{font-size:12.5pt;margin:2pt 0 3pt;max-width:none}
+.cta-card.x-small p{font-size:8.5pt;margin:0 0 3pt;max-width:none}
+.cta-card.x-small .eyebrow{font-size:8pt}

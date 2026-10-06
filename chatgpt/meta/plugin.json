@@ -1,0 +1,7 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "prism",
+  "version": "0.5.2",
+  "description": "Turn raw notes, transcripts or documents into proofed Case Amplify content, then into branded PDFs, trifold brochures, PowerPoint decks, social posts, email headers, HTML emails and carousels. Includes a quick mode for a finished document in one pass.",
+  "skills": "./skills/"
+}

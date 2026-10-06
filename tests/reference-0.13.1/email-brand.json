@@ -1,0 +1,59 @@
+{
+ "name": "Case Amplify",
+ "_note": "Brand layer for build-email.js. The builder (core) reads only these tokens, so another brand swaps this file, not the builder.",
+ "_palette": "Chosen to survive Outlook's own dark mode, which ignores our dark CSS when HTML is pasted and in classic Outlook: pure #FFFFFF surfaces become Outlook's dark canvas; every other background goes to a mid grey of the same hue; dark text flips light and turns toward magenta. So surfaces are pure white, the text accent is a deeper violet that flips to lilac, grape is used only for fills and rules (Outlook keeps saturated fills), and no text is lighter than muted. The dark palette (for clients that run our dark CSS) is set close to Outlook's result so the email looks alike everywhere. Check with the 'Outlook dark (simulated)' view in preview.png.",
+ "fonts": {
+  "sans": "Inter,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif",
+  "serif": "Literata,Georgia,'Times New Roman',serif",
+  "mono": "'IBM Plex Mono',Menlo,Consolas,monospace",
+  "msoSans": "Arial,sans-serif",
+  "msoSerif": "Georgia,serif",
+  "webfonts": "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Literata:opsz,wght@7..72,500&display=swap"
+ },
+ "light": {
+  "page": "#FFFFFF",
+  "card": "#FFFFFF",
+  "tint": "#F4EAF8",
+  "ink": "#11111C",
+  "body": "#3A3A44",
+  "muted": "#6B6B71",
+  "accent": "#6A3FA8",
+  "accentFill": "#8D16D4",
+  "hair": "#DADAD2",
+  "button": "#8D16D4",
+  "buttonText": "#FFFFFF"
+ },
+ "dark": {
+  "page": "#242428",
+  "card": "#29292D",
+  "tint": "#463D50",
+  "ink": "#F1EFF6",
+  "body": "#CFCED8",
+  "muted": "#AEAEB3",
+  "accent": "#D6A0F4",
+  "accentFill": "#A65CE0",
+  "hair": "#43434A",
+  "button": "#8D16D4",
+  "buttonText": "#FFFFFF"
+ },
+ "radius": 8,
+ "logo": {
+  "light": "images/ca-logo.png",
+  "dark": "images/ca-logo-light.png",
+  "width": 168,
+  "alt": "Case Amplify"
+ },
+ "divider": {
+  "kind": "wave",
+  "light": "#C1C1B8",
+  "dark": "#9A6FD8"
+ },
+ "iconFont": "vendor/phosphor-light/style.css",
+ "iconClass": "ph-light",
+ "build": "Case Amplify Content Studio",
+ "outlookSim": true,
+ "outlookOverrides": false,
+ "_outlookOverrides": "Outlook-only [data-ogsc]/[data-ogsb] dark rules. Off: Outlook applies them and then runs its own dark mode over the result, so our dark colours are recoloured twice (measured October 2026).",
+ "scheme": "light",
+ "_scheme": "light (default): one light email that clients' own dark modes recolour cleanly. auto: adds our dark CSS for Apple Mail and iOS, but Outlook recolours that a second time to mid-grey."
+}

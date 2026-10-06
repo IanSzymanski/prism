@@ -1,0 +1,41 @@
+/* Prism sheet layer: the source band, the eyebrow chip, numbered sections with hue rules, the spectrum stop, hue-cycled
+   flow steps and the closing panel. Flat: no washes, no fades, no shadows beyond the one lift. Loads after prism-sheet.css. */
+
+/* Source band: the four hues edge to edge along the top of page one. */
+.prism-mast{position:relative}
+.prism-mast::before{content:"";position:absolute;left:0;right:0;top:0;height:6pt;background:linear-gradient(90deg,var(--brand-hue-1) 0 25%,var(--brand-hue-2) 25% 50%,var(--brand-hue-3) 50% 75%,var(--brand-hue-4) 75% 100%)}
+
+/* Chip: leads the masthead and closing-panel eyebrows. */
+.prism-mast .eyebrow::before,.cta-card .eyebrow::before{content:"";display:inline-block;width:36pt;height:4.5pt;border-radius:2.25pt;margin-right:8pt;vertical-align:.12em;background:linear-gradient(90deg,var(--brand-hue-1) 0 25%,var(--brand-hue-2) 25% 50%,var(--brand-hue-3) 50% 75%,var(--brand-hue-4) 75% 100%)}
+
+/* Sections: a mono code (01, 02 ...) in the section's hue, then the heading, over a 3px rule in that hue.
+   The hue cycles red, amber, green, blue by section number (data-n from the build). */
+h2[data-n="1"],h2[data-n="5"],h2[data-n="9"],h2[data-n="13"],h2[data-n="17"],h2[data-n="21"]{--hue:var(--brand-hue-1);--hue-text:var(--brand-hue-1-text)}
+h2[data-n="2"],h2[data-n="6"],h2[data-n="10"],h2[data-n="14"],h2[data-n="18"],h2[data-n="22"]{--hue:var(--brand-hue-2);--hue-text:var(--brand-hue-2-text)}
+h2[data-n="3"],h2[data-n="7"],h2[data-n="11"],h2[data-n="15"],h2[data-n="19"],h2[data-n="23"]{--hue:var(--brand-hue-3);--hue-text:var(--brand-hue-3-text)}
+h2[data-n="4"],h2[data-n="8"],h2[data-n="12"],h2[data-n="16"],h2[data-n="20"],h2[data-n="24"]{--hue:var(--brand-hue-4);--hue-text:var(--brand-hue-4-text)}
+h2::before{content:attr(data-n);display:block;font:var(--prism-type-label-weight) 7.5pt/1 var(--prism-font-mono);letter-spacing:.14em;color:var(--hue-text);margin-bottom:5pt}
+h2[data-n="1"]::before,h2[data-n="2"]::before,h2[data-n="3"]::before,h2[data-n="4"]::before,h2[data-n="5"]::before,h2[data-n="6"]::before,h2[data-n="7"]::before,h2[data-n="8"]::before,h2[data-n="9"]::before{content:"0" attr(data-n)}
+h2::after{content:"";display:block;height:3px;background:var(--hue);margin-top:6pt}
+h2.no-rule::before,.cta-card h2::before,.cta-card h2::after{content:none}
+
+/* Chapter stop: the spectrum stop, centred at its own size. */
+hr{height:6px;background:var(--prism-asset-rule-stop) center / auto no-repeat}
+
+/* Flow steps take the hue cycle: each step's top rule in its hue, its number in that hue's text colour. */
+.flow li:nth-child(4n+1){border-top-color:var(--brand-hue-1)}.flow li:nth-child(4n+1)::before{color:var(--brand-hue-1-text)}
+.flow li:nth-child(4n+2){border-top-color:var(--brand-hue-2)}.flow li:nth-child(4n+2)::before{color:var(--brand-hue-2-text)}
+.flow li:nth-child(4n+3){border-top-color:var(--brand-hue-3)}.flow li:nth-child(4n+3)::before{color:var(--brand-hue-3-text)}
+.flow li:nth-child(4n+4){border-top-color:var(--brand-hue-4)}.flow li:nth-child(4n+4)::before{color:var(--brand-hue-4-text)}
+.flow li{border-top-width:3px}
+
+/* Closing panel: the handoff. Flat soft ground, 1px line, the source band along its top edge, left aligned. */
+.cta-card{position:relative;overflow:hidden;background:var(--brand-soft);border:1px solid var(--prism-color-rule-soft);border-radius:var(--prism-radius-card);color:var(--prism-color-text);padding-top:30pt}
+.cta-card::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,var(--brand-hue-1) 0 25%,var(--brand-hue-2) 25% 50%,var(--brand-hue-3) 50% 75%,var(--brand-hue-4) 75% 100%)}
+.cta-card .eyebrow{color:var(--prism-color-text-muted)}
+.cta-card h2,.cta-card h3{color:var(--prism-color-text-strong);max-width:24ch}
+.cta-card h2 em,.cta-card h3 em{font-style:normal;color:var(--prism-color-accent)}
+.cta-card p{color:var(--prism-color-text);max-width:52ch;margin:0 0 10pt}
+.cta-card a{color:var(--prism-color-accent);text-decoration-color:var(--prism-color-link-line)}
+.cta-card.small h2,.cta-card.small h3{font-size:15pt}
+.cta-card.x-small h2,.cta-card.x-small h3{font-size:12.5pt;margin:2pt 0 3pt}

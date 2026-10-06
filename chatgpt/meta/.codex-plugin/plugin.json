@@ -1,0 +1,40 @@
+{
+  "name": "prism",
+  "version": "0.5.2",
+  "description": "Turn raw notes, transcripts or documents into proofed Case Amplify content, then into branded PDFs, trifold brochures, PowerPoint decks, social posts, email headers, HTML emails and carousels. Includes a quick mode for a finished document in one pass.",
+  "author": {
+    "name": "Case Amplify",
+    "url": "https://caseamplify.com"
+  },
+  "keywords": [
+    "case amplify",
+    "marketing",
+    "brand",
+    "pdf",
+    "brochure",
+    "slides",
+    "social",
+    "email"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Prism",
+    "shortDescription": "Notes in, on-brand Case Amplify files out",
+    "longDescription": "Drafts Case Amplify marketing content from any raw material, stops for your proof, then builds branded PDFs, trifold brochures, PowerPoint decks, social images, email headers, HTML emails and carousels. Every number is checked against the approved words. Quick mode builds one document in a single pass.",
+    "developerName": "Case Amplify",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "websiteURL": "https://caseamplify.com/",
+    "defaultPrompt": [
+      "Draft these notes into a case study",
+      "Quick one-pager from this",
+      "Make a trifold brochure about Case Amplify"
+    ],
+    "brandColor": "#8D16D4",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png"
+  }
+}

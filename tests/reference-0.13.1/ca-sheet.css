@@ -1,0 +1,391 @@
+/* ca-sheet.css — Case Amplify white sheets: printed and PDF documents built from Markdown.
+   Spec: wave-system.md v2026.08.27
+   Build: pandoc with ca-sheet.html + ca-sheet.lua, printed by Chromium (build-sheet.js). */
+
+/* Fonts. Local installs win; otherwise loads from ./fonts next to this file. */
+/* Static instances (Literata at opsz 32), so PDFs embed real TrueType fonts that Illustrator, Canva and Acrobat can edit. */
+@font-face{font-family:"Literata";src:url("fonts/print/Literata-Regular.ttf") format("truetype");font-weight:100 449;font-style:normal}
+@font-face{font-family:"Literata";src:url("fonts/print/Literata-Medium.ttf") format("truetype");font-weight:450 549;font-style:normal}
+@font-face{font-family:"Literata";src:url("fonts/print/Literata-SemiBold.ttf") format("truetype");font-weight:550 900;font-style:normal}
+@font-face{font-family:"Inter";src:url("fonts/print/Inter-Regular.ttf") format("truetype");font-weight:100 449;font-style:normal}
+@font-face{font-family:"Inter";src:url("fonts/print/Inter-Medium.ttf") format("truetype");font-weight:450 549;font-style:normal}
+@font-face{font-family:"Inter";src:url("fonts/print/Inter-SemiBold.ttf") format("truetype");font-weight:550 900;font-style:normal}
+@font-face{font-family:"IBM Plex Mono";src:local("IBM Plex Mono Medium"),url("fonts/IBMPlexMono-500.woff2") format("woff2");font-weight:500;font-style:normal}
+
+:root{
+  --paper:#FFFFF8;
+  --ink:#11111C;
+  --body:#3A3A44;
+  --hair:#C1C1B8;
+  --hair-soft:#DADAD2;
+  --line:.8pt solid var(--hair-soft);
+  --grape:#8D16D4;
+  --grape-1:#CE08F2;
+  --grape-2:#8F15D5;
+  --lilac:#C89BF0;
+  --night:#080612;
+  --indigo:#271547;
+
+  --serif:"Literata",Georgia,serif;
+  --sans:"Inter",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --opsz:32;
+
+  --page-x:calc(.75in / .9);  /* .75in on paper once the build prints at 90% */
+  --page-top:.8in;
+  --measure:none;
+  --space:14pt;
+}
+
+/* Colours are solid, never transparent: PDF viewers blend transparency differently. */
+/* Page. Letter by default; change `size` to A4 for A4.
+   Side margins live on body, not here, so the first-page wash can run to the paper edges. */
+@page{
+  size:letter;
+  margin:var(--page-top) 0 .85in;
+  @bottom-left{font:500 7.5pt/1 var(--mono);letter-spacing:.08em;color:#8A8A90;vertical-align:top;padding:.3in 0 0 .75in}
+  @bottom-right{content:counter(page) " / " counter(pages);font:500 7.5pt/1 var(--mono);letter-spacing:.08em;color:#8A8A90;vertical-align:top;padding:.3in .75in 0 0}
+}
+@page{background:#FFFFF8}
+@page:first{margin-top:0}
+html{background:var(--paper);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:0 var(--page-x);background:var(--paper);color:var(--body);
+  font:400 10pt/1.62 var(--sans);
+  font-feature-settings:"ss01","cv11";
+  -webkit-font-smoothing:antialiased;
+  orphans:3;widows:3;
+}
+/* Screen preview only: show the sheet as a sheet. */
+@media screen{
+  html{background:#E9E8DF}
+  body{max-width:8.5in;margin:32px auto;padding:0 var(--page-x) .85in;box-shadow:0 18px 44px -22px rgba(8,6,17,.35)}
+}
+
+/* Masthead — first page only. The grape wash is this sheet's own rule, not the homepage veil. */
+.ca-mast{
+  margin:0 calc(var(--page-x) * -1) 30pt;
+  padding:.55in var(--page-x) 0;
+  background:radial-gradient(90% 100% at 50% 0%,#F0E1F4 0%,#FFFFF8 100%) no-repeat;
+}
+.ca-mast__bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9in}
+.ca-mast__logo{height:22pt;width:auto;display:block}
+.ca-mast__type{font:500 7.5pt/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--body)}
+.ca-mast .eyebrow{margin-bottom:14pt}
+.ca-mast h1{
+  font:600 34pt/1.05 var(--serif);letter-spacing:-.022em;color:var(--ink);
+  max-width:17ch;margin:0 0 16pt;
+  font-optical-sizing:none;font-variation-settings:"opsz" var(--opsz),"wght" 600;
+}
+.ca-mast h1 em{font-style:normal;color:var(--grape)}
+.ca-lede{font:400 12.5pt/1.5 var(--sans);color:var(--body);max-width:50ch;margin:0 0 16pt}
+.ca-meta{font:500 8pt/1.4 var(--mono);letter-spacing:.06em;color:#75757A;margin:0}
+/* Smaller title areas for tight pages: `hero: small` or `hero: x-small` in the front matter. */
+.hero-small .ca-mast{padding-top:.45in;margin-bottom:20pt}
+.hero-small .ca-mast__bar{margin-bottom:.5in}
+.hero-small .ca-mast .eyebrow{margin-bottom:10pt}
+.hero-small .ca-mast h1{font-size:26pt;margin-bottom:10pt;max-width:22ch}
+.hero-small .ca-lede{font-size:11pt;margin-bottom:10pt}
+.hero-x-small .ca-mast{padding-top:.4in;margin-bottom:14pt}
+.hero-x-small .ca-mast__bar{margin-bottom:.28in}
+.hero-x-small .ca-mast .eyebrow{margin-bottom:7pt}
+.hero-x-small .ca-mast h1{font-size:21pt;margin-bottom:7pt;max-width:30ch}
+.hero-x-small .ca-lede{font-size:10pt;margin-bottom:7pt;max-width:62ch}
+
+/* The label above a heading. Same object as `.eyebrow` on the site; sets no alignment. */
+.eyebrow,.ca-kicker{font:500 8.5pt/1.3 var(--mono);letter-spacing:.08em;color:var(--body);margin:0}
+
+/* Headings. h2 opens a section and carries the opener rule; nothing else carries a wave. */
+h1,h2,h3,h4{color:var(--ink);break-after:avoid;break-inside:avoid}
+:is(h2,h3,h4) + *{break-before:avoid}
+.ca-sheet h1{font:600 24pt/1.1 var(--serif);letter-spacing:-.02em;margin:26pt 0 12pt}
+h2{
+  display:flex;align-items:center;gap:16pt;
+  font:600 17pt/1.15 var(--serif);letter-spacing:-.016em;
+  margin:28pt 0 12pt;
+  font-optical-sizing:none;font-variation-settings:"opsz" var(--opsz),"wght" 600;
+}
+h2::after{
+  content:"";flex:1 1 72pt;min-width:72pt;height:34px;
+  background:var(--ca-wave-opener-end) right center / auto 34px no-repeat;
+}
+h2 .h2-text{flex:0 1 auto}
+h2 em,.ca-sheet h1 em{font-style:normal;color:var(--grape)}
+/* Long headings: the rule drops below and its burst moves to the start, where reading begins. */
+h2.stack{flex-wrap:wrap;gap:6pt}
+h2.stack::after{flex-basis:100%;background-image:var(--ca-wave-opener-start);background-position:left center}
+h2.no-rule::after{content:none}
+h3{font:600 11.5pt/1.35 var(--sans);letter-spacing:-.01em;margin:18pt 0 6pt}
+h4{font:500 8pt/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--body);margin:16pt 0 6pt}
+h2 + h3,h2 + h4{margin-top:4pt}
+
+main.ca-sheet{padding:0 1pt}
+p{margin:0 0 var(--space)}
+strong{font-weight:600;color:var(--ink)}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:#CC96E8;text-underline-offset:2pt;text-decoration-thickness:.8pt}
+ul,ol{margin:0 0 var(--space);padding-left:16pt}
+li{margin:0 0 4pt;padding-left:2pt}
+li::marker{color:var(--grape)}
+ul > li::marker{content:"–  "}
+ol > li::marker{font:500 8.5pt var(--mono)}
+li > ul,li > ol{margin:4pt 0 0}
+
+/* Chapter boundary. A full stop, never an opener; use between groups of sections, sparingly. */
+hr{
+  border:0;height:46px;margin:22pt 0;
+  background:var(--ca-wave-stop) center / auto 46px no-repeat;
+  break-after:avoid;
+}
+
+/* Pull quote. No wave near a quote or a person's name — it reads as a vital sign. */
+blockquote{
+  margin:24pt auto;padding:0;max-width:30em;text-align:center;break-inside:avoid;
+  font:400 16pt/1.3 var(--serif);letter-spacing:-.018em;color:var(--ink);
+  font-optical-sizing:none;font-variation-settings:"opsz" var(--opsz),"wght" 400;
+}
+blockquote p{margin:0 0 10pt}
+blockquote .cite,blockquote cite{
+  display:block;font:500 7.5pt/1.4 var(--mono);font-style:normal;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--body);margin-top:12pt;
+}
+
+/* Tables. */
+table{width:100%;border-collapse:collapse;margin:6pt 0 18pt;font-size:9pt;line-height:1.45;break-inside:auto}
+thead{display:table-header-group}
+tr{break-inside:avoid}
+th{
+  text-align:left;font:500 7.5pt/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--body);padding:0 10pt 7pt 0;border-bottom:var(--line);
+}
+td{padding:8pt 10pt 8pt 0;border-bottom:var(--line);vertical-align:top}
+td:first-child{color:var(--ink);font-weight:500}
+table caption{caption-side:bottom;text-align:left;font:500 7.5pt/1.4 var(--mono);letter-spacing:.06em;color:#6B6B71;padding-top:6pt}
+
+/* Code. */
+code{font:500 .88em var(--mono);background:#F8F1F6;padding:.1em .35em;border-radius:3pt;color:var(--ink)}
+pre{font:500 8.5pt/1.55 var(--mono);background:#F6F6EF;border:var(--line);border-radius:8pt;padding:10pt 12pt;margin:0 0 var(--space);white-space:pre-wrap;break-inside:avoid}
+pre code{background:none;padding:0;font-size:inherit}
+
+/* Figures. Two stacked drop-shadows read as lift; one reads as a smudge. */
+/* Images. The build tags each image .is-landscape / .is-portrait / .is-square and bakes .fade and .shadow into the pixels. */
+figure{margin:18pt 0;break-inside:avoid}
+figure img,p > img{display:block;width:100%;height:auto;border-radius:12pt}
+figure.is-portrait{width:44%;margin-inline:auto}
+figure.is-square{width:60%;margin-inline:auto}
+
+/* Hero image: the first block after the title. ::: hero-image */
+.hero-image{margin:-6pt 0 22pt;break-inside:avoid}
+.hero-image figure,.hero-image p{margin:0;width:auto}
+.hero-image img{width:100%;height:3.1in;object-fit:cover;border-radius:14pt}
+.hero-small .hero-image img{height:2.4in}
+.hero-x-small .hero-image img{height:1.8in}
+
+/* Media row: one image beside text. Column split follows the photo's shape; .flip puts the image right. */
+.media{display:grid;grid-template-columns:1fr 1fr;gap:20pt;align-items:center;margin:14pt 0 20pt;break-inside:avoid}
+.media.is-portrait{grid-template-columns:34% 1fr}
+.media.is-square{grid-template-columns:40% 1fr}
+.media.flip.is-landscape{grid-template-columns:1fr 1fr}
+.media.flip.is-portrait{grid-template-columns:1fr 34%}
+.media.flip.is-square{grid-template-columns:1fr 40%}
+.media.flip > :first-child{order:2}
+.media > figure,.media > p:has(> img){margin:0;width:auto}
+.media img{width:100%;height:auto;object-fit:cover;aspect-ratio:4 / 3}
+.media.is-portrait img{aspect-ratio:4 / 5}
+.media.is-square img{aspect-ratio:1 / 1}
+.media__text > :first-child{margin-top:0}
+.media__text > :last-child{margin-bottom:0}
+.media.top{align-items:start}
+
+/* Gallery: two or three images in a row, cropped to one shared shape. */
+.gallery{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:10pt;margin:14pt 0 18pt;break-inside:avoid}
+.gallery > figure,.gallery > p{margin:0;width:auto}
+.gallery img{width:100%;height:auto;object-fit:cover;aspect-ratio:var(--ratio,3 / 2);border-radius:10pt}
+/* A lead-in paragraph stays on the same page as the image block it introduces. */
+p:has(+ .media),p:has(+ .gallery),p:has(+ figure),p:has(+ .hero-image){break-after:avoid}
+figcaption{font:500 7.5pt/1.45 var(--mono);letter-spacing:.06em;color:#6B6B71;margin-top:8pt}
+
+/* Icons: []{.ca-icon .ca-icon--shield}. Ink by default; add .grape or .light (for dark cards). */
+.ca-icon{
+  display:inline-block;width:1.35em;height:1.35em;vertical-align:-.3em;flex:none;
+  background:center / contain no-repeat;
+}
+
+/* Phosphor light icons: []{.ph-light .ph-shield-check}. Tinted by text colour; add .grape for brand purple. */
+.ph-light{font-size:1.2em;vertical-align:-.15em;color:var(--ink)}
+.ph-light.grape{color:var(--grape)}
+.cta-card .ph-light{color:var(--paper)}
+.callout > h3 .ph-light,.callout > h4 .ph-light{font-size:13pt;vertical-align:0}
+.features li .ph-light{display:block;font-size:20pt;margin-bottom:7pt}
+
+/* Callout — a hairline card for a key point or definition. */
+.callout{
+  border:var(--line);border-radius:10pt;padding:13pt 16pt 3pt;margin:6pt 0 18pt;
+  break-inside:avoid;
+}
+.callout > h3,.callout > h4{display:flex;align-items:center;gap:8pt;margin:0 0 6pt}
+.callout > h3{font:500 12.5pt/1.25 var(--serif);letter-spacing:-.01em;font-variation-settings:"opsz" var(--opsz),"wght" 500}
+.callout.tint{background:#FAF5F6;border-color:#E6CCF0}
+.callout p:last-child{margin-bottom:10pt}
+
+/* Stats — a row of figures. A list whose items start with **the number**. */
+.stats ul{
+  list-style:none;padding:12pt 0;margin:10pt 0 20pt;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(1.4in,1fr));gap:12pt 20pt;
+  border-top:var(--line);border-bottom:var(--line);break-inside:avoid;
+}
+/* No top rule when a heading's wave already sits above: automatic after h2, or add .flush. */
+h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
+.stats li{margin:0;padding:0;font-size:8.5pt;line-height:1.4;color:var(--body)}
+.stats li::marker{content:none}
+.stats li strong{
+  display:block;margin-bottom:4pt;font:600 24pt/1 var(--serif);letter-spacing:-.02em;color:var(--grape);
+  font-variation-settings:"opsz" var(--opsz),"wght" 600;
+}
+
+/* Features — a grid of cards, one per list item. Start each item with an icon and a bold title. */
+.features ul{
+  list-style:none;padding:0;margin:8pt 0 18pt;display:grid;grid-template-columns:1fr 1fr;gap:10pt;
+}
+.features.three ul{grid-template-columns:repeat(3,1fr)}
+.features li{
+  margin:0;padding:12pt 14pt;border:var(--line);border-radius:10pt;
+  font-size:9pt;line-height:1.5;break-inside:avoid;
+}
+.features li::marker{content:none}
+.features li .ca-icon{display:block;width:17pt;height:17pt;margin-bottom:8pt}
+.features li strong{display:block;font:500 11.5pt/1.25 var(--serif);letter-spacing:-.01em;margin-bottom:3pt;font-variation-settings:"opsz" var(--opsz),"wght" 500}
+
+/* Checklist — list with check icons in place of markers. */
+.checks ul{list-style:none;padding-left:0;break-inside:avoid}
+.checks li{position:relative;padding-left:20pt}
+.checks li::marker{content:none}
+.checks li::before{
+  /* The Phosphor check as an inline SVG, so PDFs carry it as a vector shape (no icon font needed in other apps). */
+  content:"";position:absolute;left:0;top:.05em;width:1em;height:1em;
+  font-size:13pt;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cpath fill='%238D16D4' d='M913 305 401 817Q398 820 394 822Q389 824 384 824Q379 824 374 822Q370 820 367 817L143 593Q140 590 138 586Q137 581 137 577Q137 567 144 560Q151 553 161 553Q165 553 170 554Q174 556 177 559L384 766L879 271Q882 268 886 266Q891 265 895 265Q905 265 912 272Q919 279 919 289Q919 293 918 298Q916 302 913 305Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Two columns of running text. */
+.cols{column-count:2;column-gap:24pt;margin-bottom:var(--space)}
+.cols > *{break-inside:avoid-column}
+
+/* CTA card — the one dark object, one per sheet. A plain rounded card. */
+.cta-card{
+  margin:26pt 0 10pt;padding:26pt 30pt 22pt;text-align:center;
+  color:var(--paper);border-radius:14pt;break-inside:avoid;
+  background:#1D0D3A url("images/cta-card.png") center / 100% 100% no-repeat;
+}
+.cta-card .eyebrow,.cta-card .ca-kicker{font:600 9.5pt/1.3 var(--sans);letter-spacing:.01em;color:var(--lilac)}
+.cta-card h2,.cta-card h3{
+  display:block;color:var(--paper);font:600 20pt/1.1 var(--serif);letter-spacing:-.02em;
+  max-width:22ch;margin:8pt auto 10pt;
+}
+.cta-card h2::after{content:none}
+.cta-card h2 em,.cta-card h3 em{font-style:normal;color:#C77DFF}
+.cta-card p{color:#C9C5CA;max-width:46ch;margin:0 auto 10pt}
+.cta-card p:last-child{margin-bottom:0}
+.cta-card a{color:var(--paper);text-decoration-color:#776E86}
+.cta-card .note{font:400 8.5pt/1.4 var(--sans);color:#9C94A4}
+/* Smaller closing cards for tight pages: ::: {.cta-card .small} or {.cta-card .x-small}. */
+.cta-card.small{margin:16pt 0 6pt;padding:17pt 24pt 15pt;border-radius:12pt}
+.cta-card.small h2,.cta-card.small h3{font-size:15pt;margin:4pt auto 6pt}
+.cta-card.small p{font-size:9pt;margin-bottom:6pt}
+.cta-card.small .eyebrow{font-size:8.5pt}
+/* x-small is a left-aligned band: eyebrow and heading on the left, text beneath, no centring. */
+.cta-card.x-small{margin:12pt 0 4pt;padding:11pt 18pt;border-radius:10pt;text-align:left}
+.cta-card.x-small h2,.cta-card.x-small h3{font-size:12.5pt;margin:2pt 0 3pt;max-width:none}
+.cta-card.x-small p{font-size:8.5pt;margin:0 0 3pt;max-width:none}
+.cta-card.x-small .eyebrow{font-size:8pt}
+
+/* Charts — generated from ```chart blocks by ca-charts.lua. Sizes are in chart units (640 wide). */
+.ca-chart{margin:14pt 0 18pt;break-inside:avoid}
+.ca-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.ca-chart .tick{font:500 9px var(--mono);fill:#8A8A90}
+.ca-chart .lab{font:500 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;fill:var(--body)}
+.ca-chart .val{font:600 12px var(--sans);fill:var(--ink)}
+.ca-chart .rowlab{font:500 11px var(--sans);fill:var(--ink)}
+.ca-chart .note,.ca-chart .legend{font:500 10.5px var(--sans);fill:var(--body)}
+.ca-chart .big{font:600 30px var(--serif);letter-spacing:-.02em;fill:var(--ink)}
+.ca-chart .grid{stroke:#E3E3DB;stroke-width:1}
+.ca-chart .base{stroke:var(--hair);stroke-width:1}
+.ca-chart .marker{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3}
+.ca-chart--donut svg,.ca-chart--hbar svg{max-width:92%}
+
+/* Footnotes. Pandoc opens them with an <hr>, which must not become a full stop. */
+.footnotes{font-size:8pt;line-height:1.5;color:var(--body);margin-top:24pt;border-top:var(--line);padding-top:8pt}
+.footnotes hr{display:none}
+.footnotes::before{content:"Notes";display:block;font:500 7.5pt/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6pt}
+.footnotes ol{padding-left:14pt;margin:0}
+.footnotes li{margin:0 0 3pt}
+.footnotes li p{margin:0}
+.footnote-back{display:none}
+.footnote-ref{font:500 .7em var(--mono);vertical-align:super;line-height:0;text-decoration:none;color:var(--grape)}
+
+/* Closing line under the last page's content. */
+.ca-colophon{
+  display:flex;justify-content:space-between;gap:12pt;margin-top:30pt;padding-top:10pt;
+  border-top:var(--line);
+  font:500 7.5pt/1.4 var(--mono);letter-spacing:.08em;color:#6B6B71;break-inside:avoid;
+}
+
+/* Flow control. */
+.page-break{break-before:page;height:0}
+.keep{break-inside:avoid}
+.small{font-size:8.5pt;line-height:1.5}
+.center{text-align:center}
+
+/* Generated geometry below: waves from wave-core.js (peak frame, spec §3.1), icons on a 24px grid at 1.4 stroke. */
+
+/* Band: a tinted strip for one key idea. Flow: two to five numbered steps side by side, for a process or workflow. */
+.band{background:#F3ECF6;border-radius:14pt;padding:14pt 18pt 10pt;margin:6pt 0 var(--space);break-inside:avoid}
+.band > h3{margin:0 0 4pt}
+.band > p{margin:0 0 10pt}
+.flow ul{list-style:none;padding:0;margin:0 0 var(--space);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:14pt;counter-reset:step;break-inside:avoid}
+.flow li{margin:0;padding:9pt 0 0;border-top:1.2pt solid #CC96E8;font-size:9pt;line-height:1.4;counter-increment:step}
+.flow li::before{content:counter(step,decimal-leading-zero);display:block;font:500 7.5pt/1 var(--mono);letter-spacing:.14em;color:var(--grape);margin-bottom:5pt}
+.flow li::marker{content:none}
+.flow li strong{display:block;font:500 11.5pt/1.2 var(--serif);margin-bottom:2pt;font-variation-settings:"opsz" var(--opsz),"wght" 500}
+.band .flow ul{margin-bottom:6pt}
+  :root{
+    --ca-wave-opener-end:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='34' viewBox='0 0 2400 34'%3E %3Cpath d='M0,17L2272.20,17.00C2272.37,17.00 2272.87,17.00 2273.20,17.00C2273.53,17.00 2273.87,17.00 2274.20,17.00C2274.53,17.00 2274.87,17.00 2275.20,17.00C2275.53,17.00 2275.87,17.00 2276.20,17.00C2276.53,17.00 2276.87,17.00 2277.20,17.00C2277.53,17.00 2277.87,17.00 2278.20,17.00C2278.53,17.00 2278.87,17.00 2279.20,17.00C2279.53,17.00 2279.87,17.00 2280.20,17.00C2280.53,17.00 2280.87,17.00 2281.20,17.00C2281.53,17.00 2281.87,17.00 2282.20,17.00C2282.53,17.00 2282.87,17.00 2283.20,17.00C2283.53,17.00 2283.87,17.00 2284.20,17.00C2284.53,17.00 2284.87,17.00 2285.20,17.00C2285.53,17.00 2285.87,17.00 2286.20,17.00C2286.53,17.00 2286.87,17.00 2287.20,17.00C2287.53,17.00 2287.87,17.00 2288.20,17.00C2288.53,17.00 2288.87,17.00 2289.20,17.00C2289.53,17.00 2289.87,17.00 2290.20,17.00C2290.53,17.00 2290.87,17.00 2291.20,17.00C2291.53,17.00 2291.87,17.00 2292.20,17.00C2292.53,17.00 2292.87,17.01 2293.20,17.01C2293.53,17.01 2293.87,17.01 2294.20,17.01C2294.53,17.01 2294.87,17.01 2295.20,17.00C2295.53,17.00 2295.87,16.99 2296.20,16.99C2296.53,16.98 2296.87,16.98 2297.20,16.98C2297.53,16.98 2297.87,16.98 2298.20,16.98C2298.53,16.99 2298.87,17.00 2299.20,17.01C2299.53,17.02 2299.87,17.03 2300.20,17.04C2300.53,17.05 2300.87,17.06 2301.20,17.06C2301.53,17.05 2301.87,17.04 2302.20,17.03C2302.53,17.01 2302.87,16.98 2303.20,16.95C2303.53,16.93 2303.87,16.89 2304.20,16.88C2304.53,16.87 2304.87,16.86 2305.20,16.88C2305.53,16.90 2305.87,16.94 2306.20,16.99C2306.53,17.04 2306.87,17.13 2307.20,17.18C2307.53,17.23 2307.87,17.30 2308.20,17.30C2308.53,17.31 2308.87,17.28 2309.20,17.21C2309.53,17.13 2309.87,16.99 2310.20,16.86C2310.53,16.74 2310.87,16.55 2311.20,16.46C2311.53,16.37 2311.87,16.28 2312.20,16.34C2312.53,16.39 2312.87,16.55 2313.20,16.77C2313.53,16.99 2313.87,17.38 2314.20,17.66C2314.53,17.93 2314.87,18.31 2315.20,18.40C2315.53,18.50 2315.87,18.50 2316.20,18.25C2316.53,17.99 2316.87,17.41 2317.20,16.85C2317.53,16.29 2317.87,15.37 2318.20,14.86C2318.53,14.36 2318.87,13.77 2319.20,13.83C2319.53,13.88 2319.87,14.33 2320.20,15.18C2320.53,16.02 2320.87,17.62 2321.20,18.88C2321.53,20.14 2321.87,22.00 2322.20,22.72C2322.53,23.45 2322.87,23.98 2323.20,23.25C2323.53,22.52 2323.87,20.58 2324.20,18.34C2324.53,16.10 2324.87,12.26 2325.20,9.83C2325.53,7.39 2325.87,4.24 2326.20,3.72C2326.53,3.20 2326.87,3.97 2327.20,6.71C2327.53,9.44 2327.87,16.26 2328.20,20.12C2328.53,23.98 2328.87,28.45 2329.20,29.86C2329.53,31.27 2329.87,30.14 2330.20,28.60C2330.53,27.07 2330.87,23.24 2331.20,20.65C2331.53,18.06 2331.87,14.77 2332.20,13.06C2332.53,11.34 2332.87,10.44 2333.20,10.36C2333.53,10.29 2333.87,11.54 2334.20,12.61C2334.53,13.68 2334.87,15.61 2335.20,16.79C2335.53,17.97 2335.87,19.16 2336.20,19.70C2336.53,20.23 2336.87,20.21 2337.20,19.98C2337.53,19.76 2337.87,18.94 2338.20,18.36C2338.53,17.77 2338.87,16.93 2339.20,16.46C2339.53,15.99 2339.87,15.65 2340.20,15.54C2340.53,15.44 2340.87,15.63 2341.20,15.83C2341.53,16.02 2341.87,16.45 2342.20,16.72C2342.53,17.00 2342.87,17.32 2343.20,17.47C2343.53,17.63 2343.87,17.69 2344.20,17.67C2344.53,17.66 2344.87,17.51 2345.20,17.39C2345.53,17.28 2345.87,17.09 2346.20,16.98C2346.53,16.86 2346.87,16.76 2347.20,16.72C2347.53,16.68 2347.87,16.70 2348.20,16.73C2348.53,16.76 2348.87,16.84 2349.20,16.90C2349.53,16.95 2349.87,17.03 2350.20,17.07C2350.53,17.10 2350.87,17.13 2351.20,17.13C2351.53,17.14 2351.87,17.11 2352.20,17.09C2352.53,17.07 2352.87,17.04 2353.20,17.01C2353.53,16.99 2353.87,16.97 2354.20,16.96C2354.53,16.94 2354.87,16.94 2355.20,16.95C2355.53,16.95 2355.87,16.96 2356.20,16.97C2356.53,16.98 2356.87,17.00 2357.20,17.01C2357.53,17.01 2357.87,17.02 2358.20,17.02C2358.53,17.02 2358.87,17.02 2359.20,17.02C2359.53,17.02 2359.87,17.01 2360.20,17.01C2360.53,17.00 2360.87,17.00 2361.20,16.99C2361.53,16.99 2361.87,16.99 2362.20,16.99C2362.53,16.99 2362.87,16.99 2363.20,16.99C2363.53,17.00 2363.87,17.00 2364.20,17.00C2364.53,17.00 2364.87,17.00 2365.20,17.00C2365.53,17.00 2365.87,17.00 2366.20,17.00C2366.53,17.00 2366.87,17.00 2367.20,17.00C2367.53,17.00 2367.87,17.00 2368.20,17.00C2368.53,17.00 2368.87,17.00 2369.20,17.00C2369.53,17.00 2369.87,17.00 2370.20,17.00C2370.53,17.00 2370.87,17.00 2371.20,17.00C2371.53,17.00 2371.87,17.00 2372.20,17.00C2372.53,17.00 2372.87,17.00 2373.20,17.00C2373.53,17.00 2373.87,17.00 2374.20,17.00C2374.53,17.00 2374.87,17.00 2375.20,17.00C2375.53,17.00 2375.87,17.00 2376.20,17.00C2376.53,17.00 2376.87,17.00 2377.20,17.00C2377.53,17.00 2377.87,17.00 2378.20,17.00C2378.53,17.00 2378.87,17.00 2379.20,17.00C2379.53,17.00 2379.87,17.00 2380.20,17.00C2380.53,17.00 2380.87,17.00 2381.20,17.00C2381.53,17.00 2381.87,17.00 2382.20,17.00C2382.53,17.00 2382.93,17.00 2383.20,17.00C2383.47,17.00 2383.70,17.00 2383.80,17.00L2400,17' fill='none' stroke='%23C1C1B8' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --ca-wave-opener-start:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='34' viewBox='0 0 2400 34'%3E %3Cpath d='M0,17L16.20,17.00C16.37,17.00 16.87,17.00 17.20,17.00C17.53,17.00 17.87,17.00 18.20,17.00C18.53,17.00 18.87,17.00 19.20,17.00C19.53,17.00 19.87,17.00 20.20,17.00C20.53,17.00 20.87,17.00 21.20,17.00C21.53,17.00 21.87,17.00 22.20,17.00C22.53,17.00 22.87,17.00 23.20,17.00C23.53,17.00 23.87,17.00 24.20,17.00C24.53,17.00 24.87,17.00 25.20,17.00C25.53,17.00 25.87,17.00 26.20,17.00C26.53,17.00 26.87,17.00 27.20,17.00C27.53,17.00 27.87,17.00 28.20,17.00C28.53,17.00 28.87,17.00 29.20,17.00C29.53,17.00 29.87,17.00 30.20,17.00C30.53,17.00 30.87,17.00 31.20,17.00C31.53,17.00 31.87,17.00 32.20,17.00C32.53,17.00 32.87,17.00 33.20,17.00C33.53,17.00 33.87,17.00 34.20,17.00C34.53,17.00 34.87,17.00 35.20,17.00C35.53,17.00 35.87,17.00 36.20,17.00C36.53,17.00 36.87,17.01 37.20,17.01C37.53,17.01 37.87,17.01 38.20,17.01C38.53,17.01 38.87,17.01 39.20,17.00C39.53,17.00 39.87,16.99 40.20,16.99C40.53,16.98 40.87,16.98 41.20,16.98C41.53,16.98 41.87,16.98 42.20,16.98C42.53,16.99 42.87,17.00 43.20,17.01C43.53,17.02 43.87,17.03 44.20,17.04C44.53,17.05 44.87,17.06 45.20,17.06C45.53,17.05 45.87,17.04 46.20,17.03C46.53,17.01 46.87,16.98 47.20,16.95C47.53,16.93 47.87,16.89 48.20,16.88C48.53,16.87 48.87,16.86 49.20,16.88C49.53,16.90 49.87,16.94 50.20,16.99C50.53,17.04 50.87,17.13 51.20,17.18C51.53,17.23 51.87,17.30 52.20,17.30C52.53,17.31 52.87,17.28 53.20,17.21C53.53,17.13 53.87,16.99 54.20,16.86C54.53,16.74 54.87,16.55 55.20,16.46C55.53,16.37 55.87,16.28 56.20,16.34C56.53,16.39 56.87,16.55 57.20,16.77C57.53,16.99 57.87,17.38 58.20,17.66C58.53,17.93 58.87,18.31 59.20,18.40C59.53,18.50 59.87,18.50 60.20,18.25C60.53,17.99 60.87,17.41 61.20,16.85C61.53,16.29 61.87,15.37 62.20,14.86C62.53,14.36 62.87,13.77 63.20,13.83C63.53,13.88 63.87,14.33 64.20,15.18C64.53,16.02 64.87,17.62 65.20,18.88C65.53,20.14 65.87,22.00 66.20,22.72C66.53,23.45 66.87,23.98 67.20,23.25C67.53,22.52 67.87,20.58 68.20,18.34C68.53,16.10 68.87,12.26 69.20,9.83C69.53,7.39 69.87,4.24 70.20,3.72C70.53,3.20 70.87,3.97 71.20,6.71C71.53,9.44 71.87,16.26 72.20,20.12C72.53,23.98 72.87,28.45 73.20,29.86C73.53,31.27 73.87,30.14 74.20,28.60C74.53,27.07 74.87,23.24 75.20,20.65C75.53,18.06 75.87,14.77 76.20,13.06C76.53,11.34 76.87,10.44 77.20,10.36C77.53,10.29 77.87,11.54 78.20,12.61C78.53,13.68 78.87,15.61 79.20,16.79C79.53,17.97 79.87,19.16 80.20,19.70C80.53,20.23 80.87,20.21 81.20,19.98C81.53,19.76 81.87,18.94 82.20,18.36C82.53,17.77 82.87,16.93 83.20,16.46C83.53,15.99 83.87,15.65 84.20,15.54C84.53,15.44 84.87,15.63 85.20,15.83C85.53,16.02 85.87,16.45 86.20,16.72C86.53,17.00 86.87,17.32 87.20,17.47C87.53,17.63 87.87,17.69 88.20,17.67C88.53,17.66 88.87,17.51 89.20,17.39C89.53,17.28 89.87,17.09 90.20,16.98C90.53,16.86 90.87,16.76 91.20,16.72C91.53,16.68 91.87,16.70 92.20,16.73C92.53,16.76 92.87,16.84 93.20,16.90C93.53,16.95 93.87,17.03 94.20,17.07C94.53,17.10 94.87,17.13 95.20,17.13C95.53,17.14 95.87,17.11 96.20,17.09C96.53,17.07 96.87,17.04 97.20,17.01C97.53,16.99 97.87,16.97 98.20,16.96C98.53,16.94 98.87,16.94 99.20,16.95C99.53,16.95 99.87,16.96 100.20,16.97C100.53,16.98 100.87,17.00 101.20,17.01C101.53,17.01 101.87,17.02 102.20,17.02C102.53,17.02 102.87,17.02 103.20,17.02C103.53,17.02 103.87,17.01 104.20,17.01C104.53,17.00 104.87,17.00 105.20,16.99C105.53,16.99 105.87,16.99 106.20,16.99C106.53,16.99 106.87,16.99 107.20,16.99C107.53,17.00 107.87,17.00 108.20,17.00C108.53,17.00 108.87,17.00 109.20,17.00C109.53,17.00 109.87,17.00 110.20,17.00C110.53,17.00 110.87,17.00 111.20,17.00C111.53,17.00 111.87,17.00 112.20,17.00C112.53,17.00 112.87,17.00 113.20,17.00C113.53,17.00 113.87,17.00 114.20,17.00C114.53,17.00 114.87,17.00 115.20,17.00C115.53,17.00 115.87,17.00 116.20,17.00C116.53,17.00 116.87,17.00 117.20,17.00C117.53,17.00 117.87,17.00 118.20,17.00C118.53,17.00 118.87,17.00 119.20,17.00C119.53,17.00 119.87,17.00 120.20,17.00C120.53,17.00 120.87,17.00 121.20,17.00C121.53,17.00 121.87,17.00 122.20,17.00C122.53,17.00 122.87,17.00 123.20,17.00C123.53,17.00 123.87,17.00 124.20,17.00C124.53,17.00 124.87,17.00 125.20,17.00C125.53,17.00 125.87,17.00 126.20,17.00C126.53,17.00 126.93,17.00 127.20,17.00C127.47,17.00 127.70,17.00 127.80,17.00L2400,17' fill='none' stroke='%23C1C1B8' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --ca-wave-stop:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3000' height='46' viewBox='0 0 3000 46'%3E %3Cpath d='M0,23L1410.00,23.00C1410.19,23.00 1410.78,23.00 1411.17,23.00C1411.56,23.00 1411.95,23.00 1412.34,23.00C1412.73,23.00 1413.12,23.00 1413.51,23.00C1413.90,23.00 1414.29,23.00 1414.68,23.00C1415.07,23.00 1415.46,23.00 1415.85,23.00C1416.24,23.00 1416.63,23.00 1417.02,23.00C1417.41,23.00 1417.80,23.00 1418.19,23.00C1418.58,23.00 1418.97,23.00 1419.36,23.00C1419.75,23.00 1420.14,23.00 1420.53,23.00C1420.92,23.00 1421.31,23.00 1421.70,23.00C1422.09,23.00 1422.48,23.00 1422.87,23.00C1423.26,23.00 1423.65,23.00 1424.04,23.00C1424.43,23.00 1424.82,23.00 1425.21,23.00C1425.60,23.00 1425.99,23.00 1426.38,23.00C1426.77,23.00 1427.16,23.00 1427.55,23.00C1427.94,23.00 1428.33,23.00 1428.72,23.00C1429.11,23.00 1429.50,23.00 1429.89,23.00C1430.28,23.00 1430.67,23.00 1431.06,23.00C1431.45,23.00 1431.84,23.00 1432.23,23.00C1432.62,23.00 1433.01,23.00 1433.40,23.00C1433.79,23.00 1434.18,23.00 1434.57,23.00C1434.96,23.00 1435.35,23.00 1435.74,23.00C1436.13,23.00 1436.52,23.00 1436.91,23.00C1437.30,23.00 1437.69,23.00 1438.08,23.00C1438.47,23.00 1438.86,22.99 1439.25,22.99C1439.64,22.99 1440.03,23.00 1440.42,23.00C1440.81,23.00 1441.20,23.00 1441.59,23.00C1441.98,23.00 1442.37,23.00 1442.76,23.01C1443.15,23.01 1443.54,23.01 1443.93,23.01C1444.32,23.01 1444.71,23.01 1445.10,23.01C1445.49,23.01 1445.88,23.01 1446.27,23.01C1446.66,23.01 1447.05,23.00 1447.44,23.00C1447.83,22.99 1448.22,22.99 1448.61,22.98C1449.00,22.98 1449.39,22.97 1449.78,22.97C1450.17,22.97 1450.56,22.96 1450.95,22.96C1451.34,22.96 1451.73,22.97 1452.12,22.97C1452.51,22.98 1452.90,22.99 1453.29,23.00C1453.68,23.01 1454.07,23.03 1454.46,23.04C1454.85,23.05 1455.24,23.07 1455.63,23.08C1456.02,23.09 1456.41,23.09 1456.80,23.09C1457.19,23.09 1457.58,23.08 1457.97,23.06C1458.36,23.05 1458.75,23.02 1459.14,22.99C1459.53,22.97 1459.92,22.93 1460.31,22.90C1460.70,22.87 1461.09,22.83 1461.48,22.81C1461.87,22.80 1462.26,22.78 1462.65,22.79C1463.04,22.79 1463.43,22.81 1463.82,22.85C1464.21,22.89 1464.60,22.95 1464.99,23.02C1465.38,23.08 1465.77,23.17 1466.16,23.23C1466.55,23.30 1466.94,23.38 1467.33,23.43C1467.72,23.47 1468.11,23.50 1468.50,23.49C1468.89,23.47 1469.28,23.42 1469.67,23.34C1470.06,23.25 1470.45,23.11 1470.84,22.97C1471.23,22.82 1471.62,22.62 1472.01,22.47C1472.40,22.32 1472.79,22.13 1473.18,22.04C1473.57,21.95 1473.96,21.88 1474.35,21.91C1474.74,21.95 1475.13,22.06 1475.52,22.25C1475.91,22.45 1476.30,22.76 1476.69,23.08C1477.08,23.40 1477.47,23.83 1477.86,24.17C1478.25,24.51 1478.64,24.90 1479.03,25.10C1479.42,25.30 1479.81,25.46 1480.20,25.38C1480.59,25.30 1480.98,25.05 1481.37,24.62C1481.76,24.20 1482.15,23.52 1482.54,22.83C1482.93,22.14 1483.32,21.21 1483.71,20.48C1484.10,19.76 1484.49,18.92 1484.88,18.49C1485.27,18.07 1485.66,17.75 1486.05,17.92C1486.44,18.10 1486.83,18.64 1487.22,19.55C1487.61,20.45 1488.00,21.89 1488.39,23.35C1488.78,24.81 1489.17,26.78 1489.56,28.30C1489.95,29.82 1490.34,31.58 1490.73,32.46C1491.12,33.34 1491.51,33.98 1491.90,33.60C1492.29,33.22 1492.68,32.07 1493.07,30.18C1493.46,28.29 1493.85,25.29 1494.24,22.27C1494.63,19.25 1495.02,15.18 1495.41,12.07C1495.80,8.95 1496.19,5.37 1496.58,3.59C1496.97,1.80 1497.36,0.54 1497.75,1.34C1498.14,2.14 1498.53,4.54 1498.92,8.40C1499.31,12.25 1499.70,19.29 1500.09,24.45C1500.48,29.60 1500.87,35.93 1501.26,39.33C1501.65,42.74 1502.04,44.53 1502.43,44.88C1502.82,45.22 1503.21,43.49 1503.60,41.41C1503.99,39.32 1504.38,35.55 1504.77,32.36C1505.16,29.17 1505.55,25.18 1505.94,22.28C1506.33,19.39 1506.72,16.64 1507.11,14.97C1507.50,13.31 1507.89,12.46 1508.28,12.30C1508.67,12.14 1509.06,13.01 1509.45,14.04C1509.84,15.06 1510.23,16.91 1510.62,18.46C1511.01,20.01 1511.40,21.95 1511.79,23.35C1512.18,24.74 1512.57,26.06 1512.96,26.86C1513.35,27.65 1513.74,28.05 1514.13,28.12C1514.52,28.19 1514.91,27.76 1515.30,27.27C1515.69,26.77 1516.08,25.89 1516.47,25.15C1516.86,24.41 1517.25,23.50 1517.64,22.84C1518.03,22.18 1518.42,21.56 1518.81,21.19C1519.20,20.82 1519.59,20.63 1519.98,20.60C1520.37,20.58 1520.76,20.78 1521.15,21.01C1521.54,21.24 1521.93,21.66 1522.32,22.00C1522.71,22.35 1523.10,22.77 1523.49,23.08C1523.88,23.38 1524.27,23.66 1524.66,23.83C1525.05,24.00 1525.44,24.08 1525.83,24.10C1526.22,24.11 1526.61,24.01 1527.00,23.91C1527.39,23.80 1527.78,23.61 1528.17,23.45C1528.56,23.30 1528.95,23.10 1529.34,22.97C1529.73,22.83 1530.12,22.70 1530.51,22.63C1530.90,22.55 1531.29,22.51 1531.68,22.51C1532.07,22.50 1532.46,22.55 1532.85,22.60C1533.24,22.65 1533.63,22.73 1534.02,22.80C1534.41,22.87 1534.80,22.95 1535.19,23.01C1535.58,23.08 1535.97,23.13 1536.36,23.16C1536.75,23.20 1537.14,23.21 1537.53,23.21C1537.92,23.22 1538.31,23.20 1538.70,23.17C1539.09,23.15 1539.48,23.12 1539.87,23.09C1540.26,23.06 1540.65,23.02 1541.04,22.99C1541.43,22.97 1541.82,22.94 1542.21,22.93C1542.60,22.92 1542.99,22.91 1543.38,22.91C1543.77,22.91 1544.16,22.92 1544.55,22.93C1544.94,22.94 1545.33,22.95 1545.72,22.96C1546.11,22.98 1546.50,22.99 1546.89,23.00C1547.28,23.01 1547.67,23.02 1548.06,23.03C1548.45,23.03 1548.84,23.04 1549.23,23.04C1549.62,23.04 1550.01,23.03 1550.40,23.03C1550.79,23.03 1551.18,23.02 1551.57,23.01C1551.96,23.01 1552.35,23.00 1552.74,23.00C1553.13,22.99 1553.52,22.99 1553.91,22.99C1554.30,22.99 1554.69,22.99 1555.08,22.99C1555.47,22.99 1555.86,22.99 1556.25,22.99C1556.64,22.99 1557.03,22.99 1557.42,22.99C1557.81,23.00 1558.20,23.00 1558.59,23.00C1558.98,23.00 1559.37,23.00 1559.76,23.00C1560.15,23.01 1560.54,23.01 1560.93,23.01C1561.32,23.01 1561.71,23.00 1562.10,23.00C1562.49,23.00 1562.88,23.00 1563.27,23.00C1563.66,23.00 1564.05,23.00 1564.44,23.00C1564.83,23.00 1565.22,23.00 1565.61,23.00C1566.00,23.00 1566.39,23.00 1566.78,23.00C1567.17,23.00 1567.56,23.00 1567.95,23.00C1568.34,23.00 1568.73,23.00 1569.12,23.00C1569.51,23.00 1569.90,23.00 1570.29,23.00C1570.68,23.00 1571.07,23.00 1571.46,23.00C1571.85,23.00 1572.24,23.00 1572.63,23.00C1573.02,23.00 1573.41,23.00 1573.80,23.00C1574.19,23.00 1574.58,23.00 1574.97,23.00C1575.36,23.00 1575.75,23.00 1576.14,23.00C1576.53,23.00 1576.92,23.00 1577.31,23.00C1577.70,23.00 1578.09,23.00 1578.48,23.00C1578.87,23.00 1579.26,23.00 1579.65,23.00C1580.04,23.00 1580.43,23.00 1580.82,23.00C1581.21,23.00 1581.60,23.00 1581.99,23.00C1582.38,23.00 1582.77,23.00 1583.16,23.00C1583.55,23.00 1583.94,23.00 1584.33,23.00C1584.72,23.00 1585.11,23.00 1585.50,23.00C1585.89,23.00 1586.28,23.00 1586.67,23.00C1587.06,23.00 1587.45,23.00 1587.84,23.00C1588.23,23.00 1588.65,23.00 1589.01,23.00C1589.37,23.00 1589.84,23.00 1590.00,23.00L3000,23' fill='none' stroke='%23C1C1B8' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --ca-wave-opener-start-dark:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='34' viewBox='0 0 2400 34'%3E %3Cpath d='M0,17L16.20,17.00C16.37,17.00 16.87,17.00 17.20,17.00C17.53,17.00 17.87,17.00 18.20,17.00C18.53,17.00 18.87,17.00 19.20,17.00C19.53,17.00 19.87,17.00 20.20,17.00C20.53,17.00 20.87,17.00 21.20,17.00C21.53,17.00 21.87,17.00 22.20,17.00C22.53,17.00 22.87,17.00 23.20,17.00C23.53,17.00 23.87,17.00 24.20,17.00C24.53,17.00 24.87,17.00 25.20,17.00C25.53,17.00 25.87,17.00 26.20,17.00C26.53,17.00 26.87,17.00 27.20,17.00C27.53,17.00 27.87,17.00 28.20,17.00C28.53,17.00 28.87,17.00 29.20,17.00C29.53,17.00 29.87,17.00 30.20,17.00C30.53,17.00 30.87,17.00 31.20,17.00C31.53,17.00 31.87,17.00 32.20,17.00C32.53,17.00 32.87,17.00 33.20,17.00C33.53,17.00 33.87,17.00 34.20,17.00C34.53,17.00 34.87,17.00 35.20,17.00C35.53,17.00 35.87,17.00 36.20,17.00C36.53,17.00 36.87,17.01 37.20,17.01C37.53,17.01 37.87,17.01 38.20,17.01C38.53,17.01 38.87,17.01 39.20,17.00C39.53,17.00 39.87,16.99 40.20,16.99C40.53,16.98 40.87,16.98 41.20,16.98C41.53,16.98 41.87,16.98 42.20,16.98C42.53,16.99 42.87,17.00 43.20,17.01C43.53,17.02 43.87,17.03 44.20,17.04C44.53,17.05 44.87,17.06 45.20,17.06C45.53,17.05 45.87,17.04 46.20,17.03C46.53,17.01 46.87,16.98 47.20,16.95C47.53,16.93 47.87,16.89 48.20,16.88C48.53,16.87 48.87,16.86 49.20,16.88C49.53,16.90 49.87,16.94 50.20,16.99C50.53,17.04 50.87,17.13 51.20,17.18C51.53,17.23 51.87,17.30 52.20,17.30C52.53,17.31 52.87,17.28 53.20,17.21C53.53,17.13 53.87,16.99 54.20,16.86C54.53,16.74 54.87,16.55 55.20,16.46C55.53,16.37 55.87,16.28 56.20,16.34C56.53,16.39 56.87,16.55 57.20,16.77C57.53,16.99 57.87,17.38 58.20,17.66C58.53,17.93 58.87,18.31 59.20,18.40C59.53,18.50 59.87,18.50 60.20,18.25C60.53,17.99 60.87,17.41 61.20,16.85C61.53,16.29 61.87,15.37 62.20,14.86C62.53,14.36 62.87,13.77 63.20,13.83C63.53,13.88 63.87,14.33 64.20,15.18C64.53,16.02 64.87,17.62 65.20,18.88C65.53,20.14 65.87,22.00 66.20,22.72C66.53,23.45 66.87,23.98 67.20,23.25C67.53,22.52 67.87,20.58 68.20,18.34C68.53,16.10 68.87,12.26 69.20,9.83C69.53,7.39 69.87,4.24 70.20,3.72C70.53,3.20 70.87,3.97 71.20,6.71C71.53,9.44 71.87,16.26 72.20,20.12C72.53,23.98 72.87,28.45 73.20,29.86C73.53,31.27 73.87,30.14 74.20,28.60C74.53,27.07 74.87,23.24 75.20,20.65C75.53,18.06 75.87,14.77 76.20,13.06C76.53,11.34 76.87,10.44 77.20,10.36C77.53,10.29 77.87,11.54 78.20,12.61C78.53,13.68 78.87,15.61 79.20,16.79C79.53,17.97 79.87,19.16 80.20,19.70C80.53,20.23 80.87,20.21 81.20,19.98C81.53,19.76 81.87,18.94 82.20,18.36C82.53,17.77 82.87,16.93 83.20,16.46C83.53,15.99 83.87,15.65 84.20,15.54C84.53,15.44 84.87,15.63 85.20,15.83C85.53,16.02 85.87,16.45 86.20,16.72C86.53,17.00 86.87,17.32 87.20,17.47C87.53,17.63 87.87,17.69 88.20,17.67C88.53,17.66 88.87,17.51 89.20,17.39C89.53,17.28 89.87,17.09 90.20,16.98C90.53,16.86 90.87,16.76 91.20,16.72C91.53,16.68 91.87,16.70 92.20,16.73C92.53,16.76 92.87,16.84 93.20,16.90C93.53,16.95 93.87,17.03 94.20,17.07C94.53,17.10 94.87,17.13 95.20,17.13C95.53,17.14 95.87,17.11 96.20,17.09C96.53,17.07 96.87,17.04 97.20,17.01C97.53,16.99 97.87,16.97 98.20,16.96C98.53,16.94 98.87,16.94 99.20,16.95C99.53,16.95 99.87,16.96 100.20,16.97C100.53,16.98 100.87,17.00 101.20,17.01C101.53,17.01 101.87,17.02 102.20,17.02C102.53,17.02 102.87,17.02 103.20,17.02C103.53,17.02 103.87,17.01 104.20,17.01C104.53,17.00 104.87,17.00 105.20,16.99C105.53,16.99 105.87,16.99 106.20,16.99C106.53,16.99 106.87,16.99 107.20,16.99C107.53,17.00 107.87,17.00 108.20,17.00C108.53,17.00 108.87,17.00 109.20,17.00C109.53,17.00 109.87,17.00 110.20,17.00C110.53,17.00 110.87,17.00 111.20,17.00C111.53,17.00 111.87,17.00 112.20,17.00C112.53,17.00 112.87,17.00 113.20,17.00C113.53,17.00 113.87,17.00 114.20,17.00C114.53,17.00 114.87,17.00 115.20,17.00C115.53,17.00 115.87,17.00 116.20,17.00C116.53,17.00 116.87,17.00 117.20,17.00C117.53,17.00 117.87,17.00 118.20,17.00C118.53,17.00 118.87,17.00 119.20,17.00C119.53,17.00 119.87,17.00 120.20,17.00C120.53,17.00 120.87,17.00 121.20,17.00C121.53,17.00 121.87,17.00 122.20,17.00C122.53,17.00 122.87,17.00 123.20,17.00C123.53,17.00 123.87,17.00 124.20,17.00C124.53,17.00 124.87,17.00 125.20,17.00C125.53,17.00 125.87,17.00 126.20,17.00C126.53,17.00 126.93,17.00 127.20,17.00C127.47,17.00 127.70,17.00 127.80,17.00L2400,17' fill='none' stroke='%239A6FD8' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .ca-icon--check{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7'/%3E%3C/svg%3E")}
+  .ca-icon--check.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7'/%3E%3C/svg%3E")}
+  .ca-icon--check.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.2 4.2L19 7'/%3E%3C/svg%3E")}
+  .ca-icon--shield{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 2.8v5.4c0 4.4-3 8.1-7 9.8-4-1.7-7-5.4-7-9.8V5.8z'/%3E%3Cpath d='M8.8 12.2l2.2 2.2 4.2-4.4'/%3E%3C/svg%3E")}
+  .ca-icon--shield.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 2.8v5.4c0 4.4-3 8.1-7 9.8-4-1.7-7-5.4-7-9.8V5.8z'/%3E%3Cpath d='M8.8 12.2l2.2 2.2 4.2-4.4'/%3E%3C/svg%3E")}
+  .ca-icon--shield.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 2.8v5.4c0 4.4-3 8.1-7 9.8-4-1.7-7-5.4-7-9.8V5.8z'/%3E%3Cpath d='M8.8 12.2l2.2 2.2 4.2-4.4'/%3E%3C/svg%3E")}
+  .ca-icon--lock{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10.5' width='14' height='10' rx='2'/%3E%3Cpath d='M8 10.5V7.8a4 4 0 0 1 8 0v2.7'/%3E%3Cpath d='M12 14.5v2.5'/%3E%3C/svg%3E")}
+  .ca-icon--lock.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10.5' width='14' height='10' rx='2'/%3E%3Cpath d='M8 10.5V7.8a4 4 0 0 1 8 0v2.7'/%3E%3Cpath d='M12 14.5v2.5'/%3E%3C/svg%3E")}
+  .ca-icon--lock.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10.5' width='14' height='10' rx='2'/%3E%3Cpath d='M8 10.5V7.8a4 4 0 0 1 8 0v2.7'/%3E%3Cpath d='M12 14.5v2.5'/%3E%3C/svg%3E")}
+  .ca-icon--clock{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E")}
+  .ca-icon--clock.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E")}
+  .ca-icon--clock.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E")}
+  .ca-icon--people{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8.5' r='3.2'/%3E%3Cpath d='M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5'/%3E%3Cpath d='M15.8 14.6c2.4.1 4.1 1.7 4.7 4.4'/%3E%3C/svg%3E")}
+  .ca-icon--people.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8.5' r='3.2'/%3E%3Cpath d='M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5'/%3E%3Cpath d='M15.8 14.6c2.4.1 4.1 1.7 4.7 4.4'/%3E%3C/svg%3E")}
+  .ca-icon--people.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='8.5' r='3.2'/%3E%3Cpath d='M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5'/%3E%3Ccircle cx='16.5' cy='9.5' r='2.5'/%3E%3Cpath d='M15.8 14.6c2.4.1 4.1 1.7 4.7 4.4'/%3E%3C/svg%3E")}
+  .ca-icon--document{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h7.5l4.5 4.5v12.5h-12z'/%3E%3Cpath d='M13.5 3.5V8.5h5'/%3E%3Cpath d='M9 13h6M9 16.5h6'/%3E%3C/svg%3E")}
+  .ca-icon--document.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h7.5l4.5 4.5v12.5h-12z'/%3E%3Cpath d='M13.5 3.5V8.5h5'/%3E%3Cpath d='M9 13h6M9 16.5h6'/%3E%3C/svg%3E")}
+  .ca-icon--document.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.5 3.5h7.5l4.5 4.5v12.5h-12z'/%3E%3Cpath d='M13.5 3.5V8.5h5'/%3E%3Cpath d='M9 13h6M9 16.5h6'/%3E%3C/svg%3E")}
+  .ca-icon--chart{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h16'/%3E%3Cpath d='M7 16.5V11M12 16.5V6.5M17 16.5v-3.5'/%3E%3C/svg%3E")}
+  .ca-icon--chart.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h16'/%3E%3Cpath d='M7 16.5V11M12 16.5V6.5M17 16.5v-3.5'/%3E%3C/svg%3E")}
+  .ca-icon--chart.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h16'/%3E%3Cpath d='M7 16.5V11M12 16.5V6.5M17 16.5v-3.5'/%3E%3C/svg%3E")}
+  .ca-icon--message{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 5.5h15v10h-8l-4.5 3.5v-3.5h-2.5z'/%3E%3Cpath d='M8.5 10.5h7'/%3E%3C/svg%3E")}
+  .ca-icon--message.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 5.5h15v10h-8l-4.5 3.5v-3.5h-2.5z'/%3E%3Cpath d='M8.5 10.5h7'/%3E%3C/svg%3E")}
+  .ca-icon--message.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 5.5h15v10h-8l-4.5 3.5v-3.5h-2.5z'/%3E%3Cpath d='M8.5 10.5h7'/%3E%3C/svg%3E")}
+  .ca-icon--calendar{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5.5' width='16' height='14.5' rx='2'/%3E%3Cpath d='M4 10h16M8.5 3.5v4M15.5 3.5v4'/%3E%3C/svg%3E")}
+  .ca-icon--calendar.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5.5' width='16' height='14.5' rx='2'/%3E%3Cpath d='M4 10h16M8.5 3.5v4M15.5 3.5v4'/%3E%3C/svg%3E")}
+  .ca-icon--calendar.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='5.5' width='16' height='14.5' rx='2'/%3E%3Cpath d='M4 10h16M8.5 3.5v4M15.5 3.5v4'/%3E%3C/svg%3E")}
+  .ca-icon--spark{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z'/%3E%3Cpath d='M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z'/%3E%3C/svg%3E")}
+  .ca-icon--spark.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z'/%3E%3Cpath d='M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z'/%3E%3C/svg%3E")}
+  .ca-icon--spark.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z'/%3E%3Cpath d='M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z'/%3E%3C/svg%3E")}
+  .ca-icon--link{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/%3E%3Cpath d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/%3E%3C/svg%3E")}
+  .ca-icon--link.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/%3E%3Cpath d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/%3E%3C/svg%3E")}
+  .ca-icon--link.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/%3E%3Cpath d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/%3E%3C/svg%3E")}
+  .ca-icon--arrow{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311111C' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h14.5M13.5 6.5L19 12l-5.5 5.5'/%3E%3C/svg%3E")}
+  .ca-icon--arrow.grape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238D16D4' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h14.5M13.5 6.5L19 12l-5.5 5.5'/%3E%3C/svg%3E")}
+  .ca-icon--arrow.light{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFF8' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12h14.5M13.5 6.5L19 12l-5.5 5.5'/%3E%3C/svg%3E")}

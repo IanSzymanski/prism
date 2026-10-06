@@ -1,0 +1,208 @@
+{
+ "v": 3,
+ "assetGroups": {
+  "Logos": {
+   "files": {
+    "prism-logo.svg": {
+     "name": "prism-logo.svg",
+     "blob": "48a9990454f72ecde5abda18aeb23fe2",
+     "size": 2845,
+     "type": "image/svg+xml"
+    },
+    "prism-logo-light.svg": {
+     "name": "prism-logo-light.svg",
+     "blob": "5abf299510143f1add85f677b6c408ef",
+     "size": 2845,
+     "type": "image/svg+xml"
+    },
+    "prism-logo-mono.svg": {
+     "name": "prism-logo-mono.svg",
+     "blob": "06bce44379c328c003f312b3e785bd75",
+     "size": 2845,
+     "type": "image/svg+xml"
+    },
+    "prism-logo-mono-light.svg": {
+     "name": "prism-logo-mono-light.svg",
+     "blob": "8d528d5e5cb5c1fe1b196d64f506845a",
+     "size": 2845,
+     "type": "image/svg+xml"
+    },
+    "prism-glyph.svg": {
+     "name": "prism-glyph.svg",
+     "blob": "9b86094c2a7f515a6ac48d9935881fd9",
+     "size": 337,
+     "type": "image/svg+xml"
+    },
+    "prism-glyph-mono.svg": {
+     "name": "prism-glyph-mono.svg",
+     "blob": "6293390d5938cb494a3a6e498c390413",
+     "size": 337,
+     "type": "image/svg+xml"
+    },
+    "prism-glyph-mono-light.svg": {
+     "name": "prism-glyph-mono-light.svg",
+     "blob": "6ea09c35c391ed6f30b98ab1b476b0d1",
+     "size": 337,
+     "type": "image/svg+xml"
+    },
+    "prism-logo.png": {
+     "name": "prism-logo.png",
+     "blob": "ac2ca18f5cd06653199f185de2693191",
+     "size": 29189,
+     "type": "image/png"
+    },
+    "prism-logo-light.png": {
+     "name": "prism-logo-light.png",
+     "blob": "47ec0e3f874483ccb92b648b94185097",
+     "size": 23244,
+     "type": "image/png"
+    },
+    "prism-glyph.png": {
+     "name": "prism-glyph.png",
+     "blob": "ae239b91b6748028b577ba0890cfb9ba",
+     "size": 10167,
+     "type": "image/png"
+    }
+   },
+   "name": "Logos",
+   "order": [
+    "prism-logo.svg",
+    "prism-logo-light.svg",
+    "prism-logo-mono.svg",
+    "prism-logo-mono-light.svg",
+    "prism-glyph.svg",
+    "prism-glyph-mono.svg",
+    "prism-glyph-mono-light.svg",
+    "prism-logo.png",
+    "prism-logo-light.png",
+    "prism-glyph.png"
+   ],
+   "tile": "m"
+  },
+  "Spectrum": {
+   "files": {
+    "fan-dark.svg": {
+     "name": "fan-dark.svg",
+     "blob": "0e37ecd14e216a3b3eb9e88d453ccc5a",
+     "size": 563,
+     "type": "image/svg+xml"
+    },
+    "fan-light.svg": {
+     "blob": "72bd222f3a0ba30e8651e9a152c50f84",
+     "name": "fan-light.svg",
+     "size": 514,
+     "type": "image/svg+xml"
+    },
+    "spectrum-chip-dark.svg": {
+     "name": "spectrum-chip-dark.svg",
+     "blob": "9a57d7ce4a3f31121c01bd7957f63d4b",
+     "size": 472,
+     "type": "image/svg+xml"
+    },
+    "spectrum-chip.svg": {
+     "blob": "3d18e22b4812345e328dc8482deee8ee",
+     "name": "spectrum-chip.svg",
+     "size": 472,
+     "type": "image/svg+xml"
+    },
+    "spectrum-stop.svg": {
+     "blob": "4e29bbb4427c039e4c97ed2505b692cc",
+     "name": "spectrum-stop.svg",
+     "size": 472,
+     "type": "image/svg+xml"
+    },
+    "spectrum-thread-3.svg": {
+     "blob": "adc8f9dc46b659034c74a0beec235e38",
+     "name": "spectrum-thread-3.svg",
+     "size": 963,
+     "type": "image/svg+xml"
+    }
+   },
+   "name": "Spectrum",
+   "order": [
+    "fan-light.svg",
+    "fan-dark.svg",
+    "spectrum-chip.svg",
+    "spectrum-chip-dark.svg",
+    "spectrum-stop.svg",
+    "spectrum-thread-3.svg"
+   ],
+   "tile": "l"
+  },
+  "Templates": {
+   "name": "Templates",
+   "tile": "l",
+   "order": [
+    "sample-landscape.png",
+    "sample-landscape-dark.png",
+    "sample-portrait-person.png",
+    "sample-square.png",
+    "sample-wide.png",
+    "sample-screen.png"
+   ],
+   "files": {
+    "sample-landscape.png": {
+     "name": "sample-landscape.png",
+     "blob": "9a73eda179746f1fdbee47c0a3715c00",
+     "size": 22434,
+     "type": "image/png"
+    },
+    "sample-landscape-dark.png": {
+     "name": "sample-landscape-dark.png",
+     "blob": "dbb81f31ffe98f1ff274974b6aa6a468",
+     "size": 24058,
+     "type": "image/png"
+    },
+    "sample-portrait-person.png": {
+     "name": "sample-portrait-person.png",
+     "blob": "26fd65664b4d81ce4cde1da0d2e8ddfc",
+     "size": 26614,
+     "type": "image/png"
+    },
+    "sample-square.png": {
+     "name": "sample-square.png",
+     "blob": "3d9de61d317073b16ebda91a2fe77eec",
+     "size": 25036,
+     "type": "image/png"
+    },
+    "sample-wide.png": {
+     "name": "sample-wide.png",
+     "blob": "d1cf325bd34b2fcb9ee5bd2a27c43c0f",
+     "size": 26751,
+     "type": "image/png"
+    },
+    "sample-screen.png": {
+     "name": "sample-screen.png",
+     "blob": "9e2b5764ca71895a7be345eb168fe482",
+     "size": 23303,
+     "type": "image/png"
+    }
+   }
+  }
+ },
+ "blobs": {},
+ "createdOnFiles": {
+  "at": "2026-10-02T15:49:18Z",
+  "v": 1
+ },
+ "docs": {
+  "readme": "project/README.md",
+  "sections": []
+ },
+ "groups": [
+  "Logos",
+  "Spectrum",
+  "Templates"
+ ],
+ "lastChange": {
+  "by": "Claude",
+  "at": "2026-10-05T19:15:49Z",
+  "via": "Claude.ai",
+  "note": "Prism as its own brand: redrawn logos and fan, source band and closing panel instead of a wash and dark card, background image retired, test images added."
+ },
+ "layout": "files",
+ "libraries": [],
+ "namespace": "Prism",
+ "sections": {},
+ "title": "Prism"
+}

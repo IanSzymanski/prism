@@ -1,0 +1,20 @@
+/* prism-blog.css: 16:9 blog header images (1920×1080). No title, author, tags or logo: the page supplies them. */
+body.prism-blog{margin:0;padding:0;background:var(--prism-color-desk);max-width:none;box-shadow:none}
+.bh{position:relative;width:1920px;height:1080px;overflow:hidden}
+.bh > *{position:absolute;left:0;top:0}
+.bh .bh-art,.bh .bh-grain{display:block}
+.bh .bh-grain{pointer-events:none}
+/* Image: fills about 64% of the frame on one side (the brand layer may fade it into the art). */
+.bh .bh-image{width:64%;height:100%;object-fit:cover;--r:to right}
+.bh .bh-image.right{left:auto;right:0;--r:to left}
+/* Screen: a real product screenshot on a card over the gradient, bleeding off the right edge (screenshots are never faded). */
+.bh .bh-shot{left:var(--x);top:var(--y);width:1500px;height:980px;border-radius:30px;overflow:hidden;
+  box-shadow:var(--prism-shadow-screen)}
+.bh .bh-shot img{width:100%;height:100%;object-fit:cover;object-position:left top;display:block}
+/* Series (changelog): the series name, never the post title, so every issue is recognisable on the index. */
+.bh .bh-series{left:200px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:28px}
+.bh .bh-series-name{font:var(--prism-type-title-weight) 170px/1 var(--prism-type-title-family);letter-spacing:-.03em;color:var(--prism-color-text-strong)}
+.bh .bh-series-line{font:var(--prism-type-heading-3-weight) 40px/1.2 var(--prism-type-heading-3-family);letter-spacing:.01em;color:var(--prism-color-text)}
+/* Art the brand marks as dark (on-dark) takes light text. */
+.bh.on-dark .bh-series-name{color:var(--prism-color-surface)}
+.bh.on-dark .bh-series-line{color:var(--prism-color-eyebrow-on-dark)}

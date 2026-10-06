@@ -1,0 +1,10 @@
+/* Prism social layer: light posts on bg, dark posts on the dark theme's bg, the chip before every eyebrow, the source band
+   along the top of each post. Carousel thread is drawn by ornaments.js. Loads after prism-social.css. */
+.post{background:var(--brand-bg)}
+.post .eyebrow::before{content:"";display:inline-block;width:46pt;height:5pt;border-radius:2.5pt;margin-right:10pt;vertical-align:.15em;background:linear-gradient(90deg,var(--brand-hue-1) 0 25%,var(--brand-hue-2) 25% 50%,var(--brand-hue-3) 50% 75%,var(--brand-hue-4) 75% 100%)}
+.post.dark{background:var(--brand-bg-dark)}
+.post h2::before{display:none}
+.post h2::after{display:none}
+.carousel{background:var(--brand-bg)}
+.carousel .post.dark{background:var(--brand-bg-dark)}
+.post.story h2{display:block}

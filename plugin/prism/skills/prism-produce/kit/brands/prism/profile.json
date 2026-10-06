@@ -1,0 +1,287 @@
+{
+ "schema": 1,
+ "id": "prism",
+ "name": "Prism",
+ "version": 1,
+ "source": {
+  "kind": "claude-design-system",
+  "url": "https://claude.ai/artifact/4Ayf7ASESQ5YYuXtBLTTbG",
+  "title": "Prism",
+  "snapshot_taken": "2026-10-05",
+  "_note": "Optional live source. Builds always use snapshot/; the live system is only compared against it."
+ },
+ "snapshot": {
+  "files": {
+   "README.md": "9df89a4ad14ca4fe3f2c5e3c7d52f61ed5bf1d22813ee7fe7144d75463a3a527",
+   "assets/Logos/prism-glyph.svg": "06d0d9e7b1b93fcd220b9f4cd2f1c61ff3cb197faf26408631198a6f1476d3cf",
+   "assets/Logos/prism-logo-light.svg": "534a19359a05c5b8532e705eac951a6e088bdee3ccd3e86fd313239a977168fb",
+   "assets/Logos/prism-logo.svg": "57cfba4e719cf92ec894a82851dc18bf0bad99f74df153537bb2c26622b37aa4",
+   "assets/Spectrum/fan-dark.svg": "261ccb3b6c49d7caddb53dc71125985ebeb3d11f69d9beee83e68b1b88bcb313",
+   "assets/Spectrum/fan-light.svg": "aa645371af01c91a7dc4dd39ac7a3abb8fcbe4466bb7d552e6b26dcdee22106e",
+   "assets/Spectrum/spectrum-core.js": "79463fe09ff15e4fb2c66badeb38540d2b726c069361e4b98ad2558ef4715f3f",
+   "assets/Spectrum/spectrum-stop.svg": "b9ede0327e900f3a4e80564275f5249cd741b75d6047a8aa0602dab7e714aecf",
+   "assets/Templates/sample-landscape-dark.png": "b3cca6eb337f10683aa9223def6a593ec12222efd3d9be587bf554e97825f28f",
+   "assets/Templates/sample-landscape.png": "162825f6f160ed135f7cc30915f762ce23053769d027cb8d84afeef52dafd3e8",
+   "assets/Templates/sample-portrait-person.png": "7f8810ed0c8b76bf420b498c4b3502f19c94dfbb77b98b17d88848fde06c3674",
+   "assets/Templates/sample-screen.png": "c7574100a6356c7bd16634656b91cc1a543212eb669fe3b7132d4a941d7ae993",
+   "assets/Templates/sample-square.png": "291dc1d65f83028935945117eefe070c4827d6415ca1ccc7d202d258ef7bbeaf",
+   "assets/Templates/sample-wide.png": "9a047a8400b238baaf0ac87776fe48a04d519afa85506d61a1584327ad459a7a",
+   "design-system.json": "dd666059f2fda65bf9016595e7ef035ecff38c0e24293b64083bfcf3645ab1a2",
+   "fonts/BricolageGrotesque-Bold.ttf": "4e1ac8031333b5b7dc3cf7864c1c2c128dae492defeef85be1927e463288f7a4",
+   "fonts/BricolageGrotesque-Medium.ttf": "bc285991a09e6142e29b05fa23fe30ddf14b7d374553a8c16cb6771efc82c3a1",
+   "fonts/IBMPlexMono-Medium.ttf": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755",
+   "fonts/IBMPlexSans-Medium.ttf": "4c0e7b50770fa32b71d2634a94d727d8583ecc61e8259c8b6fa7c9d804d3bee6",
+   "fonts/IBMPlexSans-Regular.ttf": "649e8c87500f62130e2eb4c3ad395c1a2db4c01b937cd49aa88bb3395b1e18fb",
+   "fonts/IBMPlexSans-SemiBold.ttf": "0a346b6598c93b73ca6a673d5980dd11129c15b07a4a64cf440fd751e2d3adb9",
+   "licenses/OFL-BricolageGrotesque.txt": "4b5a7d8f37f5602621c8a8d7358a6a2e71317e6c231c661e15aef0275d3e07ba",
+   "licenses/OFL-IBMPlex.txt": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+   "outputs.md": "0eacf27f4bbe55632be65cb131f1ca73f4d3b995438ef1f56dfa53bf086a848f",
+   "tokens.json": "2bf732d61b984cf9ddda28b3ac91372208bab0f6adb02873cf4093fb2ad23842"
+  },
+  "blobs": {
+   "assets/Logos/prism-logo.svg": "48a9990454f72ecde5abda18aeb23fe2",
+   "assets/Logos/prism-logo-light.svg": "5abf299510143f1add85f677b6c408ef",
+   "assets/Logos/prism-logo-mono.svg": "06bce44379c328c003f312b3e785bd75",
+   "assets/Logos/prism-logo-mono-light.svg": "8d528d5e5cb5c1fe1b196d64f506845a",
+   "assets/Logos/prism-glyph.svg": "9b86094c2a7f515a6ac48d9935881fd9",
+   "assets/Logos/prism-glyph-mono.svg": "6293390d5938cb494a3a6e498c390413",
+   "assets/Logos/prism-glyph-mono-light.svg": "6ea09c35c391ed6f30b98ab1b476b0d1",
+   "assets/Logos/prism-logo.png": "ac2ca18f5cd06653199f185de2693191",
+   "assets/Logos/prism-logo-light.png": "47ec0e3f874483ccb92b648b94185097",
+   "assets/Logos/prism-glyph.png": "ae239b91b6748028b577ba0890cfb9ba",
+   "assets/Spectrum/fan-dark.svg": "0e37ecd14e216a3b3eb9e88d453ccc5a",
+   "assets/Spectrum/fan-light.svg": "72bd222f3a0ba30e8651e9a152c50f84",
+   "assets/Spectrum/spectrum-chip-dark.svg": "9a57d7ce4a3f31121c01bd7957f63d4b",
+   "assets/Spectrum/spectrum-chip.svg": "3d18e22b4812345e328dc8482deee8ee",
+   "assets/Spectrum/spectrum-stop.svg": "4e29bbb4427c039e4c97ed2505b692cc",
+   "assets/Spectrum/spectrum-thread-3.svg": "adc8f9dc46b659034c74a0beec235e38",
+   "assets/Templates/sample-landscape.png": "9a73eda179746f1fdbee47c0a3715c00",
+   "assets/Templates/sample-landscape-dark.png": "dbb81f31ffe98f1ff274974b6aa6a468",
+   "assets/Templates/sample-portrait-person.png": "26fd65664b4d81ce4cde1da0d2e8ddfc",
+   "assets/Templates/sample-square.png": "3d9de61d317073b16ebda91a2fe77eec",
+   "assets/Templates/sample-wide.png": "d1cf325bd34b2fcb9ee5bd2a27c43c0f",
+   "assets/Templates/sample-screen.png": "9e2b5764ca71895a7be345eb168fe482"
+  }
+ },
+ "roles": {
+  "prism-color-surface": "surface",
+  "prism-color-text-strong": "fg",
+  "prism-color-text": "body",
+  "prism-color-text-muted": "muted",
+  "prism-color-text-faint": "faint",
+  "prism-color-text-meta": "muted",
+  "prism-color-accent": "accent",
+  "prism-color-eyebrow-on-dark": "dark-muted",
+  "prism-color-rule": "line",
+  "prism-color-rule-soft": "line",
+  "prism-color-link-line": "accent-line",
+  "prism-color-wash": "accent-tint",
+  "prism-color-tint": "accent-tint",
+  "prism-color-tint-line": "accent-line",
+  "prism-color-band": "soft",
+  "prism-color-code": "soft",
+  "prism-color-pre": "soft",
+  "prism-color-chart-grid": "grid",
+  "prism-color-desk": "desk",
+  "prism-color-dark-surface": "dark-card",
+  "prism-color-dark-deep": "dark-deep",
+  "prism-color-dark-high": "dark-high",
+  "prism-color-text-on-photo": "dark-fg",
+  "prism-color-chart-1": "series-1",
+  "prism-color-chart-2": "series-2",
+  "prism-color-chart-3": "series-3",
+  "prism-color-chart-4": "series-4",
+  "prism-color-chart-5": "series-5",
+  "prism-color-header-light-1": "header-light-1",
+  "prism-color-header-light-2": "header-light-2",
+  "prism-color-header-deep-1": "header-deep-1",
+  "prism-color-header-deep-2": "header-deep-2",
+  "prism-font-serif": "display",
+  "prism-font-sans": "sans",
+  "prism-font-mono": "mono",
+  "prism-type-title": "title",
+  "prism-type-heading-1": "heading-1",
+  "prism-type-heading-2": "section",
+  "prism-type-heading-3": "heading-3",
+  "prism-type-cta-heading": "cta-heading",
+  "prism-type-quote": "quote",
+  "prism-type-stat": "stat",
+  "prism-type-card-title": "card-title",
+  "prism-type-lede": "lede",
+  "prism-type-body": "body",
+  "prism-type-small": "small",
+  "prism-type-eyebrow": "eyebrow",
+  "prism-type-eyebrow-on-dark": "eyebrow",
+  "prism-type-label": "label",
+  "prism-type-caption": "caption",
+  "prism-type-cite": "cite",
+  "prism-space-paragraph": "space",
+  "prism-space-section": "space-section",
+  "prism-space-page-x": "page-x",
+  "prism-space-page-top": "page-top",
+  "prism-radius-code": "radius-xs",
+  "prism-radius-button": "radius-sm",
+  "prism-radius-card": "radius-md",
+  "prism-radius-figure": "radius-lg",
+  "prism-radius-hero": "radius-lg",
+  "prism-shadow-lift": "shadow-lift",
+  "prism-shadow-sheet": "shadow-sheet",
+  "prism-asset-logo": "assets/Logos/prism-logo.svg",
+  "prism-asset-logo-on-dark": "assets/Logos/prism-logo-light.svg",
+  "prism-asset-rule-stop": "assets/Spectrum/spectrum-stop.svg",
+  "prism-generator-rule": "spectrum",
+  "prism-asset-mark": "assets/Logos/prism-glyph.svg",
+  "prism-asset-placeholder": "assets/Templates/sample-landscape.png",
+  "prism-asset-placeholder-dark": "assets/Templates/sample-landscape-dark.png"
+ },
+ "generators": {
+  "spectrum": {
+   "script": "assets/Spectrum/spectrum-core.js",
+   "module": "commonjs",
+   "params": {
+    "chip": {
+     "width": 64,
+     "height": 6
+    },
+    "stop": {
+     "width": 96,
+     "height": 6
+    },
+    "mini": {
+     "width": 48,
+     "height": 4
+    },
+    "thread": {
+     "height": 12,
+     "emphasis": 3
+    },
+    "section-rule": {
+     "height": 3,
+     "cycle": 4
+    },
+    "fan": {
+     "startHeight": 40,
+     "endHeight": 160
+    }
+   },
+   "rules": [
+    {
+     "never": "over",
+     "of": [
+      "photo",
+      "face"
+     ]
+    },
+    {
+     "never": "behind",
+     "of": [
+      "text"
+     ]
+    },
+    {
+     "max": 1,
+     "per": "surface",
+     "kind": "chip"
+    },
+    {
+     "max": 1,
+     "per": "chapter",
+     "kind": "stop"
+    },
+    {
+     "hue": "by-number",
+     "of": [
+      "section",
+      "flow-step",
+      "slide",
+      "panel"
+     ]
+    }
+   ]
+  }
+ },
+ "ornaments": {
+  "accent-word": {
+   "color": "prism-color-accent",
+   "max_per_heading": 1,
+   "markup": "*word* in a title"
+  },
+  "source-band": {
+   "where": "top of page one and of the closing panel"
+  },
+  "chip": {
+   "where": "before the masthead, post and closing-panel eyebrow"
+  },
+  "section-code": {
+   "where": "before each h2, its number in the section's hue"
+  },
+  "mono-on-dark": true,
+  "flat": true
+ },
+ "icons": {
+  "set": "phosphor",
+  "weight": "regular"
+ },
+ "own": {
+  "layers/blog.css": "ab6f9112fcd708bd9ba243b34b7457027f4ac0fc3e4eac708ffbd95d1ea6cf71",
+  "layers/brochure.css": "e198246d10259b16d7e6d8bfcd7a3b994da5249ed1f2d2e8851ed2064accb468",
+  "layers/sheet.css": "d51e7daa5acc017599a64e313ab12f8c66f210067dc199851a5db52b34e9386c",
+  "layers/social.css": "729a4f03816364ba7f3716e3415a20920630dc4a495dcae9c53ef3236234d676",
+  "ornaments.js": "443710fd82915202c9b78e6af37692a7865faa417fd4d59bceafce72b639f86a"
+ },
+ "digest": {
+  "file": "digest.md",
+  "sha256": "7806fbe16c38d2af367c1a55e1b9fdde1c241401bb1111db6813ffa8454837c7",
+  "readme_sha256": "9df89a4ad14ca4fe3f2c5e3c7d52f61ed5bf1d22813ee7fe7144d75463a3a527"
+ },
+ "content": {},
+ "_gaps": "Unmapped on purpose where Prism has no equivalent: accent-strong, wash-2, rule-on-dark, dark-glow, dark-glow-2, header mist and vivid tones and stops 3-4, space heading-gap, shadow screen, the dark-surface image and the opener rule images (Prism draws its own section rule).",
+ "layers": {
+  "sheet": "layers/sheet.css",
+  "brochure": "layers/brochure.css",
+  "social": "layers/social.css",
+  "blog": "layers/blog.css"
+ },
+ "ornaments_module": "ornaments.js",
+ "options": {
+  "images": {
+   "fade": false
+  },
+  "charts": {
+   "bars": "flat"
+  },
+  "deck": {
+   "title_dark": true
+  }
+ },
+ "office": {
+  "fonts": {
+   "serif": "Bricolage Grotesque",
+   "sans": "IBM Plex Sans",
+   "mono": "IBM Plex Mono"
+  },
+  "files": {
+   "snapshot/fonts/BricolageGrotesque-Bold.ttf": "4e1ac8031333b5b7dc3cf7864c1c2c128dae492defeef85be1927e463288f7a4",
+   "snapshot/fonts/BricolageGrotesque-Medium.ttf": "bc285991a09e6142e29b05fa23fe30ddf14b7d374553a8c16cb6771efc82c3a1",
+   "snapshot/fonts/IBMPlexSans-Regular.ttf": "649e8c87500f62130e2eb4c3ad395c1a2db4c01b937cd49aa88bb3395b1e18fb",
+   "snapshot/fonts/IBMPlexSans-Medium.ttf": "4c0e7b50770fa32b71d2634a94d727d8583ecc61e8259c8b6fa7c9d804d3bee6",
+   "snapshot/fonts/IBMPlexSans-SemiBold.ttf": "0a346b6598c93b73ca6a673d5980dd11129c15b07a4a64cf440fd751e2d3adb9",
+   "snapshot/fonts/IBMPlexMono-Medium.ttf": "a9b4c49bb299e05b5f6c481e7fb5e78943d2793249a0c8874ab574a2d1ea6755"
+  },
+  "_note": "Prism's own families: install them from snapshot/fonts to present decks (no Office renames needed)."
+ },
+ "m365": {
+  "email": {
+   "fonts": {
+    "sans": "'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif",
+    "serif": "'Bricolage Grotesque','Segoe UI',Arial,sans-serif",
+    "mono": "'IBM Plex Mono',Consolas,'Courier New',monospace",
+    "msoSans": "'Segoe UI',Arial,sans-serif",
+    "msoSerif": "'Segoe UI',Arial,sans-serif",
+    "webfonts": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=IBM+Plex+Mono:wght@500&display=swap"
+   },
+   "logo_width": 168
+  },
+  "_note": "Font stacks from the design system's README (IBM Plex Sans and Bricolage Grotesque from Google Fonts, safe-sans and safe-mono as fallbacks). No reviewed palette: core proposes one from the brand's roles."
+ }
+}

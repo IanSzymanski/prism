@@ -1,0 +1,21 @@
+/* ca-blog.css: 16:9 blog header images (1920×1080). No title, author, tags or logo: the page supplies them. */
+body.ca-blog{margin:0;padding:0;background:#E9E8DF;max-width:none;box-shadow:none}
+.bh{position:relative;width:1920px;height:1080px;overflow:hidden}
+.bh > *{position:absolute;left:0;top:0}
+.bh .bh-art,.bh .bh-grain{display:block}
+.bh .bh-grain{pointer-events:none}
+/* Image: fills about 64% of the frame on one side and fades into the gradient on the ca-fade ramp (smoothstep). */
+.bh .bh-image{width:64%;height:100%;object-fit:cover;--r:to right;
+  -webkit-mask-image:linear-gradient(var(--r),#000 0%,#000 45%,rgb(0 0 0 / .97) 50.5%,rgb(0 0 0 / .9) 56%,rgb(0 0 0 / .78) 61.5%,rgb(0 0 0 / .65) 67%,rgb(0 0 0 / .5) 72.5%,rgb(0 0 0 / .35) 78%,rgb(0 0 0 / .22) 83.5%,rgb(0 0 0 / .1) 89%,rgb(0 0 0 / .03) 94.5%,transparent 100%);
+  mask-image:linear-gradient(var(--r),#000 0%,#000 45%,rgb(0 0 0 / .97) 50.5%,rgb(0 0 0 / .9) 56%,rgb(0 0 0 / .78) 61.5%,rgb(0 0 0 / .65) 67%,rgb(0 0 0 / .5) 72.5%,rgb(0 0 0 / .35) 78%,rgb(0 0 0 / .22) 83.5%,rgb(0 0 0 / .1) 89%,rgb(0 0 0 / .03) 94.5%,transparent 100%)}
+.bh .bh-image.right{left:auto;right:0;--r:to left}
+/* Screen: a real product screenshot on a card over the gradient, bleeding off the right edge (screenshots are never faded). */
+.bh .bh-shot{left:var(--x);top:var(--y);width:1500px;height:980px;border-radius:30px;overflow:hidden;
+  box-shadow:0 50px 110px -40px rgb(8 6 17 / .6),0 6px 16px rgb(8 6 17 / .2)}
+.bh .bh-shot img{width:100%;height:100%;object-fit:cover;object-position:left top;display:block}
+/* Series (changelog): the series name, never the post title, so every issue is recognisable on the index. */
+.bh .bh-series{left:200px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:28px}
+.bh .bh-series-name{font:600 170px/1 var(--serif);letter-spacing:-.03em;color:var(--ink)}
+.bh .bh-series-line{font:600 40px/1.2 var(--sans);letter-spacing:.01em;color:var(--body)}
+.bh.deep .bh-series-name,.bh.vivid .bh-series-name{color:var(--paper)}
+.bh.deep .bh-series-line,.bh.vivid .bh-series-line{color:var(--lilac)}

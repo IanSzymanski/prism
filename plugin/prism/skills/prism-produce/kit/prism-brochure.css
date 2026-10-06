@@ -1,0 +1,93 @@
+/* prism-brochure.css: Letter trifold, two sides, three panels each. Loads after prism-sheet.css and reuses its components. */
+@page{size:11in 8.5in;margin:0;background:var(--prism-color-surface)}
+@page{@bottom-left{content:none}@bottom-right{content:none}}
+body.brochure{margin:0;padding:0;font-size:8.8pt;line-height:1.5;max-width:none;box-shadow:none}
+@media screen{body.brochure{background:var(--prism-color-desk)}.spread{margin:24px auto;box-shadow:var(--prism-shadow-sheet)}}
+
+/* Panel widths: the flap that folds in is 1/16 in narrower. Outside: flap, back, cover. Inside: left, middle, right. */
+.spread{position:relative;display:grid;width:11in;height:8.5in;overflow:hidden;break-after:page;background:var(--prism-color-surface)}
+.spread.outside{grid-template-columns:3.625in 3.6875in 3.6875in}
+.spread.inside{grid-template-columns:3.6875in 3.6875in 3.625in}
+.panel{position:relative;padding:.5in .42in .55in;display:flex;flex-direction:column;min-width:0}
+.panel > :first-child{margin-top:0}
+
+/* Headings: panels are narrow, so any heading ornament (brand layer) sits under the heading. */
+.brochure h2{flex-wrap:wrap;gap:4pt;font-size:15.5pt;line-height:1.12;margin:0 0 8pt}
+.brochure h3{font-size:10pt;margin:12pt 0 4pt}
+.brochure p{margin:0 0 8pt}
+.brochure .eyebrow{font-size:7.5pt;margin-bottom:8pt}
+.brochure .num{display:block;font:500 8pt/1 var(--prism-font-mono);letter-spacing:.14em;color:var(--prism-color-accent);margin-bottom:10pt}
+.brochure .features ul{grid-template-columns:1fr;gap:7pt;margin:4pt 0 10pt}
+.brochure .features li{padding:8pt 10pt 8pt 34pt;position:relative;font-size:8.2pt;line-height:1.42}
+.brochure .features li .icon{position:absolute;left:10pt;top:9pt;font-size:15pt;margin:0}
+.brochure .features li strong{font-size:10pt;margin-bottom:1pt}
+.brochure .checks li{font-size:8.6pt;margin-bottom:5pt;padding-left:17pt}
+.brochure .checks li::before{font-size:11pt}
+.brochure ol{padding-left:14pt;margin-bottom:9pt}
+.brochure ol li{margin-bottom:3pt}
+.brochure .callout{padding:10pt 12pt 2pt;margin:6pt 0 10pt}
+.brochure .callout > h4{font-size:7pt}
+.brochure blockquote{font-size:12.5pt;margin:10pt 0;text-align:left}
+.brochure figure{margin:0 0 10pt}
+.brochure figure img,.brochure p > img{border-radius:9pt}
+.brochure figcaption{font-size:6.5pt;margin-top:5pt}
+.brochure .push{margin-top:auto}
+
+/* Cover: photo bleeds to the panel edges and fades into the page. */
+.panel.cover{padding:0}
+.panel.cover > .hero-image{margin:0}
+.panel.cover .hero-image img{height:4.35in;border-radius:0}
+.cover-body{padding:.3in .42in .5in;display:flex;flex-direction:column;flex:1}
+.cover-body .logo img{height:17pt;width:auto;border-radius:0;margin-bottom:16pt}
+.brochure h1{font:var(--prism-type-title-weight) 25pt/1.05 var(--prism-type-title-family);letter-spacing:var(--prism-type-title-ls);color:var(--prism-color-text-strong);margin:0 0 9pt}
+.brochure h1 em{font-style:normal;color:var(--prism-color-accent)}
+.cover-body .lede{font-size:9.6pt;color:var(--prism-color-text);margin-bottom:0}
+
+/* Back panel: dark ground; any image or ornament on it is the brand layer's. */
+.panel.dark{background:var(--prism-color-dark-surface);color:var(--prism-color-text-dark)}
+.panel.dark h2{color:var(--prism-color-surface)}
+.panel.dark h2 em{color:var(--prism-color-accent-dark)}
+.panel.dark .eyebrow{font:var(--prism-type-eyebrow-on-dark-weight) 8pt/1.3 var(--prism-type-eyebrow-on-dark-family);letter-spacing:var(--prism-type-eyebrow-on-dark-ls);color:var(--prism-color-eyebrow-on-dark)}
+.panel.dark strong{color:var(--prism-color-surface)}
+.panel.dark a{color:var(--prism-color-surface);text-decoration-color:var(--prism-color-link-line-dark)}
+.panel.dark .logo img{height:16pt;width:auto;border-radius:0}
+.panel.dark figure img{border-radius:9pt}
+.panel.dark .contact ul{list-style:none;padding:0;margin:0 0 10pt}
+.panel.dark .contact li{padding:6pt 0;border-bottom:.8pt solid var(--prism-color-rule-on-dark);margin:0;font-size:8.6pt}
+.panel.dark .contact li::marker{content:none}
+.panel.dark .small{color:var(--prism-color-text-muted-dark)}
+
+/* Wide panel: one design across two panels (inside center and right). A full-bleed photo and one heading
+   whose heading rule crosses the fold, then a `::: col` per panel. */
+.panel.wide{grid-column:span 2;display:grid;grid-template-columns:3.6875in 3.625in;grid-template-rows:auto auto 1fr;padding:0 0 .55in;align-content:start}
+.panel.wide > *:not(.col){grid-column:1 / -1;padding-inline:.42in}
+.panel.wide > .hero-image{padding:0;margin:0 0 12pt}
+.panel.wide .hero-image img{height:1.8in;border-radius:0}
+.panel.wide > h2 .h2-text{max-width:2.85in}
+.panel.wide > .col{padding:4pt .42in 0;display:flex;flex-direction:column;min-width:0}
+.panel.wide > .col > :first-child{margin-top:0}
+.brochure img.logo{height:17pt;width:auto;border-radius:0;margin:0 0 14pt;display:block}
+.panel.dark figcaption{font:400 7pt/1.4 var(--prism-font-sans);color:var(--prism-color-text-muted-dark)}
+.brochure figure.is-square,.brochure figure.is-portrait{margin-inline:auto}
+
+/* Full panel: the whole inside as one design. A photo bleeds across all three panels; `::: col` fills one panel,
+   `::: {.col .two}` fills two and lays out freely across the fold between them. */
+.panel.full{grid-column:1 / -1;display:grid;grid-template-columns:3.6875in 3.6875in 3.625in;grid-template-rows:auto 1fr;padding:0 0 .5in;align-content:start}
+.panel.full > *:not(.col){grid-column:1 / -1}
+.panel.full > .hero-image{margin:0 0 14pt}
+.panel.full .hero-image img{height:1.7in;border-radius:0}
+.panel.full > .col{padding:0 .42in;display:flex;flex-direction:column;min-width:0}
+.panel .col.two{grid-column:span 2}
+.col.two .features ul{grid-template-columns:repeat(3,1fr);gap:8pt}
+.col.two .features li{padding:10pt 11pt;font-size:8pt}
+.col.two .features li .icon{position:static;display:block;font-size:16pt;margin-bottom:5pt}
+
+/* Band: a tinted strip for one key idea, with an optional `::: flow` of steps inside. */
+.brochure .band{background:var(--prism-color-band);border-radius:12pt;padding:12pt 14pt 10pt;margin:4pt 0 0}
+.brochure .band h3{margin:0 0 3pt}
+.brochure .band p{margin:0 0 8pt}
+.brochure .flow ul{list-style:none;padding:0;margin:0 0 8pt;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:12pt;counter-reset:step}
+.brochure .flow li{margin:0;padding:8pt 0 0;border-top:1.2pt solid var(--prism-color-link-line);font-size:8pt;line-height:1.4;counter-increment:step}
+.brochure .flow li::before{content:counter(step,decimal-leading-zero);display:block;font:500 7pt/1 var(--prism-font-mono);letter-spacing:.14em;color:var(--prism-color-accent);margin-bottom:4pt}
+.brochure .flow li strong{display:block;font:var(--prism-type-card-title-weight) 10.5pt/1.2 var(--prism-type-card-title-family);margin-bottom:1pt}
+.brochure .flow li::marker{content:none}

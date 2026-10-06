@@ -1,0 +1,278 @@
+/* prism-sheet.css: printed and PDF sheets built from Markdown. Brand values come from the brand stylesheet (--prism-* roles).
+   Build: pandoc with prism-sheet.html + prism-sheet.lua, printed by Chromium (build-sheet.js). */
+
+:root{
+  --line:.8pt solid var(--prism-color-rule-soft);
+
+  --page-x:calc(var(--prism-space-page-x) / .9);  /* the brand margin on paper once the build prints at 90% */
+  --page-top:var(--prism-space-page-top);
+  --measure:none;
+  --space:var(--prism-space-paragraph);
+}
+
+/* Colours are solid, never transparent: PDF viewers blend transparency differently. */
+/* Page. Letter by default; change `size` to A4 for A4.
+   Side margins live on body, not here, so the first-page wash can run to the paper edges. */
+@page{
+  size:letter;
+  margin:var(--page-top) 0 .85in;
+  @bottom-left{font:500 7.5pt/1 var(--prism-font-mono);letter-spacing:.08em;color:var(--prism-color-text-faint);vertical-align:top;padding:.3in 0 0 .75in}
+  @bottom-right{content:counter(page) " / " counter(pages);font:500 7.5pt/1 var(--prism-font-mono);letter-spacing:.08em;color:var(--prism-color-text-faint);vertical-align:top;padding:.3in .75in 0 0}
+}
+@page{background:var(--prism-color-surface)}
+@page:first{margin-top:0}
+html{background:var(--prism-color-surface);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:0 var(--page-x);background:var(--prism-color-surface);color:var(--prism-color-text);
+  font:var(--prism-type-body);
+  font-feature-settings:"ss01","cv11";
+  -webkit-font-smoothing:antialiased;
+  orphans:3;widows:3;
+}
+/* Screen preview only: show the sheet as a sheet. */
+@media screen{
+  html{background:var(--prism-color-desk)}
+  body{max-width:8.5in;margin:32px auto;padding:0 var(--page-x) .85in;box-shadow:var(--prism-shadow-sheet)}
+}
+
+/* Masthead: first page only. Its ground and ornament come from the brand layer. */
+.prism-mast{
+  margin:0 calc(var(--page-x) * -1) 30pt;
+  padding:.55in var(--page-x) 0;
+}
+.prism-mast__bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9in}
+.prism-mast__logo{height:22pt;width:auto;display:block}
+.prism-mast__type{font:500 7.5pt/1 var(--prism-font-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--prism-color-text)}
+.prism-mast .eyebrow{margin-bottom:14pt}
+.prism-mast h1{
+  font:var(--prism-type-title);letter-spacing:var(--prism-type-title-ls);color:var(--prism-color-text-strong);
+  max-width:17ch;margin:0 0 16pt;
+}
+.prism-mast h1 em{font-style:normal;color:var(--prism-color-accent)}
+.prism-lede{font:var(--prism-type-lede);letter-spacing:var(--prism-type-lede-ls);color:var(--prism-color-text);max-width:50ch;margin:0 0 16pt}
+.prism-meta{font:var(--prism-type-caption-weight) 8pt/1.4 var(--prism-font-mono);letter-spacing:.06em;color:var(--prism-color-text-meta);margin:0}
+/* Smaller title areas for tight pages: `hero: small` or `hero: x-small` in the front matter. */
+.hero-small .prism-mast{padding-top:.45in;margin-bottom:20pt}
+.hero-small .prism-mast__bar{margin-bottom:.5in}
+.hero-small .prism-mast .eyebrow{margin-bottom:10pt}
+.hero-small .prism-mast h1{font-size:26pt;margin-bottom:10pt;max-width:22ch}
+.hero-small .prism-lede{font-size:11pt;margin-bottom:10pt}
+.hero-x-small .prism-mast{padding-top:.4in;margin-bottom:14pt}
+.hero-x-small .prism-mast__bar{margin-bottom:.28in}
+.hero-x-small .prism-mast .eyebrow{margin-bottom:7pt}
+.hero-x-small .prism-mast h1{font-size:21pt;margin-bottom:7pt;max-width:30ch}
+.hero-x-small .prism-lede{font-size:10pt;margin-bottom:7pt;max-width:62ch}
+
+/* The label above a heading. Same object as `.eyebrow` on the site; sets no alignment. */
+.eyebrow,.prism-kicker{font:var(--prism-type-eyebrow);letter-spacing:var(--prism-type-eyebrow-ls);color:var(--prism-color-text);margin:0}
+
+/* Headings. h2 opens a section; any ornament it carries comes from the brand layer. */
+h1,h2,h3,h4{color:var(--prism-color-text-strong);break-after:avoid;break-inside:avoid}
+:is(h2,h3,h4) + *{break-before:avoid}
+.prism-sheet h1{font:var(--prism-type-heading-1);letter-spacing:var(--prism-type-heading-1-ls);margin:26pt 0 12pt}
+h2{
+  font:var(--prism-type-heading-2);letter-spacing:var(--prism-type-heading-2-ls);
+  margin:28pt 0 12pt;
+}
+h2 .h2-text{flex:0 1 auto}
+h2 em,.prism-sheet h1 em{font-style:normal;color:var(--prism-color-accent)}
+h2.no-rule::after{content:none}
+h3{font:var(--prism-type-heading-3);letter-spacing:var(--prism-type-heading-3-ls);margin:18pt 0 6pt}
+h4{font:var(--prism-type-label);letter-spacing:var(--prism-type-label-ls);text-transform:uppercase;color:var(--prism-color-text);margin:16pt 0 6pt}
+h2 + h3,h2 + h4{margin-top:4pt}
+
+main.prism-sheet{padding:0 1pt}
+p{margin:0 0 var(--space)}
+strong{font-weight:600;color:var(--prism-color-text-strong)}
+a{color:var(--prism-color-text-strong);text-decoration:underline;text-decoration-color:var(--prism-color-link-line);text-underline-offset:2pt;text-decoration-thickness:.8pt}
+ul,ol{margin:0 0 var(--space);padding-left:16pt}
+li{margin:0 0 4pt;padding-left:2pt}
+li::marker{color:var(--prism-color-accent)}
+ul > li::marker{content:"–  "}
+ol > li::marker{font:500 8.5pt var(--prism-font-mono)}
+li > ul,li > ol{margin:4pt 0 0}
+
+/* Chapter boundary. A full stop, never an opener; use between groups of sections, sparingly. */
+hr{border:0;height:0;margin:22pt 0;break-after:avoid}
+
+/* A logo placed in the body (![](prism:logo){.logo}) sits at masthead size. */
+img.logo,.logo img{height:22pt;width:auto;border-radius:0;box-shadow:none}
+
+/* Pull quote. No ornament rule near a quote or a person's name (the brand's placement rules). */
+blockquote{
+  margin:24pt auto;padding:0;max-width:30em;text-align:center;break-inside:avoid;
+  font:var(--prism-type-quote);letter-spacing:var(--prism-type-quote-ls);color:var(--prism-color-text-strong);
+}
+blockquote p{margin:0 0 10pt}
+blockquote .cite,blockquote cite{
+  display:block;font:var(--prism-type-cite);letter-spacing:var(--prism-type-cite-ls);font-style:normal;
+  text-transform:uppercase;color:var(--prism-color-text);margin-top:12pt;
+}
+
+/* Tables. */
+table{width:100%;border-collapse:collapse;margin:6pt 0 18pt;font-size:9pt;line-height:1.45;break-inside:auto}
+thead{display:table-header-group}
+tr{break-inside:avoid}
+th{
+  text-align:left;font:500 7.5pt/1.3 var(--prism-font-mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--prism-color-text);padding:0 10pt 7pt 0;border-bottom:var(--line);
+}
+td{padding:8pt 10pt 8pt 0;border-bottom:var(--line);vertical-align:top}
+td:first-child{color:var(--prism-color-text-strong);font-weight:500}
+table caption{caption-side:bottom;text-align:left;font:500 7.5pt/1.4 var(--prism-font-mono);letter-spacing:.06em;color:var(--prism-color-text-muted);padding-top:6pt}
+
+/* Code. */
+code{font:500 .88em var(--prism-font-mono);background:var(--prism-color-code);padding:.1em .35em;border-radius:3pt;color:var(--prism-color-text-strong)}
+pre{font:500 8.5pt/1.55 var(--prism-font-mono);background:var(--prism-color-pre);border:var(--line);border-radius:8pt;padding:10pt 12pt;margin:0 0 var(--space);white-space:pre-wrap;break-inside:avoid}
+pre code{background:none;padding:0;font-size:inherit}
+
+/* Figures. Two stacked drop-shadows read as lift; one reads as a smudge. */
+/* Images. The build tags each image .is-landscape / .is-portrait / .is-square and bakes .fade and .shadow into the pixels. */
+figure{margin:18pt 0;break-inside:avoid}
+figure img,p > img{display:block;width:100%;height:auto;border-radius:var(--prism-radius-figure)}
+figure.is-portrait{width:44%;margin-inline:auto}
+figure.is-square{width:60%;margin-inline:auto}
+
+/* Hero image: the first block after the title. ::: hero-image */
+.hero-image{margin:-6pt 0 22pt;break-inside:avoid}
+.hero-image figure,.hero-image p{margin:0;width:auto}
+.hero-image img{width:100%;height:3.1in;object-fit:cover;border-radius:var(--prism-radius-hero)}
+.hero-small .hero-image img{height:2.4in}
+.hero-x-small .hero-image img{height:1.8in}
+
+/* Media row: one image beside text. Column split follows the photo's shape; .flip puts the image right. */
+.media{display:grid;grid-template-columns:1fr 1fr;gap:20pt;align-items:center;margin:14pt 0 20pt;break-inside:avoid}
+.media.is-portrait{grid-template-columns:34% 1fr}
+.media.is-square{grid-template-columns:40% 1fr}
+.media.flip.is-landscape{grid-template-columns:1fr 1fr}
+.media.flip.is-portrait{grid-template-columns:1fr 34%}
+.media.flip.is-square{grid-template-columns:1fr 40%}
+.media.flip > :first-child{order:2}
+.media > figure,.media > p:has(> img){margin:0;width:auto}
+.media img{width:100%;height:auto;object-fit:cover;aspect-ratio:4 / 3}
+.media.is-portrait img{aspect-ratio:4 / 5}
+.media.is-square img{aspect-ratio:1 / 1}
+.media__text > :first-child{margin-top:0}
+.media__text > :last-child{margin-bottom:0}
+.media.top{align-items:start}
+
+/* Gallery: two or three images in a row, cropped to one shared shape. */
+.gallery{display:grid;grid-template-columns:repeat(var(--n,2),1fr);gap:10pt;margin:14pt 0 18pt;break-inside:avoid}
+.gallery > figure,.gallery > p{margin:0;width:auto}
+.gallery img{width:100%;height:auto;object-fit:cover;aspect-ratio:var(--ratio,3 / 2);border-radius:var(--prism-radius-card)}
+/* A lead-in paragraph stays on the same page as the image block it introduces. */
+p:has(+ .media),p:has(+ .gallery),p:has(+ figure),p:has(+ .hero-image){break-after:avoid}
+figcaption{font:var(--prism-type-caption);letter-spacing:var(--prism-type-caption-ls);color:var(--prism-color-text-muted);margin-top:8pt}
+
+/* Icons: []{.icon .ph-shield-check}, in the brand's Phosphor weight. Tinted by text colour; add .accent for the accent. */
+.icon{font-size:1.2em;vertical-align:-.15em;color:var(--prism-color-text-strong)}
+.icon.accent{color:var(--prism-color-accent)}
+.callout > h3 .icon,.callout > h4 .icon{font-size:13pt;vertical-align:0}
+.features li .icon{display:block;font-size:20pt;margin-bottom:7pt}
+
+/* Callout — a hairline card for a key point or definition. */
+.callout{
+  border:var(--line);border-radius:var(--prism-radius-card);padding:13pt 16pt 3pt;margin:6pt 0 18pt;
+  break-inside:avoid;
+}
+.callout > h3,.callout > h4{display:flex;align-items:center;gap:8pt;margin:0 0 6pt}
+.callout > h3{font:var(--prism-type-card-title);letter-spacing:var(--prism-type-card-title-ls)}
+.callout.tint{background:var(--prism-color-tint);border-color:var(--prism-color-tint-line)}
+.callout p:last-child{margin-bottom:10pt}
+
+/* Stats — a row of figures. A list whose items start with **the number**. */
+.stats ul{
+  list-style:none;padding:12pt 0;margin:10pt 0 20pt;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(1.4in,1fr));gap:12pt 20pt;
+  border-top:var(--line);border-bottom:var(--line);break-inside:avoid;
+}
+/* No top rule when a heading's rule already sits above: automatic after h2, or add .flush. */
+h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
+.stats li{margin:0;padding:0;font-size:8.5pt;line-height:1.4;color:var(--prism-color-text)}
+.stats li::marker{content:none}
+.stats li strong{
+  display:block;margin-bottom:4pt;font:var(--prism-type-stat);letter-spacing:var(--prism-type-stat-ls);color:var(--prism-color-accent);
+}
+
+/* Features — a grid of cards, one per list item. Start each item with an icon and a bold title. */
+.features ul{
+  list-style:none;padding:0;margin:8pt 0 18pt;display:grid;grid-template-columns:1fr 1fr;gap:10pt;
+}
+.features.three ul{grid-template-columns:repeat(3,1fr)}
+.features li{
+  margin:0;padding:12pt 14pt;border:var(--line);border-radius:var(--prism-radius-card);
+  font-size:9pt;line-height:1.5;break-inside:avoid;
+}
+.features li::marker{content:none}
+.features li strong{display:block;font:var(--prism-type-card-title-weight) 11.5pt/1.25 var(--prism-type-card-title-family);letter-spacing:var(--prism-type-card-title-ls);margin-bottom:3pt}
+
+/* Checklist — list with check icons in place of markers. */
+.checks ul{list-style:none;padding-left:0;break-inside:avoid}
+.checks li{position:relative;padding-left:20pt}
+.checks li::marker{content:none}
+.checks li::before{
+  /* The Phosphor check as an inline SVG, so PDFs carry it as a vector shape (no icon font needed in other apps). */
+  content:"";position:absolute;left:0;top:.05em;width:1em;height:1em;
+  font-size:13pt;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cpath fill='{{prism-color-accent|uri}}' d='M913 305 401 817Q398 820 394 822Q389 824 384 824Q379 824 374 822Q370 820 367 817L143 593Q140 590 138 586Q137 581 137 577Q137 567 144 560Q151 553 161 553Q165 553 170 554Q174 556 177 559L384 766L879 271Q882 268 886 266Q891 265 895 265Q905 265 912 272Q919 279 919 289Q919 293 918 298Q916 302 913 305Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Two columns of running text. */
+.cols{column-count:2;column-gap:24pt;margin-bottom:var(--space)}
+.cols > *{break-inside:avoid-column}
+
+/* Closing card: one per sheet, always last. Core sets its place and sizes; its look is the brand layer's. */
+.cta-card{margin:26pt 0 10pt;padding:26pt 30pt 22pt;break-inside:avoid;border-radius:var(--prism-radius-hero)}
+.cta-card h2,.cta-card h3{display:block;font:var(--prism-type-cta-heading);letter-spacing:var(--prism-type-cta-heading-ls);margin:8pt 0 10pt}
+.cta-card .eyebrow,.cta-card .prism-kicker{font:var(--prism-type-eyebrow-on-dark);letter-spacing:var(--prism-type-eyebrow-on-dark-ls)}
+.cta-card p:last-child{margin-bottom:0}
+.cta-card.small{margin:16pt 0 6pt;padding:17pt 24pt 15pt}
+.cta-card.x-small{margin:12pt 0 4pt;padding:11pt 18pt}
+
+/* Charts — generated from ```chart blocks by prism-charts.lua. Sizes are in chart units (640 wide). */
+.prism-chart{margin:14pt 0 18pt;break-inside:avoid}
+.prism-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.prism-chart .tick{font:500 9px var(--prism-font-mono);fill:var(--prism-color-text-faint)}
+.prism-chart .lab{font:500 9.5px var(--prism-font-mono);letter-spacing:.08em;text-transform:uppercase;fill:var(--prism-color-text)}
+.prism-chart .val{font:600 12px var(--prism-font-sans);fill:var(--prism-color-text-strong)}
+.prism-chart .rowlab{font:500 11px var(--prism-font-sans);fill:var(--prism-color-text-strong)}
+.prism-chart .note,.prism-chart .legend{font:500 10.5px var(--prism-font-sans);fill:var(--prism-color-text)}
+.prism-chart .big{font:var(--prism-type-stat-weight) 30px var(--prism-type-stat-family);letter-spacing:var(--prism-type-stat-ls);fill:var(--prism-color-text-strong)}
+.prism-chart .grid{stroke:var(--prism-color-chart-grid);stroke-width:1}
+.prism-chart .base{stroke:var(--prism-color-rule);stroke-width:1}
+.prism-chart .marker{stroke:var(--prism-color-text-strong);stroke-width:1;stroke-dasharray:3 3}
+.prism-chart--donut svg,.prism-chart--hbar svg{max-width:92%}
+
+/* Footnotes. Pandoc opens them with an <hr>, which must not become a full stop. */
+.footnotes{font-size:8pt;line-height:1.5;color:var(--prism-color-text);margin-top:24pt;border-top:var(--line);padding-top:8pt}
+.footnotes hr{display:none}
+.footnotes::before{content:"Notes";display:block;font:500 7.5pt/1.3 var(--prism-font-mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6pt}
+.footnotes ol{padding-left:14pt;margin:0}
+.footnotes li{margin:0 0 3pt}
+.footnotes li p{margin:0}
+.footnote-back{display:none}
+.footnote-ref{font:500 .7em var(--prism-font-mono);vertical-align:super;line-height:0;text-decoration:none;color:var(--prism-color-accent)}
+
+/* Closing line under the last page's content. */
+.prism-colophon{
+  display:flex;justify-content:space-between;gap:12pt;margin-top:30pt;padding-top:10pt;
+  border-top:var(--line);
+  font:500 7.5pt/1.4 var(--prism-font-mono);letter-spacing:.08em;color:var(--prism-color-text-muted);break-inside:avoid;
+}
+
+/* Flow control. */
+.page-break{break-before:page;height:0}
+.keep{break-inside:avoid}
+.small{font-size:8.5pt;line-height:1.5}
+.center{text-align:center}
+
+/* Band: a tinted strip for one key idea. Flow: two to five numbered steps side by side, for a process or workflow. */
+.band{background:var(--prism-color-band);border-radius:var(--prism-radius-hero);padding:14pt 18pt 10pt;margin:6pt 0 var(--space);break-inside:avoid}
+.band > h3{margin:0 0 4pt}
+.band > p{margin:0 0 10pt}
+.flow ul{list-style:none;padding:0;margin:0 0 var(--space);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:14pt;counter-reset:step;break-inside:avoid}
+.flow li{margin:0;padding:9pt 0 0;border-top:1.2pt solid var(--prism-color-link-line);font-size:9pt;line-height:1.4;counter-increment:step}
+.flow li::before{content:counter(step,decimal-leading-zero);display:block;font:500 7.5pt/1 var(--prism-font-mono);letter-spacing:.14em;color:var(--prism-color-accent);margin-bottom:5pt}
+.flow li::marker{content:none}
+.flow li strong{display:block;font:var(--prism-type-card-title-weight) 11.5pt/1.2 var(--prism-type-card-title-family);margin-bottom:2pt}
+.band .flow ul{margin-bottom:6pt}

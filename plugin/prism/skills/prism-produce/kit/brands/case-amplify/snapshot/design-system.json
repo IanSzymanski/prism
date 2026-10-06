@@ -1,0 +1,103 @@
+{
+ "v": 3,
+ "layout": "files",
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-01T23:24:42Z"
+ },
+ "title": "Case Amplify",
+ "namespace": "CaseAmplify",
+ "libraries": [],
+ "sections": {},
+ "groups": [
+  "Logos",
+  "Wave",
+  "Backgrounds"
+ ],
+ "assetGroups": {
+  "Logos": {
+   "name": "Logos",
+   "tile": "m",
+   "order": [
+    "ca-logo.png",
+    "ca-logo-light.png"
+   ],
+   "files": {
+    "ca-logo.png": {
+     "name": "ca-logo.png",
+     "blob": "aed5b80d718d62b88ef0d081be43f617",
+     "size": 75480,
+     "type": "image/png"
+    },
+    "ca-logo-light.png": {
+     "name": "ca-logo-light.png",
+     "blob": "1074e5aa058cfce62c380a212e44ec21",
+     "size": 73658,
+     "type": "image/png"
+    }
+   }
+  },
+  "Wave": {
+   "name": "Wave",
+   "tile": "l",
+   "order": [
+    "wave-opener-end.svg",
+    "wave-opener-start.svg",
+    "wave-stop.svg",
+    "wave-opener-start-dark.svg"
+   ],
+   "files": {
+    "wave-opener-end.svg": {
+     "name": "wave-opener-end.svg",
+     "blob": "dec46a873e8e1511a2adb3f7ea074551",
+     "size": 4924,
+     "type": "image/svg+xml"
+    },
+    "wave-opener-start.svg": {
+     "name": "wave-opener-start.svg",
+     "blob": "96cf5cc7210cc48ce0a3ad3fe071c64c",
+     "size": 4335,
+     "type": "image/svg+xml"
+    },
+    "wave-stop.svg": {
+     "name": "wave-stop.svg",
+     "blob": "0fd7bd274ddec71baaa85dede6bd5542",
+     "size": 6687,
+     "type": "image/svg+xml"
+    },
+    "wave-opener-start-dark.svg": {
+     "name": "wave-opener-start-dark.svg",
+     "blob": "cfbf22c55034ca0487e10f7a31efe066",
+     "size": 4335,
+     "type": "image/svg+xml"
+    }
+   }
+  },
+  "Backgrounds": {
+   "name": "Backgrounds",
+   "tile": "l",
+   "order": [
+    "cta-card.png"
+   ],
+   "files": {
+    "cta-card.png": {
+     "name": "cta-card.png",
+     "blob": "72e7752a49e5149079b3ed28c400f66b",
+     "size": 270453,
+     "type": "image/png"
+    }
+   }
+  }
+ },
+ "blobs": {},
+ "docs": {
+  "readme": "project/README.md",
+  "sections": []
+ },
+ "lastChange": {
+  "by": "Claude",
+  "at": "2026-10-05T19:03:34Z",
+  "via": "Claude.ai",
+  "note": "Point-based sizes stored to four decimals (17pt is 22.6667px, not 22.67px), so builds match the kit's pt values exactly."
+ }
+}

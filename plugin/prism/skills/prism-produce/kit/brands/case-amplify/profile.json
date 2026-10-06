@@ -1,0 +1,330 @@
+{
+ "schema": 1,
+ "id": "case-amplify",
+ "name": "Case Amplify",
+ "version": 1,
+ "source": {
+  "kind": "claude-design-system",
+  "url": "https://claude.ai/artifact/MP9SjqKoJECgCoSWyQNG3m",
+  "title": "Case Amplify",
+  "snapshot_taken": "2026-10-02",
+  "_note": "Optional live source. Builds always use snapshot/; the live system is only compared against it."
+ },
+ "snapshot": {
+  "files": {
+   "README.md": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
+   "assets/Backgrounds/cta-card.png": "389977e5cf449f7bb2aa917507c7dda67bfe143e10f2c104fa353beff208a27e",
+   "assets/Logos/ca-logo-light.png": "828887548fb013db91bfc1ed85bd275af049d3087b482c18911802b461feb411",
+   "assets/Logos/ca-logo.png": "f02a0e32bcf958ae86b19e09071dc689e62e966a13d777724d2df4e67acbd30d",
+   "assets/Wave/wave-core.js": "7e58ab4dc7a1abf4007b65684447d6e751910e00244e2e606a81c7b63da9b566",
+   "assets/Wave/wave-opener-end.svg": "d5a5dc78bdf2ff6489bd022018eada9a2bfe2f00aed7989f21ef6e0a05ebe196",
+   "assets/Wave/wave-opener-start-dark.svg": "f908cee3a70e28e94ad026b5040235792251ce2a96565dd1730c939643f7cf95",
+   "assets/Wave/wave-opener-start.svg": "2aae55fe352f51c97d574824a5ed7fda2fb79be515d8c3abee85e7f17aba85a0",
+   "assets/Wave/wave-stop.svg": "5db625312f12f6c7ec46fc0205040ddde9444c871021bed2a9c0babfef63ad21",
+   "design-system.json": "1d80785fe9ff3132267e8dbbefaf67652b586098a26b1fdf3626f95db4cd050d",
+   "fonts/IBMPlexMono-Medium.ttf": "13573e85cb64c9cad0742e979b14bf6e9111fa3d9e70598b12c9ddd862a7d4fd",
+   "fonts/Inter-Medium.ttf": "93e4e46a15d3c4de8bc1b34a5b8c71ae5b6de61a2da7c9baff0125e7da69a6b2",
+   "fonts/Inter-Regular.ttf": "c3a57eb0f716b30e51712843d753141827aa1d9266531c4f7357ec352d22f80f",
+   "fonts/Inter-SemiBold.ttf": "9b4bdd99bab0d17216dca6f4ee02c11a3df58902ff9e585dc381cc945cb55725",
+   "fonts/Literata-Medium.ttf": "d3919555b65a01a982f94d86185d9283a69a50196c840a194014b0e4cd1945f0",
+   "fonts/Literata-Regular.ttf": "208e04c5e8a4b86de2aa67d46bbc6f0188048f4dcda422f88a4be2ec59d40b10",
+   "fonts/Literata-SemiBold.ttf": "45fbb4d0c37b32002c0bbd652c9be16a00ac19bced980b7e95bb44ae794ea6aa",
+   "tokens.json": "cfd65ac49bcfbd468ab3129234bb0794420d3f5e5db3ad04869eb6c70d313c61"
+  },
+  "blobs": {
+   "assets/Logos/ca-logo.png": "aed5b80d718d62b88ef0d081be43f617",
+   "assets/Logos/ca-logo-light.png": "1074e5aa058cfce62c380a212e44ec21",
+   "assets/Wave/wave-opener-end.svg": "dec46a873e8e1511a2adb3f7ea074551",
+   "assets/Wave/wave-opener-start.svg": "96cf5cc7210cc48ce0a3ad3fe071c64c",
+   "assets/Wave/wave-stop.svg": "0fd7bd274ddec71baaa85dede6bd5542",
+   "assets/Wave/wave-opener-start-dark.svg": "cfbf22c55034ca0487e10f7a31efe066",
+   "assets/Backgrounds/cta-card.png": "72e7752a49e5149079b3ed28c400f66b"
+  }
+ },
+ "roles": {
+  "prism-color-surface": "paper",
+  "prism-color-text-strong": "ink",
+  "prism-color-text": "body",
+  "prism-color-text-muted": "muted",
+  "prism-color-text-faint": "faint",
+  "prism-color-accent": "grape",
+  "prism-color-accent-strong": "grape-hot",
+  "prism-color-eyebrow-on-dark": "lilac",
+  "prism-color-rule": "hair",
+  "prism-color-rule-soft": "hair-soft",
+  "prism-color-link-line": "link-line",
+  "prism-color-wash": "wash",
+  "prism-color-wash-2": "wash-2",
+  "prism-color-tint": "tint",
+  "prism-color-tint-line": "tint-line",
+  "prism-color-band": "band",
+  "prism-color-code": "code",
+  "prism-color-pre": "pre",
+  "prism-color-chart-grid": "grid",
+  "prism-color-desk": "desk",
+  "prism-color-dark-surface": "dark-card",
+  "prism-color-dark-deep": "dark-deep",
+  "prism-color-dark-high": "dark-high",
+  "prism-color-chart-1": "series-1",
+  "prism-color-chart-2": "series-2",
+  "prism-color-chart-3": "series-3",
+  "prism-color-chart-4": "series-4",
+  "prism-color-chart-5": "series-5",
+  "prism-color-header-light-1": "header-light-1",
+  "prism-color-header-light-2": "header-light-2",
+  "prism-color-header-light-3": "header-light-3",
+  "prism-color-header-light-4": "header-light-4",
+  "prism-color-header-mist-1": "header-mist-1",
+  "prism-color-header-mist-2": "header-mist-2",
+  "prism-color-header-mist-3": "header-mist-3",
+  "prism-color-header-mist-4": "header-mist-4",
+  "prism-color-header-deep-1": "header-deep-1",
+  "prism-color-header-deep-2": "header-deep-2",
+  "prism-color-header-deep-3": "header-deep-3",
+  "prism-color-header-deep-4": "header-deep-4",
+  "prism-color-header-vivid-1": "header-vivid-1",
+  "prism-color-header-vivid-2": "header-vivid-2",
+  "prism-color-header-vivid-3": "header-vivid-3",
+  "prism-color-header-vivid-4": "header-vivid-4",
+  "prism-font-serif": "serif",
+  "prism-font-sans": "sans",
+  "prism-font-mono": "mono",
+  "prism-type-title": "title",
+  "prism-type-heading-1": "heading-1",
+  "prism-type-heading-2": "section",
+  "prism-type-heading-3": "heading-3",
+  "prism-type-cta-heading": "cta-heading",
+  "prism-type-quote": "quote",
+  "prism-type-stat": "stat",
+  "prism-type-card-title": "card-title",
+  "prism-type-lede": "lede",
+  "prism-type-body": "body",
+  "prism-type-small": "small",
+  "prism-type-eyebrow": "eyebrow",
+  "prism-type-eyebrow-on-dark": "cta-eyebrow",
+  "prism-type-label": "label",
+  "prism-type-caption": "caption",
+  "prism-type-cite": "cite",
+  "prism-space-paragraph": "space",
+  "prism-space-heading-gap": "space-gap",
+  "prism-space-section": "space-section",
+  "prism-space-page-x": "page-x",
+  "prism-space-page-top": "page-top",
+  "prism-radius-code": "radius-xs",
+  "prism-radius-button": "radius-sm",
+  "prism-radius-card": "radius-md",
+  "prism-radius-figure": "radius-lg",
+  "prism-radius-hero": "radius-xl",
+  "prism-shadow-lift": "shadow-lift",
+  "prism-shadow-sheet": "shadow-sheet",
+  "prism-asset-logo": "assets/Logos/ca-logo.png",
+  "prism-asset-logo-on-dark": "assets/Logos/ca-logo-light.png",
+  "prism-asset-dark-surface": "assets/Backgrounds/cta-card.png",
+  "prism-asset-rule-opener-end": "assets/Wave/wave-opener-end.svg",
+  "prism-asset-rule-opener-start": "assets/Wave/wave-opener-start.svg",
+  "prism-asset-rule-opener-start-on-dark": "assets/Wave/wave-opener-start-dark.svg",
+  "prism-asset-rule-stop": "assets/Wave/wave-stop.svg",
+  "prism-generator-rule": "wave",
+  "prism-color-text-meta": "meta",
+  "prism-color-rule-on-dark": "dark-rule",
+  "prism-color-text-on-photo": "photo-text",
+  "prism-color-dark-glow": "dark-glow",
+  "prism-color-dark-glow-2": "dark-glow-2",
+  "prism-shadow-screen": "shadow-screen",
+  "prism-asset-placeholder": "own:own/placeholder-light.png",
+  "prism-asset-placeholder-dark": "own:own/placeholder-dark.png"
+ },
+ "generators": {
+  "wave": {
+   "script": "assets/Wave/wave-core.js",
+   "global": "Wave",
+   "function": "samples",
+   "params": {
+    "default": {
+     "wavelength": 11.7,
+     "amplitude": 21.95,
+     "focus": 8.44,
+     "edge": 90,
+     "span": 180,
+     "_scale": "Multiply every length by the output's unit s."
+    },
+    "email-divider": {
+     "wavelength": 11.7,
+     "amplitude": 13,
+     "focus": 8.44,
+     "edge": 60,
+     "span": 180
+    }
+   },
+   "stroke": {
+    "color": "prism-color-rule",
+    "width": 1.3
+   },
+   "rules": [
+    {
+     "never": "beside",
+     "of": [
+      "person-photo",
+      "person-name",
+      "quote",
+      "signature"
+     ]
+    },
+    {
+     "never": "above",
+     "of": [
+      "photo"
+     ]
+    },
+    {
+     "skip": "media-slide"
+    },
+    {
+     "never": "through",
+     "of": [
+      "face"
+     ]
+    },
+    {
+     "max": 1,
+     "per": "chapter",
+     "kind": "stop"
+    }
+   ]
+  }
+ },
+ "ornaments": {
+  "accent-word": {
+   "color": "prism-color-accent",
+   "max_per_heading": 1,
+   "markup": "*word* in a heading"
+  },
+  "dark-object": {
+   "max_per": "sheet",
+   "count": 1,
+   "surface": "prism-color-dark-surface",
+   "image": "prism-asset-dark-surface"
+  },
+  "no-mono-on-dark": true,
+  "heading-rule": {
+   "generator": "prism-generator-rule",
+   "on": "h2",
+   "opt_out": ".no-rule",
+   "stack_long_headings": true
+  }
+ },
+ "icons": {
+  "set": "phosphor",
+  "weight": "light"
+ },
+ "digest": {
+  "file": "digest.md",
+  "sha256": "763c4d83b1c3da1b007ca6ae71607d4fdec0b60423be9c47425e561755824268",
+  "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
+  "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
+ },
+ "office": {
+  "fonts": {
+   "serif": "CA Literata",
+   "sans": "CA Inter",
+   "mono": "CA Mono"
+  },
+  "files": {
+   "office/CAInter-Bold.ttf": "3eceb2848de17a54372885ade525438df4e6bab6fcc6b17effcf5d046b580ece",
+   "office/CAInter-Regular.ttf": "dc5d80459437377e8642b5623605b8fafbde92a3ac03834e2572c3acefc62362",
+   "office/CALiterata-Bold.ttf": "04acf5eed3d3bd706e77fae4de187151fdcc8ca896db86322866d3c92271196d",
+   "office/CALiterata-Regular.ttf": "04f0b808970c0190889da906ee48061430a89517a0ec5ed390f003030f143f74",
+   "office/CAMono-Regular.ttf": "02ad3df77c09c561e933be48df98f311d55a371c2b01b87a9be918fa1a7299a8"
+  },
+  "_note": "Office-named copies of the brand fonts that decks name; Prism-owned (not in the design system). Pinned like the snapshot."
+ },
+ "content": {
+  "contact": "caseamplify.com",
+  "_note": "Brand text core needs: the default contact line on a sheet footer. The brand name is profile.name."
+ },
+ "m365": {
+  "email": {
+   "palette": {
+    "light": {
+     "page": "#FFFFFF",
+     "card": "#FFFFFF",
+     "tint": "#F4EAF8",
+     "ink": "#11111C",
+     "body": "#3A3A44",
+     "muted": "#6B6B71",
+     "accent": "#6A3FA8",
+     "accentFill": "#8D16D4",
+     "hair": "#DADAD2",
+     "button": "#8D16D4",
+     "buttonText": "#FFFFFF"
+    },
+    "dark": {
+     "page": "#242428",
+     "card": "#29292D",
+     "tint": "#463D50",
+     "ink": "#F1EFF6",
+     "body": "#CFCED8",
+     "muted": "#AEAEB3",
+     "accent": "#D6A0F4",
+     "accentFill": "#A65CE0",
+     "hair": "#43434A",
+     "button": "#8D16D4",
+     "buttonText": "#FFFFFF"
+    }
+   },
+   "fonts": {
+    "sans": "Inter,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif",
+    "serif": "Literata,Georgia,'Times New Roman',serif",
+    "mono": "'IBM Plex Mono',Menlo,Consolas,monospace",
+    "msoSans": "Arial,sans-serif",
+    "msoSerif": "Georgia,serif",
+    "webfonts": "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Literata:opsz,wght@7..72,500&display=swap"
+   },
+   "logo_width": 168,
+   "source_roles": {
+    "prism-color-accent": "#8D16D4",
+    "prism-color-text-strong": "#11111C",
+    "prism-color-text": "#3A3A44",
+    "prism-color-text-muted": "#6B6B71",
+    "prism-color-tint": "#FAF5F6",
+    "prism-color-rule-soft": "#DADAD2"
+   },
+   "client_rules": "outlook-2026-10",
+   "reviewed": {
+    "release": "0.13.1",
+    "by": "Ian",
+    "note": "Chosen to survive Outlook's own dark mode, which ignores our dark CSS when HTML is pasted and in classic Outlook: pure #FFFFFF surfaces become Outlook's dark canvas; every other background goes to a mid grey of the same hue; dark text flips light and turns toward magenta. So surfaces are pure white, the text accent is a deeper violet that flips to lilac, grape is used only for fills and rules (Outlook keeps saturated fills), and no text is lighter than muted. The dark palette (for clients that run our dark CSS) is set close to Outlook's result so the email looks alike everywhere. Check with the 'Outlook dark (simulated)' view in preview.png."
+   },
+   "departures": []
+  },
+  "_note": "Email and Office palette (D8). Core owns the client rules and checks (palette.js, outlook-sim.js); the brand approves these values. source_roles are the brand values it was derived from; run.sh palette and the swatch sheet report when one of them, or the client rules, has changed. Builds stay silent."
+ },
+ "own": {
+  "layers/blog.css": "ed559f594516c27b4559098610b9c60cfaf505b516ad2378b8ebc34d0e324ce9",
+  "layers/brochure.css": "f7a1983b405658ae16d93e617b5a33f37b8281fa6157e313b44caa8bf080da52",
+  "layers/sheet.css": "4cac69e3c7cd6871453458245e751234c259ade844cacd3b72565e9b4f58e05d",
+  "layers/social.css": "6ee44e56f8b1c03c26041e8c8f28b8ada5b4dbce85a685e9c0710e3760ff831e",
+  "ornaments.js": "5f24066d3a6ebecdb34c0cde8778222cfbf858b0a50cf2f490c64c8812c1a6d7",
+  "own/placeholder-dark.png": "b85932febb19d3cdafdeb6325f8067f3e521476de0b14a1df0d930a0a7b2d23f",
+  "own/placeholder-light.png": "f9f3493882dc5f51b8695bc446c62178cc83274e44af8795e4414baf8756e8c0"
+ },
+ "layers": {
+  "sheet": "layers/sheet.css",
+  "brochure": "layers/brochure.css",
+  "social": "layers/social.css",
+  "blog": "layers/blog.css"
+ },
+ "options": {
+  "images": {
+   "fade": true
+  },
+  "charts": {
+   "bars": "gradient"
+  },
+  "email": {
+   "stat_rule": true,
+   "quote_bar": true
+  }
+ },
+ "ornaments_module": "ornaments.js"
+}

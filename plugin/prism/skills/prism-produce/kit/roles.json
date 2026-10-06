@@ -1,0 +1,558 @@
+{
+ "schema": 1,
+ "_note": "Core role vocabulary. Brand profiles map these to a design system's own names; builders ask for roles, never brand names.",
+ "roles": [
+  {
+   "role": "prism-color-surface",
+   "kind": "color",
+   "required": true,
+   "description": "Ground for pages, slides, posts and cards."
+  },
+  {
+   "role": "prism-color-text-strong",
+   "kind": "color",
+   "required": true,
+   "description": "Headings, bold text and links."
+  },
+  {
+   "role": "prism-color-text",
+   "kind": "color",
+   "required": true,
+   "description": "Running text."
+  },
+  {
+   "role": "prism-color-text-muted",
+   "kind": "color",
+   "required": true,
+   "description": "Captions, credits, notes."
+  },
+  {
+   "role": "prism-color-text-faint",
+   "kind": "color",
+   "required": false,
+   "description": "Folio and chart axis ticks."
+  },
+  {
+   "role": "prism-color-text-meta",
+   "kind": "color",
+   "required": false,
+   "description": "Masthead meta line (author, date)."
+  },
+  {
+   "role": "prism-color-accent",
+   "kind": "color",
+   "required": true,
+   "description": "The brand hue: accent word, figures, markers, buttons, chart highlight."
+  },
+  {
+   "role": "prism-color-accent-strong",
+   "kind": "color",
+   "required": false,
+   "description": "Top of a highlighted chart bar's gradient."
+  },
+  {
+   "role": "prism-color-eyebrow-on-dark",
+   "kind": "color",
+   "required": false,
+   "description": "Eyebrow on dark surfaces."
+  },
+  {
+   "role": "prism-color-rule",
+   "kind": "color",
+   "required": false,
+   "description": "Ornament rule stroke and strong hairlines."
+  },
+  {
+   "role": "prism-color-rule-soft",
+   "kind": "color",
+   "required": true,
+   "description": "Card, callout and table borders."
+  },
+  {
+   "role": "prism-color-link-line",
+   "kind": "color",
+   "required": false,
+   "description": "Link underline and flow-step rules."
+  },
+  {
+   "role": "prism-color-wash",
+   "kind": "color",
+   "required": false,
+   "description": "Title-area wash centre."
+  },
+  {
+   "role": "prism-color-wash-2",
+   "kind": "color",
+   "required": false,
+   "description": "Second wash stop on carousels."
+  },
+  {
+   "role": "prism-color-tint",
+   "kind": "color",
+   "required": false,
+   "description": "Tinted callout fill."
+  },
+  {
+   "role": "prism-color-tint-line",
+   "kind": "color",
+   "required": false,
+   "description": "Tinted callout border."
+  },
+  {
+   "role": "prism-color-band",
+   "kind": "color",
+   "required": false,
+   "description": "Band fill."
+  },
+  {
+   "role": "prism-color-code",
+   "kind": "color",
+   "required": false,
+   "description": "Inline code fill."
+  },
+  {
+   "role": "prism-color-pre",
+   "kind": "color",
+   "required": false,
+   "description": "Code block fill."
+  },
+  {
+   "role": "prism-color-chart-grid",
+   "kind": "color",
+   "required": false,
+   "description": "Chart gridlines."
+  },
+  {
+   "role": "prism-color-desk",
+   "kind": "color",
+   "required": false,
+   "description": "Screen surround behind previews."
+  },
+  {
+   "role": "prism-color-dark-surface",
+   "kind": "color",
+   "required": false,
+   "description": "The dark object's ground."
+  },
+  {
+   "role": "prism-color-dark-deep",
+   "kind": "color",
+   "required": false,
+   "description": "Darkest stop of dark gradients."
+  },
+  {
+   "role": "prism-color-dark-high",
+   "kind": "color",
+   "required": false,
+   "description": "Lightest stop of dark gradients."
+  },
+  {
+   "role": "prism-color-dark-glow",
+   "kind": "color",
+   "required": false,
+   "description": "Glow on dark slides, one side."
+  },
+  {
+   "role": "prism-color-dark-glow-2",
+   "kind": "color",
+   "required": false,
+   "description": "Glow on dark slides, the other side."
+  },
+  {
+   "role": "prism-color-rule-on-dark",
+   "kind": "color",
+   "required": false,
+   "description": "Hairline on a dark panel."
+  },
+  {
+   "role": "prism-color-text-on-photo",
+   "kind": "color",
+   "required": false,
+   "description": "Running text over a dark photo fade."
+  },
+  {
+   "role": "prism-color-chart-1",
+   "kind": "color",
+   "required": true,
+   "description": "Chart series 1."
+  },
+  {
+   "role": "prism-color-chart-2",
+   "kind": "color",
+   "required": false,
+   "description": "Chart series 2."
+  },
+  {
+   "role": "prism-color-chart-3",
+   "kind": "color",
+   "required": false,
+   "description": "Chart series 3."
+  },
+  {
+   "role": "prism-color-chart-4",
+   "kind": "color",
+   "required": false,
+   "description": "Chart series 4."
+  },
+  {
+   "role": "prism-color-chart-5",
+   "kind": "color",
+   "required": false,
+   "description": "Chart series 5."
+  },
+  {
+   "role": "prism-color-header-light-1",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'light' gradient stop 1."
+  },
+  {
+   "role": "prism-color-header-light-2",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'light' gradient stop 2."
+  },
+  {
+   "role": "prism-color-header-light-3",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'light' gradient stop 3."
+  },
+  {
+   "role": "prism-color-header-light-4",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'light' gradient stop 4."
+  },
+  {
+   "role": "prism-color-header-mist-1",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'mist' gradient stop 1."
+  },
+  {
+   "role": "prism-color-header-mist-2",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'mist' gradient stop 2."
+  },
+  {
+   "role": "prism-color-header-mist-3",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'mist' gradient stop 3."
+  },
+  {
+   "role": "prism-color-header-mist-4",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'mist' gradient stop 4."
+  },
+  {
+   "role": "prism-color-header-deep-1",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'deep' gradient stop 1."
+  },
+  {
+   "role": "prism-color-header-deep-2",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'deep' gradient stop 2."
+  },
+  {
+   "role": "prism-color-header-deep-3",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'deep' gradient stop 3."
+  },
+  {
+   "role": "prism-color-header-deep-4",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'deep' gradient stop 4."
+  },
+  {
+   "role": "prism-color-header-vivid-1",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'vivid' gradient stop 1."
+  },
+  {
+   "role": "prism-color-header-vivid-2",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'vivid' gradient stop 2."
+  },
+  {
+   "role": "prism-color-header-vivid-3",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'vivid' gradient stop 3."
+  },
+  {
+   "role": "prism-color-header-vivid-4",
+   "kind": "color",
+   "required": false,
+   "description": "Blog header 'vivid' gradient stop 4."
+  },
+  {
+   "role": "prism-font-serif",
+   "kind": "font",
+   "required": true,
+   "description": "The serif family stack and its font files."
+  },
+  {
+   "role": "prism-font-sans",
+   "kind": "font",
+   "required": true,
+   "description": "The sans family stack and its font files."
+  },
+  {
+   "role": "prism-font-mono",
+   "kind": "font",
+   "required": true,
+   "description": "The mono family stack and its font files."
+  },
+  {
+   "role": "prism-type-title",
+   "kind": "type",
+   "required": true,
+   "description": "Masthead title."
+  },
+  {
+   "role": "prism-type-heading-1",
+   "kind": "type",
+   "required": false,
+   "description": "In-body h1."
+  },
+  {
+   "role": "prism-type-heading-2",
+   "kind": "type",
+   "required": true,
+   "description": "Section heading."
+  },
+  {
+   "role": "prism-type-heading-3",
+   "kind": "type",
+   "required": false,
+   "description": "h3."
+  },
+  {
+   "role": "prism-type-cta-heading",
+   "kind": "type",
+   "required": false,
+   "description": "Dark object heading."
+  },
+  {
+   "role": "prism-type-quote",
+   "kind": "type",
+   "required": false,
+   "description": "Pull quote."
+  },
+  {
+   "role": "prism-type-stat",
+   "kind": "type",
+   "required": false,
+   "description": "Stat figure."
+  },
+  {
+   "role": "prism-type-card-title",
+   "kind": "type",
+   "required": false,
+   "description": "Callout and card titles."
+  },
+  {
+   "role": "prism-type-lede",
+   "kind": "type",
+   "required": false,
+   "description": "Lede."
+  },
+  {
+   "role": "prism-type-body",
+   "kind": "type",
+   "required": true,
+   "description": "Running text."
+  },
+  {
+   "role": "prism-type-small",
+   "kind": "type",
+   "required": false,
+   "description": "Stat labels and notes."
+  },
+  {
+   "role": "prism-type-eyebrow",
+   "kind": "type",
+   "required": false,
+   "description": "Label above a heading."
+  },
+  {
+   "role": "prism-type-eyebrow-on-dark",
+   "kind": "type",
+   "required": false,
+   "description": "Eyebrow on dark."
+  },
+  {
+   "role": "prism-type-label",
+   "kind": "type",
+   "required": false,
+   "description": "h4 label."
+  },
+  {
+   "role": "prism-type-caption",
+   "kind": "type",
+   "required": false,
+   "description": "Captions and folio."
+  },
+  {
+   "role": "prism-type-cite",
+   "kind": "type",
+   "required": false,
+   "description": "Quote attribution."
+  },
+  {
+   "role": "prism-space-paragraph",
+   "kind": "space",
+   "required": true,
+   "description": "Paragraph spacing."
+  },
+  {
+   "role": "prism-space-heading-gap",
+   "kind": "space",
+   "required": false,
+   "description": "Heading to its rule."
+  },
+  {
+   "role": "prism-space-section",
+   "kind": "space",
+   "required": false,
+   "description": "Above a section heading."
+  },
+  {
+   "role": "prism-space-page-x",
+   "kind": "space",
+   "required": false,
+   "description": "Side page margin."
+  },
+  {
+   "role": "prism-space-page-top",
+   "kind": "space",
+   "required": false,
+   "description": "Top page margin."
+  },
+  {
+   "role": "prism-radius-code",
+   "kind": "radius",
+   "required": false,
+   "description": "Inline code."
+  },
+  {
+   "role": "prism-radius-button",
+   "kind": "radius",
+   "required": false,
+   "description": "Buttons."
+  },
+  {
+   "role": "prism-radius-card",
+   "kind": "radius",
+   "required": true,
+   "description": "Cards and callouts."
+  },
+  {
+   "role": "prism-radius-figure",
+   "kind": "radius",
+   "required": false,
+   "description": "Figures."
+  },
+  {
+   "role": "prism-radius-hero",
+   "kind": "radius",
+   "required": false,
+   "description": "Hero image and dark object."
+  },
+  {
+   "role": "prism-shadow-lift",
+   "kind": "shadow",
+   "required": false,
+   "description": "The one standout image."
+  },
+  {
+   "role": "prism-shadow-sheet",
+   "kind": "shadow",
+   "required": false,
+   "description": "Screen preview of a page."
+  },
+  {
+   "role": "prism-shadow-screen",
+   "kind": "shadow",
+   "required": false,
+   "description": "A screenshot card over a header."
+  },
+  {
+   "role": "prism-asset-logo",
+   "kind": "asset",
+   "required": true,
+   "description": "Logo on light grounds."
+  },
+  {
+   "role": "prism-asset-logo-on-dark",
+   "kind": "asset",
+   "required": false,
+   "description": "Logo on dark grounds."
+  },
+  {
+   "role": "prism-asset-dark-surface",
+   "kind": "asset",
+   "required": false,
+   "description": "Image over the dark object's ground."
+  },
+  {
+   "role": "prism-asset-rule-opener-end",
+   "kind": "asset",
+   "required": false,
+   "description": "Heading rule, ornament at the end."
+  },
+  {
+   "role": "prism-asset-rule-opener-start",
+   "kind": "asset",
+   "required": false,
+   "description": "Heading rule, ornament at the start."
+  },
+  {
+   "role": "prism-asset-rule-opener-start-on-dark",
+   "kind": "asset",
+   "required": false,
+   "description": "The same on dark."
+  },
+  {
+   "role": "prism-asset-rule-stop",
+   "kind": "asset",
+   "required": false,
+   "description": "Chapter stop rule."
+  },
+  {
+   "role": "prism-asset-placeholder",
+   "kind": "asset",
+   "required": false,
+   "description": "Placeholder photo on light grounds (test images)."
+  },
+  {
+   "role": "prism-asset-placeholder-dark",
+   "kind": "asset",
+   "required": false,
+   "description": "Placeholder photo on dark grounds."
+  },
+  {
+   "role": "prism-asset-mark",
+   "kind": "asset",
+   "required": false,
+   "description": "The brand's mark alone (glyph), for small spaces."
+  },
+  {
+   "role": "prism-generator-rule",
+   "kind": "generator",
+   "required": false,
+   "description": "Draws the brand's ornament rule: script, parameters per use, placement rules."
+  }
+ ]
+}

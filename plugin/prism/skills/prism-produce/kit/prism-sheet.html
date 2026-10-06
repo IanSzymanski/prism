@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>$pagetitle$</title>
+$for(css)$
+<link rel="stylesheet" href="$css$">
+$endfor$
+<style>@page{@bottom-left{content:"$brand-name$ · $pagetitle$"}}</style>
+</head>
+<body$if(hero)$ class="hero-$hero$"$endif$>
+<header class="prism-mast">
+  <div class="prism-mast__bar">
+    <img class="prism-mast__logo" src="$if(logo)$$logo$$else$$prism-logo$$endif$" alt="$brand-name$">
+$if(doctype)$
+    <span class="prism-mast__type">$doctype$</span>
+$endif$
+  </div>
+$if(eyebrow)$
+  <p class="eyebrow">$eyebrow$</p>
+$endif$
+  <h1>$title$</h1>
+$if(subtitle)$
+  <p class="prism-lede">$subtitle$</p>
+$endif$
+$if(author)$
+  <p class="prism-meta">$for(author)$$author$$sep$ · $endfor$$if(date)$ · $date$$endif$</p>
+$elseif(date)$
+  <p class="prism-meta">$date$</p>
+$endif$
+</header>
+<main class="prism-sheet">
+$body$
+</main>
+<footer class="prism-colophon">
+  <span>$if(contact)$$contact$$else$$brand-contact$$endif$</span>
+$if(legal)$
+  <span>$legal$</span>
+$endif$
+</footer>
+</body>
+</html>

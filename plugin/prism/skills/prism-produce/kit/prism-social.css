@@ -1,0 +1,126 @@
+/* prism-social.css: social images built from Markdown. Loads after prism-sheet.css and reuses its components. */
+body.prism-social{margin:0;padding:40px;background:var(--prism-color-desk);max-width:none;box-shadow:none;display:flex;flex-direction:column;gap:40px;align-items:flex-start}
+.post{
+  --z:1.5;position:relative;overflow:hidden;flex:none;
+  background:var(--prism-color-surface);
+  padding:88px 88px 150px;display:flex;flex-direction:column;justify-content:center;
+}
+.post.square{width:1080px;height:1080px}
+.post.portrait{width:1080px;height:1350px}
+.post.wide{width:1200px;height:627px;padding:56px 64px 100px;--z:1.2}
+.post > *{zoom:var(--z)}
+.post .caption{display:none}
+/* Logo bottom-left, note bottom-right. */
+.post::before{content:"";position:absolute;left:88px;bottom:62px;width:258px;height:36px;background:var(--prism-asset-logo) left center / contain no-repeat}
+.post::after{content:attr(data-note);position:absolute;right:88px;bottom:66px;font:500 20px/1 var(--prism-font-mono);letter-spacing:.06em;color:var(--prism-color-text-muted)}
+.post.wide::before{left:64px;bottom:40px;width:200px;height:28px}
+.post.wide::after{right:64px;bottom:44px;font-size:16px}
+
+.post .eyebrow{font-size:11pt;margin-bottom:12pt}
+.post h2{font-size:30pt;line-height:1.08;margin:0 0 16pt}
+.post p{font-size:14pt;line-height:1.45;color:var(--prism-color-text)}
+.post .stats ul{border:0;padding:0;margin:10pt 0 0}
+.post .stats li{font-size:14pt;line-height:1.35}
+.post .stats li strong{font-size:54pt;margin-bottom:8pt}
+.post.hero .stats li strong{font-size:118pt;line-height:1.1;letter-spacing:-.04em;margin-bottom:.28em}
+.post .features li{font-size:11pt;padding:16pt 18pt;background:var(--prism-color-surface)}
+.post .features li strong{font-size:15pt}
+.post .prism-chart{margin:4pt 0 0}
+.post .prism-chart figcaption{font-size:8pt}
+
+/* Dark post: dark ground and on-dark text roles; any image or ornament on it is the brand layer's. */
+.post.dark{background:var(--prism-color-dark-surface);color:var(--prism-color-surface)}
+.post.dark::before{background-image:var(--prism-asset-logo-on-dark)}
+.post.dark::after{color:var(--prism-color-text-muted-dark)}
+.post.dark h2{color:var(--prism-color-surface)}
+.post.dark h2 em{color:var(--prism-color-accent-dark)}
+.post.dark .eyebrow{font:var(--prism-type-eyebrow-on-dark-weight) 12pt/1.3 var(--prism-type-eyebrow-on-dark-family);letter-spacing:var(--prism-type-eyebrow-on-dark-ls);color:var(--prism-color-eyebrow-on-dark)}
+.post.dark p{color:var(--prism-color-text-dark)}
+.post.dark blockquote{color:var(--prism-color-surface);font-size:30pt;line-height:1.2;margin:0;max-width:none;text-align:left}
+.post.dark blockquote .cite{font:var(--prism-type-eyebrow-on-dark-weight) 12pt/1.3 var(--prism-type-eyebrow-on-dark-family);letter-spacing:var(--prism-type-eyebrow-on-dark-ls);text-transform:none;color:var(--prism-color-eyebrow-on-dark);margin-top:18pt}
+.post blockquote p{font-size:inherit;line-height:inherit;color:inherit;margin:0 0 .4em}
+.post.dark blockquote em{font-style:normal;color:var(--prism-color-accent-dark)}
+.post.portrait{--z:1.6}
+.post .stats + p{margin-top:18pt}
+.post.dark blockquote p{color:var(--prism-color-surface)}
+
+/* Email headers: 600px wide in the email, rendered at 2x. Logo top-left instead of bottom. */
+.post.email{width:1200px;height:420px;padding:118px 72px 56px;--z:1.3;justify-content:center}
+.post.email.short{height:300px;padding-top:104px}
+.post.email.tall{height:520px}
+.post.email::before{top:52px;bottom:auto;left:72px;width:230px;height:32px}
+.post.email::after{right:72px;top:58px;bottom:auto;font-size:15px}
+.post.email h2{font-size:26pt;margin-bottom:10pt}
+.post.email p{font-size:12.5pt;max-width:44ch;margin:0}
+.post.email .eyebrow{margin-bottom:10pt}
+.post.email.hero .stats li strong{font-size:74pt}
+.post.email .stats li{font-size:12.5pt;max-width:30ch}
+
+/* Photo side: ![](photo.jpg){.photo} fills the right of the header. */
+.post.split > *{max-width:56%}
+.post > p:has(> img.photo){zoom:1;position:absolute;top:0;right:0;bottom:0;width:48%;max-width:none;margin:0}
+.post img.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}
+.post.email.dark::after{color:var(--prism-color-text-muted-dark)}
+
+/* Carousel: panels sit side by side on one canvas so the background and the thread line run across every swipe. */
+.carousel{
+  position:relative;display:flex;width:max-content;flex:none;
+  background:var(--prism-color-surface);
+}
+.carousel > .caption{display:none}
+.carousel .post{width:1080px;height:1350px;background:transparent;padding:120px 96px 300px;--z:2.05;justify-content:center}
+.carousel .post.dark{background:var(--prism-color-dark-surface)}
+.carousel .post::before{display:none}
+.carousel .post.cover::before,.carousel .post.end::before{display:block;top:96px;bottom:auto;left:96px}
+.carousel .post::after{right:96px;bottom:96px;font-size:22px}
+.carousel .post.cover::after{color:var(--prism-color-accent);font-family:var(--prism-font-sans);font-weight:600;font-size:26px}
+.carousel h1{font:var(--prism-type-title-weight) 30pt/1.04 var(--prism-type-title-family);letter-spacing:var(--prism-type-title-ls);color:var(--prism-color-text-strong);margin:0 0 14pt}
+.carousel h1 em{font-style:normal;color:var(--prism-color-accent)}
+.carousel h2{font-size:25pt;display:block}
+.carousel .num{display:block;font:500 12pt/1 var(--prism-font-mono);letter-spacing:.14em;color:var(--prism-color-accent);margin-bottom:14pt}
+.carousel .checks li{font-size:14pt;margin-bottom:8pt;padding-left:26pt}
+.carousel .checks li::before{font-size:17pt}
+.carousel .steps ol{list-style:none;padding:0;margin:4pt 0 16pt;display:grid;gap:8pt}
+.carousel .steps li{counter-increment:s;font-size:15pt;padding:10pt 0 10pt 34pt;border-bottom:var(--line);position:relative;margin:0}
+.carousel .steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:13pt;font:500 10pt var(--prism-font-mono);color:var(--prism-color-accent)}
+.carousel .steps li::marker{content:none}
+.carousel .steps li strong{font-family:var(--prism-type-heading-2-family);font-weight:var(--prism-type-heading-2-weight)}
+/* The shared thread line, drawn by build-social.js with the brand's ornaments (thread). */
+.carousel .prism-thread{position:absolute;left:0;top:0;pointer-events:none}
+
+/* Stories: 1080×1920. Text stays inside the safe area the app's own UI leaves clear:
+   top 14% (270px: progress bar, profile, close), bottom 20% (384px: reply bar, stickers), sides 88px.
+   `.reel` keeps the bottom 35% (672px) clear for Reels captions and buttons. Photos may bleed past it; text may not. */
+.post.story{width:1080px;height:1920px;--safe-top:270px;--safe-bottom:384px;--side:88px;--z:2.1;
+  padding:calc(var(--safe-top) + 96px) var(--side) calc(var(--safe-bottom) + 84px);justify-content:center}
+.post.story.reel{--safe-bottom:672px}
+.post.story::before{top:calc(var(--safe-top) + 8px);bottom:auto;left:var(--side);width:280px;height:40px}
+.post.story::after{bottom:calc(var(--safe-bottom) + 24px);right:var(--side);font-size:22px}
+.post.story h2{font-size:31pt;flex-wrap:wrap;gap:6pt}
+.post.story.hero .stats li strong{font-size:130pt}
+
+/* Photo at the top: bleeds off the top edge; text sits low in the safe area. */
+.post.story.photo-top{justify-content:flex-end}
+.post.story.photo-top > p:has(> img.photo){zoom:1;position:absolute;left:0;right:0;top:0;height:58%;width:auto;max-width:none;margin:0}
+.post.story.photo-top img.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}
+.post.story.photo-top::before{top:auto;bottom:calc(var(--safe-bottom) + 20px)}
+.post.story.photo-top::after{bottom:calc(var(--safe-bottom) + 28px)}
+
+/* Full-bleed photo under a dark scrim (for legibility); white text low in the safe area. Treated as a dark post. */
+.post.story.photo-full{justify-content:flex-end;background:var(--prism-color-dark-surface);color:var(--prism-color-surface)}
+.post.story.photo-full > p:has(> img.photo){zoom:1;position:absolute;inset:0;width:auto;max-width:none;margin:0;z-index:0}
+.post.story.photo-full img.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}
+.post.story.photo-full > p:has(> img.photo)::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgb(from var(--prism-color-dark-deep) r g b / .15) 0%,rgb(from var(--prism-color-dark-deep) r g b / 0) 25%,rgb(from var(--prism-color-dark-deep) r g b / .55) 50%,rgb(from var(--prism-color-dark-deep) r g b / .92) 78%,var(--prism-color-dark-deep) 100%)}
+.post.story.photo-full > *:not(p:has(> img.photo)){position:relative;z-index:1}
+.post.story.photo-full::before{background-image:var(--prism-asset-logo-on-dark);z-index:1}
+.post.story.photo-full::after{color:var(--prism-color-text-dark);z-index:1}
+.post.story.photo-full h2,.post.story.photo-full strong{color:var(--prism-color-surface)}
+.post.story.photo-full h2 em{color:var(--prism-color-accent-dark)}
+.post.story.photo-full .eyebrow{font:var(--prism-type-eyebrow-on-dark-weight) 12pt/1.3 var(--prism-type-eyebrow-on-dark-family);letter-spacing:var(--prism-type-eyebrow-on-dark-ls);color:var(--prism-color-eyebrow-on-dark)}
+.post.story.photo-full p{color:var(--prism-color-text-on-photo)}
+
+/* Photo card: a framed photo inside the safe area, text above or below it. */
+.post.story.photo-card > p:has(> img.photo){zoom:1;position:static;width:auto;height:auto;margin:0 0 56px;max-width:none}
+.post.story.photo-card img.photo{display:block;width:100%;height:520px;object-fit:cover;border-radius:28px;-webkit-mask-image:none;mask-image:none}
+.post.story.photo-card > p:has(> img.photo):last-child{margin:56px 0 0}

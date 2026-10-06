@@ -1,0 +1,10 @@
+{
+  "name": "prism-kit",
+  "private": true,
+  "description": "Prism build kit: Markdown to sheets, decks, social images and email in a brand from kit/brands",
+  "dependencies": {
+    "playwright": "1.56.0",
+    "pptxgenjs": "^4.0.1",
+    "sharp": "^0.34.5"
+  }
+}

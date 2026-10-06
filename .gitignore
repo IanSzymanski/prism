@@ -1,0 +1,18 @@
+# Build output: convert.py recreates these
+dist/
+chatgpt/prism/
+
+# Kit caches and per-machine setup (setup.sh recreates them)
+plugin/prism/skills/prism-produce/kit/cache/
+plugin/prism/skills/prism-produce/kit/node_modules/
+plugin/prism/skills/prism-produce/kit/mods/
+plugin/prism/skills/prism-produce/kit/env.sh
+plugin/prism/skills/prism-produce/kit/.ready-*
+plugin/prism/skills/prism-produce/kit/.setup.lock
+
+# Scratch files builders leave beside a source
+*.sheet.html
+fixtures/*-layouts.md
+__pycache__/
+*.pyc
+.DS_Store

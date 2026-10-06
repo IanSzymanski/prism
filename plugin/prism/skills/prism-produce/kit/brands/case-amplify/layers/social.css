@@ -1,0 +1,29 @@
+/* Case Amplify social layer: washes, dark-card images, photo fades, wave headings and where they never appear, no mono on dark. Loads after prism-social.css. */
+
+.post{background:radial-gradient(80% 70% at 50% 0%,var(--prism-color-wash) 0%,var(--prism-color-surface) 100%)}
+.post h2::after{height:34px}
+.post.dark{background:var(--prism-color-dark-surface) var(--prism-asset-dark-surface) center / 100% 100% no-repeat}
+/* No mono type on dark. */
+.post.dark::after{font-family:var(--prism-font-sans)}
+.post.dark h2::after{content:none}
+/* The photo fades into the post. */
+.post img.photo{-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 38%);mask-image:linear-gradient(to right,transparent 0%,#000 38%)}
+/* No heading rule beside a photo (the brand's placement rules). */
+.post.split h2::after{content:none}
+.carousel{
+  background:
+    radial-gradient(900px 700px at 14.2857% 0%,var(--prism-color-wash) 0%,rgb(from var(--prism-color-wash) r g b / 0) 100%),
+    radial-gradient(1000px 800px at 28.5714% 100%,var(--prism-color-wash-2) 0%,rgb(from var(--prism-color-wash-2) r g b / 0) 100%),
+    radial-gradient(900px 700px at 57.1429% 0%,var(--prism-color-wash) 0%,rgb(from var(--prism-color-wash) r g b / 0) 100%),
+    radial-gradient(1000px 800px at 71.4286% 100%,var(--prism-color-wash-2) 0%,rgb(from var(--prism-color-wash-2) r g b / 0) 100%),
+    var(--prism-color-surface);
+}
+.carousel .post.dark{background:var(--prism-color-dark-surface) var(--prism-asset-dark-surface) center / 100% 100% no-repeat}
+.carousel h2::after{content:none}
+/* Narrow column: the heading rule drops under the heading, ornament first. */
+.post.story h2::after{flex:0 0 100%;min-width:0;background-image:var(--prism-asset-rule-opener-start);background-position:left center}
+.post.story.photo-top img.photo{-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%)}
+.post.story.photo-full::after{font-family:var(--prism-font-sans)}
+/* No heading rule on a story with a photo (the brand's placement rules). */
+.post.story:is(.photo-top,.photo-full,.photo-card) h2::after{content:none}
+.post.story:is(.photo-top,.photo-full,.photo-card) h2{display:block}
