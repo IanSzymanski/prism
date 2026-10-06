@@ -258,3 +258,19 @@ Found in Ian's onboarding tests: palette.js and prism-charts.lua crashed when th
 - **Reports:** the onboarding report lists derived roles apart from unmapped ones; the swatch counts mapped, derived and unmapped and labels derived roles "from <role>".
 - **Proof:** `tests/roles.test.js` (113 checks); every fixture in Case Amplify and Prism identical to main (`diff-builds.py`, 0 differences; only the two swatches change, as intended). All 11 fixtures build in a brand with only the required roles.
 
+
+## Fill first, then shape (D18 start) and the second onboarding test pass
+
+Ian's direction (Oct 6): the design system is put to work across the whole swatch so nearly everything starts with something; the person then shapes it (different values, redesigned components, components of their own), and every change is saved to the brand. Components can be added at any time.
+
+- **Bugs fixed from the Squid test:**
+  - Swatch: the line sample has one series per chart colour the brand defines (and no donut with one colour); the duplicate "Unmapped roles" section at the end is gone (unmapped roles show dashed in their own sections).
+  - Theme: onboarding reads the surface through aliases and any CSS colour form (hex of any length, rgb, hsl, oklch), and falls back to theme names (light, paper, print, day over dark). The resolver now gives a token missing in a theme its value from the build theme, the first theme, or any it has: a dark-first design system with light-only tokens no longer fails to resolve.
+  - Font edits: a font-role change re-derives the Office fonts and email stacks field by field; a field edited by hand keeps its edit and the report says what the derived value would have been (`_onboarding.derived_fonts`, `kept_fonts`).
+  - Font names: CSS keywords (system-ui, ui-monospace, -apple-system, sans-serif) are never fonts; system fonts (Arial, Segoe UI, Menlo, Helvetica) never go into the Google Fonts link; an Office font is the brand's family when it has TTF/OTF files or is an Office font, else Arial, Georgia or Consolas by kind. No web fonts means no link (`build-email.js` skips it).
+- **Replacement questions:** the report's "Roles without their own match" lists each role once with what it uses now and up to three candidate design-system names (words shared by the role's name and description with the token's name and usage note, unused tokens first). The skill asks the person about the visible ones in one round (each candidate, "keep it as ...", or "leave it out") instead of guessing.
+- **Defaults that fill:** core default layers (`kit/layers/<format>.css`) load only when a brand has no layer for that format; the first is the sheet's closing card on the brand's dark ground (with its dark-surface image when mapped). The 16 blog-header colour roles fall back to the brand's own colours, and a brand without header art gets core's: a gradient through the tone's stops with a glow of its fourth (tone from `tone:`, else the blog type).
+- **Brand components:** profile `components` (`{id: {use, markup, formats, sample}}`) are the brand's own blocks and variants (a closing band instead of the card). The swatch draws each sample before the closing card; `brands --json` lists them; formatters (agent and quick mode) use one where its `use` fits and never invent markup. The skill covers changing a component (restyle in the brand's layer, starting from core's default) and adding one (layer CSS plus a `components` entry).
+- **D14 note:** the blog-header roles now have fallbacks and core draws a header from them, so they stay in core; D14 is down to wash-2, the dark glows and the rule images.
+- **Proof:** `tests/roles.test.js` 163 checks (the Squid-shaped design system, fonts, kept edits, candidates, default layer, header fallbacks, components); every fixture in Case Amplify and Prism identical to main; all 11 fixtures build in a required-roles-only brand.
+

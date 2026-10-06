@@ -56,7 +56,8 @@ function load(id, opts = {}) {
   const colors = Object.fromEntries(T.color.tokens.map(t => [t.name, typeof t.value === "string" ? { [first]: t.value } : t.value]));
   const color = (name, theme, depth = 0) => {
     const v = colors[name]; if (!v || depth > 16) return null;
-    const x = v[theme] ?? v[first]; const m = /^\{(.+)\}$/.exec(x || "");
+    // A token missing in a theme takes the build theme's value, then the design system's first, then any it has.
+    const x = v[theme] ?? v[themes[0]] ?? v[first] ?? Object.values(v)[0]; const m = /^\{(.+)\}$/.exec(x || "");
     return m ? color(m[1], theme, depth + 1) : x;
   };
   const lists = {};
@@ -71,7 +72,7 @@ function load(id, opts = {}) {
     const native = prof.roles[r.role];
     if (native == null) { if (r.required) errors.push(`required role unmapped: ${r.role}`); continue; }
     let value = null;
-    if (r.kind === "color") { value = Object.fromEntries(themes.map(t => [t, color(native, t)])); if (!value[first]) value = null; }
+    if (r.kind === "color") { value = Object.fromEntries(themes.map(t => [t, color(native, t)])); if (!value[themes[0]]) value = null; }
     else if (r.kind === "font") {
       const stack = T.type.families[native];
       if (stack) value = { stack, files: T.type.fonts.filter(f => f.family === firstFamily(stack)).map(f => ({ ...f, path: path.join(snap, f.file) })) };

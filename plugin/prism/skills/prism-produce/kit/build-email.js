@@ -327,7 +327,7 @@ const shell = (content) => `<!DOCTYPE html>
 <title>${esc(subject)}</title>
 <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
 <style>table,td,p,a,li,span,strong{font-family:${F.msoSans}!important}h1,h2{font-family:${F.msoSerif}!important}</style><![endif]-->
-${meta.webfonts === "false" ? "" : `<!--[if !mso]><!--><link href="${F.webfonts}" rel="stylesheet"><!--<![endif]-->\n`}<style>
+${meta.webfonts === "false" || !F.webfonts ? "" : `<!--[if !mso]><!--><link href="${F.webfonts}" rel="stylesheet"><!--<![endif]-->\n`}<style>
 ${css}
 </style>
 </head>

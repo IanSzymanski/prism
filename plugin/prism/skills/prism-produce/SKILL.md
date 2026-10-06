@@ -50,7 +50,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 ## 1. Format (subagents)
 
 - One export: format it yourself, following the same rules as the prism-formatter agent and its card.
-- Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (its `digest` path from `.prism-kit/run.sh brands --json`), and the target `formats/<format>.md`.
+- Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (its `digest` path from `.prism-kit/run.sh brands --json`), the brand's own components (`components` from the same listing; omit when empty), and the target `formats/<format>.md`.
 - Before formatting: copy the project's `images/` folder (with its `.focus.json`) into `formats/images/`. Pass every formatter the output of `.prism-kit/run.sh library <brand>`. Where a piece needs a photo it doesn't have, use a fitting photo from the brand's image library (`![](brand:<id>)`); only when none fits, write the brand's test image, `![](prism:placeholder)` (light grounds) or `![](prism:placeholder-dark)` (dark); the build fills them from the brand, with neutral ones when it has none. Logos are `![](prism:logo)` and `![](prism:logo-on-dark)`. Pass the path of `images.md` to every formatter when it exists.
 
 <!-- claude-only -->

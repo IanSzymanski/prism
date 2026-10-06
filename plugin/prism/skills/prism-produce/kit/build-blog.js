@@ -39,9 +39,19 @@ const between = (a, b) => a + (b - a) * rnd();
 const isSeries = meta.type === "changelog" || !!meta.series;
 const motif = meta.header || (isSeries ? "series" : hasImg ? (meta.type === "features" ? "screen" : "image") : "gradient");
 // The brand draws the art (brands/<id>/ornaments.js headerArt) from the seeded random numbers, before the layout uses them.
-// A brand without header art gets a plain ground in its first header colour.
-const art = B.ornaments.headerArt ? B.ornaments.headerArt({ W, H, meta, slug, motif, pick, between }, B)
-  : { under: `<svg class="bh-art" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="${B.color("prism-color-surface")}"/></svg>`, over: "", classes: "" };
+// A brand without header art gets core's: a gradient through its header tone's first three stops with a glow of the fourth.
+// The tone follows `tone:` in the front matter, else the blog type; header roles a brand doesn't map come from its own colours.
+function coreHeaderArt() {
+  const BY_TYPE = { features: "deep", impact: "deep", changelog: "deep", insights: "mist" };
+  const tone = ["light", "mist", "deep", "vivid"].includes(meta.tone) ? meta.tone : (BY_TYPE[meta.type] || "light");
+  const stop = i => B.color(`prism-color-header-${tone}-${i}`), ang = between(0, 360) * Math.PI / 180, gx = between(10, 90), gy = pick([between(-30, 10), between(90, 130)]);
+  const under = `<svg class="bh-art" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs>
+<linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="${W / 2 - Math.cos(ang) * W * .6}" y1="${H / 2 - Math.sin(ang) * H * .6}" x2="${W / 2 + Math.cos(ang) * W * .6}" y2="${H / 2 + Math.sin(ang) * H * .6}"><stop offset="0" stop-color="${stop(1)}"/><stop offset=".55" stop-color="${stop(2)}"/><stop offset="1" stop-color="${stop(3)}"/></linearGradient>
+<radialGradient id="glow" gradientUnits="userSpaceOnUse" cx="${W * gx / 100}" cy="${H * gy / 100}" r="${W * between(0.7, 1)}"><stop offset="0" stop-color="${stop(4)}" stop-opacity=".55"/><stop offset="1" stop-color="${stop(4)}" stop-opacity="0"/></radialGradient></defs>
+<rect width="${W}" height="${H}" fill="url(#bg)"/><rect width="${W}" height="${H}" fill="url(#glow)"/></svg>`;
+  return { under, over: "", classes: tone, dark: tone === "deep" || tone === "vivid" };
+}
+const art = B.ornaments.headerArt ? B.ornaments.headerArt({ W, H, meta, slug, motif, pick, between }, B) : coreHeaderArt();
 const tone = art.classes;
 
 // The image sits on one side and fades into the gradient with the prism-fade ramp; `image-side` can pin it.

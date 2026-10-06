@@ -61,6 +61,52 @@ ok(o.status === 0 && JSON.parse(fs.readFileSync(path.join(DRAFTS, "darkfirst", "
 ok(/Builds in theme "light" of "dark", "light"/.test(o.stdout), "the report names the build theme");
 ok(run("map", "darkfirst", "theme=dark").status === 0 && JSON.parse(fs.readFileSync(path.join(DRAFTS, "darkfirst", "profile.json"), "utf8")).theme === "dark", "map theme= changes it");
 
+// 6. Bugs from onboarding tests (Oct 6): a dark-first design system whose surface is an alias and whose tokens are light-only;
+// CSS keywords and system fonts in the stacks; hand edits to fonts surviving a font-role change; candidates for unmatched roles.
+const sq = path.join(TMP, "squid"); fs.cpSync(path.join(KIT, "brands", "prism", "snapshot"), sq, { recursive: true });
+const Q = JSON.parse(fs.readFileSync(path.join(sq, "tokens.json"), "utf8")); Q.color.themes.reverse();
+const surf = Q.color.tokens.find(t => t.name === "surface"); Q.color.tokens.push({ name: "paper-base", value: surf.value }); surf.value = { light: "{paper-base}", dark: "{paper-base}" };
+Q.color.tokens = Q.color.tokens.filter(t => t.name !== "series-5");
+Q.type.families.sans = 'system-ui, -apple-system, "Segoe UI", Arial, sans-serif'; Q.type.families.mono = "ui-monospace, Menlo, monospace";
+fs.writeFileSync(path.join(sq, "tokens.json"), JSON.stringify(Q));
+o = run("start", "squid", sq);
+const sp = () => JSON.parse(fs.readFileSync(path.join(DRAFTS, "squid", "profile.json"), "utf8"));
+ok(o.status === 0 && sp().theme === "light", "dark-first design system with an alias surface builds in light");
+ok(/Builds: yes/.test(o.stdout), `tokens defined only for light resolve when dark is listed first: ${o.stdout.split("\n").filter(l => /^- role/.test(l)).join("; ")}`);
+let q = sp();
+ok(!Object.values(q.office.fonts).some(f => /^(system-ui|ui-monospace|-apple-system|sans-serif|monospace)$/i.test(f)), `Office fonts are real fonts: ${JSON.stringify(q.office.fonts)}`);
+ok(q.office.fonts.mono === "Consolas", "a Mac-only mono (Menlo) gives way to Office's Consolas");
+ok(!/Arial|system-ui|ui-monospace|Menlo|Segoe/.test(q.m365.email.fonts.webfonts || ""), `web-font link asks Google only for web fonts: ${q.m365.email.fonts.webfonts}`);
+ok(q.m365.email.fonts.sans.split(",").length === new Set(q.m365.email.fonts.sans.split(",")).size, "no family twice in a stack");
+q.m365.email.fonts.sans = "'Inter',Arial,sans-serif"; q.office.fonts.mono = "Courier New"; fs.writeFileSync(path.join(DRAFTS, "squid", "profile.json"), JSON.stringify(q, null, 1));
+o = run("map", "squid", "font-sans=display"); q = sp();
+ok(q.m365.email.fonts.sans === "'Inter',Arial,sans-serif" && q.office.fonts.mono === "Courier New", "hand edits to fonts survive a font-role change");
+ok(q.office.fonts.sans === "Bricolage Grotesque", "fields not edited by hand follow the new font role");
+ok(/kept your edit to m365\.email\.fonts\.sans/.test(o.stdout), "the report says which edits were kept");
+const allSystem = JSON.parse(JSON.stringify(Q)); allSystem.type.families = { sans: "system-ui, Arial, sans-serif", serif: "Georgia, serif", mono: "ui-monospace, monospace" };
+const sys = path.join(TMP, "sys"); fs.cpSync(sq, sys, { recursive: true }); fs.writeFileSync(path.join(sys, "tokens.json"), JSON.stringify(allSystem));
+run("start", "sysfonts", sys); const sf = JSON.parse(fs.readFileSync(path.join(DRAFTS, "sysfonts", "profile.json"), "utf8"));
+ok(sf.m365.email.fonts.webfonts === null, "system fonts only: no web-font link");
+ok(/web fonts: none/.test(run("report", "sysfonts").stdout), "the report says there is no web-font link");
+o = run("map", "squid", "space-heading-gap=-");
+const rep = JSON.parse(run("report", "squid", "--json").stdout), gap = rep.unmapped.find(u => u.role === "prism-space-heading-gap");
+ok(gap && gap.candidates[0] && gap.candidates[0].name === "space-sm", `candidates name the design system's own match: ${JSON.stringify(gap && gap.candidates.map(c => c.name))}`);
+ok(/## Roles without their own match/.test(run("report", "squid").stdout), "the report lists roles without a match once, with candidates");
+
+// 7. Fill first: a brand with no layers gets core's default sheet layer (the closing card on its dark ground); header roles fall back.
+delete require.cache[require.resolve(path.join(KIT, "brand.js"))];
+const Bq = require(path.join(KIT, "brand.js"))(null, "squid"), lay = Bq.layer("sheet");
+ok(lay && /cta-card\{background:/.test(fs.readFileSync(lay, "utf8")), "a brand without layers gets core's default closing card");
+ok(require(path.join(KIT, "brand.js"))(null, "case-amplify").layer("sheet").includes("brand-"), "a brand's own layer wins over core's default");
+ok(Bq.res.roles["prism-color-header-deep-1"] && Bq.res.roles["prism-color-header-vivid-4"], "blog header colours fall back to the brand's own");
+
+// 8. Brand components: listed for formatters and drawn on the swatch.
+q = sp(); q.components = { "closing-band": { use: "A quieter close.", markup: "::: {.cta-card .band}", formats: ["sheet"], sample: "::: {.cta-card .band}\n## Close\n:::" } };
+fs.writeFileSync(path.join(DRAFTS, "squid", "profile.json"), JSON.stringify(q, null, 1));
+const listed = JSON.parse(spawnSync("node", [path.join(KIT, "brands.js"), "--json"], { env: process.env, encoding: "utf8" }).stdout).find(b => b.id === "squid");
+ok(listed && listed.components["closing-band"] && listed.components["closing-band"].markup === "::: {.cta-card .band}", "brands --json lists the brand's components");
+ok(/Brand components: closing-band/.test(run("report", "squid").stdout), "the report lists the brand's components");
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

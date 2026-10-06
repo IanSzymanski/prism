@@ -225,97 +225,113 @@
    "role": "prism-color-header-light-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 1."
+   "description": "Blog header 'light' gradient stop 1.",
+   "fallback": "prism-color-surface"
   },
   {
    "role": "prism-color-header-light-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 2."
+   "description": "Blog header 'light' gradient stop 2.",
+   "fallback": "prism-color-wash"
   },
   {
    "role": "prism-color-header-light-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 3."
+   "description": "Blog header 'light' gradient stop 3.",
+   "fallback": "prism-color-tint"
   },
   {
    "role": "prism-color-header-light-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 4."
+   "description": "Blog header 'light' gradient stop 4.",
+   "fallback": "prism-color-accent"
   },
   {
    "role": "prism-color-header-mist-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 1."
+   "description": "Blog header 'mist' gradient stop 1.",
+   "fallback": "prism-color-header-light-1"
   },
   {
    "role": "prism-color-header-mist-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 2."
+   "description": "Blog header 'mist' gradient stop 2.",
+   "fallback": "prism-color-header-light-2"
   },
   {
    "role": "prism-color-header-mist-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 3."
+   "description": "Blog header 'mist' gradient stop 3.",
+   "fallback": "prism-color-header-light-3"
   },
   {
    "role": "prism-color-header-mist-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 4."
+   "description": "Blog header 'mist' gradient stop 4.",
+   "fallback": "prism-color-header-light-4"
   },
   {
    "role": "prism-color-header-deep-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 1."
+   "description": "Blog header 'deep' gradient stop 1.",
+   "fallback": "prism-color-dark-deep"
   },
   {
    "role": "prism-color-header-deep-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 2."
+   "description": "Blog header 'deep' gradient stop 2.",
+   "fallback": "prism-color-dark-surface"
   },
   {
    "role": "prism-color-header-deep-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 3."
+   "description": "Blog header 'deep' gradient stop 3.",
+   "fallback": "prism-color-dark-high"
   },
   {
    "role": "prism-color-header-deep-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 4."
+   "description": "Blog header 'deep' gradient stop 4.",
+   "fallback": "prism-color-accent"
   },
   {
    "role": "prism-color-header-vivid-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 1."
+   "description": "Blog header 'vivid' gradient stop 1.",
+   "fallback": "prism-color-accent"
   },
   {
    "role": "prism-color-header-vivid-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 2."
+   "description": "Blog header 'vivid' gradient stop 2.",
+   "fallback": "prism-color-accent-strong"
   },
   {
    "role": "prism-color-header-vivid-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 3."
+   "description": "Blog header 'vivid' gradient stop 3.",
+   "fallback": "prism-color-dark-surface"
   },
   {
    "role": "prism-color-header-vivid-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 4."
+   "description": "Blog header 'vivid' gradient stop 4.",
+   "fallback": "prism-color-dark-deep"
   },
   {
    "role": "prism-font-serif",

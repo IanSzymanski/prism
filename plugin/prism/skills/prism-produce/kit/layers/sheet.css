@@ -1,0 +1,11 @@
+/* Core's default sheet layer, used only by a brand with no sheet layer of its own: the closing card on the brand's dark ground
+   (with its dark-surface image when it maps one), in the same on-dark roles core gives brochure panels and dark posts.
+   A brand restyles it, or any other component, in its own layers/sheet.css. Loads after prism-sheet.css. */
+.cta-card{background:var(--prism-color-dark-surface) var(--prism-asset-dark-surface, none) center / cover no-repeat;color:var(--prism-color-text-dark);text-align:center}
+.cta-card .eyebrow,.cta-card .prism-kicker{color:var(--prism-color-eyebrow-on-dark)}
+.cta-card h2,.cta-card h3{color:var(--prism-color-surface)}
+.cta-card h2 em,.cta-card h3 em{font-style:normal;color:var(--prism-color-accent-dark)}
+.cta-card p{color:var(--prism-color-text-dark);max-width:46ch;margin-left:auto;margin-right:auto}
+.cta-card strong{color:var(--prism-color-surface)}
+.cta-card a{color:var(--prism-color-surface);text-decoration-color:var(--prism-color-link-line-dark)}
+.cta-card .note{color:var(--prism-color-text-muted-dark)}

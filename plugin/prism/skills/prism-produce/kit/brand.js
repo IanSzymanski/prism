@@ -30,8 +30,14 @@ module.exports = function brand(md, forceId) {
       fs.writeFileSync(out, s);
       return out;
     },
-    // The brand's presentation layer for a format (sheet, brochure, social, blog), filled like a core stylesheet; null when it has none.
-    layer(name) { const f = res.layers[name]; return f ? B.stylesheet(path.join(res.dir, f)) : null; },
+    // The brand's presentation layer for a format (sheet, brochure, social, blog), filled like a core stylesheet. A brand with
+    // none gets core's default layer for that format (kit/layers/), so every component starts with a look; else null.
+    layer(name) {
+      const f = res.layers[name];
+      if (f) return B.stylesheet(path.join(res.dir, f));
+      const d = path.join(KIT, "layers", `${name}.css`);
+      return fs.existsSync(d) ? B.stylesheet(d) : null;
+    },
     // The brand's ornaments module (brands/<id>/ornaments.js): everything a builder draws. Missing functions mean "none".
     // The brand's Phosphor weight: its font stylesheet, path set and class.
     icons: (() => { const w = (res.icons && res.icons.weight) || "light"; const dir = path.join(KIT, "vendor", `phosphor-${w}`);
