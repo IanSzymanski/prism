@@ -123,6 +123,13 @@ function load(id, opts = {}) {
       if (!fs.existsSync(p)) warnings.push(`design system changed since this release: ${f} (removed)`);
       else if (sha(p) !== h) warnings.push(`design system changed since this release: ${f}`);
     }
+    // Components the design system added since this release (a testimonial block, say): each one is for onboarding to add.
+    const had = prof.source && prof.source.components, cdir = path.join(L, "components");
+    if (had && fs.existsSync(cdir)) {
+      const now = fs.readdirSync(cdir, { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name);
+      for (const c of now.filter(c => !had.includes(c))) warnings.push(`design system changed since this release: new component ${c}`);
+      for (const c of had.filter(c => !now.includes(c))) warnings.push(`design system changed since this release: component ${c} removed`);
+    }
   }
   // Every colour token in the design system, aliases resolved per theme, for the brand's own layers (--brand-<name>).
   const native = Object.fromEntries(Object.keys(colors).map(n => [n, Object.fromEntries(themes.map(t => [t, color(n, t)]))]));

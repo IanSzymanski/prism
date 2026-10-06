@@ -7,6 +7,7 @@
 //   onboard.js report <id> [--json]
 //   onboard.js bundle <id> OUT.zip
 //   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
+//   onboard.js component <id> <cid> --use T --markup M [--when T] [--max N] [--rule T ...] [--formats a,b] [--sample FILE] [--from NAME] [--remove]
 //   onboard.js palette <id> [--keep]                 (core's proposal for the email palette, or keep it against the current colours)
 const fs = require("fs"), path = require("path"), crypto = require("crypto"), { execFileSync } = require("child_process");
 const R = require("./resolve.js");
@@ -31,6 +32,8 @@ function readTokens(root) {
   T.type.fonts = T.type.fonts || [];
   return T;
 }
+// The design system's own components: the folders under components/ (each with its README and preview).
+const dsComponents = root => fs.existsSync(path.join(root, "components")) ? fs.readdirSync(path.join(root, "components"), { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name).sort() : [];
 // Native names by kind, with each token's own usage note, for matching and for the report.
 function natives(T, root) {
   const list = fam => ((T[fam] && T[fam].tokens) || []).map(t => ({ name: t.name, usage: t.usage || "", value: t.value }));
@@ -263,7 +266,7 @@ function report(id) {
     unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind, uses: res.roles && res.roles[r.role] ? res.roles[r.role].from : null,
       candidates: candidates(r, N[r.kind] || [], used, res.theme || themes[0]) })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
     palette: pal ? { reviewed: pal.reviewed && pal.reviewed.onboarding, set: !!pal.palette, proposed: !!pal.proposed, failing: checks.filter(c => !c.ok).map(c => c.msg), webfonts: pal.fonts && pal.fonts.webfonts } : null, office: prof.office || null, terms, todo, gaps: prof._gaps || "",
-    components: Object.entries(prof.components || {}).map(([k, c]) => ({ id: k, use: c.use || "", markup: c.markup || "" })) };
+    components: Object.entries(prof.components || {}).map(([k, c]) => ({ id: k, use: c.use || "", markup: c.markup || "", when: c.when || "", max: c.max || null, rules: c.rules || [], formats: c.formats || [] })) };
 }
 const short = v => v == null ? "" : typeof v === "string" ? v : v.stack ? v.stack : v.fontSize ? `${v.fontWeight} ${v.fontSize}/${v.lineHeight}` : v.path ? path.basename(v.path) : Object.values(v).join(" / ");
 function reportMd(r) {
@@ -287,7 +290,8 @@ function reportMd(r) {
   if (r.palette) L.push("## Email palette", r.palette.reviewed ? `Accepted at onboarding (${r.palette.reviewed}).` : !r.palette.set ? "Not proposed yet: it needs every required role." : r.palette.proposed ? "Core's proposal from the brand's colours (recomputed while the mapping changes)." : "Set by hand.", ...(r.palette.failing.length ? r.palette.failing.map(f => `- FAIL ${f}`) : ["- every check passes"]), r.palette.webfonts ? `- web fonts: ${r.palette.webfonts} (check these families are on Google Fonts)` : "- web fonts: none (the brand's families are system fonts or have no web source); emails use the font stacks as they are", "");
   if (r.office) L.push(`Office fonts: ${[...new Set(Object.values(r.office.fonts || {}))].join(", ") || "none"}${Object.keys(r.office.files || {}).length ? "" : " (no TrueType or OpenType files: decks fall back to Office's fonts)"}`);
   L.push(`Identity terms: ${r.terms.join(", ") || "none"}`);
-  L.push(`Brand components: ${r.components.length ? r.components.map(c => `${c.id} (\`${c.markup}\`: ${c.use})`).join("; ") : "none yet (core's components only)"}`);
+  L.push(`Brand components: ${r.components.length ? "" : "none yet (core's components, and the closing card's full, centred and content-only styles)"}`);
+  for (const c of r.components) L.push(`- ${c.id}: \`${c.markup}\` ${c.use}${c.when ? ` When: ${c.when}.` : ""}${c.max ? ` At most ${c.max} per piece.` : ""}${c.rules.length ? ` Rules: ${c.rules.join("; ")}.` : ""}${c.formats.length ? ` In: ${c.formats.join(", ")}.` : ""}`);
   return L.join("\n") + "\n";
 }
 
@@ -318,7 +322,7 @@ if (cmd === "start") {
   const name = opt("--name") || T.name || id;
   const theme = opt("--theme") || buildTheme(T, m.roles);
   const prof = { schema: 1, id, name, version: 1,
-    source: { kind: "claude-design-system", url: opt("--url") || null, title: T.name || name, snapshot_taken: today(), _note: "Optional live source. Builds always use snapshot/; the live system is only compared against it." },
+    source: { kind: "claude-design-system", url: opt("--url") || null, title: T.name || name, snapshot_taken: today(), components: dsComponents(root), _note: "Optional live source. Builds always use snapshot/; the live system is only compared against it." },
     ...(theme && theme !== T.color.themes[0].id ? { theme } : {}), roles: m.roles, generators: {}, ornaments: {}, icons: { set: "phosphor", weight: "light" }, own: {}, digest: { file: "digest.md", sha256: "", readme_sha256: "" },
     content: Object.fromEntries([["audience", opt("--audience")], ["contact", opt("--contact")], ["email_sender", opt("--email-sender")]].filter(([, v]) => v)),
     options: {}, office: office(T, m.roles), m365: { email: { fonts: emailFonts(T, m.roles), logo_width: 168 } },
@@ -423,7 +427,14 @@ if (cmd === "start") {
     for (const f of walk(path.join(root, "fonts")).map(p => path.relative(root, p).split(path.sep).join("/"))) if (!prof.snapshot.files[f]) changes.push(`${f}: new font file`);
     const keepFiles = assetsUsed(prof).filter(f => fs.existsSync(path.join(root, f)));
     snapshotFrom(dir, root, { ...prof, roles: Object.fromEntries(Object.entries(prof.roles).filter(([, v]) => !/^assets\//.test(v) || keepFiles.includes(v))), generators: Object.fromEntries(Object.entries(prof.generators || {}).filter(([, g]) => keepFiles.includes(g.script))) });
-    prof.source = { ...prof.source, snapshot_taken: today() };
+    // Components the design system added or dropped since this release: each new one is an interview (when, how often, rules).
+    const nowComps = dsComponents(root), had = prof.source && prof.source.components;
+    if (!had) { if (nowComps.length) changes.push(`design-system components (this release never recorded them; ask which are new to Prism): ${nowComps.join(", ")}`); }
+    else {
+      for (const c of nowComps.filter(c => !had.includes(c))) changes.push(`new design-system component: ${c} (components/${c}/README.md): interview and add it (prism-onboard, "A new component")`);
+      for (const c of had.filter(c => !nowComps.includes(c))) changes.push(`design-system component removed: ${c}${Object.keys(prof.components || {}).length ? " (check the brand's components that came from it)" : ""}`);
+    }
+    prof.source = { ...prof.source, snapshot_taken: today(), components: nowComps };
   }
   prof._onboarding = { started: today(), update_of: prof.version - 1, source: src ? "source/" : null, matched: Object.fromEntries(Object.keys(prof.roles).map(r => [r, `kept from version ${prof.version - 1}`])), changes };
   writeProf(id, prof); pin(id);
@@ -435,6 +446,27 @@ if (cmd === "start") {
   }
   const p2 = readProf(id); p2._onboarding.changes = changes; writeProf(id, p2);
   console.log(`# ${prof.name}: what changed since the shipped version\n\n${changes.length ? changes.map(c => `- ${c}`).join("\n") : "- nothing: the design system matches this release"}\n`);
+  process.stdout.write(reportMd(report(id)));
+} else if (cmd === "component") {
+  // Records one of the brand's own components from the interview: what it is for, when, how often, its rules, where it goes.
+  const id = a[1], cid = a[2];
+  if (!id || !cid || !/^[a-z0-9-]+$/.test(cid)) die("usage: onboard.js component <id> <component-id> [--use T] [--when T] [--max N] [--rule T ...] [--formats a,b] [--markup M] [--sample FILE] [--from NAME] [--remove]");
+  const prof = readProf(id), comps = prof.components = prof.components || {};
+  if (a.includes("--remove")) delete comps[cid];
+  else {
+    const FORMATS = ["sheet", "brochure", "deck", "social", "email", "html-email", "carousel", "blog"], c = comps[cid] = comps[cid] || {};
+    const rules = a.flatMap((x, i) => x === "--rule" ? [a[i + 1]] : []);
+    if (opt("--use")) c.use = opt("--use");
+    if (opt("--when")) c.when = opt("--when");
+    if (opt("--max")) { const n = parseInt(opt("--max")); if (!(n > 0)) die("--max is how many a piece may have, a whole number"); c.max = n; }
+    if (rules.length) c.rules = rules;
+    if (opt("--formats")) { c.formats = opt("--formats").split(",").map(s => s.trim()); const bad = c.formats.filter(f => !FORMATS.includes(f)); if (bad.length) die(`unknown format ${bad.join(", ")} (${FORMATS.join(", ")})`); }
+    if (opt("--markup")) c.markup = opt("--markup");
+    if (opt("--sample")) c.sample = fs.readFileSync(opt("--sample"), "utf8").trim();
+    if (opt("--from")) c.from = opt("--from");
+    if (!c.markup || !c.use) die(`component ${cid} needs --markup (how a format file writes it) and --use (what it is for)`);
+  }
+  writeProf(id, prof);
   process.stdout.write(reportMd(report(id)));
 } else if (cmd === "palette") {
   // Replaces the email palette with core's proposal from the brand's current colours (accepted again by bundling),

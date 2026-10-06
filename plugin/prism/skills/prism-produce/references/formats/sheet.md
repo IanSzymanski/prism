@@ -44,6 +44,8 @@ Start at [example.com](https://example.com).
 
 One per sheet, always last. No buttons.
 
+Styles, in every brand: the full-width card (`::: cta-card`, the default), a centred smaller card (`::: {.cta-card .centered}`) and content only, with no ground (`::: {.cta-card .plain}`). Pick the one that fits how the piece ends (a quiet brief can close plain; a campaign piece with the full card), so a brand's pieces don't all end alike. A brand may add its own closing components (`components` in `run.sh brands --json`).
+
 Sizes: `::: {.cta-card .small}` (smaller type and padding, still centred) or `::: {.cta-card .x-small}` (a slim left-aligned band). The default is for multi-page pieces.
 
 ## Fitting a one-pager

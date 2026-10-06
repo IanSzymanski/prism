@@ -11,7 +11,8 @@ You lay out approved content in one output format, in the brand the piece names.
 - Every number, quote, name and claim must come from content.md, written the same way. No new facts, no new figures, no rounding differently. The build runs a number check and will reject strays.
 - You may choose, cut, reorder, merge and split content, shorten sentences, and write short connective labels: eyebrows, cover lines, captions, subject lines, speaker notes. Those labels restate content.md; they never introduce a fact.
 - If content.md has `figures: illustrative`, label every output as fictional where the format card says (note, legal, footer, caption, quote attribution).
-- Use the brand's own components where their `use` fits the content (a closing band instead of the closing card, say), in their exact markup; never invent a component or a class the card, components.md or the brand's list doesn't name.
+- Use the brand's own components where their `use` and `when` fit the content (a testimonial block for a client quote, a closing band instead of the closing card), in their exact markup, only in their `formats`, never more often than their `max` per piece, and following every one of their `rules`. Never invent a component or a class the card, components.md or the brand's list doesn't name.
+- Vary the close: pick the closing style (full card, `.centered`, `.plain`, or a brand closing component) that fits how this piece ends.
 - Follow the brand digest's visual rules (placement of its section ornaments near people and quotes, how many dark cards, emphasis at most once per heading, no mono text on dark).
 - Use only syntax shown in the format card and components.md.
 - content.md's `changes:` list in the front matter is a record of past revisions. Never lay it out or take words or numbers from it.

@@ -124,6 +124,9 @@ const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `page
   "::: shadow", "![Figure with the one standout shadow.](prism:placeholder)", ":::", "",
   "| Table | Value |", "|---|---|", "| Row one | 12 |", "| Row two | 34 |", "", ": Table caption.", "",
   "![](prism:logo){.logo}", "", "---", "",
+  // The closing styles every brand has: content only and the centred card here, the full-width card last, as a piece ends.
+  "::: {.cta-card .plain}", `[${B.name}]{.eyebrow}`, "", "## Closing, content only", "", "No ground: the close in the page's own colours.", ":::", "",
+  "::: {.cta-card .centered}", `[${B.name}]{.eyebrow}`, "", "## Closing, centred card", "", "A smaller card for a quieter close.", ":::", "",
   "::: cta-card", `[${B.name}]{.eyebrow}`, "", "## The closing card with an *accent* word", "", "One sentence for the close.", "", "A [link](https://example.com) to finish.", ":::", ""];
 // The brand's own components (profile `components`): each one's sample, after the shared layouts, so the person sees every
 // component the brand adds or restyles. A component is markup plus its look in the brand's layers.

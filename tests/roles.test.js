@@ -105,7 +105,7 @@ q = sp(); q.components = { "closing-band": { use: "A quieter close.", markup: ":
 fs.writeFileSync(path.join(DRAFTS, "squid", "profile.json"), JSON.stringify(q, null, 1));
 const listed = JSON.parse(spawnSync("node", [path.join(KIT, "brands.js"), "--json"], { env: process.env, encoding: "utf8" }).stdout).find(b => b.id === "squid");
 ok(listed && listed.components["closing-band"] && listed.components["closing-band"].markup === "::: {.cta-card .band}", "brands --json lists the brand's components");
-ok(/Brand components: closing-band/.test(run("report", "squid").stdout), "the report lists the brand's components");
+ok(/- closing-band: `::: {.cta-card .band}`/.test(run("report", "squid").stdout), "the report lists the brand's components");
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
