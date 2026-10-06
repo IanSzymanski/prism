@@ -37,6 +37,8 @@ shutil.rmtree(OUT, ignore_errors=True)
 shutil.copytree(SRC, OUT, ignore=shutil.ignore_patterns(*JUNK))
 os.chdir(OUT)
 shutil.rmtree(".claude-plugin"); shutil.rmtree("agents")
+# Slash commands are Claude only; in ChatGPT the same flows start from a phrase ("interview me").
+shutil.rmtree("commands", ignore_errors=True)
 for f in [".codex-plugin", "plugin.json", "assets", "README.md"]:
     s = f"{META}/{f}"
     (shutil.copytree if os.path.isdir(s) else shutil.copy)(s, f)
@@ -55,6 +57,8 @@ ed(d, "Copy `../prism-produce/kit` to `<workspace>/.prism-kit`", "Copy `../prism
 ed(d, "2. Look at every image with the Read tool.", "2. Look at every image yourself.")
 ed(d, "in one AskUserQuestion call. Every question offers \"Skip for now\":", "in one message: numbered questions, each with suggested answers the user can reply to by number, and \"skip\" always allowed:")
 ed(d, "Ask in a second call only what", "Ask in a second message only what")
+ed(d, "Ask in AskUserQuestion calls of up to four questions, one call straight after another:", "Ask them all in one message, numbered, each with suggested answers the user can reply to by number:")
+ed(d, "ask the image questions (hero, use, people and permission, captions) in one more call.", "ask the image questions (hero, use, people and permission, captions) in one more message.")
 ed(d, "ask about them in the next AskUserQuestion call (four questions at most; any overflow in another call):", "ask about them in your next message:")
 ed(d, ", or when the session is unattended.", ", or when the user asks you to go ahead without questions.")
 ed(d, "for anything skipped or unattended:", "for anything skipped:")

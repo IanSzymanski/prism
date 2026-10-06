@@ -3,7 +3,7 @@ name: prism-draft
 description: >
   Use to start any Case Amplify content piece from raw material (notes, a transcript, a document, pasted
   text, photos): "draft this", "turn this into a case study / blog post / one sheet / flyer / brochure / deck / posts",
-  "make something from these notes". Also handles proofing: "approve the draft", "looks good",
+  "make something from these notes", "interview me first", "ask me everything up front". Also handles proofing: "approve the draft", "looks good",
   "here are my edits", or an edited content.md uploaded before anything has been produced.
 metadata:
   version: "0.15.0-dev"
@@ -67,6 +67,20 @@ Record the image answers in images.md (Role, People columns).
 **Keep the answers private.** Write them to `<slug>/interview.md`: the date, each question, and the answer or "skipped". It is working material for this piece, not content: never send it to the person as a file, never put it in the proof, a design canvas, a built file or any connector, and never copy it into log.md (log only "interview: done, 2 skipped"). content.md front matter carries only its usual keys (`audience`, `exports`, `figures`), filled from the answers.
 
 **Defaults** for anything skipped or unattended: audience "human services program leaders", length to suit the piece type, exports "sheet", figures "real". Note each assumed default in log.md (the default, never the person's own answers).
+
+### Full interview
+
+When the person asks to be interviewed first ("interview me", "ask me everything up front"), ask every question up front instead of only the missing ones, before anything is drafted. Ask questions the request already seems to answer too, with that answer as the first option, marked "(from your request)", so the whole brief is confirmed in one go. Every question still offers "Skip for now". Ask in AskUserQuestion calls of up to four questions, one call straight after another:
+
+1. **Audience**, **Length**, **Outputs**, **Images** (as above).
+2. **Figures** (real or illustrative), **Piece type**, **Brand** (only when more than one brand is installed: the folders in `.prism-kit/brands`, recorded as `brand:` in content.md front matter), and **Material**: "What should it be built from?" Options: "I'll paste or upload it now", "It's already in this chat". The writer never invents facts, so a piece needs source material; without any, say so and wait for it.
+3. Only for a blog post: blog type, author, header photo or screenshot, and for a changelog its release line.
+
+Then wait for anything promised "now" (material, images). When images arrive, ask the image questions (hero, use, people and permission, captions) in one more call. Record interview.md as usual, then continue at step 3 with no further questions.
+
+<!-- claude-only -->
+The `/prism-interview` command starts a piece this way.
+<!-- /claude-only -->
 
 **Answers given later** go where they belong: before approval, the writer revises the draft (length, audience) or the images join images.md and the draft; after approval, through the prism-produce lanes (a new output is a new export, a new photo is "New images later"). Update interview.md.
 
