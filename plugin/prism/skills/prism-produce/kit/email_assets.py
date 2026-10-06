@@ -23,6 +23,11 @@ for j in jobs:
     im = im.convert("RGBA" if alpha else "RGB")
     if j.get("square"):
         side = min(im.size); l, t = (im.width - side) // 2, (im.height - side) // 3
+        # Centred on the focal point when images.py found one (a face high in a portrait stays in the circle).
+        if j.get("focus"):
+            fx, fy = (float(v.rstrip("%")) / 100 for v in j["focus"].split())
+            l = round(min(im.width - side, max(0, fx * im.width - side / 2)))
+            t = round(min(im.height - side, max(0, fy * im.height - side / 2)))
         im = im.crop((l, t, l + side, t + side))
     w0, h0 = im.size
     target = min(w0, j["width"] * 2)

@@ -6,12 +6,12 @@ description: >
   "just make it", "quick mode". Builds one output in one pass with the Case Amplify brand kit, the only
   allowed way to make a designed Case Amplify file. Not for pieces to be drafted and proofed first (prism-draft).
 metadata:
-  version: "0.14.0-dev"
+  version: "0.15.0-dev"
 ---
 
 # Quick mode: raw material to one finished file, one pass
 
-For someone who needs a document now and will review it afterwards. Speed comes from cutting stops, not rules: no intake questions, no subagents, no content.md, no proof stop, and one quick look instead of a visual review round. The brand and claims rules below still apply in full.
+For someone who needs a document now and will review it afterwards. Speed comes from cutting stops, not rules: no interview, no subagents, no content.md, no proof stop (no proof doc), and one quick look instead of a visual review round. The brand and claims rules below still apply in full.
 
 ## Build route (always)
 
@@ -32,7 +32,7 @@ The resolve line checks the bundled brand snapshot; if it prints an error, stop 
 
 - **Format:** what the user named, else a one-pager sheet. One format per quick run. Sheet and single social posts: read nothing else, use the cheat sheets below. Brochure, blog, email, carousel, deck: read that card in `../prism-produce/references/formats/` first (deck builds are slower; say so).
 - **Figures:** only numbers that appear in the source. No numbers in the source means no stats block. If the user asked for an example or mock piece, figures are illustrative and every output says so.
-- **Photos:** use uploaded photos without identifiable people freely. Photos with people only if the user said they have permission; otherwise leave them out and say so. Best landscape photo becomes the hero. No photos: no image blocks (no placeholders unless asked).
+- **Photos:** use uploaded photos without identifiable people freely. Photos with people only if the user said they have permission; otherwise leave them out and say so. Best landscape photo becomes the hero. Layouts crop each photo around the focal point images.py found. No photos: no image blocks (no placeholders unless asked); a photo from the brand library (`.prism-kit/run.sh library <brand>`, `![](brand:<id>)`) only when the user asks for one.
 - **Audience:** from the request, else human services program leaders.
 
 ## 3. Write the format file in one Write call

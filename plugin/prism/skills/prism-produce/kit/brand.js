@@ -55,13 +55,24 @@ module.exports = function brand(md, forceId) {
     },
     // An image source as a file: `prism:<asset>` is the brand's asset role (placeholders fall back to core's neutral ones),
     // anything else is a path relative to baseDir.
+    // `brand:<id>` is a photo from the brand's image library.
     src(s, baseDir) {
+      const lib = /^brand:([\w-]+)$/.exec(s);
+      if (lib) { const e = res.library[lib[1]]; if (!e) throw new Error(`[brand] ${id} has no library image "${lib[1]}" (run.sh library ${id})`); return e.path; }
       const m = /^prism:([\w-]+)$/.exec(s);
       if (!m) return path.isAbsolute(s) ? s : path.resolve(baseDir, s);
       const r = res.roles["prism-asset-" + m[1]];
       if (r) return r.value.path;
       if (/^placeholder(-dark)?$/.test(m[1])) return path.join(KIT, "images", m[1] === "placeholder" ? "placeholder-light.png" : "placeholder-dark.png");
       throw new Error(`[brand] ${id} has no asset "${m[1]}" (prism-asset-${m[1]})`);
+    },
+    // An image's focal point as "x% y%": written in the markup, else from images.py (.focus.json beside the file) or the
+    // library entry; null keeps the crop centred.
+    focus(file, written) {
+      if (written) return written;
+      const e = Object.values(res.library).find(e => e.path === file);
+      if (e) return e.focus || null;
+      try { return JSON.parse(fs.readFileSync(path.join(path.dirname(file), ".focus.json"), "utf8"))[path.basename(file)] || null; } catch (e) { return null; }
     },
     get ornaments() { return res.ornamentsFile ? require(res.ornamentsFile) : {}; },
     // A profile option by dotted path, with core's default: option("images.fade", false).
@@ -73,6 +84,7 @@ module.exports = function brand(md, forceId) {
         if (r.kind === "color") e[n.toUpperCase().replace(/-/g, "_")] = r.value[res.themes[0]];
         if (r.kind === "asset") e[n.toUpperCase().replace(/-/g, "_")] = r.value.path;
       }
+      for (const [n, l] of Object.entries(res.library)) { const k = "PRISM_LIBRARY_" + n.toUpperCase().replace(/-/g, "_"); e[k] = l.path; if (l.focus) e[k + "_FOCUS"] = l.focus; }
       e.PRISM_CHART_BARS = B.option("charts.bars", "flat");
       e.PRISM_ICON_CLASS = B.icons.cls;
       // Placeholder photos: the brand's test images when it has them, otherwise core's neutral ones.

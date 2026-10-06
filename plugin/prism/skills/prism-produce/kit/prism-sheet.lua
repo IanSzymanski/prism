@@ -1,10 +1,48 @@
 -- `![](prism:logo)` and other `prism:<asset>` sources are the brand's own files (asset roles), set by the builder.
+-- `![](brand:<id>)` is a photo from the brand's image library (profile `library`), also set by the builder.
+-- Every photo's crop centres on its focal point: `{focus="30% 40%"}` when written, else the one images.py found
+-- (.focus.json beside the file), else the library's; without one the crop stays centred.
+local focal_cache = {}
+local function focal(file)
+  local dir, name = file:match("^(.-)([^/]+)$")
+  if focal_cache[dir] == nil then
+    focal_cache[dir] = false
+    local f = io.open(dir .. ".focus.json", "r")
+    if f then
+      local ok, t = pcall(pandoc.json.decode, f:read("a"), false)
+      f:close()
+      if ok and type(t) == "table" then focal_cache[dir] = t end
+    end
+  end
+  return focal_cache[dir] and focal_cache[dir][name] or nil
+end
+
+local function base_dir()
+  local f = PANDOC_STATE.input_files[1]
+  return f and f:match("^(.*/)") or ""
+end
+
 function Image(img)
   local name = img.src:match("^prism:([%w-]+)$")
-  if not name then return nil end
-  local p = os.getenv("PRISM_ASSET_" .. name:upper():gsub("-", "_"))
-  if not p then error("prism-sheet.lua: the brand has no asset \"" .. name .. "\" (prism-asset-" .. name .. ")") end
-  img.src = "file://" .. p
+  local lib = img.src:match("^brand:([%w-]+)$")
+  local focus = img.attributes.focus
+  img.attributes.focus = nil
+  if name then
+    local p = os.getenv("PRISM_ASSET_" .. name:upper():gsub("-", "_"))
+    if not p then error("prism-sheet.lua: the brand has no asset \"" .. name .. "\" (prism-asset-" .. name .. ")") end
+    img.src = "file://" .. p
+  elseif lib then
+    local key = "PRISM_LIBRARY_" .. lib:upper():gsub("-", "_")
+    local p = os.getenv(key)
+    if not p then error("prism-sheet.lua: the brand's image library has no \"" .. lib .. "\"") end
+    img.src = "file://" .. p
+    focus = focus or os.getenv(key .. "_FOCUS")
+  elseif not img.src:match("^%a+:") then
+    local file = img.src:sub(1, 1) == "/" and img.src or base_dir() .. img.src
+    focus = focus or focal(file)
+  end
+  -- The page centres the crop on it once the frame size is known (focus.js).
+  if focus then img.attributes["data-focus"] = focus end
   return img
 end
 

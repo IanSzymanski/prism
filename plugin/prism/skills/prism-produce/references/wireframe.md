@@ -15,6 +15,7 @@ Every format opens as a plain wireframe on a Claude Design canvas as soon as its
    ```
 3. Tell the person in one line that design mode is open and that nothing is built until they say "done". Record the canvas link in log.md. From here the "Design session" rules in the prism-produce skill apply: every chat request starts with a pull of the canvas, changes are recorded in content.md's `changes:` list, the canvas is republished and reopened, and no file is built until "done".
 4. A format added later ("also make a carousel") gets its own board on the same canvas: publish its `.dc.html` and the updated `canvas.json`.
+5. Images show as grey boxes labelled with their caption or file. Images can be added at any point of the session: an upload goes through "New images later" in the prism-produce skill (normalised, checked for people and permission, caption into content.md, placed in the format files), then the changed boards are republished. A request to change a crop ("keep her face in frame") changes the image's focus, not the board.
 
 ## Read the edits back (every chat request during the session, and "done")
 

@@ -37,7 +37,7 @@ Rules:
 
 - **Front matter**: all keys except `date`, always. `exports` lists only what the user asked for. `figures: illustrative` means every output must label the piece as fictional.
 - **Allowed**: headings (`##`, `###`), paragraphs, bullet and numbered lists, bold, italic, links, blockquotes, plain tables, footnotes for sources.
-- **Images**: plain Markdown only, in the section the image belongs to: `![Caption](images/file.jpg)`. The caption is content, so it is proofed like any sentence; write `![](images/file.jpg)` only for a purely decorative image. No classes, no sizes: layout is the formatter's job. Roles (hero, supporting) live in images.md, not here.
+- **Images**: plain Markdown only, in the section the image belongs to: `![Caption](images/file.jpg)`. A photo from the brand's image library (`run.sh library <brand>`) is `![Caption](brand:<id>)`. The caption is content, so it is proofed like any sentence; write `![](images/file.jpg)` only for a purely decorative image. No classes, no sizes, no crops: layout is the formatter's job, and every layout crops around the image's focal point on its own. Roles (hero, supporting) live in images.md, not here.
 - **Not allowed**: `:::` blocks, `{.class}` attributes, icons, chart blocks, HTML. Layout belongs to the format files.
 - **Emphasis in the title and `##` headings**: `*one word or short phrase*` marks the word shown in the brand's accent colour. At most one per heading. Leave it out if nothing deserves it.
 - **Numbers**: write each figure the same way every time it appears (`41%`, `16.4 hours`). Formatters are checked against these, so a number that is not in content.md cannot appear in any output.
@@ -66,12 +66,19 @@ Status values: `VERIFIED` (a source document confirms it), `FROM SOURCE` (it is 
 Written at intake when the user supplied images; one row per image, in `images/` (normalised copies, originals stay in `source/`).
 
 ```markdown
-| File | Pixels | Orientation | Shows | People | Role | Print fit |
-|---|---|---|---|---|---|---|
-| images/office.jpg | 3000×2000 | landscape | Open office, staff at desks | yes, staff, consent confirmed | hero | hero, full width, anything |
-| images/visit.jpg | 1600×2400 | portrait | Caseworker at a kitchen table, face turned away | yes, staff only | supporting: "What they changed" | media row, figure, gallery |
-| images/logo-wall.jpg | 900×600 | landscape | Partner logos | no | skip (user) | gallery or social only |
+| File | Pixels | Orientation | Shows | People | Role | Print fit | Focus |
+|---|---|---|---|---|---|---|---|
+| images/office.jpg | 3000×2000 | landscape | Open office, staff at desks | yes, staff, consent confirmed | hero | hero, full width, anything | 45% 40% |
+| images/visit.jpg | 1600×2400 | portrait | Caseworker at a kitchen table, face turned away | yes, staff only | supporting: "What they changed" | media row, figure, gallery | 50% 30% |
+| images/logo-wall.jpg | 900×600 | landscape | Partner logos | no | skip (user) | gallery or social only | 50% 50% |
+| brand:team-office | | landscape | Team at the office (brand library) | yes, staff, consent on file | supporting: "Who we are" | from the library | 50% 35% |
 ```
 
 - **Role**: `hero` (at most one), `supporting: <section>`, `gallery: <section>`, or `skip`. The user's answers at intake decide; otherwise the writer proposes and the reviewer flags.
 - **People**: `no`, or who they are and the consent status the user gave. Clients, minors and anyone identifiable need explicit confirmation before use.
+- **Focus**: the focal point (`x% y%` from the top left) that every layout keeps in frame when it crops the image to fit. `run.sh images` finds it and stores it in `images/.focus.json`; correct both when it misses what matters. Library photos carry their own.
+- Library photos (`brand:<id>`) get a row when the piece uses one; their People and Focus come from the library listing.
+
+## interview.md
+
+The interview's answers (prism-draft step 2): the date, each question, and the answer or "skipped". Private working material: read by the writer, never sent to the person, never put in content.md, the proof, a design canvas, a built file, a connector or log.md.

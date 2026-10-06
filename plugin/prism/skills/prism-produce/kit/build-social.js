@@ -71,6 +71,9 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
       await page.evaluate(svgs => document.querySelectorAll(".carousel").forEach((c, i) => svgs[i] && c.insertAdjacentHTML("beforeend", svgs[i])), svgs);
     }
   }
+  // Photo crops centre on their focal points.
+  await page.addScriptTag({ content: require("./focus.js").inPage });
+  await page.evaluate(() => window.prismFocus());
   const posts = await page.$$(".post");
   let captions = "# Post copy\n\nPaste each section with the image of the same name.\n\n";
   const missing = [], unsafe = [];

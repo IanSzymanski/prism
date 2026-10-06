@@ -6,7 +6,7 @@ description: >
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
   "I'm done editing", an edited format file, or a finished Markdown file in the Case Amplify format. Works from an approved content.md.
 metadata:
-  version: "0.14.0-dev"
+  version: "0.15.0-dev"
 ---
 
 # Produce: approved content to finished files, and revisions
@@ -51,7 +51,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 
 - One export: format it yourself, following the same rules as the prism-formatter agent and its card.
 - Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (`.prism-kit/brands/<brand>/digest.md`), and the target `formats/<format>.md`.
-- Before formatting: copy the project's `images/` folder into `formats/images/`. Where a piece needs a photo it doesn't have, write the brand's test image, `![](prism:placeholder)` (light grounds) or `![](prism:placeholder-dark)` (dark); the build fills them from the brand, with neutral ones when it has none. Logos are `![](prism:logo)` and `![](prism:logo-on-dark)`. Pass the path of `images.md` to every formatter when it exists.
+- Before formatting: copy the project's `images/` folder (with its `.focus.json`) into `formats/images/`. Pass every formatter the output of `.prism-kit/run.sh library <brand>`. Where a piece needs a photo it doesn't have, use a fitting photo from the brand's image library (`![](brand:<id>)`); only when none fits, write the brand's test image, `![](prism:placeholder)` (light grounds) or `![](prism:placeholder-dark)` (dark); the build fills them from the brand, with neutral ones when it has none. Logos are `![](prism:logo)` and `![](prism:logo-on-dark)`. Pass the path of `images.md` to every formatter when it exists.
 
 <!-- claude-only -->
 ## 1b. Open design mode (every format, before building)
@@ -162,3 +162,11 @@ Classify each requested change before touching files. Tell the user the lane in 
 
 <!-- /claude-only -->
 **New export later** ("also make a carousel"): step 1 in create mode for that export only.
+
+**New images later** (uploaded after approval, during design mode or after delivery):
+
+1. Normalise and look at them as in the prism-draft skill's Images steps (`.prism-kit/run.sh images <slug>/images <files>`, then copy the new files and `.focus.json` into `formats/images/`), and add their rows to images.md. Ask only what you can't see: who the people are and whether there is permission, when anyone is identifiable.
+2. A caption is content: add the image line to content.md in its section (content lane, vetted like any edit). Then place the image in each format the person named, or in every format where it fits, as the component that suits its orientation and print fit (layout lane).
+3. Each photo is cropped to its slot around its focal point. "Keep her face in frame", "show more of the building": change that image's focus in images.md and `.focus.json` (every format), or write `{focus="x% y%"}` on it in one format file (that format only).
+4. In design mode, republish the changed boards; otherwise number check, rebuild, deliver.
+5. A photo worth reusing across pieces belongs in the brand's design system photo library; say so once.

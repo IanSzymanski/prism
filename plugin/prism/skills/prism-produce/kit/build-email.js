@@ -382,7 +382,7 @@ ${footRows || meta.note ? `<table role="presentation" width="100%" cellpadding="
   const list = [...imgIndex.entries()];
   for (const [, v] of list) if (/\.svg$/i.test(v.abs)) v.abs = await BR.raster(v.abs, v.width * 2);
   const jobsFile = path.join(tmp, "jobs.json");
-  fs.writeFileSync(jobsFile, JSON.stringify(list.map(([k, v]) => ({ src: v.abs, out: path.join(outDir, "images", v.name + path.extname(v.abs)), width: v.width, halo: v.halo, square: !!v.square }))));
+  fs.writeFileSync(jobsFile, JSON.stringify(list.map(([k, v]) => ({ src: v.abs, out: path.join(outDir, "images", v.name + path.extname(v.abs)), width: v.width, halo: v.halo, square: !!v.square, focus: v.square ? BR.focus(v.abs) : null }))));
   const done = list.length ? JSON.parse(execFileSync("python3", [path.join(here, "email_assets.py"), jobsFile]).toString()) : [];
   const info = new Map(list.map(([k], i) => [k, done[i]]));
   for (const r of done) {

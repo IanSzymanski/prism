@@ -33,10 +33,10 @@ Prism runs the Case Amplify content process for you. Bring material in any state
 - []{.icon .ph-stack .accent} **Produce** One formatter per output. Then build, check, preview, verify and deliver.
 :::
 
-1. **Intake.** Audience, outputs, real or illustrative figures, and questions about any photos.
+1. **Interview.** Optional: audience, length, outputs and photos. Skip any question and answer it later.
 2. **Draft.** The writer produces `content.md` and `claims.md`.
 3. **Check.** The reviewer adds inline flags. It never rewrites your copy.
-4. **Proof.** You edit and say "approve". This is a hard stop.
+4. **Proof.** You edit the words in a doc (in Claude) or in chat, and say "approve". Your edits are proofread first. This is a hard stop.
 5. **Format.** Formatters lay out each output from the approved words. Design mode opens on its own before anything is built. Say "just build it" to skip it.
 6. **Build and verify.** A number check, the build, fit warnings, a visual check and a brand check on every file.
 7. **Deliver.** Files, previews, and a note of what each formatter cut.
@@ -65,7 +65,7 @@ Prism runs the Case Amplify content process for you. Bring material in any state
 
 ### One pass, same rules
 
-Quick mode skips the stops, not the rules. There are no intake questions, no separate review passes and no proof stop.
+Quick mode skips the stops, not the rules. There is no interview, no separate review passes and no proof stop.
 
 Still enforced: no number that isn't in your source, no compliance claims, no suggestion that the AI decides, no photos of people without your permission, and the same brand check as every other build.
 
@@ -292,7 +292,7 @@ Instructions: 98
 ::: cols
 **Say who it's for and what they should do next.** "For county program directors; they should book a demo" shapes every section better than a longer brief.
 
-**Name the outputs up front.** "A case study as a sheet, a deck and a carousel" lets the intake skip a question and the formatters plan cuts together.
+**Name the outputs up front.** "A case study as a sheet, a deck and a carousel" lets the interview skip a question and the formatters plan cuts together.
 :::
 
 ```
@@ -303,7 +303,7 @@ Make a trifold with the left + spread inside layout.
 
 ### Proofing
 
-- **Proof `content.md` once, carefully.** It is the only place words change. Layout feedback can wait and won't disturb the words.
+- **Proof the words once, carefully.** In Claude they open in a doc you edit directly; your interview answers never go in it. It is the only place words change. Layout feedback can wait and won't disturb the words.
 - **Read the claims ledger before the prose.** Every number and quote is listed with its source; a row marked VERIFY is the first thing to settle.
 - **Say "keep it as is" to accept a flag.** Approval is refused while flags remain, so that choice is always yours.
 
@@ -324,7 +324,9 @@ Make a trifold with the left + spread inside layout.
 
 ### Photos
 
-- **Upload photos with the notes.** You'll be asked which one leads, which to use, and whether the people in them can be shown.
+- **Upload photos with the notes, or later.** You'll be asked which one leads, which to use, and whether the people in them can be shown. Photos can be added at any point, in design mode too.
+- **Crops keep the subject.** Every layout crops a photo around its focal point. If one misses, say "keep her face in frame".
+- **Reusable photos belong in the brand library.** Team, office and product shots added to the design system can be used in any piece.
 - **Send the largest file you have.** Anything that prints under 150 dpi is moved to a smaller layout or left out of print.
 
 ### Quick mode
