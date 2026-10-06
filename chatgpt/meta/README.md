@@ -30,7 +30,7 @@ Raw material in, on-brand files out, with a human proof in between. Brands live 
 
 ## What's inside
 
-- Skills: `prism-draft` (steps 1–4, ends at the proof), `prism-produce` (formatting, builds, revisions) and `prism-quick` (one document, one pass).
+- Skills: `prism-draft` (steps 1–4, ends at the proof), `prism-produce` (formatting, builds, revisions), `prism-quick` (one document, one pass) and `prism-onboard` (adds a brand from its design system's files: a swatch sheet to review, then a brand bundle for the next release).
 - Writer, reviewer and formatter instructions in each skill's `references/agents/`, run as separate passes.
 - `skills/prism-produce/kit`: build scripts, brand stylesheet, the core stylesheets and layouts, and one folder per brand under `brands/` (its design system snapshot: fonts, logos, imagery, tokens), Phosphor icons (MIT).
 - `skills/prism-produce/references/formats`: the Markdown syntax each output accepts.

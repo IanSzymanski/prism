@@ -20,7 +20,7 @@ This skill never builds files. Designed outputs are built only by prism-produce 
 
 This is steps 1–4 of the content process. It ends at a human proofing stop. Formatting and building happen in the `prism-produce` skill, never here.
 
-References (read before starting): `references/content-spec.md` and the brand's rules, `../prism-produce/kit/brands/<brand>/digest.md` (`<brand>` from the request or content.md `brand:`, else the default brand; `.prism-kit/run.sh brands` lists the brands and marks the default, with its default audience).
+References (read before starting): `references/content-spec.md` and the brand's rules, its `digest` from `.prism-kit/run.sh brands --json` (`<brand>` from the request or content.md `brand:`, else the default brand; `.prism-kit/run.sh brands` lists the brands and marks the default, with its default audience).
 
 ## Running the subagents
 
@@ -76,7 +76,7 @@ Record the image answers in images.md (Role, People columns).
 When the person asks to be interviewed first ("interview me", "ask me everything up front"), ask every question up front instead of only the missing ones, before anything is drafted. Ask questions the request already seems to answer too, with that answer as the first option, marked "(from your request)", so the whole brief is confirmed in one go. Every question still offers "Skip for now". Ask in AskUserQuestion calls of up to four questions, one call straight after another:
 
 1. **Audience**, **Length**, **Outputs**, **Images** (as above).
-2. **Figures** (real or illustrative), **Piece type**, **Brand** (only when more than one brand is installed: the folders in `.prism-kit/brands`, recorded as `brand:` in content.md front matter), and **Material**: "What should it be built from?" Options: "I'll paste or upload it now", "It's already in this chat". The writer never invents facts, so a piece needs source material; without any, say so and wait for it.
+2. **Figures** (real or illustrative), **Piece type**, **Brand** (only when more than one brand is listed by `.prism-kit/run.sh brands`, drafts included, recorded as `brand:` in content.md front matter), and **Material**: "What should it be built from?" Options: "I'll paste or upload it now", "It's already in this chat". The writer never invents facts, so a piece needs source material; without any, say so and wait for it.
 3. Only for a blog post: blog type, author, header photo or screenshot, and for a changelog its release line.
 
 Then wait for anything promised "now" (material, images). When images arrive, ask the image questions (hero, use, people and permission, captions) in one more call. Record interview.md as usual, then continue at step 3 with no further questions.

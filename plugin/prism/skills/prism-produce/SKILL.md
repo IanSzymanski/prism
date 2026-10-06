@@ -25,7 +25,7 @@ Files next to this SKILL.md:
 
 - `kit/`: build scripts, stylesheets, fonts, images. Entry points `setup.sh` and `run.sh`.
 - `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`) plus `components.md` shared by all.
-- `kit/brands/<brand>/digest.md`: the brand's rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, else the default brand (`.prism-kit/run.sh brands` marks it).
+- The brand's digest: its rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, else the default brand (`.prism-kit/run.sh brands` marks it); `run.sh brands --json` gives each brand's `digest` path (a shipped brand's is in `kit/brands/<brand>/`, a draft from onboarding's in `.prism/brands/<brand>/` beside `.prism-kit`).
 - `run.sh swatch <brand> out/<brand>-swatch.pdf`: the swatch sheet, in its own neutral format: how the brand's design system maps onto every core role, its ornaments by place, Office fonts, email palette checks, unused tokens and unmapped roles, then one sample of every sheet layout built in the brand (the layouts' Markdown is written beside it as `-layouts.md`). Make it when a brand profile is new or changed, or when asked to check a brand.
 <!-- claude-only -->
 - `references/wireframe.md`: design mode, the wireframe canvas in Claude Design for every format.
@@ -41,16 +41,16 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 1. Find the project folder (`<slug>/` with content.md). If the user supplied a finished format file only, create a project around it and skip to step 3.
 2. Read content.md front matter. If `status` is not `approved`, stop and send the user back to proofing (the prism-draft skill). Do not format unapproved content.
 3. Once per session: copy `kit/` to `<workspace>/.prism-kit`. Every build goes through `.prism-kit/run.sh`, which sets up the tools that output type needs the first time it is built (a sheet never waits for deck tools). If it prints `setup: MISSING ...`, install that tool (`apt-get install -y pandoc` for pandoc) and build again. Never create the `.ready-*` files by hand.
-4. Once per session, resolve the brand: `.prism-kit/run.sh resolve <brand> --out .prism/brand/<brand>` (`brand` from content.md, else the default from `run.sh brands`). It checks the brand's bundled snapshot and maps every core role to its value. An error stops the work: say what it printed and never approximate the brand. A `[brand] design system changed since this release` line is a warning: build anyway (the snapshot is what this release was checked against) and pass the line on to the user once.
+4. Once per session, resolve the brand: `.prism-kit/run.sh resolve <brand> --out .prism/brand/<brand>` (`brand` from content.md, else the default from `run.sh brands`). It checks the brand's bundled snapshot and maps every core role to its value. An error stops the work: say what it printed and never approximate the brand. A `[brand] design system changed since this release` line is a warning: build anyway (the snapshot is what this release was checked against) and pass the line on to the user once, adding that the prism-onboard skill can update the brand from the changed design system. A `[brand] draft:` line means the brand is an onboarding draft, not yet in a release: build, and say so once.
 <!-- claude-only -->
-   Before resolving, if the Artifact tool is available, read the brand's design system once (`url` from `.prism-kit/brands/<brand>/profile.json` `source.url`, no path) and add `--live <the folder the read names>`, so a changed design system is reported. If the read fails or is refused, resolve without `--live` and say nothing.
+   Before resolving, if the Artifact tool is available, read the brand's design system once (`design_system` from `.prism-kit/run.sh brands --json`, no path) and add `--live <the folder the read names>`, so a changed design system is reported. If the read fails or is refused, resolve without `--live` and say nothing.
 <!-- /claude-only -->
 5. Exports = what the user asks for now, else the `exports` list in content.md.
 
 ## 1. Format (subagents)
 
 - One export: format it yourself, following the same rules as the prism-formatter agent and its card.
-- Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (`.prism-kit/brands/<brand>/digest.md`), and the target `formats/<format>.md`.
+- Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (its `digest` path from `.prism-kit/run.sh brands --json`), and the target `formats/<format>.md`.
 - Before formatting: copy the project's `images/` folder (with its `.focus.json`) into `formats/images/`. Pass every formatter the output of `.prism-kit/run.sh library <brand>`. Where a piece needs a photo it doesn't have, use a fitting photo from the brand's image library (`![](brand:<id>)`); only when none fits, write the brand's test image, `![](prism:placeholder)` (light grounds) or `![](prism:placeholder-dark)` (dark); the build fills them from the brand, with neutral ones when it has none. Logos are `![](prism:logo)` and `![](prism:logo-on-dark)`. Pass the path of `images.md` to every formatter when it exists.
 
 <!-- claude-only -->
@@ -89,7 +89,7 @@ For each format file:
    - missing fictional labels when `figures: illustrative`;
    - images: the build prints `[sheet] low resolution` or `missing image` warnings, and `[deck]` equivalents. Fix a missing path; report low-resolution images to the user with the size they print at, and move them to a smaller layout (gallery, media row) or drop them from print;
    - the brand digest's placement rules (for example, no section ornament directly above or beside a photo of a person or a quote, one dark card at most, no mono text on dark); a portrait photo not squeezed into a landscape slot.
-5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image and HTML email folders. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
+5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image and HTML email folders; add `--brand <brand>` when the piece is not in the default brand. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
 6. Record in log.md: files built, cuts made by each formatter, check and verify results.
 
 ## 3. Deliver

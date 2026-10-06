@@ -31,7 +31,7 @@ chk = subprocess.run([sys.executable, os.path.join(HERE, "..", "tools", "check-t
 if chk.returncode: sys.exit(chk.stdout + "Update skills/prism-draft/references/tutorial.md (and tools/check-tutorial.py for a new format, skill or brand), then build again.")
 
 # Claude version numbers first, so both editions always match.
-for p in ["skills/prism-draft/SKILL.md", "skills/prism-produce/SKILL.md", "skills/prism-quick/SKILL.md"]:
+for p in ["skills/prism-draft/SKILL.md", "skills/prism-produce/SKILL.md", "skills/prism-quick/SKILL.md", "skills/prism-onboard/SKILL.md"]:
     sub(f"{SRC}/{p}", r'version: "[^"]+"', f'version: "{VER}"')
 m = json.load(open(f"{SRC}/.claude-plugin/plugin.json")); m["version"] = VER
 json.dump(m, open(f"{SRC}/.claude-plugin/plugin.json", "w"), indent=2)
@@ -116,6 +116,10 @@ ed(q, "Look at each photo once with Read to spot identifiable people.", "Look at
 ed(q, "## 3. Write the format file in one Write call", "## 3. Write the format file in one go")
 ed(q, "1. One Bash call: check numbers", "1. One code call (from `/mnt/data`): check numbers")
 ed(q, "5. Send the PDF (or the PNGs and the captions file, or the PPTX) and the format file with SendUserFile.", "5. Give download links to the PDF (or the PNGs and the captions file, or the PPTX) and the format file.")
+
+# prism-onboard: the files live in /mnt/data; the design system comes as an upload (no Claude Design System link to read).
+o = "skills/prism-onboard/SKILL.md"
+ed(o, "- Create `onboarding-<id>/`", "- Work in `/mnt/data`. Create `onboarding-<id>/`")
 
 # Shared wording
 for f in glob.glob("skills/*/SKILL.md"):

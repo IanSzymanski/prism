@@ -39,8 +39,8 @@ try:
     d = copy(); open(os.path.join(d, "skills", "prism-produce", "references", "formats", "poster.md"), "w").write("# Poster\n")
     r = run(ver, d); check("a new format card fails", r.returncode == 1 and "format:poster is new" in r.stdout, r.stdout)
 
-    d = copy(); os.makedirs(os.path.join(d, "skills", "prism-onboard"))
-    r = run(ver, d); check("a new skill fails", r.returncode == 1 and "skill:prism-onboard is new" in r.stdout, r.stdout)
+    d = copy(); os.makedirs(os.path.join(d, "skills", "prism-example-new"))
+    r = run(ver, d); check("a new skill fails", r.returncode == 1 and "skill:prism-example-new is new" in r.stdout, r.stdout)
 
     d = copy(); b = os.path.join(d, "skills", "prism-produce", "kit", "brands", "acme"); os.makedirs(b)
     json.dump({"name": "Acme Health"}, open(os.path.join(b, "profile.json"), "w"))
