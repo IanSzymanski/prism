@@ -66,6 +66,9 @@ ed(d, "; \"later\" can be any time, design mode included.", "; \"later\" can be 
 ed(d, " (to the proof doc instead, while one is open)", "")
 ed(d, " (and the proof doc's Content tab, while one is open)", "")
 ed(d, "never put it in the proof, a design canvas, a built file or any connector", "never put it in the proof, a built file or any connector")
+t = "skills/prism-draft/references/tutorial.md"
+ed(t, "7. **Delivery.**", "6. **Delivery.**")
+ed(t, "(\"how does design mode work\", \"tell me about quick mode\")", "(\"how does proofing work\", \"tell me about quick mode\")")
 c = "skills/prism-draft/references/content-spec.md"
 ed(c, "never put in content.md, the proof, a design canvas, a built file, a connector or log.md.", "never put in content.md, the proof, a built file, a connector or log.md.")
 ed(d, "## 3. Write and review (subagents)", "## 3. Write and review (two passes)")

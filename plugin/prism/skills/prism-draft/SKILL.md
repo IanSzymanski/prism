@@ -4,12 +4,15 @@ description: >
   Use to start any Case Amplify content piece from raw material (notes, a transcript, a document, pasted
   text, photos): "draft this", "turn this into a case study / blog post / one sheet / flyer / brochure / deck / posts",
   "make something from these notes", "interview me first", "ask me everything up front". Also handles proofing: "approve the draft", "looks good",
-  "here are my edits", or an edited content.md uploaded before anything has been produced.
+  "here are my edits", or an edited content.md uploaded before anything has been produced. Also answers "how do I use Prism",
+  "tutorial", "what can you do" with the rundown in references/tutorial.md.
 metadata:
   version: "0.16.0-dev"
 ---
 
 # Draft: raw material to an approved content.md
+
+Asked how to use Prism ("how does this work", "tutorial", "what can you do"): give the rundown in `references/tutorial.md` and stop; don't start a piece until they bring material.
 
 If the user wants a finished document right away with no proofing first ("quick", "fast", "just make it"), use the prism-quick skill instead.
 
