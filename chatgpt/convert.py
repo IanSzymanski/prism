@@ -26,6 +26,10 @@ def sub(p, pat, rep, flags=0):
     open(p, "w").write(s2)
 
 
+# The tutorial must describe this release before anything is built (tools/check-tutorial.py says what is out of date).
+chk = subprocess.run([sys.executable, os.path.join(HERE, "..", "tools", "check-tutorial.py"), VER], capture_output=True, text=True, env={**os.environ, "PRISM_PLUGIN": SRC})
+if chk.returncode: sys.exit(chk.stdout + "Update skills/prism-draft/references/tutorial.md (and tools/check-tutorial.py for a new format, skill or brand), then build again.")
+
 # Claude version numbers first, so both editions always match.
 for p in ["skills/prism-draft/SKILL.md", "skills/prism-produce/SKILL.md", "skills/prism-quick/SKILL.md"]:
     sub(f"{SRC}/{p}", r'version: "[^"]+"', f'version: "{VER}"')

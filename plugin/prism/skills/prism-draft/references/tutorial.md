@@ -1,4 +1,5 @@
 # Prism tutorial: how to use the plugin
+<!-- tutorial-reviewed: 0.16 -->
 
 Give this rundown when someone asks how to use Prism ("how does this work", "tutorial", "what can you do"). Present it in your own words, short and scannable: a two-line intro, then the sections below as brief headed lists. When they ask about one part ("how does design mode work", "tell me about quick mode"), give only that section, in a little more depth. Never invent features; everything Prism does is in this file. End by offering a next step that fits: "Paste some notes and say 'draft this into a one-pager'", or try quick mode.
 
@@ -56,6 +57,7 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 - Quick mode isn't proofed. Treat it as a draft until someone has checked its claims list.
 <!-- claude-only -->
 - Design mode is Claude only, and not in quick mode; say "design mode" after a quick run to open it.
+- `/prism-tutorial` brings this rundown back at any time; add a topic (`/prism-tutorial photos`) for just that part.
 <!-- /claude-only -->
 
 ## Try it
