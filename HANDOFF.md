@@ -1,6 +1,6 @@
 # Prism: handoff for continued development
 
-State as of 6 October 2026, version **0.16.0-dev** (0.14.0 not yet cut; 0.15 F1, F5, F6 and /prism-interview merged, not yet confirmed live; 0.16 design-mode items M1, M2, M3, M4, M5, M7, M8, M9 implemented on a branch, not yet confirmed live; D11 brand onboarding not started). This repository holds everything needed to keep developing; `README.md` covers layout, build and tests.
+State as of 6 October 2026, version **0.16.0-dev**. Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. **No interim releases: the next and only version cut is v1.** Until then the tree stays `0.x-dev`; D11 (brand onboarding) is not started.
 
 ## What it is
 
@@ -10,6 +10,8 @@ State as of 6 October 2026, version **0.16.0-dev** (0.14.0 not yet cut; 0.15 F1,
 - **ChatGPT edition**: generated from the Claude source by `chatgpt/convert.py`
 
 ## Standing rules (from Ian)
+
+- **Releases: only v1 is cut.** No interim releases (no 0.14.0, 0.15.0 or 0.16.0); work continues as `0.x-dev` until v1. `convert.py` still takes the version string, and the tutorial stamp follows its major.minor.
 
 - **Every change ships in both editions.** Edit the Claude source, then run `python3 chatgpt/convert.py <VERSION>`. It bumps the version everywhere, builds the ChatGPT copy, and zips both into `dist/`. The ChatGPT zip must have its contents at the zip root (the upload menu rejects a wrapper folder). The build fails if Claude-only terms leak into the ChatGPT copy.
 - **Core names no brand.** Nothing outside `kit/brands/<id>/` (skills, agents, format cards, commands, kit code, READMEs, the ChatGPT edition's manifests and assets, convert.py) names a brand or uses its words. Each profile lists its identifying words in `identity.terms`; `tests/core-brand-free.test.py` fails on any of them in core, and on a brand id hardcoded in kit code. Brand-specific defaults live in the profile: `"default": true` (the brand a piece uses when it names none), `content.audience`, `content.contact`, `content.email_sender`; `run.sh brands` lists them, and skills read them from there. Examples in format cards use the fictional Harbor Point and example.com.
@@ -109,7 +111,6 @@ Small "spotlight" glows read as stains, so don't use them.
 - **Not yet confirmed live:**
   - The 0.12 session rules: ask, then no build until "done".
   - The multi-board canvas layout.
-- **Old install to remove:** Ian's previous account had an old 0.8.2 copy installed alongside the current version. Install only 0.12.1 on the work account.
 - **Done in 0.12.1:** arrows in every kit font; the guide brought up to 0.12 (the ask-first step, no build until "done", chat requests pulling canvas edits first, the `changes:` list, size chart remeasured). The guide is still 14 pages.
 - **Possible next steps:**
   - Run design mode through the ChatGPT edition's equivalent (chat-only) on a real piece.
@@ -124,7 +125,7 @@ Small "spotlight" glows read as stains, so don't use them.
 - `guide/`: Markdown source and images for the Prism guide. Build it with `run.sh sheet guide/guide.md out/guide.pdf`.
 - `fixtures/`: sample format files for every output, for regression tests.
 - `fonttools/add_arrows.py`: dev tool, not shipped. Adds the arrows to the kit fonts from the Google Fonts upstream (`Inter[opsz,wght].ttf`, `Literata[opsz,wght].ttf`, `IBMPlexMono-Medium.ttf` from github.com/google/fonts). It checks advance widths to prove each instance matches the kit's design, and runs the OpenType Sanitizer (`pip install opentype-sanitizer`) on every font it saves. A second run changes nothing. Extend `ARROWS` to add other characters the same way.
-- `dist/`: the current 0.12.1 zips for both editions and the v0.12 guide PDF.
+- `dist/`: build output (not in git): `python3 chatgpt/convert.py <version>` writes both zips there.
 
 ## Brand profiles (0.14, D10)
 
@@ -176,6 +177,7 @@ Small "spotlight" glows read as stains, so don't use them.
 
 ## Second brand: Prism (0.14, after D12)
 
+- **Prism logo:** the glyph is three inverted triangles (amber, blue, red) around an open centre, the design system's description of "an inverted triangle cut at its edge midpoints". It came from a Claude.ai session that redrew the logos in the design system on 2026-10-05 (its `lastChange` note); the 0.14 snapshot was taken after that. The repo matches the live design system byte for byte. To go back to the earlier single multicolour triangle, restore it in the design system (its version history), then re-snapshot `brands/prism/snapshot/assets/Logos/`, run `node tools/pin-profile.js prism`, and re-render `chatgpt/meta/assets/` (icon and both logos come from those files).
 - `kit/brands/prism/`: hand-written profile for the Prism design system (https://claude.ai/artifact/4Ayf7ASESQ5YYuXtBLTTbG), snapshot (asset bytes checked against the read's sha256), `digest.md` (condensed from its README) and `preview.js`. 67 of 89 roles mapped; the rest are unmapped on purpose (profile `_gaps`).
 - **Generator previews:** each brand has `preview.js` (`(G, B) -> [{label, svg, dark}]`), pinned in profile `own` by `tools/pin-profile.js`; the swatch draws any brand's motif through it, so core has no wave code outside the builders.
 - **Swatch additions:** a "Design system tokens no role uses" section; the swatch names its brand in front matter (it built in Case Amplify before).
@@ -202,7 +204,7 @@ Ian's answers on the backlog (Notes on F1, F5, F6) set the design:
 
 ## Design mode, faster and closer to the export (0.16: M1, M2, M3, M4, M5, M7, M8, M9)
 
-**Where the time went (M1, measured on a test canvas "Prism design-mode speed test", https://claude.ai/artifact/6ERtwyb9TCvCj192aQeBFJ):**
+**Where the time went (M1, measured on a test canvas, since deleted):**
 
 | Step | Before | Now |
 |---|---|---|
@@ -223,4 +225,4 @@ Creating a canvas costs ~20 s once per piece (the Design type's instructions are
 - **M4 / M5:** "done" exports, records each export and republishes every exported board stamped "Exported v<n> · <date>", so the canvas matches the files. After the first export the session stays open and every later change is exported again without another "done" (F7). ChatGPT drops `state.js` with the other design-mode files.
 - **Bugs fixed on the way:** carousel panels were laid out on a fractional grid (`repeat(3.068…)`); title/eyebrow blocks on framed boards carried two `style` attributes.
 - **Proof:** every fixture and the guide build identically except the wireframes (intended); `wire.json` snapshots are unchanged apart from board heights, so the diff and `--apply` behave as before, and 0.15 boards still parse. `tests/wire.test.py` (86 checks). Seen by eye: the sheet, newsletter and carousel boards rendered locally.
-- **Not done / open:** page breaks on sheet boards (needs the export's page positions mapped back to blocks); the test canvas above can be deleted; nothing here confirmed on a live Cowork session yet.
+- **Decided, not built:** page-break markers on sheet boards (Ian, Oct 6). People edit content in design mode, which would make any marked break obsolete, and the build already finds good break points. The speed-test canvas was deleted after measuring; 0.15 and 0.16 were then confirmed in a live Cowork run.
