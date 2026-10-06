@@ -2,8 +2,8 @@
 // Brand onboarding (D11): drafts a brand profile from a design system into the workspace (.prism/brands/<id>/), reports what is
 // mapped and what is not, and packs the finished draft as a bundle a maintainer adds to a release. Never writes to kit/brands.
 // Usage:
-//   onboard.js start <id> <design-system-dir> [--name N] [--url URL] [--outputs a,b] [--audience A] [--contact C] [--email-sender E] [--force]
-//   onboard.js map <id> <role>=<native|-> ...      (- unmaps; an assets/ path is copied into the snapshot from the source)
+//   onboard.js start <id> <design-system-dir> [--name N] [--url URL] [--theme T] [--outputs a,b] [--audience A] [--contact C] [--email-sender E] [--force]
+//   onboard.js map <id> <role>=<native|-> ... [theme=<id|->]   (- unmaps; an assets/ path is copied into the snapshot from the source)
 //   onboard.js report <id> [--json]
 //   onboard.js bundle <id> OUT.zip
 //   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
@@ -108,6 +108,33 @@ function match(N) {
   return { roles: out, how };
 }
 
+// The theme builds use: the design system's first, unless its surface is dark there and another theme's is light (print grounds
+// are light). The surface is read through aliases ({neutral-0}) and in any CSS colour form; when it can't be read, a theme named
+// light (or paper, print, day) beats one named dark. The profile's `theme` records the choice; `map <id> theme=<id>` changes it.
+function lumOf(c) {
+  let m = /^#([0-9a-f]{3,8})$/i.exec((c || "").trim()), r, g, b;
+  if (m) { let h = m[1]; if (h.length <= 4) h = h.split("").map(x => x + x).join(""); [r, g, b] = [0, 2, 4].map(k => parseInt(h.slice(k, k + 2), 16)); }
+  else if ((m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i.exec(c || ""))) [r, g, b] = [m[1], m[2], m[3]].map(Number);
+  else if ((m = /^oklch\(\s*([\d.]+)(%?)/i.exec(c || ""))) return m[2] ? m[1] / 100 : +m[1];
+  else if ((m = /^hsla?\(\s*[\d.]+(?:deg)?[\s,]+[\d.]+%[\s,]+([\d.]+)%/i.exec(c || ""))) return m[1] / 100;
+  else return null;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+function buildTheme(T, roles) {
+  const ids = T.color.themes.map(t => t.id), names = Object.fromEntries(T.color.themes.map(t => [t.id, `${t.id} ${t.name || ""}`]));
+  const toks = Object.fromEntries(T.color.tokens.map(t => [t.name, t.value]));
+  const valueIn = (name, theme, depth = 0) => { const v = toks[name]; if (v == null || depth > 16) return null;
+    const x = typeof v === "string" ? v : (v[theme] ?? v[ids[0]]); const a = /^\{(.+)\}$/.exec(x || ""); return a ? valueIn(a[1], theme, depth + 1) : x; };
+  const lum = Object.fromEntries(ids.map(t => [t, roles["prism-color-surface"] ? lumOf(valueIn(roles["prism-color-surface"], t)) : null]));
+  if (lum[ids[0]] != null) {
+    if (lum[ids[0]] >= 0.5) return ids[0];
+    const light = ids.filter(t => lum[t] != null && lum[t] >= 0.5).sort((a, b) => lum[b] - lum[a]);
+    if (light.length) return light[0];
+  }
+  if (/\bdark|night/i.test(names[ids[0]])) { const l = ids.find(t => /light|paper|print|day/i.test(names[t])); if (l) return l; }
+  return ids[0];
+}
+
 // ---------- Draft folder ----------
 const draftDir = id => path.join(R.DRAFTS, id);
 const readProf = id => { const f = path.join(draftDir(id), "profile.json"); if (!fs.existsSync(f)) die(`no draft "${id}" in ${R.DRAFTS} (start one with onboard.js start)`); return JSON.parse(fs.readFileSync(f, "utf8")); };
@@ -129,33 +156,67 @@ function copyIn(root, snap, f) {
   fs.mkdirSync(path.dirname(path.join(snap, f)), { recursive: true });
   fs.copyFileSync(src, path.join(snap, f));
 }
-// Office fonts: the brand's own families, from the snapshot's TrueType or OpenType files (Office cannot install web fonts).
+// Font names. A stack's CSS keywords (system-ui, ui-monospace, sans-serif) are not fonts anyone can install, and system fonts
+// (Arial, Segoe UI, Menlo) are not on Google Fonts: neither goes into the web-font link, and keywords never become Office fonts.
+const GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|math|emoji|fangsong|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|-apple-system|BlinkMacSystemFont|inherit|initial)$/i;
+const SYSTEM = /^(Arial|Helvetica|Helvetica Neue|Segoe UI|Georgia|Times|Times New Roman|Courier|Courier New|Consolas|Menlo|Monaco|SF Mono|SF Pro.*|Verdana|Tahoma|Trebuchet MS|Calibri|Cambria|Candara|Garamond|Palatino.*|Lucida.*|Liberation .*|DejaVu .*)$/i;
+const OFFICE_SAFE = { sans: "Arial", serif: "Georgia", mono: "Consolas" };
+// Fonts every Office install has; any other family needs its files in the snapshot to be an Office font.
+const IN_OFFICE = /^(Arial|Calibri|Cambria|Candara|Consolas|Courier New|Georgia|Segoe UI|Tahoma|Times New Roman|Trebuchet MS|Verdana|Garamond|Palatino Linotype|Lucida Console)$/i;
+const families = stack => (stack || "").split(",").map(f => f.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+const realFamily = stack => families(stack).find(f => !GENERIC.test(f)) || null;
+// The family a role's stack really asks for, by font key (serif, sans, mono).
+const brandFamily = (T, roles, k) => realFamily(T.type.families[roles[`prism-font-${k}`]]);
+
+// Office fonts: the brand's own families, from the snapshot's TrueType or OpenType files (Office cannot install web fonts);
+// a stack with no real family takes Office's own safe font for its kind.
 function office(T, roles) {
-  const first = s => s.split(",")[0].trim().replace(/^["']|["']$/g, "");
   const fonts = {}, files = {};
-  for (const k of ["serif", "sans", "mono"]) { const st = T.type.families[roles[`prism-font-${k}`]]; if (st) fonts[k] = first(st); }
+  const hasFiles = f => T.type.fonts.some(x => x.family === f && /\.(ttf|otf)$/i.test(x.file));
+  for (const k of ["serif", "sans", "mono"]) { const f = brandFamily(T, roles, k); fonts[k] = f && (hasFiles(f) || IN_OFFICE.test(f)) ? f : OFFICE_SAFE[k]; }
   for (const f of T.type.fonts) if (Object.values(fonts).includes(f.family) && /\.(ttf|otf)$/i.test(f.file)) files[`snapshot/${f.file}`] = "";
   return { fonts, files };
 }
-// Email font stacks: the brand's stack, then Office-safe fallbacks; Outlook gets the safe fonts only. Web fonts load from Google Fonts.
+// Email font stacks: the brand's family, then Office-safe fallbacks; Outlook gets the safe fonts only. Web fonts load from
+// Google Fonts, for families that are neither keywords nor system fonts; none means no web-font link.
 function emailFonts(T, roles) {
-  const st = k => T.type.families[roles[`prism-font-${k}`]] || "", first = s => s.split(",")[0].trim().replace(/^["']|["']$/g, "");
-  const isSerif = s => /(^|,)\s*serif\s*$/i.test(s.trim()) || /Georgia|Times/i.test(s);
-  const q = f => (/\s/.test(f) ? `'${f}'` : f);
+  const st = k => T.type.families[roles[`prism-font-${k}`]] || "", fam = k => brandFamily(T, roles, k);
+  const isSerif = s => families(s).some(f => /^serif$/i.test(f)) || /Georgia|Times/i.test(s);
+  const q = f => (/\s/.test(f) ? `'${f}'` : f), lead = k => (fam(k) ? `${q(fam(k))},` : "");
   const sansSafe = "'Segoe UI',Helvetica,Arial,sans-serif", serifSafe = "Georgia,'Times New Roman',serif", monoSafe = "Consolas,'Courier New',monospace";
-  const fams = [...new Set(["sans", "serif", "mono"].map(k => first(st(k))).filter(Boolean))];
-  const weights = f => [...new Set(T.type.fonts.filter(x => x.family === f).map(x => String(x.weight)))].sort().join(";") || "400";
+  const web = [...new Set(["sans", "serif", "mono"].map(fam).filter(f => f && !SYSTEM.test(f)))];
+  const weights = f => [...new Set(T.type.fonts.filter(x => x.family === f).map(x => parseInt(x.weight) || 400))].sort((a, b) => a - b).join(";") || "400";
+  // A family already in the safe fallbacks isn't named twice.
+  const stack = (k, safe) => [...new Set(families(lead(k) + safe).map(q))].join(",");
   return {
-    sans: `${q(first(st("sans")))},${sansSafe}`, serif: `${q(first(st("serif")))},${isSerif(st("serif")) ? serifSafe : sansSafe}`, mono: `${q(first(st("mono")))},${monoSafe}`,
+    sans: stack("sans", sansSafe), serif: stack("serif", isSerif(st("serif")) ? serifSafe : sansSafe), mono: stack("mono", monoSafe),
     msoSans: "Arial,sans-serif", msoSerif: isSerif(st("serif")) ? "Georgia,serif" : "Arial,sans-serif",
-    webfonts: `https://fonts.googleapis.com/css2?${fams.map(f => `family=${f.replace(/ /g, "+")}:wght@${weights(f)}`).join("&")}&display=swap`,
+    webfonts: web.length ? `https://fonts.googleapis.com/css2?${web.map(f => `family=${f.replace(/ /g, "+")}:wght@${weights(f)}`).join("&")}&display=swap` : null,
   };
+}
+// Re-derives the Office fonts and email stacks after a font role changes, field by field: a field still holding what was derived
+// last time takes the new value; a field edited by hand keeps its edit (and the report says what it would have been).
+function refreshFonts(T, prof) {
+  const ob = prof._onboarding = prof._onboarding || {}, was = ob.derived_fonts || { office: prof.office && prof.office.fonts, email: prof.m365.email.fonts };
+  const now = { office: office(T, prof.roles), email: emailFonts(T, prof.roles) }, kept = [];
+  const merge = (cur = {}, before = {}, next = {}, label) => Object.fromEntries(Object.keys({ ...cur, ...next }).map(k => {
+    if (cur[k] === undefined || JSON.stringify(cur[k]) === JSON.stringify(before[k])) return [k, next[k]];
+    if (JSON.stringify(cur[k]) !== JSON.stringify(next[k])) kept.push(`${label}.${k} (derived would be ${JSON.stringify(next[k])})`);
+    return [k, cur[k]];
+  }).filter(([, v]) => v !== undefined));
+  const fonts = merge(prof.office && prof.office.fonts, was.office, now.office.fonts, "office.fonts");
+  // Office font files follow the families finally chosen, edited or not.
+  prof.office = { ...(prof.office || {}), fonts };
+  prof.office.files = Object.fromEntries(T.type.fonts.filter(f => Object.values(fonts).includes(f.family) && /\.(ttf|otf)$/i.test(f.file)).map(f => [`snapshot/${f.file}`, ""]));
+  prof.m365.email.fonts = merge(prof.m365.email.fonts, was.email, now.email, "m365.email.fonts");
+  ob.derived_fonts = { office: now.office.fonts, email: now.email };
+  ob.kept_fonts = kept;
 }
 // The email palette: core's proposal from the brand's roles (D8), recomputed while it is still the proposal.
 function proposePalette(id, prof) {
   const res = R.load(id);
   if (res.errors.length) return false;
-  const c = n => { const r = res.roles[n] || res.roles[{ "prism-color-tint": "prism-color-wash" }[n]] || res.roles["prism-color-surface"]; return r.value[res.themes[0]]; };
+  const c = n => res.roles[n].value[res.themes[0]];
   const { propose } = require("./palette.js"), { CLIENT_RULES } = require("./outlook-sim.js");
   const roles = ["prism-color-accent", "prism-color-text-strong", "prism-color-text", "prism-color-text-muted", "prism-color-tint", "prism-color-rule-soft"];
   const m = prof.m365.email;
@@ -164,6 +225,22 @@ function proposePalette(id, prof) {
 }
 
 // ---------- Report ----------
+// Likely design-system names for a role without its own match, best first: words shared between the role (its name and
+// description) and the token (its name and usage note), favouring tokens no role uses yet. Feeds the replacement questions.
+const STOP = new Set(["the", "and", "a", "an", "of", "on", "in", "to", "for", "its", "it", "or", "with", "only", "one", "each", "every", "is", "at", "by", "prism", "color", "colour", "type", "space", "radius", "shadow", "asset"]);
+const words = s => new Set(String(s || "").toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1 && !STOP.has(w)));
+function candidates(r, pool, used, theme) {
+  const want = words(`${r.role} ${r.description}`), dark = /dark|on-photo/.test(r.role);
+  return pool.map(t => {
+    const have = words(`${t.name} ${t.usage}`), named = words(t.name);
+    let score = 0; for (const w of want) { if (named.has(w)) score += 3; else if (have.has(w)) score += 1; }
+    if (dark && /dark|inverse|night/i.test(`${t.name} ${t.usage}`)) score += 2;
+    if (score && !used.has(t.name)) score += 1;
+    const v = t.value && typeof t.value === "object" && !Array.isArray(t.value) ? (t.value[theme] ?? Object.values(t.value)[0]) : t.value;
+    return { name: t.name, usage: t.usage, value: typeof v === "string" ? v : "", score };
+  }).filter(c => c.score >= 3).sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
 function report(id) {
   const prof = readProf(id), dir = draftDir(id), res = R.load(id), from = path.join(dir, fs.existsSync(path.join(dir, "source")) ? "source" : "snapshot");
   const N = natives(readTokens(from), from);
@@ -174,30 +251,43 @@ function report(id) {
   if (fs.readFileSync(path.join(dir, prof.digest.file), "utf8").includes(STUB)) todo.push(`write digest.md from snapshot/README.md (the brand rules every agent reads), then run.sh pin ${id}`);
   if (unmapped.some(r => r.required)) todo.push(`map the required roles: ${unmapped.filter(r => r.required).map(r => r.role).join(", ")}`);
   if (!prof.roles["prism-generator-rule"]) todo.push("no rule generator: headings, dividers and threads use core's plain rules (fine unless the brand draws a motif)");
-  if (!prof.layers || !Object.keys(prof.layers).length) todo.push("no layers: components take core's neutral look in the brand's colours and type");
+  if (!prof.layers || !Object.keys(prof.layers).length) todo.push("no layers: every component takes core's look in the brand's colours and type (fine to start; restyle or add components when the person asks)");
+  for (const k of (prof._onboarding || {}).kept_fonts || []) todo.push(`kept your edit to ${k}; change it by hand if the new font role should win`);
   const terms = (prof.identity && prof.identity.terms) || [];
   if (!terms.length) todo.push("identity.terms is empty: list the words that identify the brand, so core never uses them");
   const pal = prof.m365 && prof.m365.email;
   let checks = [];
   if (pal && pal.palette) { const { check } = require("./palette.js"); checks = check(pal.palette.light); }
-  return { id, name: prof.name, dir, source: prof.source, outputs: (prof._onboarding || {}).outputs || [], errors: res.errors, mapped: mapped.map(r => ({ role: r.role, native: prof.roles[r.role], how: how[r.role] || "set by hand", value: res.roles && res.roles[r.role] ? res.roles[r.role].value : null, description: r.description })),
-    unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
-    palette: pal ? { reviewed: pal.reviewed && pal.reviewed.onboarding, set: !!pal.palette, proposed: !!pal.proposed, failing: checks.filter(c => !c.ok).map(c => c.msg), webfonts: pal.fonts && pal.fonts.webfonts } : null, office: prof.office || null, terms, todo, gaps: prof._gaps || "" };
+  const T = readTokens(path.join(dir, "snapshot")), themes = T.color.themes.map(t => t.id);
+  return { id, name: prof.name, dir, source: prof.source, theme: { builds: res.theme || prof.theme || themes[0], all: themes }, outputs: (prof._onboarding || {}).outputs || [], errors: res.errors, mapped: mapped.map(r => ({ role: r.role, native: prof.roles[r.role], how: how[r.role] || "set by hand", value: res.roles && res.roles[r.role] ? res.roles[r.role].value : null, description: r.description })),
+    unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind, uses: res.roles && res.roles[r.role] ? res.roles[r.role].from : null,
+      candidates: candidates(r, N[r.kind] || [], used, res.theme || themes[0]) })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
+    palette: pal ? { reviewed: pal.reviewed && pal.reviewed.onboarding, set: !!pal.palette, proposed: !!pal.proposed, failing: checks.filter(c => !c.ok).map(c => c.msg), webfonts: pal.fonts && pal.fonts.webfonts } : null, office: prof.office || null, terms, todo, gaps: prof._gaps || "",
+    components: Object.entries(prof.components || {}).map(([k, c]) => ({ id: k, use: c.use || "", markup: c.markup || "" })) };
 }
 const short = v => v == null ? "" : typeof v === "string" ? v : v.stack ? v.stack : v.fontSize ? `${v.fontWeight} ${v.fontSize}/${v.lineHeight}` : v.path ? path.basename(v.path) : Object.values(v).join(" / ");
 function reportMd(r) {
   const L = [`# ${r.name} (${r.id}): onboarding report`, "", `Draft: ${r.dir}`, `Design system: ${(r.source && r.source.url) || (r.source && r.source.title) || "local folder"}`, ""];
+  L.push(`Builds in theme "${r.theme.builds}" of ${r.theme.all.map(t => `"${t}"`).join(", ")}${r.theme.all.length > 1 ? " (change with map <id> theme=<id>)" : ""}.`, "");
   if (r.outputs.length) L.push(`Outputs the brand will use: ${r.outputs.join(", ")}`, "");
   L.push(r.errors.length ? `**Does not build yet:**\n${r.errors.map(e => `- ${e}`).join("\n")}` : "Builds: yes (every required role resolves).", "");
   if (r.todo.length) L.push("## To do", ...r.todo.map(t => `- ${t}`), "");
   L.push(`## Mapped (${r.mapped.length} of ${r.mapped.length + r.unmapped.length})`, "| Role | Design system | Value | Matched by |", "|---|---|---|---|", ...r.mapped.map(m => `| ${m.role} | ${m.native} | ${short(m.value)} | ${m.how} |`), "");
-  if (r.unmapped.length) L.push("## Unmapped", ...r.unmapped.map(u => `- ${u.role}${u.required ? " (required)" : ""}: ${u.description}`), "");
+  // One list for every role without its own match: what it uses now, and the design system's likely names for it. Roles with
+  // candidates come first: they are the replacement questions for the person.
+  if (r.unmapped.length) {
+    const now = u => u.required ? "required, unmapped: builds stop" : u.uses ? `from ${u.uses.replace(/^prism-/, "")}` : "unmapped";
+    const cand = u => u.candidates.length ? `; candidates: ${u.candidates.map(c => `\`${c.name}\`${c.value ? ` ${c.value}` : ""}${c.usage ? ` (${c.usage.slice(0, 60)})` : ""}`).join(", ")}` : "";
+    const list = [...r.unmapped].sort((a, b) => (b.required - a.required) || (b.candidates.length > 0) - (a.candidates.length > 0));
+    L.push("## Roles without their own match", "Map a candidate, keep what it takes now, or leave it; ask the person about the ones with candidates.", ...list.map(u => `- ${u.role} (${u.description.replace(/\.$/, "")}): ${now(u)}${cand(u)}`), "");
+  }
   if (r.gaps) L.push(`Unmapped on purpose: ${r.gaps}`, "");
   const un = Object.entries(r.unused).filter(([, v]) => v.length);
   if (un.length) L.push("## Design system names no role uses", ...un.map(([k, v]) => `- ${k}: ${v.map(t => t.name + (t.usage ? ` (${t.usage.slice(0, 80)})` : "")).join("; ")}`), "");
-  if (r.palette) L.push("## Email palette", r.palette.reviewed ? `Accepted at onboarding (${r.palette.reviewed}).` : !r.palette.set ? "Not proposed yet: it needs every required role." : r.palette.proposed ? "Core's proposal from the brand's colours (recomputed while the mapping changes)." : "Set by hand.", ...(r.palette.failing.length ? r.palette.failing.map(f => `- FAIL ${f}`) : ["- every check passes"]), `- web fonts: ${r.palette.webfonts} (check these families are on Google Fonts)`, "");
-  if (r.office) L.push(`Office fonts: ${Object.values(r.office.fonts || {}).join(", ") || "none"}${Object.keys(r.office.files || {}).length ? "" : " (no TrueType or OpenType files: decks fall back to Office's fonts)"}`);
+  if (r.palette) L.push("## Email palette", r.palette.reviewed ? `Accepted at onboarding (${r.palette.reviewed}).` : !r.palette.set ? "Not proposed yet: it needs every required role." : r.palette.proposed ? "Core's proposal from the brand's colours (recomputed while the mapping changes)." : "Set by hand.", ...(r.palette.failing.length ? r.palette.failing.map(f => `- FAIL ${f}`) : ["- every check passes"]), r.palette.webfonts ? `- web fonts: ${r.palette.webfonts} (check these families are on Google Fonts)` : "- web fonts: none (the brand's families are system fonts or have no web source); emails use the font stacks as they are", "");
+  if (r.office) L.push(`Office fonts: ${[...new Set(Object.values(r.office.fonts || {}))].join(", ") || "none"}${Object.keys(r.office.files || {}).length ? "" : " (no TrueType or OpenType files: decks fall back to Office's fonts)"}`);
   L.push(`Identity terms: ${r.terms.join(", ") || "none"}`);
+  L.push(`Brand components: ${r.components.length ? r.components.map(c => `${c.id} (\`${c.markup}\`: ${c.use})`).join("; ") : "none yet (core's components only)"}`);
   return L.join("\n") + "\n";
 }
 
@@ -226,14 +316,15 @@ if (cmd === "start") {
   // The design system as read, kept beside the draft so later mappings can copy files from it; never bundled.
   fs.mkdirSync(dir, { recursive: true }); fs.cpSync(root, path.join(dir, "source"), { recursive: true });
   const name = opt("--name") || T.name || id;
+  const theme = opt("--theme") || buildTheme(T, m.roles);
   const prof = { schema: 1, id, name, version: 1,
     source: { kind: "claude-design-system", url: opt("--url") || null, title: T.name || name, snapshot_taken: today(), _note: "Optional live source. Builds always use snapshot/; the live system is only compared against it." },
-    roles: m.roles, generators: {}, ornaments: {}, icons: { set: "phosphor", weight: "light" }, own: {}, digest: { file: "digest.md", sha256: "", readme_sha256: "" },
+    ...(theme && theme !== T.color.themes[0].id ? { theme } : {}), roles: m.roles, generators: {}, ornaments: {}, icons: { set: "phosphor", weight: "light" }, own: {}, digest: { file: "digest.md", sha256: "", readme_sha256: "" },
     content: Object.fromEntries([["audience", opt("--audience")], ["contact", opt("--contact")], ["email_sender", opt("--email-sender")]].filter(([, v]) => v)),
     options: {}, office: office(T, m.roles), m365: { email: { fonts: emailFonts(T, m.roles), logo_width: 168 } },
     library: { group: "Photos", images: {} }, identity: { terms: [name] },
     snapshot: { files: {}, blobs: {} },
-    _onboarding: { started: today(), source: "source/", matched: m.how, outputs: (opt("--outputs") || "").split(",").map(s => s.trim()).filter(Boolean) } };
+    _onboarding: { started: today(), source: "source/", matched: m.how, derived_fonts: { office: office(T, m.roles).fonts, email: emailFonts(T, m.roles) }, outputs: (opt("--outputs") || "").split(",").map(s => s.trim()).filter(Boolean) } };
   snapshotFrom(dir, root, prof);
   fs.writeFileSync(path.join(dir, "digest.md"), `${STUB}\n# ${name} brand rules\n\nWrite the rules every agent needs from snapshot/README.md: voice, claims, visual do's and don'ts.\n`);
   writeProf(id, prof); pin(id);
@@ -244,6 +335,7 @@ if (cmd === "start") {
   const known = new Set(CORE.map(r => r.role));
   for (const pair of a.slice(2)) {
     const i = pair.indexOf("="); if (i < 1) die(`expected role=native, got ${pair}`);
+    if (pair.slice(0, i) === "theme") { const t = pair.slice(i + 1); if (t === "-") delete prof.theme; else prof.theme = t; continue; }
     const role = pair.slice(0, i).startsWith("prism-") ? pair.slice(0, i) : "prism-" + pair.slice(0, i), v = pair.slice(i + 1);
     if (!known.has(role)) die(`no core role ${role} (see roles.json)`);
     if (v === "-") { delete prof.roles[role]; delete how[role]; continue; }
@@ -251,7 +343,7 @@ if (cmd === "start") {
     prof.roles[role] = v; how[role] = "set by hand";
   }
   // A changed font role re-derives the Office fonts and email stacks; other edits leave them as they are.
-  if (a.slice(2).some(x => /^(prism-)?font-/.test(x))) { const T = readTokens(path.join(dir, "snapshot")); prof.office = office(T, prof.roles); prof.m365.email.fonts = emailFonts(T, prof.roles); }
+  if (a.slice(2).some(x => /^(prism-)?font-/.test(x))) refreshFonts(readTokens(path.join(dir, "snapshot")), prof);
   writeProf(id, prof); pin(id);
   const p2 = readProf(id); if (!p2.m365.email.palette || p2.m365.email.proposed) { if (proposePalette(id, p2)) writeProf(id, p2); }
   process.stdout.write(reportMd(report(id)));

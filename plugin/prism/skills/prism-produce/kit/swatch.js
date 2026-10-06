@@ -12,19 +12,19 @@ const B = require("./brand.js")(null, id), R = B.res.roles, prof = JSON.parse(fs
 const core = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
 const PAL = require("./palette.js"), sim = require("./outlook-sim.js");
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-const themes = B.res.themes, unmapped = core.filter(r => !R[r.role]);
+const themes = B.res.themes, unmapped = core.filter(r => !R[r.role]), derived = core.filter(r => R[r.role] && R[r.role].native == null);
 const ver = fs.readFileSync(path.join(KIT, "VERSION"), "utf8").trim();
-const name = r => `<span class="r">${r.role}</span><span class="n">${R[r.role] ? esc(R[r.role].native) : "unmapped"}</span>`;
+const name = r => `<span class="r">${r.role}</span><span class="n">${!R[r.role] ? "unmapped" : R[r.role].native != null ? esc(R[r.role].native) : `from ${esc(R[r.role].from.replace(/^prism-/, ""))}`}</span>`;
 const none = r => `<div class="cell gone">${name(r)}${r.required ? `<span class="v">required: builds stop</span>` : ""}</div>`;
 const H = [];
 // A draft brand (onboarding, not yet shipped) says so on the sheet, so a review copy is never taken for the release.
 const where = B.res.draft ? `.prism/brands/${id}/profile.json (draft, not in a release)` : `kit/brands/${id}/profile.json`;
 
 // ---------- Part one: the mapping, neutral ----------
-H.push(`<section><h1>${esc(B.name)}</h1><p class="lead">How the ${esc(B.name)} design system maps onto Prism's ${core.length} core roles: ${core.length - unmapped.length} mapped, ${unmapped.length} unmapped.</p>
+H.push(`<section><h1>${esc(B.name)}</h1><p class="lead">How the ${esc(B.name)} design system maps onto Prism's ${core.length} core roles: ${core.length - unmapped.length - derived.length} mapped, ${derived.length} taken from another role or core's default, ${unmapped.length} unmapped.</p>
 <table class="kv"><tr><td>Profile</td><td>${esc(where)}</td></tr><tr><td>Design system</td><td>${esc((prof.source || {}).url || "none")}</td></tr>
 <tr><td>Snapshot</td><td>${Object.keys(prof.snapshot.files).length} files, ${Object.keys(prof.snapshot.blobs).length} uploads pinned, taken ${esc((prof.source || {}).snapshot_taken || "")}</td></tr>
-<tr><td>Themes</td><td>${themes.map(esc).join(", ")}</td></tr><tr><td>Icons</td><td>Phosphor ${esc(B.icons.weight)}</td></tr>
+<tr><td>Themes</td><td>${themes.map(esc).join(", ")} (builds in ${esc(themes[0])})</td></tr><tr><td>Icons</td><td>Phosphor ${esc(B.icons.weight)}</td></tr>
 <tr><td>Options</td><td>${esc(JSON.stringify(B.res.options))}</td></tr><tr><td>Layers</td><td>${Object.entries(B.res.layers).map(([k, v]) => `${k}: ${esc(v)}`).join(", ") || "none"}</td></tr>
 <tr><td>Ornaments</td><td>${esc(prof.ornaments_module || "none")}: ${Object.keys(B.ornaments).map(esc).join(", ") || "none"}</td></tr><tr><td>Kit</td><td>${esc(ver)}</td></tr></table></section>`);
 
@@ -68,7 +68,6 @@ H.push(`<section><h2>Email palette</h2><p>${P.reviewed ? "From the profile, revi
 const T = JSON.parse(fs.readFileSync(path.join(B.res.dir, "snapshot", "tokens.json"), "utf8")), used = new Set(Object.values(R).map(r => r.native));
 const spare = [...Object.entries(T).filter(([, v]) => v && Array.isArray(v.tokens)).flatMap(([k, v]) => v.tokens.map(t => [k, t.name])), ...T.type.groups.flatMap(g => g.styles.map(s => ["type", s.name])), ...Object.keys(T.type.families).map(f => ["family", f])].filter(([, n]) => !used.has(n));
 H.push(`<section><h2>Design system tokens no role uses</h2><p>${spare.length ? spare.map(([k, n]) => `<code>${esc(n)}</code> ${esc(k)}`).join(", ") : "None."}</p></section>`);
-H.push(`<section><h2>Unmapped roles</h2>${unmapped.length ? `<div class="grid">${unmapped.map(none).join("")}</div>` : "<p>None.</p>"}</section>`);
 
 const css = `@page{size:letter;margin:.6in .6in .7in;@top-left{content:"Prism swatch sheet · ${esc(B.name)}";font:500 7.5pt/1 ui-monospace,Menlo,Consolas,monospace;color:#777}@bottom-right{content:counter(page);font:500 7.5pt/1 ui-monospace,Menlo,Consolas,monospace;color:#777}}
 html{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{margin:0;font:400 9pt/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:#111;background:#fff}
@@ -89,6 +88,16 @@ const base = out.replace(/\.pdf$/i, ""), mapHtml = base + "-mapping.html", mapPd
 // The brand stylesheet loads only for its fonts and role variables: the samples render in the brand, the page around them does not.
 fs.writeFileSync(mapHtml, `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(B.name)} swatch sheet</title><link rel="stylesheet" href="file://${B.css}"><style>${css}</style></head><body>${H.join("\n")}</body></html>`);
 
+// The line sample has one series per chart colour the brand defines (charts never make one up); the donut needs two.
+let nSeries = 0;
+while (nSeries < 5 && R[`prism-color-chart-${nSeries + 1}`]) nSeries++;
+const lineSample = () => {
+  const rows = [["Q1", 10, 14, 18, 22, 26], ["Q2", 12, 15, 17, 24, 27], ["Q3", 15, 17, 16, 25, 29], ["Q4", 19, 18, 15, 27, 30]], names = ["One", "Two", "Three", "Four", "Five"].slice(0, nSeries);
+  if (nSeries === 1) return ["```chart", "type: line", "caption: Line, one series (the brand has one chart colour). Sample data.", ...rows.map(r => `${r[0]}: ${r[1]}`), "```", ""];
+  return ["```chart", "type: line", `caption: Line, ${["", "", "two", "three", "four", "five"][nSeries]} series. Sample data.`, `series: ${names.join(", ")}`, ...rows.map(r => `${r[0]}: ${r.slice(1, nSeries + 1).join(", ")}`), "```", ""];
+};
+const donutSample = () => nSeries < 2 ? [] : ["```chart", "type: donut", "caption: Donut. Sample data.", "center: 62% | sample", "Yes: 62", "No: 28", "Unsure: 10", "```", ""];
+
 // ---------- Part two: one sample of every sheet layout, in the brand ----------
 const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `pagetitle: ${B.name} layout samples`, "doctype: Swatch sheet",
   "eyebrow: Prism swatch · layouts", `subtitle: Every sheet layout in the shared component markup, built in ${B.name}.`, "author: Prism", `date: Kit ${ver}`, `legal: Generated from ${where}`, "---", "",
@@ -107,8 +116,8 @@ const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `page
   "## Charts", "",
   "```chart", "type: bar", "caption: Bar, highlight and marker. Sample data.", "unit: hrs", "highlight: Apr-Jun", "marker: Apr | Change", "Jan: 14", "Feb: 13", "Mar: 14", "Apr: 9", "May: 7", "Jun: 6", "```", "",
   "```chart", "type: hbar", "caption: Horizontal bar. Sample data.", "unit: %", "highlight: B", "A: 42", "B: 68", "C: 31", "```", "",
-  "```chart", "type: line", "caption: Line, five series. Sample data.", "series: One, Two, Three, Four, Five", "Q1: 10, 14, 18, 22, 26", "Q2: 12, 15, 17, 24, 27", "Q3: 15, 17, 16, 25, 29", "Q4: 19, 18, 15, 27, 30", "```", "",
-  "```chart", "type: donut", "caption: Donut. Sample data.", "center: 62% | sample", "Yes: 62", "No: 28", "Unsure: 10", "```", "",
+  ...lineSample(),
+  ...donutSample(),
   "## Images", "", "::: media", "![Media row: the placeholder, with the brand's photo treatment if it has one.](prism:placeholder){.fade}", "", "### Media row", "", "Text beside a landscape image.", ":::", "",
   "::: {.media .flip}", "![Flipped media row on the dark placeholder.](prism:placeholder-dark){.fade}", "", "### Flipped media row", "", "The image on the right.", ":::", "",
   "::: gallery", "![Gallery one.](prism:placeholder)", "", "![Gallery two.](prism:placeholder-dark)", ":::", "",
@@ -116,6 +125,12 @@ const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `page
   "| Table | Value |", "|---|---|", "| Row one | 12 |", "| Row two | 34 |", "", ": Table caption.", "",
   "![](prism:logo){.logo}", "", "---", "",
   "::: cta-card", `[${B.name}]{.eyebrow}`, "", "## The closing card with an *accent* word", "", "One sentence for the close.", "", "A [link](https://example.com) to finish.", ":::", ""];
+// The brand's own components (profile `components`): each one's sample, after the shared layouts, so the person sees every
+// component the brand adds or restyles. A component is markup plus its look in the brand's layers.
+const comps = Object.entries(prof.components || {});
+if (comps.length) {
+  md.splice(md.length - 1 - md.slice().reverse().indexOf("::: cta-card"), 0, "## Brand components", "", ...comps.flatMap(([cid, c]) => [`### ${cid}`, "", c.use || "", "", c.sample || c.markup || "", ""]));
+}
 const mdPath = base + "-layouts.md", layPdf = base + "-layouts.pdf";
 fs.writeFileSync(mdPath, md.join("\n"));
 execFileSync("node", [path.join(KIT, "build-sheet.js"), mdPath, layPdf], { stdio: "inherit" });

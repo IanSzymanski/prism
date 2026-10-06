@@ -21,6 +21,8 @@ module.exports = function brand(md, forceId) {
     // A colour role's value in a theme (default the first), e.g. color("prism-color-accent") -> "#3366CC".
     color: (n, theme) => { const v = role(n); return v[theme || res.themes[0]] ?? v[res.themes[0]]; },
     asset: n => role(n).path,
+    // Whether the brand has a role at all (mapped or derived); for optional assets such as the logo on dark grounds.
+    has: n => !!res.roles[n],
     // Fills {{role}} and {{role@theme}} in a stylesheet (|uri encodes for data URIs) and returns the filled copy's path.
     stylesheet(file) {
       const out = path.join(dir, (file.startsWith(res.dir) ? "brand-" : "") + path.basename(file));
@@ -28,8 +30,14 @@ module.exports = function brand(md, forceId) {
       fs.writeFileSync(out, s);
       return out;
     },
-    // The brand's presentation layer for a format (sheet, brochure, social, blog), filled like a core stylesheet; null when it has none.
-    layer(name) { const f = res.layers[name]; return f ? B.stylesheet(path.join(res.dir, f)) : null; },
+    // The brand's presentation layer for a format (sheet, brochure, social, blog), filled like a core stylesheet. A brand with
+    // none gets core's default layer for that format (kit/layers/), so every component starts with a look; else null.
+    layer(name) {
+      const f = res.layers[name];
+      if (f) return B.stylesheet(path.join(res.dir, f));
+      const d = path.join(KIT, "layers", `${name}.css`);
+      return fs.existsSync(d) ? B.stylesheet(d) : null;
+    },
     // The brand's ornaments module (brands/<id>/ornaments.js): everything a builder draws. Missing functions mean "none".
     // The brand's Phosphor weight: its font stylesheet, path set and class.
     icons: (() => { const w = (res.icons && res.icons.weight) || "light"; const dir = path.join(KIT, "vendor", `phosphor-${w}`);

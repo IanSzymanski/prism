@@ -15,7 +15,10 @@ const B = require("./brand.js")(md), hx = (n, t) => B.color(n, t).replace(/^#/, 
 const C = { paper: hx("prism-color-surface"), ink: hx("prism-color-text-strong"), body: hx("prism-color-text"), muted: hx("prism-color-text-muted"), line: hx("prism-color-rule-soft"),
   accent: hx("prism-color-accent"), eyebrowOnDark: hx("prism-color-eyebrow-on-dark"), accentOnDark: hx("prism-color-accent", "dark"), onDark: hx("prism-color-text", "dark"), muteBar: hx("prism-color-text-faint"),
   grid: hx("prism-color-chart-grid"), axis: hx("prism-color-rule"), inkOnDark: hx("prism-color-text-strong", "dark") };
-const SERIES = [1, 2, 3, 4, 5].map(i => hx(`prism-color-chart-${i}`));
+// chart-1, then as many of chart-2 to -5 as the brand defines; a chart needing more says so instead of reusing a colour.
+const SERIES = [];
+for (let i = 1; i <= 5 && B.has(`prism-color-chart-${i}`); i++) SERIES.push(hx(`prism-color-chart-${i}`));
+const needSeries = n => { if (n > SERIES.length) { console.error(`[deck] a chart has ${n} series and ${B.name} defines ${SERIES.length} chart colours (prism-color-chart-1 to -${SERIES.length}); cut the series or map more chart colours`); process.exit(1); } };
 // Placement rules for the brand's ornaments (profile generator rules), e.g. skip the title rule on media slides.
 const ORN_RULES = (B.res.roles["prism-generator-rule"] || { value: { rules: [] } }).value.rules || [];
 // Office copies of the brand fonts, named by the profile. Install them to edit or view decks in PowerPoint.
@@ -261,10 +264,12 @@ async function chartSlide(slide, blocks) {
       valAxisMaxVal: spec.max ? +spec.max : undefined });
   } else if (spec.type === "line") {
     const names = spec.series ? spec.series.split(",").map(s => s.trim()) : ["Value"];
+    if (names.length > 1) needSeries(names.length);
     const data = names.map((n, j) => ({ name: n, labels: rows.map(r => r.label), values: rows.map(r => (r.vals[j] || {}).n) }));
     slide.addChart("line", data, { ...box, ...axis, chartColors: SERIES, lineSize: 2, lineDataSymbol: "circle",
       lineDataSymbolSize: 7, showLegend: names.length > 1, legendPos: "b", legendFontFace: F.sans, legendFontSize: 12, legendColor: C.body });
   } else if (spec.type === "donut") {
+    needSeries(rows.length);
     const d = { x: MX, y: 1.95, w: 4.3, h: 4.3 };
     slide.addChart("doughnut", [{ name: "Share", labels: rows.map(r => r.label), values: rows.map(r => r.vals[0].n) }],
       { ...d, holeSize: 60, chartColors: SERIES, showLegend: false, showValue: false, showPercent: false, dataLabelFontFace: F.sans, dataBorder: { pt: 1.5, color: C.paper } });
@@ -315,7 +320,10 @@ async function chartSlide(slide, blocks) {
       const TD = B.option("deck.title_dark", false) && !hero;
       slide.background = hero ? { color: C.paper } : { path: TD ? DARK_TITLE : WASH };
       if (hero) slide.addImage({ path: hero, x: SW - 6.2, y: 0, w: 6.2, h: SH });
-      slide.addImage({ path: await B.raster(B.asset(TD ? "prism-asset-logo-on-dark" : "prism-asset-logo"), 2.58 * 300), altText: B.name, x: MX, y: 0.6, w: 2.58, h: 0.36 });
+      // A brand without a logo for dark grounds gets a dark title slide without a logo, never its light-ground logo on dark.
+      const logo = TD ? "prism-asset-logo-on-dark" : "prism-asset-logo";
+      if (B.has(logo)) slide.addImage({ path: await B.raster(B.asset(logo), 2.58 * 300), altText: B.name, x: MX, y: 0.6, w: 2.58, h: 0.36 });
+      else console.warn(`[deck] ${B.name} has no logo for dark grounds (prism-asset-logo-on-dark): the title slide has no logo`);
       if (meta.eyebrow) slide.addText(plain(meta.eyebrow), T({ x: MX, y: 2.2, w: 9, h: 0.35, fontFace: F.mono, fontSize: 13, charSpacing: 1, ...(TD ? { color: C.eyebrowOnDark } : {}) }));
       // With a photo the text column is narrower, so the title steps down a size and the subtitle moves with it.
       slide.addText(runs(meta.title, {}, TD, true), T({ x: MX, y: 2.65, w: hero ? 5.9 : 9.5, h: hero ? 2.3 : 2.1, fontFace: F.serif, fontSize: hero ? 42 : 54, bold: true, color: TD ? C.inkOnDark : C.ink, lineSpacingMultiple: 0.95 }));

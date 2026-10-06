@@ -48,11 +48,16 @@ function load(id, opts = {}) {
 
   // 2. Read the design system's tokens in its own format.
   const T = JSON.parse(fs.readFileSync(path.join(snap, "tokens.json"), "utf8"));
-  const themes = T.color.themes.map(t => t.id), first = themes[0];
+  // Builds use the profile's `theme` (else the design system's first); the others stay available by id. `first` stays the
+  // design system's own first theme: a single-value token belongs to it.
+  const dsThemes = T.color.themes.map(t => t.id), first = dsThemes[0];
+  if (prof.theme != null && !dsThemes.includes(prof.theme)) errors.push(`profile theme "${prof.theme}" is not a theme of the design system (${dsThemes.join(", ")})`);
+  const themes = dsThemes.includes(prof.theme) ? [prof.theme, ...dsThemes.filter(t => t !== prof.theme)] : dsThemes;
   const colors = Object.fromEntries(T.color.tokens.map(t => [t.name, typeof t.value === "string" ? { [first]: t.value } : t.value]));
   const color = (name, theme, depth = 0) => {
     const v = colors[name]; if (!v || depth > 16) return null;
-    const x = v[theme] ?? v[first]; const m = /^\{(.+)\}$/.exec(x || "");
+    // A token missing in a theme takes the build theme's value, then the design system's first, then any it has.
+    const x = v[theme] ?? v[themes[0]] ?? v[first] ?? Object.values(v)[0]; const m = /^\{(.+)\}$/.exec(x || "");
     return m ? color(m[1], theme, depth + 1) : x;
   };
   const lists = {};
@@ -65,9 +70,9 @@ function load(id, opts = {}) {
   const out = {};
   for (const r of core) {
     const native = prof.roles[r.role];
-    if (native == null) { (r.required ? errors : warnings).push(`${r.required ? "required" : "optional"} role unmapped: ${r.role}`); continue; }
+    if (native == null) { if (r.required) errors.push(`required role unmapped: ${r.role}`); continue; }
     let value = null;
-    if (r.kind === "color") { value = Object.fromEntries(themes.map(t => [t, color(native, t)])); if (!value[first]) value = null; }
+    if (r.kind === "color") { value = Object.fromEntries(themes.map(t => [t, color(native, t)])); if (!value[themes[0]]) value = null; }
     else if (r.kind === "font") {
       const stack = T.type.families[native];
       if (stack) value = { stack, files: T.type.fonts.filter(f => f.family === firstFamily(stack)).map(f => ({ ...f, path: path.join(snap, f.file) })) };
@@ -82,6 +87,17 @@ function load(id, opts = {}) {
     if (value == null) { errors.push(`role ${r.role} maps to "${native}", which the design system does not define`); continue; }
     out[r.role] = { kind: r.kind, native, value };
   }
+  // An unmapped optional role takes its fallback role's value (a chain ends at a required role) or core's neutral default,
+  // so builders never meet a missing role. Roles with neither stay unmapped: only brand code or markup that names them reads them.
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const r of core) {
+      if (out[r.role] || prof.roles[r.role] != null) continue;
+      if (r.fallback && out[r.fallback]) { out[r.role] = { kind: r.kind, native: null, from: r.fallback, value: JSON.parse(JSON.stringify(out[r.fallback].value)) }; changed = true; }
+      else if (r.default != null) { out[r.role] = { kind: r.kind, native: null, from: "core default", value: r.kind === "color" ? Object.fromEntries(themes.map(t => [t, r.default])) : r.default }; changed = true; }
+    }
+  }
+  for (const r of core) if (!out[r.role] && prof.roles[r.role] == null && !r.required) warnings.push(`optional role unmapped: ${r.role}`);
   // The brand's image library: reusable photos uploaded to the design system (profile `library`), pinned in the snapshot.
   const library = {};
   for (const [lid, e] of Object.entries((prof.library && prof.library.images) || {})) {
@@ -110,7 +126,7 @@ function load(id, opts = {}) {
   }
   // Every colour token in the design system, aliases resolved per theme, for the brand's own layers (--brand-<name>).
   const native = Object.fromEntries(Object.keys(colors).map(n => [n, Object.fromEntries(themes.map(t => [t, color(n, t)]))]));
-  return { brand: prof.id, name: prof.name, draft, themes, roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => path.join(dir, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
+  return { brand: prof.id, name: prof.name, draft, themes, theme: themes[0], roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => path.join(dir, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
            library, libraryGroup: (prof.library && prof.library.group) || null, digest: path.join(dir, prof.digest.file), errors, warnings };
 }
 

@@ -11,8 +11,12 @@ local function role(n, fallback)
 end
 local INK, BODY, HAIR, PAPER = role("TEXT_STRONG"), role("TEXT"), role("RULE"), role("SURFACE")
 local HOT, DEEP = role("ACCENT_STRONG", "ACCENT"), role("ACCENT")
--- Categorical order from the brand's chart roles.
-local SERIES = { role("CHART_1"), role("CHART_2"), role("CHART_3"), role("CHART_4"), role("CHART_5") }
+-- Categorical order from the brand's chart roles: chart-1 always, then as many of 2-5 as the brand defines (no colour is made up).
+local SERIES = { role("CHART_1") }
+for i = 2, 5 do local v = os.getenv("PRISM_COLOR_CHART_" .. i); if not v then break end; table.insert(SERIES, v) end
+local function needSeries(n)
+  if n > #SERIES then error(("prism-charts.lua: this chart has %d series and the brand defines %d chart colours (prism-color-chart-1 to -%d); cut the series or map more chart colours"):format(n, #SERIES, #SERIES)) end
+end
 local KEYS = { type=1, caption=1, unit=1, max=1, highlight=1, marker=1, labels=1, center=1, series=1, height=1 }
 local uid = 0
 
@@ -183,6 +187,7 @@ local function line(spec, rows, id)
   local names = {}
   if spec.series then for n in spec.series:gmatch("[^,]+") do table.insert(names, trim(n)) end end
   local ns = math.max(1, #names)
+  if ns > 1 then needSeries(ns) end
   local H = (tonumber(spec.height) or 210) + (ns > 1 and 22 or 0)
   local x0, x1, yb, yt = 40, W - (ns > 1 and 60 or 16), (tonumber(spec.height) or 210) - 30, 34
   local ends = {}
@@ -241,6 +246,8 @@ local function line(spec, rows, id)
 end
 
 local function donut(spec, rows, id)
+  -- Slices past the brand's colours join "Other", which needs a colour of its own.
+  needSeries(2)
   if #rows > #SERIES then
     local other = { label = "Other", vals = { { n = 0 } } }
     for i = #SERIES, #rows do other.vals[1].n = other.vals[1].n + (rows[i].vals[1].n or 0) end
