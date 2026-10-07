@@ -285,7 +285,7 @@
   "_note": "Font stacks from the design system's README (IBM Plex Sans and Bricolage Grotesque from Google Fonts, safe-sans and safe-mono as fallbacks). No reviewed palette: core proposes one from the brand's roles."
  },
  "library": {
-  "_note": "Reusable photos uploaded to the design system's Photos group. Each id is used as ![Caption](brand:<id>); file is the snapshot path (pinned by tools/pin-profile.js). shows, people (consent), orientation, focus (x% y%) and tags help formatters pick one.",
+  "_note": "Reusable photos uploaded to the design system's Photos group. Each id is used as ![Caption](brand:<id>); file is its path in the design system (assets/<group>/<file>). Only its upload id is pinned (snapshot.blobs); the photo stays in the design system and a piece fetches the ones it uses (run.sh library <brand> --need). shows, people (consent), orientation, focus (x% y%) and tags help formatters pick one.",
   "group": "Photos",
   "images": {}
  },
