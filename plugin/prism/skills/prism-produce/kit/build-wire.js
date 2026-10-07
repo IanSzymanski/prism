@@ -3,13 +3,14 @@
 // plus wire.json per format, the snapshot the diff compares edits against. Content and spacing only; styling comes back from the kit.
 // Slides, posts and panels are drawn as frames at their real proportions, one block per frame.
 // Usage: node build-wire.js formats/deck.md wire/deck                       (one format: deck.dc.html, wire.json, the board size)
-//        node build-wire.js formats/*.md --out wire --canvas wire/canvas --title "Piece design" [--stamp "Exported v3"]
+//        node build-wire.js formats/*.md --out wire --canvas wire/canvas --title "Piece design" [--stamp "Exported v3"] [--owner NAME]
 //   Several formats share one browser; each goes to <out>/<format>/. --canvas also writes <dir>/project/<format>.dc.html and
 //   canvas.json (kept and merged when it exists), and prints the files to publish. Photos show when wire/assets.json maps them.
+//   --owner (co-op) adds a note saying whose Prism applies the changes and how invitees ask for one.
 const path = require("path"), fs = require("fs");
 
 const args = process.argv.slice(2), opt = k => { const i = args.indexOf(k); return i >= 0 ? args.splice(i, 2)[1] : null; };
-const canvasDir = opt("--canvas"), title = opt("--title"), stamp = opt("--stamp"), outOpt = opt("--out"), assetsOpt = opt("--assets");
+const canvasDir = opt("--canvas"), title = opt("--title"), stamp = opt("--stamp"), outOpt = opt("--out"), assetsOpt = opt("--assets"), owner = opt("--owner");
 const mds = args.filter(a => /\.md$/.test(a)).map(a => path.resolve(a)), loose = args.filter(a => !/\.md$/.test(a));
 if (!mds.length) { console.error("usage: build-wire.js FORMAT.md [OUT_DIR] | FORMAT.md... --out wire [--canvas DIR --title T] [--stamp TEXT]"); process.exit(2); }
 const outRoot = path.resolve(outOpt || (mds.length > 1 ? "wire" : loose[0] ? path.dirname(path.resolve(loose[0])) : path.join(path.dirname(mds[0]), "wire")));
@@ -324,6 +325,8 @@ renderVals() { return {}; }
     else { idx.boards[j.board] = { x, y: 0, w: size.w, h: size.h, title: `${j.name} · ${path.basename(j.md, ".md")}` }; idx.order.push(j.board); x += size.w + 80; }
   }
   if (!idx.notes.howto) idx.notes.howto = { x, y: 0, w: 420, fill: "purple", text: "Design mode: real words, rough spacing, no styling. Edit text in place, drag blocks or slides into a new order, delete what should go; a link's address is the blue chip after it. Tell Claude \"done\" and the changes go back into the Markdown, get checked for typos and numbering, and the branded files are exported. After that, every change you ask for is exported again." };
+  // Co-op: the owner line, a note rather than a board, so it is never read back as content.
+  if (owner) idx.notes.coop = { x: idx.notes.howto.x, y: 320, w: 420, fill: "purple", text: `Co-op: ${owner}'s Prism makes the changes here. Edit in place, or leave a comment starting @claude and it is applied, checked and answered in the thread. Only ${owner} approves and exports; the files go on the Exports page.` };
   const next = JSON.stringify(idx, null, 1);
   // Compared as data, not text: an index read back from the canvas may be formatted differently.
   const indexChanged = !old || JSON.stringify(JSON.parse(old)) !== JSON.stringify(idx);

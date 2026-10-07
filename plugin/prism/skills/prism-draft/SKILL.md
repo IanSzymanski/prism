@@ -119,6 +119,7 @@ When the Claude Docs tools are available, the proof happens in a doc, where the 
    3. Vet the person's edits: `bash .prism-kit/run.sh vet content.md --was content.v<n>.md --fix`, then proofread every `CHANGED` passage ("Vet every edit" in the prism-produce skill). Fix typos and mechanical slips and list them; a changed number, name, quote or claim goes to the reviewer (below) and is confirmed with the person, never changed silently.
    4. Read the Claims tab back into claims.md, if it changed.
    5. Continue with **Approve** below. After approval content.md is the only source: later changes go through prism-produce, and the doc stays as the record of the proof. Say so in one line.
+7. **Working with others** ("proof this with @Dana"): co-op mode (prism-produce's `references/coop.md`): an About tab with the owner line, invitees' `@claude` comments applied and answered in their threads, and only the person you work for approves. On their "approve", also catch edits that landed while approving, check every image paragraph survived, and treat "Check:" comments resolved by an invitee as open.
 
 When the Claude Docs tools are not available, proof with files and chat instead:
 <!-- /claude-only -->

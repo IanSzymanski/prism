@@ -55,6 +55,16 @@ Make your own: say "make a package" (or "save this as a package" after a piece).
 - **Layout** (move, split, restyle, a different icon, dark vs light): touches only that one output.
 - **Every edit is proofread.** Typos, numbering and doubled words are fixed and reported; meaning (numbers, names, quotes, claims) never changes without asking. Each revision ends with a read-back: what changed, what was fixed for you, what was left out, what needs your call.
 
+<!-- claude-only -->
+## Work together
+
+- Say "work on this with @Dana" at any point. Prism gives you the links to share (Share at the top of the proof doc and the design canvas → add Dana as Editor); it can't share for you.
+- Teammates don't need Prism. They edit the words or the canvas directly, or leave a comment starting **@claude** ("@claude shorten this headline"). Your Prism applies it, checks it and answers in the thread; changes to numbers, names, quotes or claims still come to you.
+- Only you approve, say "done", export or add outputs. When a teammate says "done", you're told.
+- After each export the files go on an Exports page your teammates can open.
+- Requests wait while your session is closed and are applied when it next runs.
+
+<!-- /claude-only -->
 ## Photos
 
 - Upload them with the notes or at any point later. You'll be asked which one leads, which to use, and whether the people in them can be shown; clients or minors without confirmed consent are left out.

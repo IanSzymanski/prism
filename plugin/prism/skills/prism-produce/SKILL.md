@@ -175,6 +175,8 @@ Classify each requested change before touching files. Tell the user the lane in 
 7. **"Done":** a last pull check and vet, then step 2 (build, check, verify) and step 3 (deliver), with the full list of changes since the last export from content.md. Record each export (`state <slug> export <format> <files>`) and republish every exported board stamped "Exported v<n> · <date>", so the canvas matches the files. A package exports every output and ends with its zip; a later change exports what it touched and makes a new zip of the whole set.
 8. **After the first export, no more "done".** Each later change request runs the same loop and ends with step 7 for the formats it touched: export, record, republish, deliver, read back. Design mode stays open until the person closes it (`state <slug> close`).
 
+**Co-op mode** (the person asks to work on the piece with someone: "work on this with @Dana"): follow `references/coop.md`. Invitees edit the doc and canvas or ask with `@claude` comments; this session applies, vets and answers each request in its thread, records who asked in the `changes:` lines, and publishes the Exports page after every export. Only the person you work for approves, exports or adds outputs; the same words from an invitee are passed to them, never acted on. In a session where someone else is named as the owner, never edit the piece: pass requests on as comments.
+
 <!-- /claude-only -->
 **New export later** ("also make a carousel"): step 1 in create mode for that export only.
 
