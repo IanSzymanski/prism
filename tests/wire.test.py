@@ -154,8 +154,10 @@ try:
     pe = [l for l in r.stdout.splitlines() if l.startswith("publish: ")]
     E = json.loads(pe[0][9:]) if pe else {}
     page = open(E["file_path"]).read() if E else ""
-    check("exports: page and publish line", r.returncode == 0 and set(E.get("files", {})) == {"files/x-sheet-v4.pdf", "files/x-deck-v4.pptx"}, r.stdout + r.stderr)
-    check("exports: a deck keeps its type", E.get("files", {}).get("files/x-deck-v4.pptx", {}).get("contentType", "").endswith("presentationml.presentation"), E)
+    check("exports: page and publish line", r.returncode == 0 and set(E.get("files", {})) == {"files/x-sheet-v4.pdf"}, r.stdout + r.stderr)
+    # Artifacts serve no .pptx or .zip (F15, checked live): listed for the owner to send, never in the publish line.
+    check("exports: saves go through the downloads capability", E.get("capabilities") == {"downloads": True} and 'data-src="files/x-sheet-v4.pdf"' in page and "use(\"downloads\")" in page and "<a href" not in page, E)
+    check("exports: a deck is listed, not hosted", "x-deck-v4.pptx" in page and "can't be hosted here; ask Ian" in page and "x-deck-v4.pptx" in r.stdout, r.stdout)
     check("exports: too-large files are listed, not hosted", "too large to host here" in page and "x-big.zip" in r.stdout, r.stdout)
     check("exports: titled and versioned", "<title>Test piece files</title>" in page and "v4 · " in page and "by Ian" in page, page[:400])
 finally:
