@@ -107,6 +107,38 @@ const listed = JSON.parse(spawnSync("node", [path.join(KIT, "brands.js"), "--jso
 ok(listed && listed.components["closing-band"] && listed.components["closing-band"].markup === "::: {.cta-card .band}", "brands --json lists the brand's components");
 ok(/- closing-band: `::: {.cta-card .band}`/.test(run("report", "squid").stdout), "the report lists the brand's components");
 
+// 9. D14: roles only a brand's own code read are the brand's (own-<kind>-<name>), not core's.
+const MOVED = ["prism-color-wash-2", "prism-color-dark-high", "prism-color-dark-glow", "prism-color-dark-glow-2", "prism-asset-rule-opener-start", "prism-asset-rule-opener-end", "prism-asset-rule-opener-start-on-dark", "prism-asset-rule-stop"];
+ok(MOVED.every(m => !byName[m]), "brand-only roles are out of roles.json");
+for (const b of ["case-amplify", "prism"]) {
+  const p = JSON.parse(fs.readFileSync(path.join(KIT, "brands", b, "profile.json"), "utf8")), r = R2.load(b);
+  ok(!Object.keys(p.roles).some(k => MOVED.includes(k)), `${b} names no moved role as core`);
+  ok(Object.keys(p.roles).filter(k => k.startsWith("own-")).every(k => r.roles[k] && r.roles[k].native === p.roles[k]), `${b}'s own roles resolve`);
+}
+const caRes = R2.load("case-amplify");
+ok(R2.css(caRes).includes("--own-asset-rule-stop:url(") && R2.css(caRes).includes("--own-color-dark-glow:"), "own roles become CSS variables for the brand's layers");
+const stale = JSON.parse(fs.readFileSync(path.join(DRAFTS, "squid", "profile.json"), "utf8")); stale.roles["prism-color-dark-glow"] = "accent";
+fs.writeFileSync(path.join(DRAFTS, "squid", "profile.json"), JSON.stringify(stale, null, 1));
+ok(R2.load("squid").errors.some(e => /prism-color-dark-glow, which is not a core role/.test(e)), "a profile naming a role core doesn't have is an error, not skipped");
+delete stale.roles["prism-color-dark-glow"]; fs.writeFileSync(path.join(DRAFTS, "squid", "profile.json"), JSON.stringify(stale, null, 1));
+ok(run("map", "squid", "own-color-glow=accent").status === 0 && R2.load("squid").roles["own-color-glow"], "onboard map takes an own role");
+ok(run("map", "squid", "own-poster-x=accent").status !== 0, "an own role needs a real kind");
+
+// 10. D15: dark grounds a design system doesn't name come from its own dark theme when it has one.
+const mres = R2.load("minimal"), dk = mres.themes.find(t => t !== mres.themes[0]);
+ok(mres.roles["prism-color-dark-surface"].from === `prism-color-surface in the ${dk} theme` && mres.roles["prism-color-dark-surface"].value[mres.themes[0]] === mres.roles["prism-color-surface"].value[dk], "the dark card is the design system's own dark surface");
+ok(mres.roles["prism-color-text-on-photo"].value[mres.themes[0]] === mres.roles["prism-color-text-strong"].value[dk], "text on dark is its own dark-theme text");
+const one = path.join(TMP, "one"); fs.cpSync(path.join(KIT, "brands", "prism", "snapshot"), one, { recursive: true });
+const OT = JSON.parse(fs.readFileSync(path.join(one, "tokens.json"), "utf8")); OT.color.themes = OT.color.themes.slice(0, 1); fs.writeFileSync(path.join(one, "tokens.json"), JSON.stringify(OT));
+run("start", "onetheme", one); const op = JSON.parse(fs.readFileSync(path.join(DRAFTS, "onetheme", "profile.json"), "utf8"));
+for (const k of Object.keys(op.roles)) if (/dark|on-photo/.test(k)) delete op.roles[k]; fs.writeFileSync(path.join(DRAFTS, "onetheme", "profile.json"), JSON.stringify(op, null, 1));
+ok(R2.load("onetheme").roles["prism-color-dark-surface"].from === "prism-color-text-strong", "with no dark theme the dark card falls back to the text colour");
+
+// 11. D16: a short report by default, the full one on request; no outputs question.
+const short = run("report", "squid").stdout, long = run("report", "squid", "--full").stdout;
+ok(short.split("\n").length < long.split("\n").length && /matched by the same name; the rest, to check:/.test(short), "the report is short by default, full with --full");
+ok(!/\*\*Outputs\*\*/.test(fs.readFileSync(path.join(KIT, "..", "..", "prism-onboard", "SKILL.md"), "utf8")), "onboarding no longer asks about outputs");
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

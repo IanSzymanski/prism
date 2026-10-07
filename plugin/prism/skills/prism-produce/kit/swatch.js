@@ -67,6 +67,10 @@ H.push(`<section><h2>Email palette</h2><p>${P.reviewed ? "From the profile, revi
 <ul class="checks">${PAL.check(P.light).map(r => `<li class="${r.ok ? "ok" : "bad"}">${r.ok ? "ok" : "fails"}: ${esc(r.msg)}</li>`).join("")}</ul></section>`);
 const T = JSON.parse(fs.readFileSync(path.join(B.res.dir, "snapshot", "tokens.json"), "utf8")), used = new Set(Object.values(R).map(r => r.native));
 const spare = [...Object.entries(T).filter(([, v]) => v && Array.isArray(v.tokens)).flatMap(([k, v]) => v.tokens.map(t => [k, t.name])), ...T.type.groups.flatMap(g => g.styles.map(s => ["type", s.name])), ...Object.keys(T.type.families).map(f => ["family", f])].filter(([, n]) => !used.has(n));
+// The brand's own roles: slots only its layers and ornaments read (own-<kind>-<name>), shown with their values.
+const ownR = Object.entries(R).filter(([k]) => k.startsWith("own-"));
+if (ownR.length) H.push(`<section><h2>The brand's own roles</h2><p class="note">Read only by ${esc(B.name)}'s layers and ornaments; core never uses them.</p><div class="grid">${ownR.map(([k, r]) =>
+  `<div class="cell">${r.kind === "color" ? `<div class="chips">${themes.map(t => `<span style="background:${r.value[t]}"></span>`).join("")}</div>` : r.kind === "asset" ? `<div class="frame${/dark/.test(k) ? " dk" : ""}"><img src="file://${r.value.path}"></div>` : ""}<span class="r">${esc(k)}</span><span class="n">${esc(r.native)}</span></div>`).join("")}</div></section>`);
 H.push(`<section><h2>Design system tokens no role uses</h2><p>${spare.length ? spare.map(([k, n]) => `<code>${esc(n)}</code> ${esc(k)}`).join(", ") : "None."}</p></section>`);
 
 const css = `@page{size:letter;margin:.6in .6in .7in;@top-left{content:"Prism swatch sheet · ${esc(B.name)}";font:500 7.5pt/1 ui-monospace,Menlo,Consolas,monospace;color:#777}@bottom-right{content:counter(page);font:500 7.5pt/1 ui-monospace,Menlo,Consolas,monospace;color:#777}}

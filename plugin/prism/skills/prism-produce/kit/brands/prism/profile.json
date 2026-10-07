@@ -85,7 +85,7 @@
   "prism-color-desk": "desk",
   "prism-color-dark-surface": "dark-card",
   "prism-color-dark-deep": "dark-deep",
-  "prism-color-dark-high": "dark-high",
+  "own-color-dark-high": "dark-high",
   "prism-color-text-on-photo": "dark-fg",
   "prism-color-chart-1": "series-1",
   "prism-color-chart-2": "series-2",
@@ -128,7 +128,7 @@
   "prism-shadow-sheet": "shadow-sheet",
   "prism-asset-logo": "assets/Logos/prism-logo.svg",
   "prism-asset-logo-on-dark": "assets/Logos/prism-logo-light.svg",
-  "prism-asset-rule-stop": "assets/Spectrum/spectrum-stop.svg",
+  "own-asset-rule-stop": "assets/Spectrum/spectrum-stop.svg",
   "prism-generator-rule": "spectrum",
   "prism-asset-mark": "assets/Logos/prism-glyph.svg",
   "prism-asset-placeholder": "assets/Templates/sample-landscape.png",
@@ -225,7 +225,7 @@
  "own": {
   "layers/blog.css": "ab6f9112fcd708bd9ba243b34b7457027f4ac0fc3e4eac708ffbd95d1ea6cf71",
   "layers/brochure.css": "e198246d10259b16d7e6d8bfcd7a3b994da5249ed1f2d2e8851ed2064accb468",
-  "layers/sheet.css": "d51e7daa5acc017599a64e313ab12f8c66f210067dc199851a5db52b34e9386c",
+  "layers/sheet.css": "5157c168df9ea605049d07f27209f973fc68586a0656ea7b803b384c0dc1a230",
   "layers/social.css": "729a4f03816364ba7f3716e3415a20920630dc4a495dcae9c53ef3236234d676",
   "ornaments.js": "e4a64cc87e9343f1ba320ecb51cc542d77c455bbc475cabd0f68220ebffaddf4"
  },

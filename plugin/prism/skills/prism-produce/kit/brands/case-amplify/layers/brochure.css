@@ -1,5 +1,5 @@
 /* Case Amplify brochure layer: wave under panel headings (light and dark) and the dark back panel image. Loads after prism-brochure.css. */
 
-.brochure h2::after{flex:0 0 100%;min-width:0;height:31px;background:var(--prism-asset-rule-opener-start) left center / auto 31px no-repeat}
+.brochure h2::after{flex:0 0 100%;min-width:0;height:31px;background:var(--own-asset-rule-opener-start) left center / auto 31px no-repeat}
 .panel.dark{background:var(--prism-color-dark-surface) var(--prism-asset-dark-surface) center / 100% 100% no-repeat}
-.panel.dark h2::after{background-image:var(--prism-asset-rule-opener-start-on-dark)}
+.panel.dark h2::after{background-image:var(--own-asset-rule-opener-start-on-dark)}

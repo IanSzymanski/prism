@@ -7,6 +7,8 @@ let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass++; else { fail++; console.log("FAIL", m); } };
 const eq = (a, b, m) => ok(String(a).toUpperCase() === String(b).toUpperCase(), `${m}: got ${a}, kit has ${b}`);
 const res = load("case-amplify"), R = res.roles, L = n => R[n].value.light, D = n => R[n].value.dark;
+// Roles only Case Amplify's own layers and ornaments read moved out of core (D14) as own-<kind>-<name>; the values are unchanged.
+const C = r => R["prism-color-" + r] ? "prism-color-" + r : "own-color-" + r, A = r => R["prism-asset-" + r] ? "prism-asset-" + r : "own-asset-" + r;
 ok(!res.errors.length, "no errors: " + res.errors.join("; "));
 const REF = path.join(__dirname, "reference-0.13.1"), read = f => fs.readFileSync(path.join(REF, f), "utf8");
 
@@ -18,14 +20,14 @@ for (const [v, role] of Object.entries({ paper: "surface", ink: "text-strong", b
 for (const [hex, role, th] of [["#6B6B71", "text-muted"], ["#8A8A90", "text-faint"], ["#CC96E8", "link-line"], ["#F0E1F4", "wash"], ["#EFE3F3", "wash-2"], ["#FAF5F6", "tint"], ["#E6CCF0", "tint-line"], ["#F3ECF6", "band"], ["#F8F1F6", "code"], ["#F6F6EF", "pre"], ["#E3E3DB", "chart-grid"], ["#E9E8DF", "desk"], ["#1D0D3A", "dark-surface"], ["#130828", "dark-deep"], ["#33136A", "dark-high"],
   ["#C77DFF", "accent", "dark"], ["#C9C5CA", "text", "dark"], ["#9C94A4", "text-muted", "dark"], ["#776E86", "link-line", "dark"], ["#FFFFF8", "text-strong", "dark"]]) {
   ok(/#[0-9A-F]{6}/i.test(hex) && (read("ca-sheet.css") + read("ca-social.css") + read("build-deck.js")).toUpperCase().includes(hex), `kit still uses ${hex}`);
-  eq(th ? D("prism-color-" + role) : L("prism-color-" + role), hex, `${role}${th ? " (dark)" : ""}`);
+  eq(th ? D(C(role)) : L(C(role)), hex, `${role}${th ? " (dark)" : ""}`);
 }
 // Values added after D10, each traced to the 0.13.1 rule that used it
 ok(read("ca-sheet.css").includes(".ca-meta{font:500 8pt/1.4 var(--mono);letter-spacing:.06em;color:#75757A"), "kit meta colour"); eq(L("prism-color-text-meta"), "#75757A", "text-meta");
 ok(read("ca-social.css").includes(".post.story.photo-full p{color:#E4E0E6}"), "kit photo text"); eq(L("prism-color-text-on-photo"), "#E4E0E6", "text-on-photo");
 ok(read("ca-brochure.css").includes("border-bottom:.8pt solid #3B2A5E"), "kit dark rule"); eq(L("prism-color-rule-on-dark"), "#3B2A5E", "rule-on-dark");
 ok(read("build-deck.js").includes("rgb(112 28 184 / .85)") && read("build-deck.js").includes("rgb(58 31 135 / .85)"), "kit deck glows");
-eq(L("prism-color-dark-glow"), "#701CB8", "dark-glow (112 28 184)"); eq(L("prism-color-dark-glow-2"), "#3A1F87", "dark-glow-2 (58 31 135)");
+eq(L("own-color-dark-glow"), "#701CB8", "dark-glow (112 28 184)"); eq(L("own-color-dark-glow-2"), "#3A1F87", "dark-glow-2 (58 31 135)");
 ok(read("ca-blog.css").includes("box-shadow:0 50px 110px -40px rgb(8 6 17 / .6),0 6px 16px rgb(8 6 17 / .2)"), "kit screen shadow");
 eq(R["prism-shadow-screen"].value.replace(/\s/g, ""), "0 50px 110px -40px rgba(8, 6, 17, 0.6), 0 6px 16px rgba(8, 6, 17, 0.2)".replace(/\s/g, ""), "shadow-screen");
 eq(R["prism-shadow-sheet"].value.replace(/\s/g, ""), "0 18px 44px -22px rgba(8,6,17,.35)".replace(/\s/g, "").replace(".35", "0.35"), "shadow-sheet");
@@ -64,7 +66,7 @@ eq(R["prism-font-serif"].value.stack.split(",")[0], "Literata", "serif family");
 const css = read("ca-sheet.css");
 for (const [k, role] of [["opener-end", "rule-opener-end"], ["opener-start", "rule-opener-start"], ["stop", "rule-stop"], ["opener-start-dark", "rule-opener-start-on-dark"]]) {
   const svg = decodeURIComponent(new RegExp(`--ca-wave-${k}:url\\("data:image/svg\\+xml,(.*?)"\\)`).exec(css)[1]);
-  ok(fs.readFileSync(R["prism-asset-" + role].value.path, "utf8") === svg, `wave svg ${k}`);
+  ok(fs.readFileSync(R[A(role)].value.path, "utf8") === svg, `wave svg ${k}`);
 }
 const g = R["prism-generator-rule"].value, p = g.params.default;
 ok(fs.readFileSync(g.script, "utf8") === read("wave-core.js"), "wave-core.js identical");

@@ -291,3 +291,11 @@ Design-mode component editing is dropped (Ian, Oct 6): full redesigns happen in 
 - **Recording:** `onboard component ... --like <block>`; taken from the markup when it starts with a core block (`::: {.callout .band}` -> callout). The report says how decks and email draw each component, or that they can't. The skill builds components as a core block plus their own class by default; formatters write a component as a slide of its own in decks.
 - **Proof:** `tests/components.test.js` 27 checks (real email, deck and sheet builds with a testimonial component); every fixture in Case Amplify and Prism identical to main.
 
+
+## Brand-only roles out of core, dark grounds, onboarding in one pass (D14, D15, D16)
+
+- **D14:** 8 roles only brand code read left `roles.json` (now 84 roles): wash-2, dark-high, dark-glow, dark-glow-2, rule-opener-start, rule-opener-end, rule-opener-start-on-dark, rule-stop. A brand keeps such slots as `own-<kind>-<name>` in its profile (Case Amplify: all 8; Prism: dark-high and rule-stop). They resolve like core roles (CSS `--own-...`, `B.color`/`B.asset`, `{{own-...}}` in layer stylesheets) and the swatch lists them as the brand's own; core never reads them. A profile key that is neither a core role nor `own-` is now an error, so stale names can't be skipped quietly. `onboard map` takes `own-` roles. Kept in core because core reads them: dark-surface (image, core's default closing card), rule-on-dark (brochure CSS), dark-deep, wash (header fallbacks).
+- **D15:** dark roles with `from_dark` (dark-surface from surface, text-on-photo from text-strong, eyebrow-on-dark from text-muted) take that role's value in the design system's own dark theme (another theme whose surface is dark) before their fallback; without one, the text colour is the dark ground and the surface the text on it.
+- **D16:** the outputs question is gone (it changed nothing that gets filled). The report is short by default: exact name matches are counted, not listed; roles without a match list only those with candidates, the rest on one line; unused names without their usage notes. `onboard report <id> --full` and the bundle notes give everything.
+- **Proof:** `tests/roles.test.js` 169 checks; resolve test reads Case Amplify's moved values through their own- names (unchanged); every fixture in Case Amplify and Prism identical to main.
+

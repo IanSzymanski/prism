@@ -68,7 +68,13 @@ function load(id, opts = {}) {
 
   // 3. Each core role, through the profile, to a value.
   const out = {};
-  for (const r of core) {
+  // A brand's own roles (`own-<kind>-<name>` in its profile) resolve the same way for its own layers and ornaments; core never
+  // reads them. Any other name core doesn't know is a stale profile, not something to skip quietly.
+  const KINDS = ["color", "font", "type", "space", "radius", "shadow", "asset", "generator"], names = new Set(core.map(r => r.role));
+  const ownRoles = Object.keys(prof.roles).filter(k => k.startsWith("own-")).map(k => ({ role: k, kind: k.split("-")[1], own: true }));
+  for (const r of ownRoles) if (!KINDS.includes(r.kind)) errors.push(`brand role ${r.role}: own-<kind>-<name> with a kind of ${KINDS.join(", ")}`);
+  for (const k of Object.keys(prof.roles)) if (!k.startsWith("own-") && !names.has(k)) errors.push(`profile maps ${k}, which is not a core role (roles.json); a role only this brand uses is own-<kind>-<name>`);
+  for (const r of [...core, ...ownRoles.filter(r => KINDS.includes(r.kind))]) {
     const native = prof.roles[r.role];
     if (native == null) { if (r.required) errors.push(`required role unmapped: ${r.role}`); continue; }
     let value = null;
@@ -89,6 +95,15 @@ function load(id, opts = {}) {
   }
   // An unmapped optional role takes its fallback role's value (a chain ends at a required role) or core's neutral default,
   // so builders never meet a missing role. Roles with neither stay unmapped: only brand code or markup that names them reads them.
+  // The design system's own dark theme, if it has one: another theme whose surface is dark. A dark role (dark card, text on
+  // dark) it leaves unmapped takes its from_dark role's value there, so the brand's dark grounds are its own.
+  const lumOf = h => { const m = /^#([0-9a-f]{6})$/i.exec(h || ""); if (!m) return null; const n = parseInt(m[1], 16); return (0.2126 * (n >> 16) + 0.7152 * (n >> 8 & 255) + 0.0722 * (n & 255)) / 255; };
+  const surf = out["prism-color-surface"], darkTheme = surf ? themes.slice(1).find(t => (lumOf(surf.value[t]) ?? 1) < 0.5) : null;
+  for (const r of core) {
+    if (!darkTheme || !r.from_dark || out[r.role] || prof.roles[r.role] != null || !out[r.from_dark]) continue;
+    const v = out[r.from_dark].value[darkTheme];
+    out[r.role] = { kind: r.kind, native: null, from: `${r.from_dark} in the ${darkTheme} theme`, value: Object.fromEntries(themes.map(t => [t, v])) };
+  }
   for (let changed = true; changed;) {
     changed = false;
     for (const r of core) {
