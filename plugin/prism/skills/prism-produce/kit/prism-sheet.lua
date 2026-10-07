@@ -39,7 +39,7 @@ function Image(img)
   elseif lib then
     local key = "PRISM_LIBRARY_" .. lib:upper():gsub("-", "_")
     local p = os.getenv(key)
-    if not p then error("prism-sheet.lua: the brand's image library has no \"" .. lib .. "\"") end
+    if not p then error("prism-sheet.lua: library photo \"" .. lib .. "\" is not in the brand's library or not fetched yet (run.sh library <brand> --need <format files>)") end
     img.src = "file://" .. p
     focus = focus or os.getenv(key .. "_FOCUS")
   elseif not img.src:match("^%a+:") then

@@ -148,6 +148,7 @@ Read `../prism-produce/references/formats/brochure.md` and use the full-spread i
    For a deck: `.prism-kit/run.sh deck <slug>/formats/deck.md <slug>/out/$(.prism-kit/run.sh tag <slug>/formats/deck.md).pptx`. Every exported file starts with the piece tag (`<slug>-<output>-v<version>`) so pieces never mix.
    ```
    If the build prints `setup: MISSING ...`, tell the user which tool is unavailable and stop. Never mark setup as done by hand.
+   A brand library photo (`brand:<id>`) is fetched before the build: `.prism-kit/run.sh library <brand> --need <slug>/formats/`, read the upload ids it prints in one call (the Artifact tool, the brand's `design_system` link, `paths`), then `.prism-kit/run.sh library <brand> --take <the folder the read names>`. If that fails, use `prism:placeholder` instead and say so.
 2. Fix only hard failures, then rebuild once:
    - `[social] missing caption`, or any empty section in the captions file: move the `::: caption` inside that post's `::::` fence;
    - a number the check lists: remove it (the source wins);

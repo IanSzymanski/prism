@@ -3,7 +3,7 @@ name: prism-onboard
 description: >
   Use to add a brand to Prism or update one: "add a brand", "onboard a brand", "set up our brand", "use our design system",
   "new design system", "the design system changed", "update the brand profile", "add a component", "we added a
-  testimonial block", "make a package", "save this as a package", "change the case study package", "new component in the design system", or after a build says "design system changed since this release". Drafts a brand profile from the brand's design system, shows it on the swatch
+  testimonial block", "make a package", "save this as a package", "change the case study package", "new component in the design system", "add photos to the brand library", or after a build says "design system changed since this release". Drafts a brand profile from the brand's design system, shows it on the swatch
   sheet for review, and packs the finished brand as a bundle for the next Prism release.
 metadata:
   version: "0.16.0-dev"
@@ -38,7 +38,10 @@ Ask in as few question rounds as possible. Only the design system is needed; eve
 
 1. **Design system**: where the brand lives.
 <!-- claude-only -->
-   A Claude Design System link: read it with the Artifact tool (`read`, the link, no path); the result names the folder it saved the files to.
+   A Claude Design System link: read it in three Artifact calls, never file by file, all into the tool's default folder (no `out_dir`, so nothing asks for approval). A plain read of the link saves no files.
+   1. List its files (the Artifact tool's list, the link, `scope: "files"`).
+   2. Read every `project/` path the list shows, in one call (`paths`). The result names the folder; that folder is the design system folder below.
+   3. Its images are uploads, not files: `bash .prism-kit/run.sh ds assets <folder>` prints the upload ids of its logos, art and templates (never its photo library, which stays in the design system). Read them all in one call (`paths`), then `bash .prism-kit/run.sh ds place <folder>` puts each where the design system names it.
 <!-- /claude-only -->
    An uploaded design system export (a folder or zip with `tokens.json`, `README.md`, `fonts/`, `assets/`): unzip it into `onboarding-<id>/source/`. Prism reads the design system's `tokens.json`; without one, say so and stop.
 2. **Brand name**, if the design system's own name isn't it.
@@ -119,13 +122,23 @@ It starts three ways: "make a package" or "change the case study package", "save
 1. **Interview**, in one round, each question with "Skip for now": its **name** and what it is for; the **outputs** (any of sheet, brochure, deck, social, email, html-email, carousel, blog, each with a short id when one format appears twice, such as `sheet` and `case-study`); the **counts** (posts, stories, pages, or at least so many pages); a one-line **brief** per output (what it carries); the **phrases** people will use for it ("trade show package"); the usual **length** and **piece type**. Saving from a piece: its set is the starting point; ask only what changed.
 2. **Write it**: `bash .prism-kit/run.sh packages save <package-id> packages.json --brand <id> [--from <slug> | --base <package>] --name "<name>" --use "<what it is for>" --asks "<phrase>, <phrase>" --length <short|standard|long> --piece "<piece type>"`, then `--add <output id>:<format>`, `--set <output id>.posts=2` (`stories`, `pages`, `min_pages`, `max_pages`, `brief="..."`) and `--drop <output id>` for each output. It starts from the design system's current packages, so nothing else in the file is lost, and refuses a definition that doesn't fit (a page count on a deck, a social output with no posts). `--remove` takes a package out (a core one is switched off for this brand).
 <!-- claude-only -->
-   Read the design system first (the Artifact tool, its link from `run.sh brands --json`, no path) and pass `--live <the folder the read names>`, so the file starts from the packages it has now.
+   Read the design system first (its link from `run.sh brands --json`: list its files with `scope: "files"`, then read every `project/` path in one call; no uploads are needed) and pass `--live <the folder the read names>`, so the file starts from the packages it has now.
 <!-- /claude-only -->
 3. **Hand it over**: send `packages.json` and say in two lines where it goes: the design system's root, replacing the one there. Show the package as `run.sh packages show` prints it.
 <!-- claude-only -->
 4. Once it is in the design system, every piece reads it from there the next time Prism reads the design system; nothing waits for a release.
 <!-- /claude-only -->
 5. The brand's saved copy (`snapshot/packages.json`) updates with its next update (section 6) and ships with the release after it, which is where pieces without a live read of the design system find it.
+
+### The image library
+
+Reusable photos (the team, the office, the product) live in the design system's photo group (`Photos`, or the profile's `library.group`), never in Prism. A release pins each photo's upload id only, and a piece fetches just the photos it uses, so a library of any size adds nothing to Prism's download. For a shipped brand, start the update first (section 6).
+
+<!-- claude-only -->
+1. **Read the photos being added**, in one call: each one's upload id is its record's `blob` in `project/design-system.json` (`assetGroups.<group>.files.<file>`); read the ids as `paths`.
+<!-- /claude-only -->
+2. **Interview**, in one round, per photo: what it shows, who is in it and whether consent is on file, a few tags. "Skip for now" leaves a photo out of the library. A photo of people goes in only when the person confirms consent.
+3. **Record it**: `bash .prism-kit/run.sh onboard library <id> <photo-id> --file assets/<group>/<file> --photo <the file the read saved> --shows "<what it shows>" --people "<no, or who and the consent on file>" --tags "<tag>, <tag>"`. It takes the orientation and focus from the photo (`--focus "x% y%"` corrects a focus that misses what matters), pins the upload id, and keeps the photo as fetched here. `--remove` takes one out.
 
 ## 5. Done: the bundle
 
@@ -147,6 +160,10 @@ When a build reports `design system changed since this release`, or the person s
 bash .prism-kit/run.sh onboard update <id> <changed design system folder>
 ```
 
-It makes a draft of the shipped brand with the new snapshot and the same mapping (the next profile version) and lists what moved: changed and removed tokens with the roles that use them, changed files (a changed README means the digest needs a read against it) and an email palette whose colours moved. Review only those: re-map where a token was removed or renamed, update the digest, rebuild the swatch. Without a folder, `onboard update <id>` re-checks the shipped brand against core's current email client rules.
+<!-- claude-only -->
+Read the changed design system as in section 2, with `ds assets <folder> --brand <id>`, so its photo library is left where it is.
+<!-- /claude-only -->
+
+It makes a draft of the shipped brand with the new snapshot and the same mapping (the next profile version) and lists what moved: changed and removed tokens with the roles that use them, changed files (a changed README means the digest needs a read against it), library photos replaced or removed in the design system (a replaced one ships with this update: check its shows, people and focus; a removed one leaves the library with `onboard library <id> <photo-id> --remove`) and an email palette whose colours moved. Review only those: re-map where a token was removed or renamed, update the digest, rebuild the swatch. Without a folder, `onboard update <id>` re-checks the shipped brand against core's current email client rules.
 
 A palette that was reviewed before keeps its review unless its colours moved; then the bundle stops until the person chooses: `onboard palette <id>` for core's new proposal, or `onboard palette <id> --keep` to keep it against the new colours. Then bundle as in section 5; the maintainer merges it in place of the shipped brand.

@@ -6,6 +6,9 @@ const fs = require("fs"), path = require("path"), crypto = require("crypto");
 const KIT = __dirname;
 // Draft brands from onboarding live in the workspace, beside .prism-kit, until a release ships them (PRISM_DRAFTS overrides).
 const DRAFTS = process.env.PRISM_DRAFTS || path.join(path.dirname(KIT), ".prism", "brands");
+// Library photos fetched from a brand's design system, one folder per upload id, so a replaced photo is never mistaken for the old one.
+const LIBRARY = process.env.PRISM_LIBRARY_CACHE || path.join(path.dirname(KIT), ".prism", "library");
+const libraryFile = (id, blob, file) => path.join(LIBRARY, id, blob, path.basename(file));
 const hasProfile = (d, b) => fs.existsSync(path.join(d, b, "profile.json"));
 // Where a brand lives: a workspace draft wins over the shipped brand of the same id, so a re-run can be previewed.
 function brandDir(id) {
@@ -113,13 +116,15 @@ function load(id, opts = {}) {
     }
   }
   for (const r of core) if (!out[r.role] && prof.roles[r.role] == null && !r.required) warnings.push(`optional role unmapped: ${r.role}`);
-  // The brand's image library: reusable photos uploaded to the design system (profile `library`), pinned in the snapshot.
+  // The brand's image library: reusable photos in the design system (profile `library`). Only their upload ids are pinned (from
+  // the snapshot's index); the files stay in the design system and are fetched when a piece uses one (library.js --need/--take).
   const library = {};
   for (const [lid, e] of Object.entries((prof.library && prof.library.images) || {})) {
     if (!/^[a-z0-9-]+$/.test(lid)) { errors.push(`library image id "${lid}" must be lowercase letters, digits and hyphens`); continue; }
-    const p = path.join(snap, e.file || "");
-    if (!e.file || !fs.existsSync(p) || !prof.snapshot.files[e.file]) { errors.push(`library image ${lid}: ${e.file} is not in the pinned snapshot`); continue; }
-    library[lid] = { ...e, path: p, blob: prof.snapshot.blobs[e.file] || null };
+    const blob = e.file && prof.snapshot.blobs[e.file];
+    if (!blob) { errors.push(`library image ${lid}: ${e.file} is not in the design system this release pinned`); continue; }
+    const p = libraryFile(id, blob, e.file);
+    library[lid] = { ...e, blob, path: fs.existsSync(p) ? p : null };
   }
   // A generator's stroke may name a role resolved after it.
   for (const v of Object.values(out)) if (v.kind === "generator" && v.value.stroke && !v.value.stroke.value) v.value.stroke.value = out[v.value.stroke.color]?.value ?? null;
@@ -139,6 +144,8 @@ function load(id, opts = {}) {
       if (!fs.existsSync(p)) warnings.push(`design system changed since this release: ${f} (removed)`);
       else if (sha(p) !== h) warnings.push(`design system changed since this release: ${f}`);
     }
+    for (const [lid, e] of Object.entries(library)) if (liveBlobs[e.file] !== e.blob)
+      warnings.push(`design system changed since this release: library photo ${lid}, ${e.file} (${liveBlobs[e.file] ? "replaced" : "removed"}; it is not used until the brand is updated)`);
     // Components the design system added since this release (a testimonial block, say): each one is for onboarding to add.
     const had = prof.source && prof.source.components, cdir = path.join(L, "components");
     if (had && fs.existsSync(cdir)) {
@@ -210,7 +217,7 @@ function defaultBrand() {
   throw new Error(`[brand] ${marked.length ? "more than one brand is" : "no brand is"} marked "default": true in kit/brands; name one with brand: in the front matter`);
 }
 
-module.exports = { load, css, defaultBrand, brandDir, brandList, DRAFTS };
+module.exports = { load, css, defaultBrand, brandDir, brandList, libraryFile, DRAFTS, LIBRARY };
 
 if (require.main === module) {
   const a = process.argv.slice(2), id = a[0] === "default" ? defaultBrand() : a[0], opt = k => { const i = a.indexOf(k); return i > 0 ? a[i + 1] : null; };
