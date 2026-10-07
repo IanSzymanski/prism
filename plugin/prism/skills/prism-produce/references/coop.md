@@ -47,8 +47,8 @@ When the doc's About tab or the canvas note names someone else as the owner, thi
 After every export (design session step 7), when the piece has invitees:
 
 1. `.prism-kit/run.sh exports <slug> --out exports --title "<piece title>"` (add `--add out/<package zip>` for a package). It writes the page from the recorded exports and prints a `publish:` line.
-2. Publish exactly that, with icon `download` the first time; record the link with `state <slug> coop --exports <link>` and add it to the About tab. Later exports publish to the same link.
-3. Files over 15 MB are left off the page (it says so): tell the owner to send those another way. If the publish refuses a file type, publish again without it and tell the owner which file needs another route.
+2. Publish exactly that (its `capabilities` too: the viewer never follows a plain download link, so the page saves each file through `downloads`), with icon `download` the first time; record the link with `state <slug> coop --exports <link>` and add it to the About tab. Later exports publish to the same link.
+3. Artifacts host PDFs and images, never .pptx, .zip, .docx or .xlsx, and nothing over 15 MB: the page lists those as files to ask the owner for. Tell the owner which files need another route (sent directly, or a storage connector).
 
 ## Approving with others in the doc
 
@@ -66,4 +66,4 @@ On the owner's "approve" (prism-draft's steps, plus):
 
 ## Not confirmed live
 
-Which session receives a comment sent to Claude; whether a closed Cowork session is woken; whether a comment posted by an invitee's Claude wakes the owner's session; whether canvas comments carry an author; outside-organization invitees; whether an artifact hosts .pptx and .zip; push notifications in Cowork. The backlog's F15 test answers these.
+Which session receives a comment sent to Claude; whether a closed Cowork session is woken; whether a comment posted by an invitee's Claude wakes the owner's session; whether canvas comments carry an author; outside-organization invitees; push notifications in Cowork. The backlog's F15 test answers these; its kit is in `tests/f15/`.
