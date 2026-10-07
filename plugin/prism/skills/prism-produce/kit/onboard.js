@@ -8,6 +8,7 @@
 //   onboard.js bundle <id> OUT.zip
 //   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
 //   onboard.js component <id> <cid> --use T --markup M [--like BLOCK] [--when T] [--max N] [--rule T ...] [--formats a,b] [--sample FILE] [--from NAME] [--remove]
+//   onboard.js library <id> <photo-id> --file assets/<group>/<file> [--shows T] [--people T] [--tags a,b] [--focus "x% y%"] [--orientation O] [--photo PATH] [--remove]
 //   onboard.js palette <id> [--keep]                 (core's proposal for the email palette, or keep it against the current colours)
 const fs = require("fs"), path = require("path"), crypto = require("crypto"), { execFileSync } = require("child_process");
 const R = require("./resolve.js");
@@ -151,8 +152,8 @@ function snapshotFrom(dir, root, prof) {
   const files = walk(root).map(f => path.relative(root, f).split(path.sep).join("/")).filter(keep);
   for (const f of new Set([...files, ...assetsUsed(prof)])) copyIn(root, snap, f);
 }
-const assetsUsed = prof => [...Object.values(prof.roles).filter(v => /^assets\//.test(v)), ...Object.values(prof.generators || {}).map(g => g.script).filter(Boolean),
-  ...Object.values((prof.library && prof.library.images) || {}).map(e => e.file).filter(Boolean)];
+// Library photos are not among them: a release pins their upload ids only, and pieces fetch the photos they use.
+const assetsUsed = prof => [...Object.values(prof.roles).filter(v => /^assets\//.test(v)), ...Object.values(prof.generators || {}).map(g => g.script).filter(Boolean)];
 function copyIn(root, snap, f) {
   const src = path.join(root, f);
   if (!fs.existsSync(src)) die(`${f} is not in the design system`);
@@ -436,6 +437,13 @@ if (cmd === "start") {
       if (!fs.existsSync(n)) changes.push(`${f}: removed from the design system${Object.values(prof.roles).includes(f) ? " (a role maps it: map another file or unmap it)" : ""}`);
       else if (sha(n) !== prof.snapshot.files[f]) changes.push(`${f}: changed${f === "README.md" ? " (read the digest against it)" : ""}`);
     }
+    // Library photos are pinned by upload id: a replaced one ships with this update, a removed one must leave the library.
+    const idxNow = fs.existsSync(path.join(root, "design-system.json")) ? JSON.parse(fs.readFileSync(path.join(root, "design-system.json"), "utf8")) : {};
+    for (const [lid, e] of Object.entries((prof.library && prof.library.images) || {})) {
+      const m = /^assets\/([^/]+)\/(.+)$/.exec(e.file || ""), r = m && ((idxNow.assetGroups || {})[m[1]] || { files: {} }).files[m[2]];
+      if (!r) changes.push(`library photo ${lid}: ${e.file} removed from the design system (onboard.js library ${id} ${lid} --remove)`);
+      else if (r.blob !== prof.snapshot.blobs[e.file]) changes.push(`library photo ${lid}: ${e.file} replaced (check shows, people and focus against the new photo)`);
+    }
     for (const f of walk(path.join(root, "fonts")).map(p => path.relative(root, p).split(path.sep).join("/"))) if (!prof.snapshot.files[f]) changes.push(`${f}: new font file`);
     if (!prof.snapshot.files["packages.json"] && fs.existsSync(path.join(root, "packages.json"))) changes.push("packages.json: new (the brand's own packages; the saved copy updates with this release)");
     const keepFiles = assetsUsed(prof).filter(f => fs.existsSync(path.join(root, f)));
@@ -485,6 +493,36 @@ if (cmd === "start") {
   }
   writeProf(id, prof);
   process.stdout.write(reportMd(report(id)));
+} else if (cmd === "library") {
+  // Records a photo of the design system's library: what it shows, consent, orientation, focus, tags. Only its upload id is pinned;
+  // the photo itself stays in the design system and is fetched by the pieces that use it.
+  const id = a[1], lid = a[2];
+  if (!id || !lid || !/^[a-z0-9-]+$/.test(lid)) die("usage: onboard.js library <id> <photo-id> --file assets/<group>/<file> [--shows T] [--people T] [--tags a,b] [--focus \"x% y%\"] [--orientation O] [--photo PATH] [--remove]");
+  const prof = readProf(id), dir = draftDir(id), lib = prof.library = prof.library || { group: "Photos", images: {} };
+  lib.images = lib.images || {};
+  if (a.includes("--remove")) { delete lib.images[lid]; writeProf(id, prof); pin(id); console.log(`[onboard] ${lid} left ${prof.name}'s image library`); process.exit(0); }
+  const e = lib.images[lid] = { ...(lib.images[lid] || {}) }, file = opt("--file") || e.file;
+  if (!file) die(`${lid} needs --file assets/<group>/<file>, the photo's place in the design system`);
+  const idx = JSON.parse(fs.readFileSync(path.join(dir, "snapshot", "design-system.json"), "utf8")), m = /^assets\/([^/]+)\/(.+)$/.exec(file);
+  const r = m && ((idx.assetGroups || {})[m[1]] || { files: {} }).files[m[2]];
+  if (!r) die(`${file} is not in the design system (its photos are the files of a group in design-system.json)`);
+  e.file = file;
+  for (const k of ["shows", "people", "focus", "orientation"]) if (opt("--" + k)) e[k] = opt("--" + k);
+  if (opt("--tags")) e.tags = opt("--tags").split(",").map(t => t.trim()).filter(Boolean);
+  // Orientation and focus from the photo when it was read (--photo, or the onboarding read in source/); it is kept as fetched.
+  const photo = opt("--photo") || [path.join(dir, "source", file)].find(p => fs.existsSync(p));
+  if (photo) {
+    const [o, f] = execFileSync("python3", ["-c", "import sys\nsys.path.insert(0, sys.argv[1])\nfrom PIL import Image, ImageOps\nfrom images import focus\nim = ImageOps.exif_transpose(Image.open(sys.argv[2]))\nr = im.width / im.height\nx, y = focus(im)\nprint('landscape' if r > 1.15 else 'portrait' if r < 0.87 else 'square', f'{x}% {y}%')", KIT, photo], { encoding: "utf8" }).trim().split(/ (.*)/);
+    if (!opt("--orientation")) e.orientation = o;
+    if (!opt("--focus")) e.focus = f;
+    const dest = R.libraryFile(id, r.blob, file);
+    if (!r.size || fs.statSync(photo).size === r.size) { fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.copyFileSync(photo, dest); }
+  }
+  writeProf(id, prof); pin(id);
+  console.log(`[onboard] brand:${lid} in ${prof.name}'s image library: ${file} (upload ${r.blob.slice(0, 8)}, ${r.size ? Math.round(r.size / 1024) + " KB, " : ""}not bundled)`);
+  console.log(JSON.stringify(e, null, 1));
+  if (!e.people) console.log(`Who is in it? Set --people: "no" when nobody is, else who and the consent on file ("yes, staff, consent on file"). Formatters skip a photo of people without consent.`);
+  if (!photo && (!e.orientation || !e.focus)) console.log(`No photo read: ${!e.orientation ? "orientation " : ""}${!e.orientation && !e.focus ? "and " : ""}${!e.focus ? "focus (centred) " : ""}not set. Read ${file} from the design system and pass --photo <the file>, or set them with --orientation and --focus.`);
 } else if (cmd === "palette") {
   // Replaces the email palette with core's proposal from the brand's current colours (accepted again by bundling),
   // or with --keep, keeps the palette and records the current colours and client rules as the ones it was checked against.

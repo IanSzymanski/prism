@@ -105,7 +105,10 @@ function wireOne(md, B) {
   }
   const blocks = chunks(body);
 
-  const imgSrc = f => ASSETS[f] ? `<img src="${esc(ASSETS[f])}" alt="" style="object-position: ${esc(B.focus(B.src(f, path.dirname(md))) || "50% 50%")}">` : "";
+  // A library photo shows from a copy of its upload on the canvas, so it needs no fetch here: its focus is in the library entry.
+  const lib = f => (/^brand:([\w-]+)$/.exec(f) || [])[1];
+  const focusOf = f => lib(f) ? (B.res.library[lib(f)] || {}).focus : B.focus(B.src(f, path.dirname(md)));
+  const imgSrc = f => ASSETS[f] ? `<img src="${esc(ASSETS[f])}" alt="" style="object-position: ${esc(focusOf(f) || "50% 50%")}">` : "";
   // A link shows its address in a chip after the text: retype the chip to change it.
   const url = u => `<span data-url="" class="wurl">${u}</span>`;
   // Inline Markdown to plain wireframe text: bold and emphasis kept, icons drawn, links with their address, footnotes dropped.
