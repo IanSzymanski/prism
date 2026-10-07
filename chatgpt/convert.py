@@ -134,14 +134,14 @@ for f in glob.glob("skills/*/references/agents/*.md"):
     s = s.replace("`pdftotext`", "`pdftotext` (or PyMuPDF when it is missing)")
     open(f, "w").write(s)
 
-# Claude-only features (the wireframe review on a Claude Design canvas) are cut from the ChatGPT edition.
+# Claude-only features (the wireframe review on a Claude Design canvas, co-op mode) are cut from the ChatGPT edition.
 for f in glob.glob("skills/**/*.md", recursive=True):
     t = open(f).read(); t2 = re.sub(r"\n?<!-- claude-only -->[\s\S]*?<!-- /claude-only -->\n?", "\n", t)
     if t2 != t: open(f, "w").write(t2)
-for f in ["skills/prism-produce/references/wireframe.md", "skills/prism-produce/kit/build-wire.js", "skills/prism-produce/kit/wire_diff.py", "skills/prism-produce/kit/state.js"]:
+for f in ["skills/prism-produce/references/wireframe.md", "skills/prism-produce/kit/build-wire.js", "skills/prism-produce/kit/wire_diff.py", "skills/prism-produce/kit/state.js", "skills/prism-produce/references/coop.md", "skills/prism-produce/kit/exports.js"]:
     if os.path.exists(f): os.remove(f)
 k = "skills/prism-produce/kit/run.sh"; t = open(k).read()
-t = t.replace('  wire)    node "$KIT/build-wire.js" "$@" ;;\n  wire-diff) python3 "$KIT/wire_diff.py" "$@" ;;\n', "").replace('  state)   node "$KIT/state.js" "$@" ;;\n', "").replace("|wire|wire-diff", "").replace("|state", "").replace("|wire)", ")")
+t = t.replace('  wire)    node "$KIT/build-wire.js" "$@" ;;\n  wire-diff) python3 "$KIT/wire_diff.py" "$@" ;;\n', "").replace('  state)   node "$KIT/state.js" "$@" ;;\n', "").replace('  exports) node "$KIT/exports.js" "$@" ;;\n', "").replace("|wire|wire-diff", "").replace("|state", "").replace("|exports", "").replace("|wire)", ")")
 open(k, "w").write(t)
 
 # Nothing Claude-specific may remain.

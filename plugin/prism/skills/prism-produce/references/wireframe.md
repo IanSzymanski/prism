@@ -13,10 +13,8 @@ State lives in the project: `.prism-kit/run.sh state <slug> ...` keeps the canva
    .prism-kit/run.sh wire formats/sheet.md formats/deck.md --out wire --canvas wire/canvas --title "<piece title> design"
    ```
 
-   A package passes every output's format file in package.json's order, so the boards sit side by side as one set.
+   A package passes every output's format file in package.json's order, so the boards sit side by side as one set. In co-op mode (`references/coop.md`) add `--owner <owner's name>` to every wire command.
 
-   ```bash
-   ```
    It writes `wire/<format>/<format>.dc.html` and `wire.json` (the snapshot the diff needs) for each format, `wire/canvas/project/` with every board and `canvas.json` (boards left to right, the how-to note, `createdOnFiles`), and prints a `publish:` line. Never edit these files by hand.
 4. **Publish in one call** with exactly what the `publish:` line gives (`root`, `file_path`, `files`) and the canvas `url`. Then record the version the publish result names: `state <slug> canvas --version <version id>`.
 5. Tell the person in one line that design mode is open and that "done" exports the files. From here the "Design session" rules in the prism-produce skill apply.
@@ -32,6 +30,8 @@ State lives in the project: `.prism-kit/run.sh state <slug> ...` keeps the canva
    - `EDITED`: a wording change. In a package, the change stays in that output; only a changed number or a new claim is flagged ("Packages: edit each output freely, flag claims" in SKILL.md). Otherwise, content lane: content.md first, then every format file that carries it; number check; run the reviewer if a number, quote or claim changed. Then use judgment the wireframe can't show: an icon that fits a card's new title, an accent word kept in a rewritten heading, a stat label shortened, text that no longer fits its slide.
    - `LINK`: an address retyped in its chip (`old -> new`), removed, or typed into the text as a new address. Change the link in content.md and every format file that carries it (a link is content). A new address typed into a sentence becomes a Markdown link on the words it belongs to; when that is unclear, ask under "Needs your call".
    - `ADDED`: a new line or block. Put it in content.md and the format file as the component that fits.
+   - `NOT CARRIED`: styling changed on the canvas (a colour, size or font). Boards never carry styling; say so under "Needs your call" and offer the layout change in chat.
+   - `STOP` (exit 3): nothing was applied. Either the board lost its wireframe wrapper (a broken save), or more than half its blocks would go. For a broken save, keep the saved copy, read anything worth keeping off it by eye, and republish the last good board (`wire/<format>/`). For mass cuts, ask the person whether they are meant; if so, run again with `--confirm-removals`.
    - The vet renumbers numbered headings, carousel and story counters (`note="02 / 07"`) and point numbers (`[01]{.num}`) to their new order, and reports headings left without their text, count headings that no longer match, notes to the editor and doubled words.
 4. Keep fixed frames where they belong: a deck's title slide first and closing slide last, a carousel's cover first and `.end` panel last, a brochure's flap, back and cover in slots 1–3. If the person moved one of these, say so under "Needs your call" rather than building a broken piece. After carousel panels move, re-space the `burst` values so the brand's thread still reads as one line.
 5. Vet the edits ("Vet every edit" in the prism-produce skill): `run.sh vet formats/<format>.md --was wire/<format>/source.md --fix`, proofread every `CHANGED` passage, fix what is safe, leave out notes to the editor.
@@ -40,6 +40,8 @@ State lives in the project: `.prism-kit/run.sh state <slug> ...` keeps the canva
 ## Republish the boards
 
 After any change, run the wire command again for the changed formats (with `--canvas wire/canvas`) and publish what its `publish:` line names; `canvas.json` goes only when the line says the index changed (a new board or a new size). Before sending a changed index, read `project/canvas.json` from the canvas into `wire/canvas/project/` first, so the person's own moves and notes on the canvas are kept. Record the published version with `state <slug> canvas --version`.
+
+A publish refused because the canvas has a newer version (someone saved since your pull) is a pull: read the boards back, `wire-diff --apply`, apply your change again, then publish. Never force it over their save.
 
 ## Export ("done", and every change after it)
 
