@@ -143,11 +143,11 @@ const draftDir = id => path.join(R.DRAFTS, id);
 const readProf = id => { const f = path.join(draftDir(id), "profile.json"); if (!fs.existsSync(f)) die(`no draft "${id}" in ${R.DRAFTS} (start one with onboard.js start)`); return JSON.parse(fs.readFileSync(f, "utf8")); };
 const writeProf = (id, p) => fs.writeFileSync(path.join(draftDir(id), "profile.json"), JSON.stringify(p, null, 1) + "\n");
 const pin = id => execFileSync("node", [path.join(KIT, "pin.js"), id], { env: { ...process.env, PRISM_DRAFTS: R.DRAFTS }, stdio: ["ignore", "pipe", "inherit"] });
-// Copies what a build needs from the design system into snapshot/: tokens, README, index, fonts, licences and the mapped assets.
+// Copies what a build needs from the design system into snapshot/: tokens, README, index, the brand's packages, fonts, licences and the mapped assets.
 function snapshotFrom(dir, root, prof) {
   const snap = path.join(dir, "snapshot");
   fs.rmSync(snap, { recursive: true, force: true });
-  const keep = f => /^(tokens\.json|README\.md|design-system\.json)$/.test(f) || /^(fonts|licenses)\//.test(f);
+  const keep = f => /^(tokens\.json|README\.md|design-system\.json|packages\.json)$/.test(f) || /^(fonts|licenses)\//.test(f);
   const files = walk(root).map(f => path.relative(root, f).split(path.sep).join("/")).filter(keep);
   for (const f of new Set([...files, ...assetsUsed(prof)])) copyIn(root, snap, f);
 }
@@ -437,6 +437,7 @@ if (cmd === "start") {
       else if (sha(n) !== prof.snapshot.files[f]) changes.push(`${f}: changed${f === "README.md" ? " (read the digest against it)" : ""}`);
     }
     for (const f of walk(path.join(root, "fonts")).map(p => path.relative(root, p).split(path.sep).join("/"))) if (!prof.snapshot.files[f]) changes.push(`${f}: new font file`);
+    if (!prof.snapshot.files["packages.json"] && fs.existsSync(path.join(root, "packages.json"))) changes.push("packages.json: new (the brand's own packages; the saved copy updates with this release)");
     const keepFiles = assetsUsed(prof).filter(f => fs.existsSync(path.join(root, f)));
     snapshotFrom(dir, root, { ...prof, roles: Object.fromEntries(Object.entries(prof.roles).filter(([, v]) => !/^assets\//.test(v) || keepFiles.includes(v))), generators: Object.fromEntries(Object.entries(prof.generators || {}).filter(([, g]) => keepFiles.includes(g.script))) });
     // Components the design system added or dropped since this release: each new one is an interview (when, how often, rules).

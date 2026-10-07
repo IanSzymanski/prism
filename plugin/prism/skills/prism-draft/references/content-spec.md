@@ -82,7 +82,7 @@ Written at intake when the user supplied images; one row per image, in `images/`
 
 ## package.json
 
-Written by `run.sh packages use <slug> <package>` when the piece is a package: the package, the brand, and each output with its id (its format file is `formats/<id>.md`), its format, its brief, and its counts (`posts`, `stories`, `pages`, `min_pages`, `max_pages`), with any changes the person asked for (`--drop`, `--set`, `--add`) listed under `changes`. Run `use` again to change it; never edit it by hand.
+Written by `run.sh packages use <slug> <package>` when the piece is a package: the package, the brand, and each output with its id (its format file is `formats/<id>.md`), its format, its brief, and its counts (`posts`, `stories`, `pages`, `min_pages`, `max_pages`), with any changes the person asked for (`--drop`, `--set`, `--add`) listed under `changes`, and where it came from (`from`: core, the design system, or `this piece` for a one-off set made with `--new`). Run `use` again to change it; never edit it by hand.
 
 ## interview.md
 

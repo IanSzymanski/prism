@@ -1,16 +1,22 @@
 #!/usr/bin/env node
 // Packages: a named set of outputs laid out from one approved content.md (a case study package: two posts, a story,
-// a blog post, a deck, a one-pager, the full PDF and an email). Core packages are in packages.json; a brand profile's
-// `packages` adds its own or replaces one by id (null removes it). Each output is its own format file, formats/<id>.md.
-// Usage: packages.js [list] [--brand B] [--json]
-//        packages.js show <id> [--brand B] [--json]
-//        packages.js use <project> <id> [--brand B] [--drop a,b] [--add id:format] [--set output.key=value]...
+// a blog post, a deck, a one-pager, the full PDF and an email). Core ships starters in packages.json; a brand's own are
+// made by its people and kept in its design system, as packages.json at its root (same shape), which adds packages or
+// replaces one by id (null removes a core one). Builds read the live design system when one was read (--live), else the
+// brand's saved copy in snapshot/. Each output is its own format file, formats/<id>.md.
+// Usage: packages.js [list] [--brand B] [--live DIR] [--json]
+//        packages.js show <id> [--brand B] [--live DIR] [--json]
+//        packages.js use <project> <id> [--brand B] [--live DIR] [--drop a,b] [--add id:format] [--set output.key=value]...
+//        packages.js use <project> --new "<name>" --add id:format... [--set ...]   (a one-off set for this piece only)
+//        packages.js save <id> OUT.json [--from <project> | --base <package>] [--name N] [--use U] [--asks a,b] [--piece P]
+//                         [--length L] [--drop/--add/--set ...] [--remove]   (the design system's packages.json with <id> added,
+//                         changed or removed, for the person to put in their design system)
 //        packages.js check <project> [--built]      (format files, post and story counts; --built adds PDF page counts)
 //        packages.js claims <project> [--json]      (every output's numbers against content.md, and which outputs carry each claim)
 //        packages.js zip <project> [OUT.zip]        (every built file of every output in one zip, one folder per output)
 const fs = require("fs"), path = require("path"), { execFileSync } = require("child_process");
 const { defaultBrand, brandDir } = require("./resolve.js");
-const { tagFor } = require("./naming.js");
+const { tagFor, kebab } = require("./naming.js");
 const { numbers } = require("./check-numbers.js");
 
 const KIT = __dirname;
@@ -45,14 +51,25 @@ function validate(id, p) {
   return e;
 }
 
-// Core packages, then the brand's: added, replaced by id, or removed with null.
-function load(brand) {
-  const core = JSON.parse(fs.readFileSync(path.join(KIT, "packages.json"), "utf8")).packages;
-  const all = Object.fromEntries(Object.entries(core).map(([k, v]) => [k, { ...v, from: "core" }]));
+const readPkgs = f => { try { return JSON.parse(fs.readFileSync(f, "utf8")).packages || {}; } catch (e) { die(`[packages] ${f}: ${e.message}`); } };
+const core = () => readPkgs(path.join(KIT, "packages.json"));
+// The brand's own packages, from its design system: the live one when it was read, else the copy saved with the brand.
+function dsPackages(brand, live) {
+  if (!fs.existsSync(path.join(brandDir(brand).dir, "profile.json"))) die(`no brand "${brand}"`);
+  if (live) {
+    const L = fs.existsSync(path.join(live, "project")) ? path.join(live, "project") : live, f = path.join(L, "packages.json");
+    if (!fs.existsSync(L)) die(`no design system at ${live}`);
+    return { pkgs: fs.existsSync(f) ? readPkgs(f) : {}, from: "design system" };
+  }
+  const f = path.join(brandDir(brand).dir, "snapshot", "packages.json");
+  return { pkgs: fs.existsSync(f) ? readPkgs(f) : {}, from: "design system (saved copy)" };
+}
+// Core starters, then the design system's: added, replaced by id, or removed with null.
+function load(brand, live) {
+  const all = Object.fromEntries(Object.entries(core()).map(([k, v]) => [k, { ...v, from: "core" }]));
   if (brand) {
-    const pf = path.join(brandDir(brand).dir, "profile.json"); if (!fs.existsSync(pf)) die(`no brand "${brand}"`);
-    const prof = JSON.parse(fs.readFileSync(pf, "utf8"));
-    for (const [k, v] of Object.entries(prof.packages || {})) { if (v === null) delete all[k]; else all[k] = { ...v, from: brand }; }
+    const ds = dsPackages(brand, live);
+    for (const [k, v] of Object.entries(ds.pkgs)) { if (v === null) delete all[k]; else all[k] = { ...v, from: ds.from }; }
   }
   const errs = Object.entries(all).flatMap(([k, v]) => validate(k, v));
   if (errs.length) die(errs.map(x => "[packages] " + x).join("\n"));
@@ -110,17 +127,31 @@ function built(proj, o) {
   return files;
 }
 
-const cmd = ["list", "show", "use", "check", "claims", "zip"].includes(args[0]) ? args.shift() : "list";
-const json = flag("--json");
+// The changes a person asks for on a package: outputs dropped, added (id:format) and set (output.key=value).
+function applyChanges(id, outputs, drop, add, sets) {
+  const changes = [];
+  for (const d of drop) { const i = outputs.findIndex(o => o.id === d); if (i < 0) die(`no output "${d}" in ${id}`); outputs.splice(i, 1); changes.push(`dropped ${d}`); }
+  for (const a of add) { const [oid, format = oid] = a.split(":"); outputs.push({ id: oid, format }); changes.push(`added ${oid} (${format})`); }
+  for (const s of sets) {
+    const m = /^([\w-]+)\.(\w+)=(.*)$/s.exec(s) || die(`--set wants output.key=value, got ${s}`), o = outputs.find(x => x.id === m[1]) || die(`no output "${m[1]}" in ${id}`);
+    const v = /^\d+$/.test(m[3]) ? parseInt(m[3], 10) : m[3] === "" ? undefined : m[3];
+    if (m[2] === "pages") { delete o.min_pages; delete o.max_pages; } if (/_pages$/.test(m[2])) delete o.pages;
+    if (v === undefined) delete o[m[2]]; else o[m[2]] = v; changes.push(`${m[1]}.${m[2]} = ${m[3] || "(removed)"}`);
+  }
+  return changes;
+}
+
+const cmd = ["list", "show", "use", "save", "check", "claims", "zip"].includes(args[0]) ? args.shift() : "list";
+const json = flag("--json"), live = opt("--live");
 
 if (cmd === "list") {
-  const all = load(opt("--brand") || defaultBrand());
+  const all = load(opt("--brand") || defaultBrand(), live);
   if (json) { console.log(JSON.stringify(all, null, 1)); process.exit(0); }
   for (const [k, p] of Object.entries(all)) console.log(`${k}: ${p.name}${p.from !== "core" ? ` (${p.from})` : ""} · ${p.outputs.map(line).join(", ")}\n  ${p.use || ""}`);
 }
 
 else if (cmd === "show") {
-  const id = args[0] || die("usage: packages.js show <id>"), all = load(opt("--brand") || defaultBrand()), p = all[id];
+  const id = args[0] || die("usage: packages.js show <id>"), all = load(opt("--brand") || defaultBrand(), live), p = all[id];
   if (!p) die(`no package "${id}"; packages: ${Object.keys(all).join(", ")}`);
   if (json) { console.log(JSON.stringify({ id, ...p }, null, 1)); process.exit(0); }
   console.log(`${id}: ${p.name}\n${p.use || ""}\npiece: ${p.piece || "-"} · length: ${p.length || "-"}`);
@@ -128,24 +159,43 @@ else if (cmd === "show") {
 }
 
 else if (cmd === "use") {
-  const drop = opts("--drop").flatMap(x => x.split(",")), add = opts("--add"), sets = opts("--set");
-  const proj = project(args[0]), id = args[1] || die("usage: packages.js use <project> <id>"), brand = brandOf(proj), all = load(brand), base = all[id];
+  const drop = opts("--drop").flatMap(x => x.split(",")), add = opts("--add"), sets = opts("--set"), oneOff = opt("--new");
+  const proj = project(args[0]), brand = brandOf(proj);
+  // A one-off set is made for this piece only; saving it for everyone goes through `save` and the design system.
+  const id = oneOff ? kebab(oneOff) : args[1] || die("usage: packages.js use <project> <id> | --new <name>");
+  const all = oneOff ? {} : load(brand, live), base = oneOff ? { name: oneOff, outputs: [], from: "this piece" } : all[id];
   if (!base) die(`no package "${id}"; packages: ${Object.keys(all).join(", ")}`);
-  const outputs = base.outputs.map(o => ({ ...o })), changes = [];
-  for (const d of drop) { const i = outputs.findIndex(o => o.id === d); if (i < 0) die(`no output "${d}" in ${id}`); outputs.splice(i, 1); changes.push(`dropped ${d}`); }
-  for (const a of add) { const [oid, format = oid] = a.split(":"); outputs.push({ id: oid, format }); changes.push(`added ${oid} (${format})`); }
-  for (const s of sets) {
-    const m = /^([\w-]+)\.(\w+)=(.*)$/.exec(s) || die(`--set wants output.key=value, got ${s}`), o = outputs.find(x => x.id === m[1]) || die(`no output "${m[1]}" in ${id}`);
-    const v = /^\d+$/.test(m[3]) ? parseInt(m[3], 10) : m[3] === "" ? undefined : m[3];
-    if (m[2] === "pages") { delete o.min_pages; delete o.max_pages; } if (/_pages$/.test(m[2])) delete o.pages;
-    if (v === undefined) delete o[m[2]]; else o[m[2]] = v; changes.push(`${m[1]}.${m[2]} = ${m[3] || "(removed)"}`);
-  }
+  const outputs = base.outputs.map(o => ({ ...o })), changes = applyChanges(id, outputs, drop, add, sets);
   const errs = validate(id, { ...base, outputs }); if (errs.length) die(errs.map(x => "[packages] " + x).join("\n"));
   const rec = { package: id, name: base.name, brand, from: base.from, piece: base.piece || null, length: base.length || null, outputs, changes };
   fs.writeFileSync(path.join(proj, "package.json"), JSON.stringify(rec, null, 1) + "\n");
   console.log(`package.json written: ${base.name}${changes.length ? ` (${changes.join("; ")})` : ""}`);
   for (const o of outputs) console.log(`- ${line(o)}`);
   console.log(`content.md front matter:\npackage: ${id}\nexports: [${outputs.map(o => o.id).join(", ")}]`);
+}
+
+else if (cmd === "save") {
+  // Makes the design system's packages.json with one package added, changed or removed. Prism never changes a design
+  // system: the person puts this file in theirs, and every piece reads it from there.
+  const drop = opts("--drop").flatMap(x => x.split(",")), add = opts("--add"), sets = opts("--set");
+  const from = opt("--from"), baseId = opt("--base"), name = opt("--name"), use = opt("--use"), asks = opt("--asks"), piece = opt("--piece"), length = opt("--length"), remove = flag("--remove");
+  const id = args[0] || die("usage: packages.js save <id> OUT.json ..."), out = path.resolve(args[1] || die("usage: packages.js save <id> OUT.json ..."));
+  const brand = opt("--brand") || (from && brandOf(project(from))) || defaultBrand(), ds = dsPackages(brand, live), mine = { ...ds.pkgs };
+  if (remove) { if (core()[id]) mine[id] = null; else if (id in mine) delete mine[id]; else die(`no package "${id}" in the design system or core`); }
+  else {
+    let base = mine[id] || null;
+    if (from) { const r = piecePackage(project(from)); base = { name: r.name, piece: r.piece, length: r.length, outputs: r.outputs }; }
+    else if (baseId) { base = load(brand, live)[baseId] || die(`no package "${baseId}"`); }
+    base = base ? JSON.parse(JSON.stringify(base)) : { outputs: [] }; delete base.from;
+    const outputs = base.outputs, changes = applyChanges(id, outputs, drop, add, sets);
+    const def = { ...base, name: name || base.name, outputs };
+    if (use) def.use = use; if (asks) def.asks = asks.split(",").map(x => x.trim()).filter(Boolean); if (piece) def.piece = piece; if (length) def.length = length;
+    const errs = validate(id, def); if (errs.length) die(errs.map(x => "[packages] " + x).join("\n"));
+    mine[id] = def; if (changes.length) console.log(`changes: ${changes.join("; ")}`);
+  }
+  fs.writeFileSync(out, JSON.stringify({ schema: 1, packages: mine }, null, 1) + "\n");
+  console.log(`wrote ${out}: the design system's packages (${Object.keys(mine).join(", ") || "none"}), from ${ds.from}`);
+  console.log(`Put it in the design system as packages.json at its root, replacing the one there. Pieces read it from there.`);
 }
 
 else if (cmd === "check") {

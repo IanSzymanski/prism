@@ -16,13 +16,18 @@ let r = pk("list", "--json"); ok(r.status === 0 && JSON.parse(r.stdout)["case-st
 r = pk("show", "case-study"); ok(r.status === 0 && /story \(social, 1 story\)/.test(r.stdout), "show names each output with its counts");
 ok(pk("show", "nope").status === 2, "an unknown package stops");
 
-// 2. A brand adds, replaces and removes packages in its profile; a bad definition stops with the reason.
+// 2. A brand's own packages live in its design system (packages.json at its root): the saved copy in the snapshot, or the
+// live design system when one was read. They add packages, replace one by id, or remove a core one with null.
 fs.mkdirSync(DRAFTS, { recursive: true }); fs.cpSync(path.join(KIT, "brands", "prism"), path.join(DRAFTS, "acme"), { recursive: true });
-const pf = path.join(DRAFTS, "acme", "profile.json"), prof = JSON.parse(fs.readFileSync(pf, "utf8"));
-const setPkgs = p => { prof.packages = p; delete prof.default; fs.writeFileSync(pf, JSON.stringify(prof)); };
+const pf = path.join(DRAFTS, "acme", "profile.json"), prof = JSON.parse(fs.readFileSync(pf, "utf8")); delete prof.default; fs.writeFileSync(pf, JSON.stringify(prof));
+const saved = path.join(DRAFTS, "acme", "snapshot", "packages.json"), setPkgs = p => fs.writeFileSync(saved, JSON.stringify({ schema: 1, packages: p }));
 setPkgs({ "launch": { name: "Launch package", outputs: [{ id: "social", format: "social", posts: 3 }, { id: "html-email", format: "html-email" }] }, "demo-follow-up": null });
 r = pk("list", "--brand", "acme", "--json"); const acme = r.status === 0 ? JSON.parse(r.stdout) : {};
-ok(acme.launch && acme.launch.from === "acme" && !acme["demo-follow-up"] && acme["case-study"], `brand packages add and remove: ${r.stderr}`);
+ok(acme.launch && /saved copy/.test(acme.launch.from) && !acme["demo-follow-up"] && acme["case-study"], `the design system's packages add and remove: ${r.stderr}`);
+const liveDs = path.join(TMP, "live-ds", "project"); fs.mkdirSync(liveDs, { recursive: true });
+fs.writeFileSync(path.join(liveDs, "packages.json"), JSON.stringify({ schema: 1, packages: { "trade-show": { name: "Trade show package", outputs: [{ id: "sheet", format: "sheet", pages: 1 }] } } }));
+r = pk("list", "--brand", "acme", "--live", path.dirname(liveDs), "--json"); const lv = r.status === 0 ? JSON.parse(r.stdout) : {};
+ok(lv["trade-show"] && lv["trade-show"].from === "design system" && !lv.launch && lv["demo-follow-up"], `the live design system wins over the saved copy: ${r.stderr}`);
 setPkgs({ "bad": { name: "Bad", outputs: [{ id: "x", format: "poster" }, { id: "y", format: "deck", pages: 2 }, { id: "z", format: "social" }] } });
 r = pk("list", "--brand", "acme");
 ok(r.status === 2 && /poster/.test(r.stderr) && /pages doesn't apply to deck/.test(r.stderr) && /needs posts or stories/.test(r.stderr), `bad definitions are refused: ${r.stderr}`);
@@ -38,6 +43,22 @@ ok(r.status === 0 && !rec.outputs.some(o => o.id === "deck") && rec.outputs.find
 ok(/exports: \[social, story, blog, sheet, case-study, html-email, carousel\]/.test(r.stdout) && /package: case-study/.test(r.stdout), "use prints the front matter lines");
 ok(pk("use", proj, "case-study", "--set", "deck.pages=2").status === 2, "a count that doesn't fit the format is refused");
 r = pk("use", proj, "case-study", "--set", "case-study.pages=4"); ok(r.status === 0 && JSON.parse(fs.readFileSync(path.join(proj, "package.json"), "utf8")).outputs.find(o => o.id === "case-study").pages === 4 && !/min_pages/.test(fs.readFileSync(path.join(proj, "package.json"), "utf8").split('"case-study"')[2] || ""), "pages replaces min_pages");
+// A one-off set for this piece only, and saving a set for the design system (Prism never changes the design system itself).
+r = pk("use", proj, "--new", "Webinar recap", "--add", "social", "--set", "social.posts=2", "--add", "recap:sheet", "--set", "recap.pages=1");
+let one = JSON.parse(fs.readFileSync(path.join(proj, "package.json"), "utf8"));
+ok(r.status === 0 && one.package === "webinar-recap" && one.from === "this piece" && one.outputs.length === 2, `a one-off package for one piece: ${r.stderr}`);
+ok(pk("use", proj, "--new", "Empty").status === 2, "a one-off set needs outputs");
+const outJson = path.join(TMP, "packages-out.json");
+r = pk("save", "webinar-recap", outJson, "--from", proj, "--use", "After a webinar", "--asks", "webinar package, recap package");
+let sv = r.status === 0 ? JSON.parse(fs.readFileSync(outJson, "utf8")).packages : {};
+ok(sv["webinar-recap"] && sv["webinar-recap"].outputs.length === 2 && sv["webinar-recap"].asks.length === 2 && !sv["webinar-recap"].from && !sv["case-study"], `save turns the piece's set into the design system's packages.json: ${r.stderr}`);
+fs.writeFileSync(saved, JSON.stringify({ schema: 1, packages: sv }));
+r = pk("save", "case-study", outJson, "--brand", "acme", "--base", "case-study", "--drop", "deck"); sv = JSON.parse(fs.readFileSync(outJson, "utf8")).packages;
+ok(r.status === 0 && sv["webinar-recap"] && sv["case-study"] && !sv["case-study"].outputs.some(o => o.id === "deck"), "save keeps the design system's other packages and can change a core one");
+r = pk("save", "demo-follow-up", outJson, "--brand", "acme", "--remove"); sv = JSON.parse(fs.readFileSync(outJson, "utf8")).packages;
+ok(r.status === 0 && sv["demo-follow-up"] === null, "removing a core package writes null");
+ok(pk("save", "nope", outJson, "--brand", "acme", "--add", "x:poster").status === 2, "save refuses a bad definition");
+fs.writeFileSync(saved, JSON.stringify({ schema: 1, packages: {} }));
 pk("use", proj, "case-study");
 
 // 4. The check: every format file there, posts and stories counted (carousel panels aside), layouts right.
@@ -84,6 +105,17 @@ ok(r.status === 0 && path.basename(zip) === "harbor-point-case-study-v3.zip", `z
 ok(names.includes("social/" + tag("social") + "-a.png") && names.includes("sheet/" + tag("sheet") + ".pdf") && names.includes("blog/harbor-story-blog-v3-header.png") && names.includes("CONTENTS.txt") && names.includes("acme-fonts.zip"), `zip holds every output by folder: ${names.join(", ")}`);
 ok(!names.some(n => n.includes("_guides")), "story guides stay out of the zip");
 fs.rmSync(path.join(proj, "out", tag("deck") + ".pptx")); r = pk("zip", proj); ok(r.status === 2 && /not built yet: deck/.test(r.stderr), "zip refuses while an output is unbuilt");
+
+// 8. Onboarding keeps the design system's packages.json in the snapshot; the live check doesn't call a package change drift.
+const ds = path.join(TMP, "ds"); fs.cpSync(path.join(KIT, "brands", "prism", "snapshot"), ds, { recursive: true });
+fs.writeFileSync(path.join(ds, "packages.json"), JSON.stringify({ schema: 1, packages: { "trade-show": { name: "Trade show package", outputs: [{ id: "sheet", format: "sheet", pages: 1 }] } } }));
+r = spawnSync("node", [path.join(KIT, "onboard.js"), "start", "beta", ds], { env: process.env, encoding: "utf8" });
+ok(r.status === 0 && fs.existsSync(path.join(DRAFTS, "beta", "snapshot", "packages.json")) && JSON.parse(fs.readFileSync(path.join(DRAFTS, "beta", "profile.json"), "utf8")).snapshot.files["packages.json"], `onboarding saves and pins the packages: ${r.stderr.slice(0, 200)}`);
+r = pk("list", "--brand", "beta", "--json"); ok(r.status === 0 && JSON.parse(r.stdout)["trade-show"], "a draft brand lists its design system's packages");
+fs.writeFileSync(path.join(ds, "packages.json"), JSON.stringify({ schema: 1, packages: {} }));
+delete require.cache[require.resolve(path.join(KIT, "resolve.js"))];
+const live = require(path.join(KIT, "resolve.js")).load("beta", { live: ds });
+ok(!live.warnings.some(w => /packages\.json/.test(w)), `a changed packages.json is not drift: ${live.warnings.join("; ")}`);
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`packages: ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

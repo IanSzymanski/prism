@@ -38,7 +38,9 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 
 ## Packages
 
-A package is a set number of finished files from one approved piece, so nobody has to remember every asset. List them with `.prism-kit/run.sh packages` when presenting this (a brand can add its own). Say "draft this into a case study package": the case study package is two social posts with their captions, a story, a blog post, a PowerPoint deck, a one-pager, the full multipage case study PDF and an HTML email; a demo follow-up package is a takeaway PDF and a follow-up email. Change the set as you ask ("no deck", "three posts").
+A package is a set number of finished files from one approved piece, so nobody has to remember every asset. List them with `.prism-kit/run.sh packages` when presenting this (a brand can add its own). Say "draft this into a case study package": the case study package is two social posts with their captions, a story, a blog post, a PowerPoint deck, a one-pager, the full multipage case study PDF and an HTML email; a demo follow-up package is a takeaway PDF and a follow-up email. Change the set as you ask ("no deck", "three posts"), or describe a set of your own for one piece.
+
+Make your own: say "make a package" (or "save this as a package" after a piece). Prism asks what it holds, writes the definition, and you add it to the brand's design system, where everyone on the team gets it.
 
 - The words are written and proofed once, for the whole set.
 <!-- claude-only -->
