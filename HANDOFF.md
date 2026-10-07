@@ -2,6 +2,10 @@
 
 State as of 6 October 2026, version **0.16.0-dev**. Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. **No interim releases: the next and only version cut is v1.** Until then the tree stays `0.x-dev`. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
 
+## Backlog
+
+The backlog lives in the pinned **Prism Backlog** artifact: https://claude.ai/artifact/2BUkVs8xT8bpYM7NfzHgHD. Items (F features, D design-system agnostic, T training and connectors, M design mode) are rows in its database, collection `items`; read them with `ArtifactData` (`list`, collection `items`), not the page HTML. Status, priority, release, notes and Ian's leanings are kept there; this file records what was built. Check it first when asked what's next, and update an item's status and notes there when its work lands.
+
 ## What it is
 
 `prism` is a plugin that turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. One approved `content.md` feeds every output, and a fixed build kit makes every file in the brand the content names (`kit/brands/`: Case Amplify, the default, and Prism). It ships in two editions, built from one source:
@@ -112,7 +116,7 @@ Small "spotlight" glows read as stains, so don't use them.
   - The 0.12 session rules: ask, then no build until "done".
   - The multi-board canvas layout.
 - **Done in 0.12.1:** arrows in every kit font; the guide brought up to 0.12 (the ask-first step, no build until "done", chat requests pulling canvas edits first, the `changes:` list, size chart remeasured). The guide is still 14 pages.
-- **Possible next steps:**
+- **Possible next steps** (from 0.12; the backlog artifact above is the current list):
   - Run design mode through the ChatGPT edition's equivalent (chat-only) on a real piece.
   - Confirm the 0.12 session rules and the multi-board canvas live (above).
   - Optional: in the guide, the "readback after every revision" callout now starts page 5 rather than sitting under "Every edit, vetted". It reads fine; trim the design mode page if you want them together again.
