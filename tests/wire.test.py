@@ -92,6 +92,28 @@ try:
     check("diff: typed-in address", "new address typed in: www.caseamplify.com/news" in out, out)
     r = subprocess.run([sys.executable, os.path.join(KIT, "wire_diff.py"), w, os.path.join(w, "html-email-newsletter.dc.html")], capture_output=True, text=True)
     check("diff: an untouched board has no changes", r.stdout.strip() == "No changes.", r.stdout)
+    check("diff: moves and text edits are not styling", "NOT CARRIED" not in out, out)
+
+    # Safe read-back: a restyle is reported, a broken save or mass cut stops before the format file is touched.
+    diff = lambda board, *a: subprocess.run([sys.executable, os.path.join(KIT, "wire_diff.py"), w, board, *a], capture_output=True, text=True)
+    fmt = os.path.join(tmp, "fixtures/html-email-newsletter.md"); orig = open(fmt).read()
+    first = re.search(r'<div data-block="b01".*?\n', mail).group(0)
+    styled = first.replace('class="', 'style="color: red" class="', 1)
+    open(os.path.join(tmp, "styled.dc.html"), "w").write(mail.replace(first, styled))
+    r = diff(os.path.join(tmp, "styled.dc.html"))
+    check("diff: a restyle is reported as not carried", "NOT CARRIED b01" in r.stdout and "EDITED" not in r.stdout, r.stdout)
+    open(os.path.join(tmp, "unwrapped.dc.html"), "w").write(mail.replace("data-wire-root", "data-gone"))
+    r = diff(os.path.join(tmp, "unwrapped.dc.html"), "--apply", fmt)
+    check("diff: a board without its wrapper stops", r.returncode == 3 and r.stdout.startswith("STOP") and open(fmt).read() == orig, (r.returncode, r.stdout[:200]))
+    lines = [l for l in mail.split("\n") if re.search(r'<div data-block="b\d+"', l)]
+    gutted = mail
+    for l in lines[1:]: gutted = gutted.replace(l + "\n", "")
+    open(os.path.join(tmp, "gutted.dc.html"), "w").write(gutted)
+    r = diff(os.path.join(tmp, "gutted.dc.html"), "--apply", fmt)
+    check("diff: removing most blocks stops for a confirmation", r.returncode == 3 and "blocks would be removed" in r.stdout and open(fmt).read() == orig, (r.returncode, r.stdout[-300:]))
+    r = diff(os.path.join(tmp, "gutted.dc.html"), "--apply", fmt, "--confirm-removals")
+    check("diff: confirmed removals are applied", r.returncode == 0 and open(fmt).read() != orig, (r.returncode, r.stdout[-300:]))
+    open(fmt, "w").write(orig)
 
     # Design state: canvas version, pull check, export record, pending changes.
     p = os.path.join(tmp, "piece"); os.makedirs(os.path.join(p, "formats")); os.makedirs(os.path.join(p, "wire", "sheet"))
@@ -109,6 +131,33 @@ try:
     check("state: exported session", j["session"] == "exported", j)
     check("state: pending since the export", j["formats"]["sheet"]["pending"] == ["v4 · canvas: cut slide 2"] and j["formats"]["sheet"]["format_file_changed"] is True, j["formats"])
     check("state: board snapshot kept", os.path.exists(os.path.join(p, ".prism/exports/sheet/v3/wire.json")))
+
+    # Co-op: owner and invitees, an exact pull check once others can save, the canvas owner note, the Exports page.
+    check("co-op: invite needs an owner", run("state", p, "invite", "Dana").returncode == 2)
+    st("coop", "--owner", "Ian", "--doc", "https://claude.ai/artifact/D")
+    check("co-op: invitees recorded once", st("invite", "@Dana", "Lee", "dana").strip() == "invitees: Dana, Lee", st("show"))
+    check("co-op: show names them", "co-op: owner Ian · invitees Dana, Lee · doc https://claude.ai/artifact/D" in st("show"))
+    st("canvas", "--version", "1791305898-aae5")
+    check("co-op: same second is not enough", st("pull-needed", "--version", "1791305898-c83e").startswith("pull"))
+    check("co-op: the exact version still skips", st("pull-needed", "--version", "1791305898-aae5").startswith("skip"))
+    st("invite", "Dana", "Lee", "--remove")
+    check("co-op: removed invitees bring the grace back", st("pull-needed", "--version", "1791305898-c83e").startswith("skip"))
+    r = run("wire", "fixtures/deck.md", "--out", "wire", "--canvas", "wire/canvas", "--owner", "Ian", cwd=tmp)
+    note = json.load(open(ip))["notes"].get("coop", {})
+    check("co-op: owner note on the canvas, index sent", "Ian's Prism makes the changes" in note.get("text", "") and pubof(r)["file_path"].endswith("canvas.json"), (note, r.stderr))
+    os.makedirs(os.path.join(p, "out"))
+    open(os.path.join(p, "out/x-sheet-v4.pdf"), "wb").write(b"%PDF-1.4 test")
+    open(os.path.join(p, "out/x-deck-v4.pptx"), "wb").write(b"PK test")
+    with open(os.path.join(p, "out/x-big.zip"), "wb") as f: f.truncate(16 * 1024 * 1024)
+    st("export", "sheet", os.path.join(p, "out/x-sheet-v4.pdf")); st("export", "deck", os.path.join(p, "out/x-deck-v4.pptx"))
+    r = run("exports", p, "--out", os.path.join(p, "exports"), "--title", "Test piece", "--add", os.path.join(p, "out/x-big.zip"))
+    pe = [l for l in r.stdout.splitlines() if l.startswith("publish: ")]
+    E = json.loads(pe[0][9:]) if pe else {}
+    page = open(E["file_path"]).read() if E else ""
+    check("exports: page and publish line", r.returncode == 0 and set(E.get("files", {})) == {"files/x-sheet-v4.pdf", "files/x-deck-v4.pptx"}, r.stdout + r.stderr)
+    check("exports: a deck keeps its type", E.get("files", {}).get("files/x-deck-v4.pptx", {}).get("contentType", "").endswith("presentationml.presentation"), E)
+    check("exports: too-large files are listed, not hosted", "too large to host here" in page and "x-big.zip" in r.stdout, r.stdout)
+    check("exports: titled and versioned", "<title>Test piece files</title>" in page and "v4 · " in page and "by Ian" in page, page[:400])
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 

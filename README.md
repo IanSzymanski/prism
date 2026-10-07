@@ -52,7 +52,7 @@ To build a fixture in another brand, add `brand: prism` to its front matter.
 node tests/resolve.test.js            # the Case Amplify profile equals the 0.13.1 kit's values
 node tests/brands.test.js             # core holds no brand; every brand resolves and its ornaments draw
 python3 tests/assets.test.py          # focal points, crop markup and the brand image library
-python3 tests/wire.test.py            # design mode: boards, canvas index, icons, links, brand lo-fi, edit read-back, state
+python3 tests/wire.test.py            # design mode: boards, canvas index, icons, links, brand lo-fi, edit read-back, state, co-op
 python3 tests/tutorial.test.py        # the tutorial still describes every command, format and skill (convert.py runs the same check)
 python3 tests/core-brand-free.test.py # no brand is named in core; defaults come from the profiles
 node tests/drafts.test.js             # onboarding drafts build like shipped brands, say so, and are never the default
