@@ -6,7 +6,7 @@ Run by tests/tutorial.test.py and by chatgpt/convert.py before every build, so a
 What it checks:
 - every command in plugin/prism/commands is named (/prism-...), inside a Claude-only section;
 - every output format (a card in prism-produce/references/formats) and every skill has its phrase in the tutorial;
-- the brands are listed at run time with `run.sh brands` (core names no brand);
+- the brands are listed at run time with `run.sh brands` (core names no brand), and the packages with `run.sh packages`;
 - the ChatGPT copy (Claude-only sections removed) names no command;
 - the "tutorial-reviewed" stamp matches the version's major.minor, so every release's changes get a look.
 A new format or skill without an entry in PHRASES below fails until it is added here and in the tutorial."""
@@ -50,6 +50,8 @@ def problems(version=None):
             if not has(p): out.append(f"{key}: the tutorial never says \"{p}\"")
     # Brands are listed at run time (core names none, tests/core-brand-free.test.py), so the tutorial must say how.
     if "run.sh brands" not in t: out.append("the tutorial must tell the presenter to list the brands with `run.sh brands`")
+    # Packages are listed at run time too (core and brand packages), so the tutorial says how.
+    if "run.sh packages" not in t: out.append("the tutorial must tell the presenter to list the packages with `run.sh packages`")
     # The reviewed stamp: one look per release (major.minor).
     if version:
         m = re.search(r"<!--\s*tutorial-reviewed:\s*([\d.]+)\s*-->", t)

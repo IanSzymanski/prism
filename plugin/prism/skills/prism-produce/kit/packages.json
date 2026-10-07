@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "packages": {
+    "case-study": {
+      "name": "Case study package",
+      "use": "One client story told everywhere at once: social, story, blog, deck, a one-pager, the full case study PDF and an announcement email.",
+      "asks": ["case study package", "case study pack", "case study kit", "full case study set"],
+      "piece": "case study",
+      "length": "long",
+      "outputs": [
+        { "id": "social", "format": "social", "posts": 2, "brief": "Two feed posts, each with its caption: the headline result as a stat post, then the client's quote or the problem they solved." },
+        { "id": "story", "format": "social", "stories": 1, "brief": "One story with the headline result and a short line pointing to the full case study." },
+        { "id": "blog", "format": "blog", "brief": "The story as a blog post (impact type unless the piece says otherwise): challenge, what changed, results, the client's words." },
+        { "id": "deck", "format": "deck", "brief": "A short case study deck for a sales conversation: title, at a glance, challenge, what they did, results, quote, close." },
+        { "id": "sheet", "format": "sheet", "pages": 1, "brief": "The one-pager: at a glance stats, two or three short sections, a small closing card." },
+        { "id": "case-study", "format": "sheet", "min_pages": 2, "brief": "The full case study PDF (3 to 5 pages): at a glance, organization, challenge, what they did, results with a table or chart, what made it work, closing card." },
+        { "id": "html-email", "format": "html-email", "brief": "An announcement email (template: announcement) introducing the case study, with one call to action to read it." }
+      ]
+    },
+    "demo-follow-up": {
+      "name": "Demo follow-up package",
+      "use": "What a prospect gets after a demo: a takeaway PDF on the specific ways the product helps them and the next steps, and a follow-up email.",
+      "asks": ["demo follow-up package", "demo follow up package", "follow-up package", "demo pack"],
+      "piece": "follow-up",
+      "length": "standard",
+      "outputs": [
+        { "id": "takeaway", "format": "sheet", "min_pages": 2, "brief": "A multipage takeaway: what we heard, the specific ways we can help (one section each), next steps as a numbered list, closing card with the contact." },
+        { "id": "html-email", "format": "html-email", "brief": "A personal follow-up email (template: letter) thanking them for their time, naming the two or three points that mattered most, and one call to action for the next step." }
+      ]
+    }
+  }
+}

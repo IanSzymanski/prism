@@ -7,10 +7,15 @@ State lives in the project: `.prism-kit/run.sh state <slug> ...` keeps the canva
 ## Open the canvas (step 1b of the skill: opens on its own before the first build)
 
 1. **Photos** (only when the piece has its own photos, not placeholders): if the canvas does not exist yet, create it first (step 2), then upload every file in `images/` that a format file uses in one call (the Artifact tool's publish with the canvas `url`, `asset: true` and `file_paths`), and write `wire/assets.json`, each image path as the format files write it mapped to the `url` the upload returned: `{"images/visit.jpg": "/_blob/…"}`. Boards then show the photos, cropped around their focal points. Skip this when there are no photos: grey boxes are fine.
-2. **Create the canvas** once per piece: the Artifact tool's quickstart with intent "design" gives the Design type's link; publish with that `type_url`, the title "<piece title> design" and `auto_open: "after_first_write"`. Record its link: `state <slug> canvas --url <link>`.
+2. **Create the canvas** once per piece: the Artifact tool's quickstart with intent "design" gives the Design type's link; publish with that `type_url`, the title "<piece title> design" (a package: "<piece title> · <package name>") and `auto_open: "after_first_write"`. Record its link: `state <slug> canvas --url <link>`.
 3. **Build every board in one command** (one browser for all of them):
    ```bash
    .prism-kit/run.sh wire formats/sheet.md formats/deck.md --out wire --canvas wire/canvas --title "<piece title> design"
+   ```
+
+   A package passes every output's format file in package.json's order, so the boards sit side by side as one set.
+
+   ```bash
    ```
    It writes `wire/<format>/<format>.dc.html` and `wire.json` (the snapshot the diff needs) for each format, `wire/canvas/project/` with every board and `canvas.json` (boards left to right, the how-to note, `createdOnFiles`), and prints a `publish:` line. Never edit these files by hand.
 4. **Publish in one call** with exactly what the `publish:` line gives (`root`, `file_path`, `files`) and the canvas `url`. Then record the version the publish result names: `state <slug> canvas --version <version id>`.

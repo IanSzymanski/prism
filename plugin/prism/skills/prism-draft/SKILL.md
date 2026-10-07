@@ -31,6 +31,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 - Work in the session workspace. Create `<slug>/` (short kebab-case name from the topic) with `source/`, `formats/`, `out/`.
 - Save every raw input unchanged into `source/`: uploaded files by copy, pasted text as `source/pasted-<n>.md`, transcripts as-is. Audio is not accepted; ask for a transcript (phone dictation, Teams/Zoom/Otter transcript) if audio is all there is.
 - Copy `../prism-produce/kit` to `<workspace>/.prism-kit` if it is not there yet (the image and library commands below use it).
+- **Packages.** A package is a set number of finished outputs from the same approved words (a case study package: two social posts with captions, a story, a blog post, a deck, a one-pager, the full case study PDF and an HTML email). `bash .prism-kit/run.sh packages` lists them with their outputs, the brand's own included. When the request names one ("a case study package"), run `bash .prism-kit/run.sh packages use <slug> <package>`, adding any change the person asked for (`--drop deck`, `--set social.posts=3`, `--add carousel`). It writes `<slug>/package.json` and prints the `package:` and `exports:` lines for content.md. A package the person asks to change later is the same command again.
 - Start `log.md` with the date, the inputs, and the brief.
 
 ### Images
@@ -53,7 +54,7 @@ Ask only for what the request doesn't already say, in one AskUserQuestion call. 
 
 1. **Audience**: who reads it.
 2. **Length**: short (one page, a few posts), standard, or long (several pages), or a word count. Skipped: what suits the piece type.
-3. **Outputs**: any of sheet, brochure, deck, social, email (header images), html-email (the whole email: newsletter, announcement or letter), carousel, blog. Skipped: decided after approval.
+3. **Outputs**: any of sheet, brochure, deck, social, email (header images), html-email (the whole email: newsletter, announcement or letter), carousel, blog, or a package (one option per package from `run.sh packages`, its outputs in the description). Skipped: decided after approval. With a package, a skipped Length takes the package's `length`.
 4. **Images**: "Do you have photos or images for this piece?" Options: "I'll upload them now", "Use photos from the brand library" (only when `bash .prism-kit/run.sh library <brand>` lists any), "Add them later", "No images". Uploads are taken as soon as they arrive (step 1, Images); "later" can be any time, design mode included.
 
 Ask in a second call only what is still unclear and matters: **figures**, real (from sources) or illustrative (fictional example), and the **piece type** when it isn't obvious (case study, one-pager, brief, announcement, guide, blog post). For a blog post also establish its blog type (educational, insights, features, spontaneous, impact, changelog) and author, and ask whether they have a header photo to upload (faded into a brand gradient) or, for features, a product screenshot. Without one the header is a brand gradient. A changelog is its own series: ask for its release line ("Release 2.4 · September 2026"). Record them in content.md front matter as `blog-type`, `author`, `role`, `tags`.
@@ -89,7 +90,7 @@ The `/prism-interview` command starts a piece this way.
 
 ## 3. Write and review (subagents)
 
-1. Run the **prism-writer** agent. Pass: project path, source file paths, the brief, the paths of interview.md (when the interview ran) and images.md (when there are images), the output of `bash .prism-kit/run.sh library <brand>`, and absolute paths of `references/content-spec.md` and the brand digest. It writes `content.md` and `claims.md`.
+1. Run the **prism-writer** agent. Pass: project path, source file paths, the brief, the paths of interview.md (when the interview ran) and images.md (when there are images), the output of `bash .prism-kit/run.sh library <brand>`, the output of `bash .prism-kit/run.sh packages show <package>` when the piece is a package, and absolute paths of `references/content-spec.md` and the brand digest. It writes `content.md` and `claims.md`.
 2. Run the **prism-reviewer** agent on the result. Pass: paths of content.md, claims.md, images.md (if any), the brand digest, and the source files. It adds `<!-- CHECK -->` flags inline.
 3. Read content.md yourself once. Confirm front matter is complete and no layout markup crept in.
 
@@ -131,4 +132,4 @@ Stop. Do not format or build anything until the user approves.
 
 - **Edits in chat:** apply them to content.md with Edit (to the proof doc instead, while one is open). Resolve a CHECK flag only when the edit addresses it. Re-run prism-reviewer on the changed sections only if numbers, quotes or claims changed.
 - **Uploaded content.md:** replace the project's content.md (and the proof doc's Content tab, while one is open), keep the old one as `content.v<n>.md`, and diff them in log.md (one line per changed section).
-- **Approve:** refuse to approve while CHECK flags remain, unless the user explicitly accepts them ("keep it as is"); then delete those comments and note the acceptance in log.md. Also remove any claims.md row still marked VERIFY only if the user confirms it. Set `status: approved`, bump `version` and log the approval. If exports are named (in the request or the `exports` list), start `prism-produce` for them straight away, without asking. Otherwise tell the user they can now ask for outputs ("produce a sheet and a carousel").
+- **Approve:** refuse to approve while CHECK flags remain, unless the user explicitly accepts them ("keep it as is"); then delete those comments and note the acceptance in log.md. Also remove any claims.md row still marked VERIFY only if the user confirms it. Set `status: approved`, bump `version` and log the approval. If exports are named (in the request, the `exports` list or a package), start `prism-produce` for them straight away, without asking. Otherwise tell the user they can now ask for outputs ("produce a sheet and a carousel").
