@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Checks that the Prism tutorial (prism-draft/references/tutorial.md) still matches the plugin it describes.
 Usage: check-tutorial.py [VERSION]   (exit 1 and a list of problems when it is out of date)
-Run by tests/tutorial.test.py and by chatgpt/convert.py before every build, so a stale tutorial can't ship.
+Run by tests/tutorial.test.py and by tools/build.py before every build, so a stale tutorial can't ship.
 
 What it checks:
-- every command in plugin/prism/commands is named (/prism-...), inside a Claude-only section;
+- every command in plugin/prism/commands is named (/prism-...);
 - every output format (a card in prism-produce/references/formats) and every skill has its phrase in the tutorial;
 - the brands are listed at run time with `run.sh brands` (core names no brand), and the packages with `run.sh packages`;
-- the ChatGPT copy (Claude-only sections removed) names no command;
 - the "tutorial-reviewed" stamp matches the version's major.minor, so every release's changes get a look.
 A new format or skill without an entry in PHRASES below fails until it is added here and in the tutorial."""
 import json, os, re, sys
@@ -26,21 +25,15 @@ PHRASES = {
 CARDS_NOT_FORMATS = {"components"}
 
 
-def claude_only_stripped(t):
-    return re.sub(r"\n?<!-- claude-only -->[\s\S]*?<!-- /claude-only -->\n?", "\n", t)
-
-
 def problems(version=None):
     out = []
     t = open(TUTORIAL, encoding="utf8").read()
     low = t.lower()
     has = lambda p: p.lower() in low
-    # Commands: named, and only where the ChatGPT edition won't see them.
+    # Commands: every one is named.
     cmds = sorted(f[:-3] for f in os.listdir(os.path.join(PLUGIN, "commands")) if f.endswith(".md"))
     for c in cmds:
         if f"/{c}" not in t: out.append(f"command /{c} is not in the tutorial")
-    stripped = claude_only_stripped(t)
-    for c in re.findall(r"/prism-[\w-]+", stripped): out.append(f"{c} is mentioned outside a claude-only section (ChatGPT has no commands)")
     # Formats and skills.
     cards = sorted(f[:-3] for f in os.listdir(os.path.join(PLUGIN, "skills", "prism-produce", "references", "formats")) if f.endswith(".md") and f[:-3] not in CARDS_NOT_FORMATS)
     skills = sorted(d for d in os.listdir(os.path.join(PLUGIN, "skills")) if os.path.isdir(os.path.join(PLUGIN, "skills", d)))

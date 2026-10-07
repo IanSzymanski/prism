@@ -45,4 +45,3 @@ PDFs embed the brand's own TrueType fonts and draw icons as vector shapes. Files
 
 Every revision is vetted before it is rebuilt (`run.sh vet`): numbering is fixed after a reorder, headings are reunited with their text, typos in changed passages are corrected, notes to the editor are left out, and the reply lists each fix.
 
-A ChatGPT edition is built from this plugin by `convert.py`; every change ships in both.

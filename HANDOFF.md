@@ -8,19 +8,18 @@ The backlog lives in the pinned **Prism Backlog** artifact: https://claude.ai/ar
 
 ## What it is
 
-`prism` is a plugin that turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. One approved `content.md` feeds every output, and a fixed build kit makes every file in the brand the content names (`kit/brands/`: Case Amplify, the default, and Prism). It ships in two editions, built from one source:
+`prism` is a plugin that turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. One approved `content.md` feeds every output, and a fixed build kit makes every file in the brand the content names (`kit/brands/`: Case Amplify, the default, and Prism). It ships as a Claude (Cowork) plugin: `plugin/prism/`.
 
-- **Claude edition** (Cowork plugin): `plugin/prism/`
-- **ChatGPT edition**: generated from the Claude source by `chatgpt/convert.py`
+**The ChatGPT edition is deprecated (Oct 7, decided by Ian).** Prism has outgrown its scope, so `chatgpt/` is frozen: don't update `convert.py` or `chatgpt/meta/`, don't build it, and don't spend effort keeping changes ChatGPT-compatible. Notes below that mention ChatGPT are history.
 
 ## Standing rules (from Ian)
 
-- **Releases: only v1 is cut.** No interim releases (no 0.14.0, 0.15.0 or 0.16.0); work continues as `0.x-dev` until v1. `convert.py` still takes the version string, and the tutorial stamp follows its major.minor.
+- **Releases: only v1 is cut.** No interim releases (no 0.14.0, 0.15.0 or 0.16.0); work continues as `0.x-dev` until v1. `tools/build.py` still takes the version string, and the tutorial stamp follows its major.minor.
 
-- **Every change ships in both editions.** Edit the Claude source, then run `python3 chatgpt/convert.py <VERSION>`. It bumps the version everywhere, builds the ChatGPT copy, and zips both into `dist/`. The ChatGPT zip must have its contents at the zip root (the upload menu rejects a wrapper folder). The build fails if Claude-only terms leak into the ChatGPT copy.
-- **Core names no brand.** Nothing outside `kit/brands/<id>/` (skills, agents, format cards, commands, kit code, READMEs, the ChatGPT edition's manifests and assets, convert.py) names a brand or uses its words. Each profile lists its identifying words in `identity.terms`; `tests/core-brand-free.test.py` fails on any of them in core, and on a brand id hardcoded in kit code. Brand-specific defaults live in the profile: `"default": true` (the brand a piece uses when it names none), `content.audience`, `content.contact`, `content.email_sender`; `run.sh brands` lists them, and skills read them from there. Examples in format cards use the fictional Harbor Point and example.com.
-- **The tutorial stays current** (`prism-draft/references/tutorial.md`, shown by `/prism-tutorial`). `tools/check-tutorial.py` runs before every `convert.py` build and fails it when a command, output format or skill is missing from the tutorial, when it stops pointing at `run.sh brands` (brands are listed at run time, never named), when a command leaks into the ChatGPT copy, or when the version's major.minor differs from the tutorial's `<!-- tutorial-reviewed: X.Y -->` stamp. On a new release: read the tutorial against that release's changes, update it, then set the stamp. A new format card or skill also needs its phrase in the checker's `PHRASES`.
-- **Claude-only text** goes between `<!-- claude-only -->` and `<!-- /claude-only -->`; convert.py strips it, along with `build-wire.js`, `wire_diff.py` and `wireframe.md`.
+- **Build:** edit `plugin/prism/`, then run `python3 tools/build.py <VERSION>`. It checks the tutorial, bumps the version everywhere and zips the plugin into `dist/`. The ChatGPT edition is no longer built.
+- **Core names no brand.** Nothing outside `kit/brands/<id>/` (skills, agents, format cards, commands, kit code, READMEs, tools/build.py) names a brand or uses its words. Each profile lists its identifying words in `identity.terms`; `tests/core-brand-free.test.py` fails on any of them in core, and on a brand id hardcoded in kit code. Brand-specific defaults live in the profile: `"default": true` (the brand a piece uses when it names none), `content.audience`, `content.contact`, `content.email_sender`; `run.sh brands` lists them, and skills read them from there. Examples in format cards use the fictional Harbor Point and example.com.
+- **The tutorial stays current** (`prism-draft/references/tutorial.md`, shown by `/prism-tutorial`). `tools/check-tutorial.py` runs before every `tools/build.py` build and fails it when a command, output format or skill is missing from the tutorial, when it stops pointing at `run.sh brands` (brands are listed at run time, never named), or when the version's major.minor differs from the tutorial's `<!-- tutorial-reviewed: X.Y -->` stamp. On a new release: read the tutorial against that release's changes, update it, then set the stamp. A new format card or skill also needs its phrase in the checker's `PHRASES`.
+- **Claude-only markers** (`<!-- claude-only -->` … `<!-- /claude-only -->`) are left over from the ChatGPT edition. They are harmless; new text doesn't need them.
 - **All editing happens inside Prism** (text and layout). Editable exports (Illustrator, Canva, InDesign) were removed in 0.14: design mode replaced them.
 - **Every user edit is vetted**: typos and mechanical slips are caught, fixed and reported back. Meaning (numbers, names, quotes, claims) never changes without asking.
 - **Design mode applies to every format.** It opens on its own once format files exist (0.14, F2); quick mode, unattended runs and "just build it" skip it. While it is open, no output file is built until the user says "done".
@@ -117,7 +116,6 @@ Small "spotlight" glows read as stains, so don't use them.
   - The multi-board canvas layout.
 - **Done in 0.12.1:** arrows in every kit font; the guide brought up to 0.12 (the ask-first step, no build until "done", chat requests pulling canvas edits first, the `changes:` list, size chart remeasured). The guide is still 14 pages.
 - **Possible next steps** (from 0.12; the backlog artifact above is the current list):
-  - Run design mode through the ChatGPT edition's equivalent (chat-only) on a real piece.
   - Confirm the 0.12 session rules and the multi-board canvas live (above).
   - Optional: in the guide, the "readback after every revision" callout now starts page 5 rather than sitting under "Every edit, vetted". It reads fine; trim the design mode page if you want them together again.
 - **Unanswered offer:** updating `wave-system.md`. It was never confirmed, so don't act on it.
@@ -125,11 +123,12 @@ Small "spotlight" glows read as stains, so don't use them.
 ## Bundle contents
 
 - `plugin/prism/`: Claude edition source, without node_modules or caches; setup reinstalls them.
-- `chatgpt/convert.py` and `chatgpt/meta/`: the ChatGPT edition builder and its manifest, assets and README. Paths default to this bundle; override them with `PRISM_SRC`, `PRISM_OUT`, `PRISM_META` and `PRISM_DIST`.
+- `tools/build.py`: stamps the version and builds `dist/prism-<version>.zip`. Paths default to this repository; override them with `PRISM_SRC` and `PRISM_DIST`.
+- `chatgpt/`: **deprecated**, frozen ChatGPT edition builder (`convert.py`, `meta/`). It refuses to run unless `PRISM_CHATGPT_LEGACY=1`; don't maintain it.
 - `guide/`: Markdown source and images for the Prism guide. Build it with `run.sh sheet guide/guide.md out/guide.pdf`.
 - `fixtures/`: sample format files for every output, for regression tests.
 - `fonttools/add_arrows.py`: dev tool, not shipped. Adds the arrows to the kit fonts from the Google Fonts upstream (`Inter[opsz,wght].ttf`, `Literata[opsz,wght].ttf`, `IBMPlexMono-Medium.ttf` from github.com/google/fonts). It checks advance widths to prove each instance matches the kit's design, and runs the OpenType Sanitizer (`pip install opentype-sanitizer`) on every font it saves. A second run changes nothing. Extend `ARROWS` to add other characters the same way.
-- `dist/`: build output (not in git): `python3 chatgpt/convert.py <version>` writes both zips there.
+- `dist/`: build output (not in git): `python3 tools/build.py <version>` writes the plugin zip there.
 
 ## Brand profiles (0.14, D10)
 
