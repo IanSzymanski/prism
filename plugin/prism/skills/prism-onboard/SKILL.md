@@ -42,16 +42,21 @@ Ask in as few question rounds as possible. Only the design system is needed; eve
 <!-- /claude-only -->
    An uploaded design system export (a folder or zip with `tokens.json`, `README.md`, `fonts/`, `assets/`): unzip it into `onboarding-<id>/source/`. Prism reads the design system's `tokens.json`; without one, say so and stop.
 2. **Brand name**, if the design system's own name isn't it.
-3. **Outputs** the brand will be used for (sheet, brochure, deck, social, email, html-email, carousel, blog). They don't limit the brand; they decide which swatch samples to look at first.
-4. **Defaults** for pieces in this brand: the usual audience, the contact line on a sheet footer, and the email tool (for HTML emails).
+3. **Defaults** for pieces in this brand: the usual audience, the contact line on a sheet footer, and the email tool (for HTML emails).
 
 ## 3. Draft
 
 ```bash
-bash .prism-kit/run.sh onboard start <id> <design system folder> --name "<name>" --url <design system link> --outputs <a,b> --audience "<audience>" --contact "<contact>" --email-sender "<tool>"
+bash .prism-kit/run.sh onboard start <id> <design system folder> --name "<name>" --url <design system link> --audience "<audience>" --contact "<contact>" --email-sender "<tool>"
 ```
 
 It copies the design system beside the draft, matches the roles it can by name, writes the profile, a snapshot of the files it needs, the Office fonts, the email font stacks and core's proposed email palette, and prints the report: what builds, what is mapped and how, what is unmapped, and the design system's names no role uses, with their usage notes.
+
+The report is short: what needs a decision (roles to check, roles without a match and their candidates, failing email checks). `onboard report <id> --full` lists every mapped role and every unused design-system name; the bundle notes always carry the full version.
+
+A role only this brand's own layers or ornaments read (a drawn rule's image, a second wash, a glow behind a dark slide) is not a core role: map it as `own-<kind>-<name>` (`onboard map <id> own-asset-rule-stop=assets/Rules/stop.svg`); it resolves like a core role (`--own-asset-rule-stop` in CSS, `B.asset("own-asset-rule-stop")` in ornaments).
+
+Dark grounds a design system doesn't name (the closing card, text on dark) come from its own dark theme when it has one (its surface and text colours there); without one, from its text colour as the ground and its surface as the text.
 
 Then finish the draft:
 

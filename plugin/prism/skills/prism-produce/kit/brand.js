@@ -38,7 +38,7 @@ module.exports = function brand(md, forceId) {
     // Fills {{role}} and {{role@theme}} in a stylesheet (|uri encodes for data URIs) and returns the filled copy's path.
     stylesheet(file) {
       const out = path.join(dir, (file.startsWith(res.dir) ? "brand-" : "") + path.basename(file));
-      const s = fs.readFileSync(file, "utf8").replace(/\{\{(prism-[\w-]+)(?:@(\w+))?(\|uri)?\}\}/g, (_, n, t, u) => { const v = B.color(n, t); return u ? encodeURIComponent(v) : v; });
+      const s = fs.readFileSync(file, "utf8").replace(/\{\{((?:prism|own)-[\w-]+)(?:@(\w+))?(\|uri)?\}\}/g, (_, n, t, u) => { const v = B.color(n, t); return u ? encodeURIComponent(v) : v; });
       fs.writeFileSync(out, s);
       return out;
     },

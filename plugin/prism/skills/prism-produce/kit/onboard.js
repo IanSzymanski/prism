@@ -56,8 +56,8 @@ const SYN = {
   "color-link-line": ["link-line", "accent-line", "link-underline"], "color-wash": ["wash", "accent-wash"], "color-wash-2": ["wash-2"],
   "color-tint": ["tint", "accent-tint", "accent-soft"], "color-tint-line": ["tint-line", "accent-line"], "color-band": ["band", "soft"],
   "color-code": ["code", "code-bg"], "color-pre": ["pre", "code-block", "code"], "color-chart-grid": ["grid", "chart-grid", "gridline"], "color-desk": ["desk", "backdrop"],
-  "color-dark-surface": ["dark-surface", "dark-card", "dark", "inverse"], "color-dark-deep": ["dark-deep"], "color-dark-high": ["dark-high"],
-  "color-dark-glow": ["dark-glow"], "color-dark-glow-2": ["dark-glow-2"], "color-rule-on-dark": ["rule-on-dark", "dark-rule", "dark-line"],
+  "color-dark-surface": ["dark-surface", "dark-card", "dark", "inverse"], "color-dark-deep": ["dark-deep"], 
+  "color-rule-on-dark": ["rule-on-dark", "dark-rule", "dark-line"],
   "color-text-on-photo": ["text-on-photo", "photo-text", "on-photo", "dark-fg"],
   "font-serif": ["serif", "display", "heading", "headline"], "font-sans": ["sans", "body", "text", "base"], "font-mono": ["mono", "code", "monospace"],
   "type-title": ["title", "display", "masthead"], "type-heading-1": ["heading-1", "h1"], "type-heading-2": ["section", "heading-2", "h2"], "type-heading-3": ["heading-3", "h3"],
@@ -266,30 +266,40 @@ function report(id) {
     unmapped: unmapped.map(r => ({ role: r.role, required: !!r.required, description: r.description, kind: r.kind, uses: res.roles && res.roles[r.role] ? res.roles[r.role].from : null,
       candidates: candidates(r, N[r.kind] || [], used, res.theme || themes[0]) })), unused: Object.fromEntries(Object.entries(N).map(([k, v]) => [k, v.filter(t => !used.has(t.name)).map(t => ({ name: t.name, usage: t.usage }))])),
     palette: pal ? { reviewed: pal.reviewed && pal.reviewed.onboarding, set: !!pal.palette, proposed: !!pal.proposed, failing: checks.filter(c => !c.ok).map(c => c.msg), webfonts: pal.fonts && pal.fonts.webfonts } : null, office: prof.office || null, terms, todo, gaps: prof._gaps || "",
+    ownRoles: Object.fromEntries(Object.entries(prof.roles).filter(([k]) => k.startsWith("own-"))),
     components: Object.entries(prof.components || {}).map(([k, c]) => ({ id: k, use: c.use || "", markup: c.markup || "", when: c.when || "", max: c.max || null, rules: c.rules || [], formats: c.formats || [], like: c.like || null })) };
 }
 const short = v => v == null ? "" : typeof v === "string" ? v : v.stack ? v.stack : v.fontSize ? `${v.fontWeight} ${v.fontSize}/${v.lineHeight}` : v.path ? path.basename(v.path) : Object.values(v).join(" / ");
-function reportMd(r) {
+// The report is short by default: what needs a decision. --full (and the bundle notes) adds every mapped role and every unused name.
+const FULL = process.argv.includes("--full");
+function reportMd(r, full = FULL) {
   const L = [`# ${r.name} (${r.id}): onboarding report`, "", `Draft: ${r.dir}`, `Design system: ${(r.source && r.source.url) || (r.source && r.source.title) || "local folder"}`, ""];
   L.push(`Builds in theme "${r.theme.builds}" of ${r.theme.all.map(t => `"${t}"`).join(", ")}${r.theme.all.length > 1 ? " (change with map <id> theme=<id>)" : ""}.`, "");
   if (r.outputs.length) L.push(`Outputs the brand will use: ${r.outputs.join(", ")}`, "");
   L.push(r.errors.length ? `**Does not build yet:**\n${r.errors.map(e => `- ${e}`).join("\n")}` : "Builds: yes (every required role resolves).", "");
   if (r.todo.length) L.push("## To do", ...r.todo.map(t => `- ${t}`), "");
-  L.push(`## Mapped (${r.mapped.length} of ${r.mapped.length + r.unmapped.length})`, "| Role | Design system | Value | Matched by |", "|---|---|---|---|", ...r.mapped.map(m => `| ${m.role} | ${m.native} | ${short(m.value)} | ${m.how} |`), "");
+  // Exact name matches are counted, not listed: the ones worth a look are matched by a usual name, a usage note, a file name or by hand.
+  const sure = r.mapped.filter(m => m.how === "same name"), look = full ? r.mapped : r.mapped.filter(m => m.how !== "same name");
+  L.push(`## Mapped (${r.mapped.length} of ${r.mapped.length + r.unmapped.length})`, ...(full ? [] : [`${sure.length} matched by the same name; the rest, to check:`]), "| Role | Design system | Value | Matched by |", "|---|---|---|---|", ...look.map(m => `| ${m.role} | ${m.native} | ${short(m.value)} | ${m.how} |`), "");
   // One list for every role without its own match: what it uses now, and the design system's likely names for it. Roles with
   // candidates come first: they are the replacement questions for the person.
   if (r.unmapped.length) {
     const now = u => u.required ? "required, unmapped: builds stop" : u.uses ? `from ${u.uses.replace(/^prism-/, "")}` : "unmapped";
     const cand = u => u.candidates.length ? `; candidates: ${u.candidates.map(c => `\`${c.name}\`${c.value ? ` ${c.value}` : ""}${c.usage ? ` (${c.usage.slice(0, 60)})` : ""}`).join(", ")}` : "";
     const list = [...r.unmapped].sort((a, b) => (b.required - a.required) || (b.candidates.length > 0) - (a.candidates.length > 0));
-    L.push("## Roles without their own match", "Map a candidate, keep what it takes now, or leave it; ask the person about the ones with candidates.", ...list.map(u => `- ${u.role} (${u.description.replace(/\.$/, "")}): ${now(u)}${cand(u)}`), "");
+    // Roles with candidates (or required) are the questions, one line each; the rest only report what they use, on one line.
+    const ask = full ? list : list.filter(u => u.required || u.candidates.length), quiet = full ? [] : list.filter(u => !ask.includes(u));
+    L.push("## Roles without their own match", "Map a candidate, keep what it takes now, or leave it; ask the person about the ones with candidates.", ...ask.map(u => `- ${u.role} (${u.description.replace(/\.$/, "")}): ${now(u)}${cand(u)}`),
+      ...(quiet.length ? [`- No candidate, kept as they are: ${quiet.map(u => `${u.role.replace(/^prism-/, "")} (${now(u)})`).join(", ")}`] : []), "");
   }
   if (r.gaps) L.push(`Unmapped on purpose: ${r.gaps}`, "");
   const un = Object.entries(r.unused).filter(([, v]) => v.length);
-  if (un.length) L.push("## Design system names no role uses", ...un.map(([k, v]) => `- ${k}: ${v.map(t => t.name + (t.usage ? ` (${t.usage.slice(0, 80)})` : "")).join("; ")}`), "");
+  if (un.length) L.push("## Design system names no role uses", ...un.map(([k, v]) => `- ${k}: ${full ? v.map(t => t.name + (t.usage ? ` (${t.usage.slice(0, 80)})` : "")).join("; ") : v.map(t => t.name).join(", ")}`), "");
   if (r.palette) L.push("## Email palette", r.palette.reviewed ? `Accepted at onboarding (${r.palette.reviewed}).` : !r.palette.set ? "Not proposed yet: it needs every required role." : r.palette.proposed ? "Core's proposal from the brand's colours (recomputed while the mapping changes)." : "Set by hand.", ...(r.palette.failing.length ? r.palette.failing.map(f => `- FAIL ${f}`) : ["- every check passes"]), r.palette.webfonts ? `- web fonts: ${r.palette.webfonts} (check these families are on Google Fonts)` : "- web fonts: none (the brand's families are system fonts or have no web source); emails use the font stacks as they are", "");
   if (r.office) L.push(`Office fonts: ${[...new Set(Object.values(r.office.fonts || {}))].join(", ") || "none"}${Object.keys(r.office.files || {}).length ? "" : " (no TrueType or OpenType files: decks fall back to Office's fonts)"}`);
   L.push(`Identity terms: ${r.terms.join(", ") || "none"}`);
+  const own = Object.entries(r.ownRoles || {});
+  L.push(`Brand's own roles (read only by its layers and ornaments): ${own.length ? own.map(([k, v]) => `${k} = ${v}`).join(", ") : "none"}`);
   L.push(`Brand components: ${r.components.length ? "" : "none yet (core's components, and the closing card's full, centred and content-only styles)"}`);
   for (const c of r.components) L.push(`- ${c.id}: \`${c.markup}\` ${c.use}${c.when ? ` When: ${c.when}.` : ""}${c.max ? ` At most ${c.max} per piece.` : ""}${c.rules.length ? ` Rules: ${c.rules.join("; ")}.` : ""}${c.formats.length ? ` In: ${c.formats.join(", ")}.` : ""}${c.like ? ` Decks and HTML email draw it as a ${c.like}.` : " No --like: decks and HTML email can't draw it (they show its text plainly)."}`);
   return L.join("\n") + "\n";
@@ -340,8 +350,10 @@ if (cmd === "start") {
   for (const pair of a.slice(2)) {
     const i = pair.indexOf("="); if (i < 1) die(`expected role=native, got ${pair}`);
     if (pair.slice(0, i) === "theme") { const t = pair.slice(i + 1); if (t === "-") delete prof.theme; else prof.theme = t; continue; }
-    const role = pair.slice(0, i).startsWith("prism-") ? pair.slice(0, i) : "prism-" + pair.slice(0, i), v = pair.slice(i + 1);
-    if (!known.has(role)) die(`no core role ${role} (see roles.json)`);
+    // A core role (prism-<kind>-<name>, prefix optional), or a slot only this brand's own layers use (own-<kind>-<name>).
+    const k0 = pair.slice(0, i), role = /^(prism|own)-/.test(k0) ? k0 : "prism-" + k0, v = pair.slice(i + 1);
+    if (role.startsWith("own-") && !["color", "font", "type", "space", "radius", "shadow", "asset"].includes(role.split("-")[1])) die(`${role}: a brand's own role is own-<kind>-<name>, kind color, font, type, space, radius, shadow or asset`);
+    if (!role.startsWith("own-") && !known.has(role)) die(`no core role ${role} (see roles.json); a slot only this brand's own layers use is own-<kind>-<name>`);
     if (v === "-") { delete prof.roles[role]; delete how[role]; continue; }
     if (/^assets\//.test(v) && !fs.existsSync(path.join(dir, "snapshot", v))) copyIn(path.join(dir, "source"), path.join(dir, "snapshot"), v);
     prof.roles[role] = v; how[role] = "set by hand";
@@ -380,7 +392,7 @@ if (cmd === "start") {
   const final = report(id), pinned = readProf(id), ob = pinned._onboarding || {}, byHow = {};
   for (const m of final.mapped) byHow[m.how] = (byHow[m.how] || 0) + 1;
   delete pinned._onboarding; writeProf(id, pinned);
-  const notes = [reportMd(final).replace(/^# .*\n/, `# ${prof.name} (${id}): brand bundle\n`).replace(/^Draft: .*\n/m, "").replace("## To do", "## Notes"),
+  const notes = [reportMd(final, true).replace(/^# .*\n/, `# ${prof.name} (${id}): brand bundle\n`).replace(/^Draft: .*\n/m, "").replace("## To do", "## Notes"),
     `## Onboarding`, `Started ${ob.started || "?"}, bundled ${today()}. Roles matched by ${Object.entries(byHow).map(([k, v]) => `${k}: ${v}`).join(", ")}.`, "",
     ...(ob.update_of ? [`## Changes since shipped version ${ob.update_of}`, ...(ob.changes.length ? ob.changes.map(c => `- ${c}`) : ["- none in the design system"]), "", `Merge with --replace: python3 tools/add-brand.py <bundle> --replace`, ""] : []),
     "## Review before merging", "Code that ships to every user, read it line by line:", ...codeList(id, pinned, ob), "",
@@ -413,7 +425,7 @@ if (cmd === "start") {
     const kindOf = { color: "color", type: "type", font: "font", space: "space", radius: "radius", shadow: "shadow" };
     for (const k of new Set([...Object.keys(was), ...Object.keys(now)])) {
       if (was[k] === now[k]) continue;
-      const [kind, name] = k.split(/:(.*)/), roles = (byNative[name] || []).filter(r => CORE.find(c => c.role === r && c.kind === kindOf[kind]));
+      const [kind, name] = k.split(/:(.*)/), roles = (byNative[name] || []).filter(r => r.split("-")[1] === kindOf[kind]);
       const what = !(k in now) ? "removed" : !(k in was) ? "added" : `${was[k]} -> ${now[k]}`;
       changes.push(`${kind} ${name}: ${what}${roles.length ? ` (used by ${roles.join(", ")})` : " (no role uses it)"}`);
     }

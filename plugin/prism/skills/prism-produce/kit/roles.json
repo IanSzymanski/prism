@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "_note": "Core role vocabulary. Brand profiles map these to a design system's own names; builders ask for roles, never brand names. An optional role the brand leaves unmapped takes its fallback role's value, or core's default (neutral: transparent, none, a plain margin); roles with neither are only read by a brand's own code or by markup that asks for them.",
+ "_note": "Core role vocabulary. Brand profiles map these to a design system's own names; builders ask for roles, never brand names. An optional role the brand leaves unmapped takes its fallback role's value, or core's default (neutral: transparent, none, a plain margin); roles with neither are only read by a brand's own code or by markup that asks for them. A role only one brand's own layers or ornaments read is that brand's, named own-<kind>-<name> in its profile; it resolves like a core role (CSS --own-<kind>-<name>, B.color/B.asset) and core never reads it. A dark role with from_dark first takes that role's value in the design system's own dark theme (another theme whose surface is dark), before its fallback.",
  "roles": [
   {
    "role": "prism-color-surface",
@@ -58,7 +58,8 @@
    "kind": "color",
    "required": false,
    "description": "Eyebrow on dark surfaces.",
-   "fallback": "prism-color-text-on-photo"
+   "fallback": "prism-color-text-on-photo",
+   "from_dark": "prism-color-text-muted"
   },
   {
    "role": "prism-color-rule",
@@ -86,13 +87,6 @@
    "required": false,
    "description": "Title-area wash centre.",
    "fallback": "prism-color-tint"
-  },
-  {
-   "role": "prism-color-wash-2",
-   "kind": "color",
-   "required": false,
-   "description": "Second wash stop on carousels.",
-   "fallback": "prism-color-wash"
   },
   {
    "role": "prism-color-tint",
@@ -148,7 +142,8 @@
    "kind": "color",
    "required": false,
    "description": "The dark object's ground.",
-   "fallback": "prism-color-text-strong"
+   "fallback": "prism-color-text-strong",
+   "from_dark": "prism-color-surface"
   },
   {
    "role": "prism-color-dark-deep",
@@ -156,27 +151,6 @@
    "required": false,
    "description": "Darkest stop of dark gradients.",
    "fallback": "prism-color-dark-surface"
-  },
-  {
-   "role": "prism-color-dark-high",
-   "kind": "color",
-   "required": false,
-   "description": "Lightest stop of dark gradients.",
-   "fallback": "prism-color-dark-surface"
-  },
-  {
-   "role": "prism-color-dark-glow",
-   "kind": "color",
-   "required": false,
-   "description": "Glow on dark slides, one side.",
-   "fallback": "prism-color-dark-surface"
-  },
-  {
-   "role": "prism-color-dark-glow-2",
-   "kind": "color",
-   "required": false,
-   "description": "Glow on dark slides, the other side.",
-   "fallback": "prism-color-dark-glow"
   },
   {
    "role": "prism-color-rule-on-dark",
@@ -189,7 +163,8 @@
    "kind": "color",
    "required": false,
    "description": "Running text over a dark photo fade.",
-   "fallback": "prism-color-surface"
+   "fallback": "prism-color-surface",
+   "from_dark": "prism-color-text-strong"
   },
   {
    "role": "prism-color-chart-1",
@@ -296,7 +271,7 @@
    "kind": "color",
    "required": false,
    "description": "Blog header 'deep' gradient stop 3.",
-   "fallback": "prism-color-dark-high"
+   "fallback": "prism-color-dark-surface"
   },
   {
    "role": "prism-color-header-deep-4",
@@ -566,30 +541,6 @@
    "kind": "asset",
    "required": false,
    "description": "Image over the dark object's ground."
-  },
-  {
-   "role": "prism-asset-rule-opener-end",
-   "kind": "asset",
-   "required": false,
-   "description": "Heading rule, ornament at the end."
-  },
-  {
-   "role": "prism-asset-rule-opener-start",
-   "kind": "asset",
-   "required": false,
-   "description": "Heading rule, ornament at the start."
-  },
-  {
-   "role": "prism-asset-rule-opener-start-on-dark",
-   "kind": "asset",
-   "required": false,
-   "description": "The same on dark."
-  },
-  {
-   "role": "prism-asset-rule-stop",
-   "kind": "asset",
-   "required": false,
-   "description": "Chapter stop rule."
   },
   {
    "role": "prism-asset-placeholder",

@@ -51,9 +51,9 @@ module.exports = {
     const rgbA = (n, a) => { const h = B.color(n).slice(1); return `rgb(${[0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)).join(" ")} / ${a})`; };
     return {
       title: `radial-gradient(75% 85% at 50% 0%,${B.color("prism-color-wash")} 0%,${B.color("prism-color-surface")} 100%)`,
-      dark: `radial-gradient(55% 110% at 100% 100%,${rgbA("prism-color-dark-glow", ".85")} 0%,${rgbA("prism-color-dark-glow", "0")} 100%),
-    radial-gradient(55% 110% at 0% 100%,${rgbA("prism-color-dark-glow-2", ".85")} 0%,${rgbA("prism-color-dark-glow-2", "0")} 100%),
-    linear-gradient(180deg,${B.color("prism-color-dark-deep")} 0%,${B.color("prism-color-dark-surface")} 45%,${B.color("prism-color-dark-high")} 100%)`,
+      dark: `radial-gradient(55% 110% at 100% 100%,${rgbA("own-color-dark-glow", ".85")} 0%,${rgbA("own-color-dark-glow", "0")} 100%),
+    radial-gradient(55% 110% at 0% 100%,${rgbA("own-color-dark-glow-2", ".85")} 0%,${rgbA("own-color-dark-glow-2", "0")} 100%),
+    linear-gradient(180deg,${B.color("prism-color-dark-deep")} 0%,${B.color("prism-color-dark-surface")} 45%,${B.color("own-color-dark-high")} 100%)`,
     };
   },
 

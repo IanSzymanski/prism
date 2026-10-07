@@ -20,7 +20,7 @@ h2::after{content:"";display:block;height:3px;background:var(--hue);margin-top:6
 h2.no-rule::before,.cta-card h2::before,.cta-card h2::after{content:none}
 
 /* Chapter stop: the spectrum stop, centred at its own size. */
-hr{height:6px;background:var(--prism-asset-rule-stop) center / auto no-repeat}
+hr{height:6px;background:var(--own-asset-rule-stop) center / auto no-repeat}
 
 /* Flow steps take the hue cycle: each step's top rule in its hue, its number in that hue's text colour. */
 .flow li:nth-child(4n+1){border-top-color:var(--brand-hue-1)}.flow li:nth-child(4n+1)::before{color:var(--brand-hue-1-text)}

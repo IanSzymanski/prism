@@ -37,7 +37,7 @@ ok(p.roles["prism-color-accent"] === hand["prism-color-accent"], "accent found b
 ok(Object.keys(p.roles).every(k => !hand[k] || p.roles[k] === hand[k]), "every Case Amplify match is one the hand-made profile also made");
 
 // 2. Map: sets, unmaps, copies an asset in from source/, rejects unknown roles.
-r = run("map", "lumen", "color-wash=accent-tint", "asset-rule-stop=assets/Spectrum/spectrum-stop.svg", "color-band=-");
+r = run("map", "lumen", "color-wash=accent-tint", "own-asset-rule-stop=assets/Spectrum/spectrum-stop.svg", "color-band=-");
 ok(r.status === 0, `map: ${r.stderr}`);
 p = prof("lumen");
 ok(p.roles["prism-color-wash"] === "accent-tint" && p._onboarding.matched["prism-color-wash"] === "set by hand", "map sets a role");

@@ -8,15 +8,15 @@ h2{display:flex;align-items:center;gap:16pt}
 
 h2::after{
   content:"";flex:1 1 72pt;min-width:72pt;height:34px;
-  background:var(--prism-asset-rule-opener-end) right center / auto 34px no-repeat;
+  background:var(--own-asset-rule-opener-end) right center / auto 34px no-repeat;
 }
 
 /* Long headings: the rule drops below and its burst moves to the start, where reading begins. */
 h2.stack{flex-wrap:wrap;gap:6pt}
-h2.stack::after{flex-basis:100%;background-image:var(--prism-asset-rule-opener-start);background-position:left center}
+h2.stack::after{flex-basis:100%;background-image:var(--own-asset-rule-opener-start);background-position:left center}
 
 /* Chapter stop: the wave stop, centred at its own size. */
-hr{height:46px;background:var(--prism-asset-rule-stop) center / auto no-repeat}
+hr{height:46px;background:var(--own-asset-rule-stop) center / auto no-repeat}
 
 /* CTA card — the one dark object, one per sheet. A plain rounded card. */
 .cta-card{

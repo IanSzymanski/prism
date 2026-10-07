@@ -56,7 +56,7 @@ Prism builds in any brand whose design system has a `tokens.json`. Say "add a br
 or give its Claude Design System link.
 <!-- /claude-only -->
 
-1. A few questions: the design system, the brand name, which outputs it will be used for, and the defaults for its pieces (audience, contact line, email tool). Only the design system is needed.
+1. A few questions: the design system, the brand name, and the defaults for its pieces (audience, contact line, email tool). Only the design system is needed.
 2. Prism maps its core roles (colours, fonts, type, spacing, corners, logos) to the design system's own names, and writes the brand rules every writer and reviewer follows. The design system itself is never changed.
 3. The swatch sheet shows every mapping, the type, the email colours in light and Outlook dark, and a sample of every layout in the brand. Ask for changes; it rebuilds each time.
 <!-- claude-only -->
