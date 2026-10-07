@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Core names no brand: no brand's identifying words (its profile's identity.terms, plus its name unless that is the product's)
-appear anywhere in the plugin outside kit/brands/, in the ChatGPT edition's metadata, or in the edition builder.
+appear anywhere in the plugin outside kit/brands/, or in the build script.
 Brand-specific defaults (the default brand, audience, contact line, email tool) live in the profiles and are read at run time.
 Usage: python3 tests/core-brand-free.test.py"""
 import json, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BRANDS = os.path.join(ROOT, "plugin", "prism", "skills", "prism-produce", "kit", "brands")
-CORE = [os.path.join(ROOT, "plugin", "prism"), os.path.join(ROOT, "chatgpt", "meta"), os.path.join(ROOT, "chatgpt", "convert.py")]
+CORE = [os.path.join(ROOT, "plugin", "prism"), os.path.join(ROOT, "tools", "build.py")]
 SKIP_DIRS = {"brands", "node_modules", "mods", "cache", "vendor", "__pycache__"}
 TEXT = re.compile(r"\.(md|json|js|py|lua|css|html|sh|txt)$")
 fails, n = [], 0

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The tutorial stays in step with the plugin: tools/check-tutorial.py passes on the real plugin and catches each kind of drift
-(a new command, format card or skill, the brand list, a command leaking into the ChatGPT copy, a new release) on a changed copy.
+(a new command, format card or skill, the brand list, a new release) on a changed copy.
 Usage: python3 tests/tutorial.test.py"""
 import json, os, shutil, subprocess, sys, tempfile
 
@@ -48,10 +48,6 @@ try:
 
     d = copy(); open(tut(d), "w").write(open(tut(d)).read().replace("run.sh brands", "the brand list"))
     r = run(ver, d); check("the tutorial must point at run.sh brands", r.returncode == 1 and "run.sh brands" in r.stdout, r.stdout)
-
-    d = copy(); t = open(tut(d)).read().replace("## Try it", "Run /prism-interview to start.\n\n## Try it")
-    open(tut(d), "w").write(t)
-    r = run(ver, d); check("a command outside claude-only fails", r.returncode == 1 and "outside a claude-only section" in r.stdout, r.stdout)
 
     d = copy(); open(tut(d), "w").write(open(tut(d)).read().replace("carousel", "slideshow"))
     r = run(ver, d); check("a format the tutorial stops naming fails", r.returncode == 1 and "format:carousel" in r.stdout, r.stdout)

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Builds the ChatGPT edition of prism from the Claude plugin, then zips both.
-Usage: convert.py VERSION. Every plugin change is made in the Claude copy first; this script derives the other."""
+"""DEPRECATED (Oct 2026): the ChatGPT edition is frozen and no longer maintained; build the plugin with tools/build.py.
+Kept for reference only. It is not kept in step with the plugin, so its edits may no longer apply.
+Usage: PRISM_CHATGPT_LEGACY=1 convert.py VERSION."""
 import glob, json, os, re, shutil, subprocess, sys
+
+if os.environ.get("PRISM_CHATGPT_LEGACY") != "1":
+    sys.exit("The ChatGPT edition is deprecated and no longer built. Use: python3 tools/build.py VERSION")
 
 VER = sys.argv[1]
 # Paths default to this bundle's layout; override with PRISM_SRC, PRISM_OUT, PRISM_META, PRISM_DIST.
