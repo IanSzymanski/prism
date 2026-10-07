@@ -44,7 +44,7 @@ A package is a set number of finished files from one approved piece, so nobody h
 <!-- claude-only -->
 - After approval, every output opens side by side in design mode.
 <!-- /claude-only -->
-- An edit to one output is checked against the claims: a number or claim that only one output makes is never left standing. It goes into the approved words and every output that carries it, or the edit is put back.
+- Edit each output on its own (reword, cut, rearrange); the edit stays in that output. Only a changed number or a new claim is flagged, and you choose: make it the approved claim in every output that carries it, or keep the approved one.
 - Everything is delivered as one zip, a folder per output, and every later export is a new zip.
 
 ## Revising

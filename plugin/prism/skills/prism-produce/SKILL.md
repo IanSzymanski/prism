@@ -60,7 +60,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 
 As soon as the format files exist, open the canvas with one board per format file (`references/wireframe.md`: one wire command builds every board and the canvas index, one publish sends them) without asking, and say in one line that it is open and that "done" exports the files. **Do not build or deliver anything before the first "done"**; follow "Design session" in section 4. A later session picks up where this one stopped: `.prism-kit/run.sh state <slug> show` names the canvas, what was exported and what changed since.
 
-**A package opens as one set.** After approval, every output of the package opens side by side on the one canvas (one board per format file, in package.json's order), titled "<piece title> · <package name>", so the set is seen and edited together. The claims rule in section 4 applies to every edit on it.
+**A package opens as one set.** After approval, every output of the package opens side by side on the one canvas (one board per format file, in package.json's order), titled "<piece title> · <package name>", so the set is seen and edited together. Each output can be edited on its own; only a changed number or a new claim is flagged (section 4).
 
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
 
@@ -95,7 +95,7 @@ For each format file:
    - images: the build prints `[sheet] low resolution` or `missing image` warnings, and `[deck]` equivalents. Fix a missing path; report low-resolution images to the user with the size they print at, and move them to a smaller layout (gallery, media row) or drop them from print;
    - the brand digest's placement rules (for example, no section ornament directly above or beside a photo of a person or a quote, one dark card at most, no mono text on dark); a portrait photo not squeezed into a landscape slot.
 5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image and HTML email folders; add `--brand <brand>` when the piece is not in the default brand. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
-6. **Package:** `.prism-kit/run.sh packages check <slug> --built` (every output built, page counts as the package asks: a one-pager on one page, a multipage PDF on at least its pages) and `.prism-kit/run.sh packages claims <slug>` (no output claims what content.md doesn't) must both print OK. Fix and rebuild what they list.
+6. **Package:** `.prism-kit/run.sh packages check <slug> --built` (every output built, page counts as the package asks: a one-pager on one page, a multipage PDF on at least its pages) and `.prism-kit/run.sh packages claims <slug>` (no output claims what content.md doesn't) must both print OK. Fix and rebuild what they list; a claim still open from "Packages: edit each output freely, flag claims" in section 4 waits for the person's answer.
 7. Record in log.md: files built, cuts made by each formatter, check and verify results.
 
 ## 3. Deliver
@@ -132,12 +132,12 @@ Classify each requested change before touching files. Tell the user the lane in 
 
 **Uploaded format file:** compare its wording against content.md. Pure layout changes: layout lane. Wording changes: ask once whether they should go back into content.md so the other outputs match; if yes, content lane; if no, keep them in that format only and note it in log.md.
 
-**Packages: one claim, every output.** The outputs of a package say the same thing. Before rebuilding after any edit to one output (canvas, chat or an uploaded format file), run `.prism-kit/run.sh packages claims <slug>`:
+**Packages: edit each output freely, flag claims.** In a package each output can be edited on its own (rewording, cuts, a shorter headline, layout), in design mode or in chat, and the edit stays in that output: it is not carried into content.md or the other outputs, and you don't ask whether it should be. The one exception is a claim. After every edit to an output, run `.prism-kit/run.sh packages claims <slug>` and read the changed passages against claims.md:
 
-1. A number one output states that content.md doesn't is a claim only that output makes. Never let it stand: ask whether it is a change to the approved claim. Yes: content lane (content.md and claims.md, the reviewer, the person's OK), then patch it into every output that carries that claim (the table lists them), so no output keeps the old one. No: put that output back to content.md's wording.
-2. A claim without a number (a quote, a capability, a customer name): read the changed passage against claims.md yourself and do the same.
-3. A cut is fine (a story carries one result, the PDF all of them); a claim reworded in one output so it says more or less than content.md is not.
-4. Layout changes stay in their output. "Do the same in the others" applies the change to every output where it fits, each through the layout lane.
+1. **A changed number** (a number the output states that content.md doesn't) or **a new claim** (a quote, capability, customer name or result that isn't in claims.md) is flagged. List it under "Needs your call" with the output and the passage, and offer two answers: make it the approved claim (content lane: content.md and claims.md, the reviewer, then patched into every output that carries it, which the claims table lists), or keep the approved one in this output.
+2. The flagged output isn't exported until the person answers; the other outputs carry on.
+3. Cuts are never flagged: a story carries one result, the PDF all of them.
+4. "Do the same in the others" applies a layout or wording edit to every output where it fits.
 
 **Vet every edit** (from chat, an uploaded file or a visual edit), before the rebuild:
 
