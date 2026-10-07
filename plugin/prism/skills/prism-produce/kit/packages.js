@@ -206,7 +206,11 @@ else if (cmd === "check") {
     const md = fs.readFileSync(f, "utf8"), layout = fmKey(md, "layout");
     if (o.format === "html-email" && layout !== "email") problems.push(`${o.id}: an html-email format file needs layout: email`);
     if (o.format === "brochure" && layout !== "brochure") problems.push(`${o.id}: a brochure format file needs layout: brochure`);
-    if (o.format === "sheet" && layout) problems.push(`${o.id}: a sheet has no layout: (found ${layout})`);
+    if (o.format === "sheet" && layout) {
+      // A sheet's layout: is one of its alternate layouts (run.sh layouts), or the sheet would build as something else.
+      let all = {}; try { all = require("./layouts.js").load(pkg.brand, "sheet"); } catch (e) {}
+      if (!all[layout]) problems.push(`${o.id}: layout ${layout} is not one of this brand's sheet layouts (${Object.keys(all).join(", ")})`);
+    }
     if (o.format === "deck" && !/^:{3,}\s*\{[^}]*\.slide\b/m.test(md)) problems.push(`${o.id}: no slides`);
     if (COUNTS.posts.includes(o.format)) {
       const c = socialCounts(md), want = { posts: o.posts || 0, stories: o.stories || 0 };

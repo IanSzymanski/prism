@@ -11,6 +11,14 @@ const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.j
 const html = md.replace(/\.md$/, ".sheet.html");
 // `layout: brochure` in the front matter builds a Letter trifold instead of a portrait sheet.
 const brochure = /^---[\s\S]*?^layout:\s*brochure\s*$[\s\S]*?^---/m.test(fs.readFileSync(md, "utf8"));
+// Any other `layout:` is one of the sheet's alternate layouts (run.sh layouts): known to this brand, with what it needs.
+const source = fs.readFileSync(md, "utf8"), layout = brochure ? null : ((/^---\n[\s\S]*?^layout:\s*([\w-]+)\s*$/m.exec(source.split(/\n---\s*\n/)[0] + "\n") || [])[1] || null);
+if (layout) {
+  const L = require("./layouts.js"), all = L.load(B.id, "sheet");
+  if (!all[layout]) { console.error(`[sheet] no layout "${layout}" for ${B.id}; layouts: ${Object.keys(all).join(", ")}`); process.exit(1); }
+  const miss = L.missing(all[layout], source);
+  if (miss.length) { console.error(`[sheet] layout ${layout} needs ${miss.map(n => n === "rail" ? "a ::: rail block" : `${n}: in the front matter`).join(" and ")}`); process.exit(1); }
+}
 
 execFileSync("pandoc", [md, "-s", "--template", path.join(here, brochure ? "prism-brochure.html" : "prism-sheet.html"),
   "--css", "file://" + B.icons.css,
@@ -22,7 +30,7 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, brochure ? "pris
 
 // Runs inside the page: tags image orientation, checks print resolution, and bakes fade and shadow
 // into solid pixels on the background colour (PDF viewers blend transparency inconsistently).
-async function prepareImages([printScale, ground, fadeOn]) {
+async function prepareImages([printScale, ground, fadeOn, scrimColor]) {
   const imgs = [...document.images].filter(i => !i.closest(".prism-mast__bar"));
   await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
   const orient = i => { const r = i.naturalWidth / i.naturalHeight; return r > 1.15 ? "landscape" : r < 0.87 ? "portrait" : "square"; };
@@ -58,7 +66,9 @@ async function prepareImages([printScale, ground, fadeOn]) {
     if (dpi < 150 && !/\.svg(\?|$)/i.test(i.getAttribute("src") || "")) warnings.push(`low resolution: ${i.getAttribute("src")} prints at ${Math.round(dpi)} dpi (aim for 200+)`);
   }
   const bg = el => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c && c !== "rgba(0, 0, 0, 0)" && c !== "transparent") return c; } return ground; };
-  for (const i of imgs.filter(i => i.naturalWidth && ((fadeOn && i.classList.contains("fade")) || i.classList.contains("shadow")))) {
+  // A photo-led cover darkens toward its bottom so the title over it reads; baked like the fade.
+  const scrimmed = i => i.classList.contains("prism-cover__img") && document.body.classList.contains("layout-photo-led");
+  for (const i of imgs.filter(i => i.naturalWidth && ((fadeOn && i.classList.contains("fade")) || i.classList.contains("shadow") || scrimmed(i)))) {
     const box = i.getBoundingClientRect(), W = box.width, H = box.height, S = 3;
     const cs = getComputedStyle(i), radius = parseFloat(cs.borderTopLeftRadius) || 0;
     const a = document.createElement("canvas"); a.width = Math.round(W * S); a.height = Math.round(H * S);
@@ -80,6 +90,12 @@ async function prepareImages([printScale, ground, fadeOn]) {
       for (let k = 1; k <= 10; k++) { const t = k / 10; g.addColorStop(start + (1 - start) * t, `rgba(0,0,0,${1 - t * t * (3 - 2 * t)})`); }
       c.globalCompositeOperation = "destination-in"; c.fillStyle = g; c.fillRect(0, 0, W, H);
     }
+    if (scrimmed(i)) {
+      const [r, gg, b] = scrimColor, s = c.createLinearGradient(0, 0, 0, H);
+      s.addColorStop(0, `rgba(${r},${gg},${b},0)`); s.addColorStop(0.35, `rgba(${r},${gg},${b},0.05)`);
+      for (let k = 1; k <= 10; k++) { const t = k / 10; s.addColorStop(0.35 + 0.65 * t, `rgba(${r},${gg},${b},${(0.05 + 0.83 * t * t * (3 - 2 * t)).toFixed(3)})`); }
+      c.fillStyle = s; c.fillRect(0, 0, W, H);
+    }
     // Room for the shadow: it reaches 12px up, 32px sideways and 50px down, so the canvas only grows that far.
     const hasShadow = i.classList.contains("shadow"), T = hasShadow ? 14 : 0, X = hasShadow ? 32 : 0, B = hasShadow ? 52 : 0;
     const f = document.createElement("canvas"); f.width = Math.round((W + 2 * X) * S); f.height = Math.round((H + T + B) * S);
@@ -94,6 +110,8 @@ async function prepareImages([printScale, ground, fadeOn]) {
     }
     d.drawImage(a, X * S, T * S);
     i.src = f.toDataURL("image/jpeg", 0.9);
+    // The cover keeps its frame (it fills the photo area edge to edge); everything else takes the baked canvas's size.
+    if (scrimmed(i)) { await i.decode(); continue; }
     Object.assign(i.style, { width: `calc(100% + ${2 * X}px)`, height: "auto", maxWidth: "none", margin: `${-T}px ${-X}px ${-B}px`, borderRadius: "0", objectFit: "fill", aspectRatio: "auto" });
     await i.decode();
   }
@@ -117,6 +135,9 @@ function stamp(file) {
   fs.appendFileSync(file, obj + tail, "latin1");
 }
 
+// The brand's deepest dark, as RGB, for the photo-led scrim (black when the brand has none).
+function scrimRgb() { let h = "#000000"; try { h = B.color("prism-color-dark-deep") || h; } catch (e) {} const m = /^#?([0-9a-f]{6})/i.exec(h); return m ? [0, 2, 4].map(k => parseInt(m[1].slice(k, k + 2), 16)) : [0, 0, 0]; }
+
 (async () => {
   const browser = await chromium.launch({ args: ["--allow-file-access-from-files"], ...(process.env.PRISM_CHROMIUM ? { executablePath: process.env.PRISM_CHROMIUM } : {}) });
   // Viewport matches the printed layout width (Letter at 90%, or a trifold at 100%), so images are measured at their real size.
@@ -127,7 +148,7 @@ function stamp(file) {
   const missingIcons = await require("./icons.js")(page, here, B);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
-  const warnings = await page.evaluate(prepareImages, [brochure ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
+  const warnings = await page.evaluate(prepareImages, [brochure ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false), scrimRgb()]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Brochure panels clip instead of flowing on, so report any panel or column whose content runs past its bottom edge.
   if (brochure) warnings.push(...await page.evaluate(() => {

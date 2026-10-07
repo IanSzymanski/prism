@@ -8,6 +8,7 @@
 //   onboard.js bundle <id> OUT.zip
 //   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
 //   onboard.js component <id> <cid> --use T --markup M [--like BLOCK] [--when T] [--max N] [--rule T ...] [--formats a,b] [--sample FILE] [--from NAME] [--remove]
+//   onboard.js layout <id> <layout-id> --name N --use T [--when T] [--needs image,stat,stat-label,rail] | --off | --remove   (a sheet layout)
 //   onboard.js palette <id> [--keep]                 (core's proposal for the email palette, or keep it against the current colours)
 const fs = require("fs"), path = require("path"), crypto = require("crypto"), { execFileSync } = require("child_process");
 const R = require("./resolve.js");
@@ -485,6 +486,24 @@ if (cmd === "start") {
   }
   writeProf(id, prof);
   process.stdout.write(reportMd(report(id)));
+} else if (cmd === "layout") {
+  // Records one of the brand's own sheet layouts (its look goes in the brand's sheet layer under body.layout-<id>). The same id
+  // as a core layout replaces core's for this brand; --off switches a core layout off; --remove drops the brand's entry.
+  const id = a[1], lid = a[2];
+  if (!id || !lid || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(lid) || lid === "standard") die("usage: onboard.js layout <id> <layout-id> --name N --use T [--when T] [--needs a,b] | --off | --remove   (not \"standard\": restyle that in the layer)");
+  const prof = readProf(id), all = prof.layouts = prof.layouts || {}, sheet = all.sheet = all.sheet || {};
+  if (a.includes("--remove")) delete sheet[lid];
+  else if (a.includes("--off")) sheet[lid] = null;
+  else {
+    const l = sheet[lid] = sheet[lid] || {};
+    for (const k of ["name", "use", "when"]) if (opt("--" + k)) l[k] = opt("--" + k);
+    if (opt("--needs")) { l.needs = opt("--needs").split(",").map(s => s.trim()).filter(Boolean); const bad = l.needs.filter(n => !["image", "stat", "stat-label", "rail"].includes(n)); if (bad.length) die(`--needs takes image, stat, stat-label, rail (not ${bad.join(", ")})`); }
+    if (!l.name || !l.use) die(`layout ${lid} needs --name and --use (what the page looks like)`);
+  }
+  writeProf(id, prof);
+  try { const L = require("./layouts.js").load(id, "sheet"); console.log(`sheet layouts for ${id}: ${Object.entries(L).map(([k, v]) => `${k}${v.from !== "core" ? " (brand)" : ""}`).join(", ")}`); }
+  catch (e) { die(e.message); }
+  if (!a.includes("--off") && !a.includes("--remove")) console.log(`style it in the brand's sheet layer under body.layout-${lid}, then run.sh pin ${id}`);
 } else if (cmd === "palette") {
   // Replaces the email palette with core's proposal from the brand's current colours (accepted again by bundling),
   // or with --keep, keeps the palette and records the current colours and client rules as the ones it was checked against.

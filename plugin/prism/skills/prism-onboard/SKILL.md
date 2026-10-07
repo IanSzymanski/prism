@@ -110,6 +110,14 @@ It arrives three ways: an update lists `new design-system component: <name>` (se
 4. **Record it**: `bash .prism-kit/run.sh onboard component <id> <component-id> --use "<what it is for>" --when "<content that calls for it>" --max <n> --rule "<rule>" --rule "<rule>" --formats sheet,social --markup "::: {.quote .testimonial}" --like quote --sample sample.md --from <design system name>`. Leave `--formats` out when it may go anywhere. Formatters get all of it (`run.sh brands --json`): they use it only where it fits, never past its limit, and keep its rules.
 5. Pin, rebuild the swatch (it draws the sample), send it, take changes; then bundle as in section 5.
 
+### A layout
+
+A layout is a different page structure for a sheet (`run.sh layouts --brand <id>` lists core's and the brand's), not a different look: colours, sizes and closing styles are restyles in the layer. A brand's own layout with a core layout's name replaces core's for this brand; a new name adds one; `--off` switches a core layout off so it is never picked or offered. Brand first, then core: they never tie.
+
+1. Ask what leads the page, what it is for and when to pick it. It reuses a sheet's parts: the cover photo (`image:`), the lead figure (`stat:`, `stat-label:`), the rail (`::: rail`), the title band and the body.
+2. Style it in the brand's sheet layer under `body.layout-<layout-id>` (from the design system's styles, in roles and `--brand-<token>` values).
+3. Record it: `bash .prism-kit/run.sh onboard layout <id> <layout-id> --name "<name>" --use "<what the page looks like>" --when "<content that calls for it>" --needs image,stat,stat-label,rail` (only what it uses). Pin, then build a sample sheet in it and send it with the swatch.
+
 ### A package
 
 A package is a set number of outputs made from one approved piece (`run.sh packages` lists them: core's starters and the brand's own). A brand's own packages are made by its people and kept in its design system, as `packages.json` at its root, so the whole team gets them and no release is needed. Prism never changes a design system: it writes the file and the person puts it there.

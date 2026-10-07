@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "sheet": {
+    "photo-led": {
+      "name": "Photo-led",
+      "use": "A full-width photo leads the page with the title over it; the story runs below.",
+      "when": "The piece has a strong landscape photo that prints 6.5 in wide or more (images.md: hero), and the photo carries the story.",
+      "needs": ["image"]
+    },
+    "stat-first": {
+      "name": "Stat-first",
+      "use": "One very large figure leads the page, the title under it, then the story.",
+      "when": "One number carries the piece (a single headline result), and it is in content.md.",
+      "needs": ["stat", "stat-label"]
+    },
+    "sidebar": {
+      "name": "Sidebar",
+      "use": "A narrow rail on a tint holds the stats, a quote and the contact; the story runs in the main column.",
+      "when": "Three or more figures, or a figure set plus a quote, that should stay in view beside a longer story.",
+      "needs": ["rail"]
+    }
+  }
+}

@@ -51,6 +51,36 @@ function Image(img)
   return img
 end
 
+-- The cover photo of a photo-led sheet (`image:` in the front matter) resolves like any image: the brand's assets and
+-- library, else a path beside the format file, with its focal point.
+local function resolve_src(src)
+  local name, lib = src:match("^prism:([%w-]+)$"), src:match("^brand:([%w-]+)$")
+  if name then
+    local p = os.getenv("PRISM_ASSET_" .. name:upper():gsub("-", "_"))
+    if not p then error("prism-sheet.lua: the brand has no asset \"" .. name .. "\"") end
+    return "file://" .. p, nil
+  elseif lib then
+    local key = "PRISM_LIBRARY_" .. lib:upper():gsub("-", "_")
+    local p = os.getenv(key)
+    if not p then error("prism-sheet.lua: the brand's image library has no \"" .. lib .. "\"") end
+    return "file://" .. p, os.getenv(key .. "_FOCUS")
+  elseif not src:match("^%a+:") then
+    local file = src:sub(1, 1) == "/" and src or base_dir() .. src
+    return src, focal(file)
+  end
+  return src, nil
+end
+
+function Meta(m)
+  if m.image then
+    local src, focus = resolve_src(pandoc.utils.stringify(m.image))
+    m.image = pandoc.MetaString(src)
+    local f = m["image-focus"] and pandoc.utils.stringify(m["image-focus"]) or focus
+    if f then m["image-focus"] = pandoc.MetaString(f) end
+  end
+  return m
+end
+
 -- Wraps h2 text in a span (so a brand ornament can sit beside it as one flex item) and numbers each section
 -- (data-n and .prism-n-<n>) so a brand layer can vary its heading ornament by section.
 local section = 0
@@ -108,5 +138,17 @@ function Pandoc(doc)
   end
   flush()
   if found then doc.blocks = out end
+  -- Sidebar layout: every ::: rail block goes into one rail beside the story; closing cards stay full width below both.
+  local layout = doc.meta.layout and pandoc.utils.stringify(doc.meta.layout) or ""
+  if layout == "sidebar" then
+    local rail, main, after = pandoc.List({}), pandoc.List({}), pandoc.List({})
+    for _, b in ipairs(doc.blocks) do
+      if b.t == "Div" and b.classes:includes("rail") then rail:extend(b.content)
+      elseif b.t == "Div" and b.classes:includes("cta-card") then after:insert(b)
+      else main:insert(b) end
+    end
+    doc.blocks = pandoc.List({ pandoc.Div({ pandoc.Div(rail, { class = "prism-rail" }), pandoc.Div(main, { class = "prism-main" }) }, { class = "prism-split" }) })
+    doc.blocks:extend(after)
+  end
   return doc
 end

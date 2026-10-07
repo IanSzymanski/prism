@@ -57,6 +57,11 @@ a.wlink{color:inherit;text-decoration:underline;text-decoration-color:#7DA2D6}
 .wmeta-t{margin:0;font:700 34px/1.3 system-ui,sans-serif;color:#1C1C24}
 .wmeta-e{margin:0;font:600 12px/1.3 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6A6A73}
 .wmeta-s{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#1C1C24}
+.wlayout{padding:10px 14px;border-radius:6px;background:#EEF3FB;border:1px solid #C9D8EF;font:500 13px/1.45 system-ui,sans-serif;color:#2F4A73}
+.wlayout b{font-weight:700}
+.wlead{display:flex;align-items:flex-end;gap:20px;padding-bottom:12px;border-bottom:1px solid #DADAE0}
+.wlead-n{margin:0;font:700 88px/0.9 system-ui,sans-serif;color:#1C1C24}
+.wlead-l{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#3A3A40;max-width:24ch}
 .wstamp{display:inline-block;padding:4px 8px;border-radius:4px;background:#EAF6EF;font:600 11px/1 ui-monospace,Menlo,monospace;color:#2C7A4B;letter-spacing:.06em}
 .wdiv{height:2px;background:#D6D6DB;margin:8px 0}`;
 
@@ -244,11 +249,23 @@ function wireOne(md, B) {
   // Frames sit in a wrapping row (a brochure reads as its two printed sides, posts as a grid); sheets and blogs flow in one column.
   const framed = shown.some(b => frameOf(b.md.split("\n")[0]));
   const isEmail = meta.layout === "email";
+  // Sheets: a note naming this sheet's layout and the others the brand has (the person asks in chat to see one), then the
+  // layout's lead: the cover photo of a photo-led sheet, or the large figure of a stat-first one (edited like the title).
+  function sheetLayout() {
+    if (framed || meta.layout === "brochure" || !meta.title || /^(type|slug):/m.test(fm ? fm[0] : "")) return "";
+    let all = {}; try { all = require("./layouts.js").load(B.id, "sheet"); } catch (e) { return ""; }
+    const cur = meta.layout && all[meta.layout] ? meta.layout : "standard", others = Object.keys(all).filter(k => k !== cur);
+    const note = `<div data-wire-tag="" class="wlayout">Layout: <b>${esc(all[cur].name)}</b>${others.length ? ` · Other layouts: ${others.map(k => esc(all[k].name)).join(", ")}. Ask in chat to see this sheet in one.` : ""}</div>`;
+    if (cur === "photo-led" && meta.image) { const src = ASSETS[meta.image];
+      return note + `<div data-wire-tag="" class="wimg${src ? " has-photo" : ""}" style="height: 300px">${src ? `<img src="${esc(src)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : ""}<span style="position: relative">Cover photo: ${esc(meta.image)}</span></div>`; }
+    if (cur === "stat-first" && meta.stat) return note + `<div class="wlead"><div data-block="meta.stat" class="wp"><p class="wlead-n">${inline(meta.stat)}</p></div><div data-block="meta.stat-label" class="wp"><p class="wlead-l">${inline(meta["stat-label"] || "")}</p></div></div>`;
+    return note;
+  }
   const full = framed ? " wfull" : "";
   const head = (stamp ? `<div data-wire-tag="" class="${full.trim()}"><span class="wstamp">${esc(stamp)}</span></div>` : "") + (isEmail
     ? `<div data-block="meta.inbox" class="wb wnote">${tag("inbox: subject and preheader")}` + ["subject", "preheader"].filter(k => meta[k]).map(k =>
       `<div data-item="meta.${k}"><p class="wx${k === "subject" ? " wstrong" : ""}"${k === "preheader" ? ' style="font-size: 14px"' : ""}>${inline(meta[k])}</p></div>`).join("") + `</div>`
-    : [["title", "t"], ["eyebrow", "e"], ["subtitle", "s"]].filter(([k]) => meta[k]).map(([k, c]) =>
+    : sheetLayout() + [["title", "t"], ["eyebrow", "e"], ["subtitle", "s"]].filter(([k]) => meta[k]).map(([k, c]) =>
       `<div data-block="meta.${k}" class="wp${full}"><p class="wmeta-${c}">${inline(meta[k])}</p></div>`).join(""));
   const inner = head + shown.map(b => render(b.md, b.id)).join("\n");
   const W = isEmail ? 744 : !framed ? 816 : meta.layout === "brochure" ? 1200 : shown.some(b => /\.slide\b|\.email\b/.test(b.md.split("\n")[0])) ? 960 : 1140;

@@ -60,6 +60,8 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 
 As soon as the format files exist, open the canvas with one board per format file (`references/wireframe.md`: one wire command builds every board and the canvas index, one publish sends them) without asking, and say in one line that it is open and that "done" exports the files. **Do not build or deliver anything before the first "done"**; follow "Design session" in section 4. A later session picks up where this one stopped: `.prism-kit/run.sh state <slug> show` names the canvas, what was exported and what changed since.
 
+**Sheet layouts.** When the formatter picked a layout on its own, don't announce it or ask: the canvas shows it, and the sheet's board carries a note naming its layout and the others the brand has, so the person can ask in chat to see one (layout lane).
+
 **A package opens as one set.** After approval, every output of the package opens side by side on the one canvas (one board per format file, in package.json's order), titled "<piece title> · <package name>", so the set is seen and edited together. Each output can be edited on its own; only a changed number or a new claim is flagged (section 4).
 
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
@@ -111,7 +113,7 @@ For each format file:
   - the captions file: the post copy to paste with each image (email: subject line and preheader);
   - HTML email: in the sending tool (content.md's `Send from:`, else the brand's email tool from `run.sh brands`), upload the `.html` and the images zip beside it (or paste the `.html` into any tool once `images/` is uploaded to the `image-base` folder), `email.txt` for the plain-text part, `preview.png` to check light and dark. Say which merge tags passed through, and that a test send to Outlook, Gmail and Apple Mail is the last check;
   - `formats/<format>.md`: the editable source for that output. For social it holds both the image text and the caption; edit it and ask for a rebuild rather than editing captions.md.
-- Message: one line per output, what each formatter cut, and any check the build could not fix. Remind deck users once that decks need the brand's Office fonts installed to present; the first time a deck is delivered, make the pack with `.prism-kit/run.sh fonts out/<brand>-fonts.zip <brand>` and send it.
+- Message: one line per output, what each formatter cut, and any check the build could not fix. Without design mode, a sheet's line also names its layout and the others it could take (`run.sh layouts`). Remind deck users once that decks need the brand's Office fonts installed to present; the first time a deck is delivered, make the pack with `.prism-kit/run.sh fonts out/<brand>-fonts.zip <brand>` and send it.
 - Say how revisions work: reply with changes, or upload an edited content.md or format file.
 
 ## 4. Revisions: route every edit to one of two lanes
@@ -125,9 +127,9 @@ Classify each requested change before touching files. Tell the user the lane in 
 3. Patch every existing format file: run **prism-formatter** in mode `patch` per format (parallel when several), passing the change. Never regenerate from scratch; that would discard layout the user already approved.
 4. Number check, rebuild all affected formats, preview, deliver.
 
-**Layout lane** (move, resize, split, merge, restyle, pick a different component, dark vs light, chart type):
+**Layout lane** (move, resize, split, merge, restyle, pick a different component, dark vs light, chart type, a different sheet layout):
 
-1. Edit only that format file yourself, and add the change to content.md's `changes:` list (content.md's words stay as they are).
+1. Edit only that format file yourself, and add the change to content.md's `changes:` list (content.md's words stay as they are). A different sheet layout ("try it photo-led", "show me the sidebar one") is its `layout:` line plus what that layout needs (the sheet card's "Alternate layouts"): the cover photo, the lead figure and its label from content.md, or a `::: rail`.
 2. Number check, rebuild that format only, preview, deliver.
 
 **Uploaded format file:** compare its wording against content.md. Pure layout changes: layout lane. Wording changes: ask once whether they should go back into content.md so the other outputs match; if yes, content lane; if no, keep them in that format only and note it in log.md.

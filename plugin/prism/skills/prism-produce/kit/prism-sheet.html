@@ -8,7 +8,7 @@ $for(css)$
 $endfor$
 <style>@page{@bottom-left{content:"$brand-name$ · $pagetitle$"}}</style>
 </head>
-<body$if(hero)$ class="hero-$hero$"$endif$>
+<body class="$if(hero)$hero-$hero$ $endif$layout-$if(layout)$$layout$$else$standard$endif$">
 <header class="prism-mast">
   <div class="prism-mast__bar">
     <img class="prism-mast__logo" src="$if(logo)$$logo$$else$$prism-logo$$endif$" alt="$brand-name$">
@@ -16,6 +16,13 @@ $if(doctype)$
     <span class="prism-mast__type">$doctype$</span>
 $endif$
   </div>
+$if(image)$
+  <figure class="prism-cover"><img class="prism-cover__img" src="$image$"$if(image-focus)$ data-focus="$image-focus$"$endif$ alt=""></figure>
+$endif$
+$if(stat)$
+  <div class="prism-lead"><span class="prism-lead__n">$stat$</span><span class="prism-lead__label">$stat-label$</span></div>
+$endif$
+  <div class="prism-mast__title">
 $if(eyebrow)$
   <p class="eyebrow">$eyebrow$</p>
 $endif$
@@ -28,6 +35,7 @@ $if(author)$
 $elseif(date)$
   <p class="prism-meta">$date$</p>
 $endif$
+  </div>
 </header>
 <main class="prism-sheet">
 $body$

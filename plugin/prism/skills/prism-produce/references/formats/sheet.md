@@ -57,6 +57,47 @@ In this order, stopping as soon as it fits on one page:
 3. With images: shorten a media row's text, drop a gallery to two images, turn a standalone figure into a media row.
 4. Cut content: a supporting sentence, then a table or chart, then a whole section. Never shrink type any other way.
 
+## Alternate layouts
+
+A sheet can take a different page structure: something other than the title band leads. `run.sh layouts` lists the layouts this brand has (core's, and the brand's own, which win over core's of the same name; a brand can also switch one off). Set one with `layout:` in the front matter; none means `standard`. An alternate is a different structure, not a different look: a colour, size or closing style is never a layout.
+
+| Layout | Front matter and markup it needs | Pick it when |
+|---|---|---|
+| `standard` | nothing | Nothing below clearly leads |
+| `photo-led` | `image: images/<file>` (or `brand:<id>`): the cover photo, full width under the logo bar, with the title over it | A landscape photo that prints 6.5 in wide or more (images.md: hero) and carries the story. Never a client or minor without confirmed consent |
+| `stat-first` | `stat: 41%` and `stat-label: less time on case notes, in four months`: one very large figure and what it measures, above the title | One number carries the piece. The figure and label come from content.md, written the same way (the number check reads them) |
+| `sidebar` | a `::: rail` block (stats, a short quote, the contact) anywhere in the body: the build puts it in a tinted rail beside the story | Three or more figures, or figures and a quote, that should stay in view beside the story |
+
+```markdown
+---
+title: How *Harbor Point* got its afternoons back
+layout: stat-first
+stat: 41%
+stat-label: less time on case notes, in four months
+hero: small
+---
+```
+
+```markdown
+::: rail
+### At a glance
+
+::: stats
+- **41%** less time on case notes
+- **94%** of drafts approved
+:::
+
+> Our afternoons are ours again.
+>
+> [Dana Ruiz, Program lead]{.cite}
+:::
+```
+
+- **Choosing:** read content.md and images.md, then pick the first that fits: a hero photo that carries the story is `photo-led`, one figure that carries it is `stat-first`, several figures or a quote to keep in view is `sidebar`; else `standard`. Say which in your reply, with the reason in a few words.
+- **One-pagers:** every layout fits on one page with "Fitting a one-pager". `hero: small` and `x-small` also shrink the cover photo and the lead figure. Photo-led takes the most room: cut harder.
+- In a photo-led sheet, the hero photo is the cover: don't repeat it as a `::: hero-image`. In a stat-first sheet, the lead figure can stay in the stats row below only if the row has other figures too.
+- The build stops on a layout this brand doesn't have, or one missing what it needs.
+
 ## Shape
 
 - One-pager: `hero: small`, optional hero image, stats, 2–3 short sections (at most one media row), `{.cta-card .small}`. See "Fitting a one-pager".

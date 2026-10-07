@@ -49,6 +49,13 @@ Make your own: say "make a package" (or "save this as a package" after a piece).
 - Edit each output on its own (reword, cut, rearrange); the edit stays in that output. Only a changed number or a new claim is flagged, and you choose: make it the approved claim in every output that carries it, or keep the approved one.
 - Everything is delivered as one zip, a folder per output, and every later export is a new zip.
 
+## Layouts
+
+A one-pager or brief can lead with something other than its title: a full-width photo (photo-led), one very large number (stat-first), or a rail of figures and a quote beside the story (sidebar). Prism picks the one the content suits; ask for another any time ("try it photo-led"). A brand can add its own layouts or switch one off.
+<!-- claude-only -->
+In design mode, the sheet's board names its layout and the others you can ask for.
+<!-- /claude-only -->
+
 ## Revising
 
 - **Wording, facts, numbers, links:** change them once; they go into content.md and every output, keeping your layouts.

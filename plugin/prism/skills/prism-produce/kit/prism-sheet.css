@@ -287,3 +287,43 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .flow li::marker{content:none}
 .flow li strong{display:block;font:var(--prism-type-card-title-weight) 11.5pt/1.2 var(--prism-type-card-title-family);margin-bottom:2pt}
 .band .flow ul{margin-bottom:6pt}
+
+/* Alternate layouts (`layout:` in a sheet's front matter; run.sh layouts lists them). Each changes the page's structure,
+   not its look: a photo, a figure or a rail leads instead of the title band. A brand restyles one in its sheet layer under
+   body.layout-<id>, or adds its own arrangement of the same parts. The cover photo and lead figure show only in their layout. */
+.prism-cover,.prism-lead{display:none}
+
+/* Photo-led: the photo runs edge to edge under the logo bar; the title sits over its lower part. The darkening toward the
+   bottom is baked into the photo's pixels by the build (.prism-cover__img), so the text reads on any photo. */
+.layout-photo-led .prism-mast{display:grid;padding-top:.42in;margin-bottom:24pt}
+.layout-photo-led .prism-mast__bar{margin-bottom:.28in}
+.layout-photo-led .prism-cover{display:block;grid-area:2/1;margin:0 calc(var(--page-x) * -1);height:4.5in;break-inside:avoid}
+.layout-photo-led .prism-cover__img{display:block;width:100%;height:100%;object-fit:cover;border-radius:0;box-shadow:none;max-width:none}
+.layout-photo-led .prism-cover{border-radius:0;box-shadow:none;padding:0}
+.layout-photo-led .prism-mast__title{grid-area:2/1;align-self:end;position:relative;padding:0 0 .38in}
+.layout-photo-led .prism-mast__title .eyebrow,.layout-photo-led .prism-meta{color:var(--prism-color-eyebrow-on-dark)}
+.layout-photo-led .prism-mast__title h1,.layout-photo-led .prism-lede{color:var(--prism-color-text-on-photo)}
+.layout-photo-led .prism-mast__title h1 em{color:var(--prism-color-eyebrow-on-dark)}
+.layout-photo-led .prism-lede{margin-bottom:6pt}
+.layout-photo-led.hero-small .prism-cover{height:3.6in}
+.layout-photo-led.hero-x-small .prism-cover{height:2.9in}
+
+/* Stat-first: one very large figure and what it measures lead; the title follows, smaller. */
+.layout-stat-first .prism-mast__bar{margin-bottom:.5in}
+.layout-stat-first .prism-lead{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:6pt 20pt;padding-bottom:16pt;margin-bottom:18pt;border-bottom:var(--line)}
+.layout-stat-first .prism-lead__n{font:var(--prism-type-stat);font-size:92pt;line-height:.86;letter-spacing:-.02em;color:var(--prism-color-accent)}
+.layout-stat-first .prism-lead__label{font:var(--prism-type-lede);letter-spacing:var(--prism-type-lede-ls);color:var(--prism-color-text-strong);max-width:24ch;padding-bottom:4pt}
+.layout-stat-first .prism-mast h1{font-size:28pt;max-width:24ch}
+.layout-stat-first.hero-small .prism-lead__n{font-size:74pt}
+.layout-stat-first.hero-x-small .prism-lead__n{font-size:60pt}
+
+/* Sidebar: a narrow rail on a tint beside the story. The build moves every ::: rail block into it; closing cards stay below. */
+.prism-split{display:grid;grid-template-columns:2.2in minmax(0,1fr);gap:24pt;align-items:start}
+.prism-rail{background:var(--prism-color-tint);border-radius:var(--prism-radius-hero);padding:16pt 15pt 6pt;font-size:8.5pt}
+.prism-rail > :first-child{margin-top:0}
+.prism-rail h2,.prism-rail h3{font-size:11pt;margin:0 0 8pt}
+.prism-rail h2::before,.prism-rail h2::after{content:none}
+.prism-rail .stats ul{grid-template-columns:1fr;gap:12pt;border:0;padding:0;margin:0 0 14pt}
+.prism-rail blockquote{margin:0 0 14pt;padding:0;border:0;font-size:9.5pt}
+.prism-rail p{margin:0 0 10pt}
+.prism-main > :first-child{margin-top:0}
