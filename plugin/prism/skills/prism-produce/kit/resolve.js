@@ -132,7 +132,8 @@ function load(id, opts = {}) {
     const liveBlobs = live ? Object.fromEntries(Object.entries(live.assetGroups || {}).flatMap(([g, v]) => Object.entries(v.files || {}).map(([f, r]) => [`assets/${g}/${f}`, r.blob]))) : {};
     const blobs = prof.snapshot.blobs;
     for (const [f, h] of Object.entries(prof.snapshot.files)) {
-      if (f === "design-system.json") continue;
+      // Packages are read live from the design system on their own (packages.js --live), so a new one is not drift.
+      if (f === "design-system.json" || f === "packages.json") continue;
       if (blobs[f]) { if (liveBlobs[f] !== blobs[f]) warnings.push(`design system changed since this release: ${f} (${liveBlobs[f] ? "replaced" : "removed"})`); continue; }
       const p = path.join(L, f);
       if (!fs.existsSync(p)) warnings.push(`design system changed since this release: ${f} (removed)`);

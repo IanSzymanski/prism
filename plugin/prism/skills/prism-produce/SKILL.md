@@ -46,17 +46,21 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
    Before resolving, if the Artifact tool is available, read the brand's design system once (`design_system` from `.prism-kit/run.sh brands --json`, no path) and add `--live <the folder the read names>`, so a changed design system is reported. If the read fails or is refused, resolve without `--live` and say nothing.
 <!-- /claude-only -->
 5. Exports = what the user asks for now, else the `exports` list in content.md.
+6. **Package** (content.md names a `package:`): the outputs are the ones in `<slug>/package.json`. Each output is its own format file, `formats/<output id>.md`, laid out with its `format`'s card, so two outputs of one format (a one-pager and the full case study PDF, both sheets) never share a file. A change to the set ("no deck", "three posts", "add a carousel") is `.prism-kit/run.sh packages use <slug> <package>` with `--drop`, `--set` or `--add`, which rewrites package.json; then content.md's `exports` line.
 
 ## 1. Format (subagents)
 
 - One export: format it yourself, following the same rules as the prism-formatter agent and its card.
 - Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (its `digest` path from `.prism-kit/run.sh brands --json`), the brand's own components (`components` from the same listing; omit when empty), and the target `formats/<format>.md`.
+- **Package outputs:** the format name is the output's `format`, the target is `formats/<output id>.md`, and each formatter also gets that output's brief and counts from package.json. When every format file is written, `.prism-kit/run.sh packages check <slug>` must print OK (every file there, the right number of posts and stories, email and brochure layouts) before anything opens or builds; fix what it lists in that format file.
 - Before formatting: copy the project's `images/` folder (with its `.focus.json`) into `formats/images/`. Pass every formatter the output of `.prism-kit/run.sh library <brand>`. Where a piece needs a photo it doesn't have, use a fitting photo from the brand's image library (`![](brand:<id>)`); only when none fits, write the brand's test image, `![](prism:placeholder)` (light grounds) or `![](prism:placeholder-dark)` (dark); the build fills them from the brand, with neutral ones when it has none. Logos are `![](prism:logo)` and `![](prism:logo-on-dark)`. Pass the path of `images.md` to every formatter when it exists.
 
 <!-- claude-only -->
 ## 1b. Open design mode (every format, before building)
 
 As soon as the format files exist, open the canvas with one board per format file (`references/wireframe.md`: one wire command builds every board and the canvas index, one publish sends them) without asking, and say in one line that it is open and that "done" exports the files. **Do not build or deliver anything before the first "done"**; follow "Design session" in section 4. A later session picks up where this one stopped: `.prism-kit/run.sh state <slug> show` names the canvas, what was exported and what changed since.
+
+**A package opens as one set.** After approval, every output of the package opens side by side on the one canvas (one board per format file, in package.json's order), titled "<piece title> · <package name>", so the set is seen and edited together. Each output can be edited on its own; only a changed number or a new claim is flagged (section 4).
 
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
 
@@ -75,6 +79,7 @@ For each format file:
    - blog: `.prism-kit/run.sh blog formats/blog.md out/blog` (`<tag>-header.png`, chart PNGs, `<tag>-post.md` and `.html` for the CMS)
    - deck: `.prism-kit/run.sh deck formats/deck.md out/<tag>.pptx`
    - html-email: `.prism-kit/run.sh email formats/html-email.md out/html-email` (`<tag>.html`, `<tag>.txt`, images/, `<tag>-images.zip`, `<tag>-preview.png`). It prints `[email]` warnings; act on each (the card lists them). Look at preview.png in the visual check: all four views, light and dark, nothing unreadable in dark mode.
+   - package outputs: the command for the output's format, with `formats/<output id>.md`, and folder builds into `out/<output id>` (`.prism-kit/run.sh social formats/story.md out/story`), so outputs of one format never share a folder.
    - social / email / carousel: `.prism-kit/run.sh social formats/<format>.md out/<format>` (`<tag>-<id>.png` plus `<tag>-captions.md`). It exits with an error and prints `[social] missing caption: <id>` when a post has no caption; fix the format file and rebuild. Read captions.md once before delivering.
 3. **Build warnings:** act on every line the build prints before looking at anything:
    - `[deck] slide N (<layout>): <part> may not fit`: shorten that text or split the slide;
@@ -90,10 +95,12 @@ For each format file:
    - images: the build prints `[sheet] low resolution` or `missing image` warnings, and `[deck]` equivalents. Fix a missing path; report low-resolution images to the user with the size they print at, and move them to a smaller layout (gallery, media row) or drop them from print;
    - the brand digest's placement rules (for example, no section ornament directly above or beside a photo of a person or a quote, one dark card at most, no mono text on dark); a portrait photo not squeezed into a landscape slot.
 5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image and HTML email folders; add `--brand <brand>` when the piece is not in the default brand. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
-6. Record in log.md: files built, cuts made by each formatter, check and verify results.
+6. **Package:** `.prism-kit/run.sh packages check <slug> --built` (every output built, page counts as the package asks: a one-pager on one page, a multipage PDF on at least its pages) and `.prism-kit/run.sh packages claims <slug>` (no output claims what content.md doesn't) must both print OK. Fix and rebuild what they list; a claim still open from "Packages: edit each output freely, flag claims" in section 4 waits for the person's answer.
+7. Record in log.md: files built, cuts made by each formatter, check and verify results.
 
 ## 3. Deliver
 
+- **A package goes out as one zip.** Once every output is verified, `.prism-kit/run.sh packages zip <slug>` writes `out/<slug>-<package>-v<version>.zip`: a folder per output with its files (captions files, the email's HTML, text, images and images zip, the blog's post and header), the deck's font pack when one was made (make it first, below), and `CONTENTS.txt`. Deliver that zip and the preview contact sheets, not the files one by one; every later export is a new zip at the new version. When the set was a one-off (`from: this piece` in package.json) or the person changed a package, offer once to save it as a package for everyone (the prism-onboard skill, "A package"). The rest of this section (each file's job, revisions) applies to the files inside it.
 - Send the built files with SendUserFile: PDF, PPTX, PNGs (all images for social/email/carousel), each captions file, and the preview contact sheets. HTML email: the `.html`, the images zip, the `.txt` and the preview. If a folder from the user's computer is connected, also write content.md, the format files and out/ there.
 - Asked for Illustrator, Canva, InDesign, .ai, .indd or "editable" files: Prism does not send files for editing elsewhere. Say in one line that layout and wording changes are made here and rebuilt, then ask what should change.
 <!-- claude-only -->
@@ -124,6 +131,13 @@ Classify each requested change before touching files. Tell the user the lane in 
 2. Number check, rebuild that format only, preview, deliver.
 
 **Uploaded format file:** compare its wording against content.md. Pure layout changes: layout lane. Wording changes: ask once whether they should go back into content.md so the other outputs match; if yes, content lane; if no, keep them in that format only and note it in log.md.
+
+**Packages: edit each output freely, flag claims.** In a package each output can be edited on its own (rewording, cuts, a shorter headline, layout), in design mode or in chat, and the edit stays in that output: it is not carried into content.md or the other outputs, and you don't ask whether it should be. The one exception is a claim. After every edit to an output, run `.prism-kit/run.sh packages claims <slug>` and read the changed passages against claims.md:
+
+1. **A changed number** (a number the output states that content.md doesn't) or **a new claim** (a quote, capability, customer name or result that isn't in claims.md) is flagged. List it under "Needs your call" with the output and the passage, and offer two answers: make it the approved claim (content lane: content.md and claims.md, the reviewer, then patched into every output that carries it, which the claims table lists), or keep the approved one in this output.
+2. The flagged output isn't exported until the person answers; the other outputs carry on.
+3. Cuts are never flagged: a story carries one result, the PDF all of them.
+4. "Do the same in the others" applies a layout or wording edit to every output where it fits.
 
 **Vet every edit** (from chat, an uploaded file or a visual edit), before the rebuild:
 
@@ -157,7 +171,7 @@ Classify each requested change before touching files. Tell the user the lane in 
    ```
 5. **Republish the changed boards** ("Republish the boards" in `references/wireframe.md`) and record the version. The new boards become the baseline for the next pull.
 6. **Read back** with the four-part message below, then say that the canvas is updated and that "done" exports the files (before the first export) or which files were exported again (after it).
-7. **"Done":** a last pull check and vet, then step 2 (build, check, verify) and step 3 (deliver), with the full list of changes since the last export from content.md. Record each export (`state <slug> export <format> <files>`) and republish every exported board stamped "Exported v<n> · <date>", so the canvas matches the files.
+7. **"Done":** a last pull check and vet, then step 2 (build, check, verify) and step 3 (deliver), with the full list of changes since the last export from content.md. Record each export (`state <slug> export <format> <files>`) and republish every exported board stamped "Exported v<n> · <date>", so the canvas matches the files. A package exports every output and ends with its zip; a later change exports what it touched and makes a new zip of the whole set.
 8. **After the first export, no more "done".** Each later change request runs the same loop and ends with step 7 for the formats it touched: export, record, republish, deliver, read back. Design mode stays open until the person closes it (`state <slug> close`).
 
 <!-- /claude-only -->

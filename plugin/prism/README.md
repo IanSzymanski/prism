@@ -1,6 +1,6 @@
 # Prism
 
-Raw material in, on-brand files out, with a human proof in between. Brands live in the kit (`run.sh brands` lists them); a piece names one with `brand:`.
+Raw material in, on-brand files out, with a human proof in between. Brands live in the kit (`run.sh brands` lists them); a piece names one with `brand:`. Packages (`run.sh packages`) are set bundles of outputs from one piece, such as a case study package, delivered as one zip.
 
 ## How to use it
 

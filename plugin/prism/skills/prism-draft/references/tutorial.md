@@ -14,7 +14,7 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 | Start with | "Draft this into a case study" | "Quick one-pager from these notes" |
 | Questions | A short interview (every question skippable) | None |
 | Proof | You approve the words before anything is designed | After delivery: every number and claim is listed for you to check |
-| Outputs | Any mix of formats from the same approved words | One file in one pass |
+| Outputs | Any mix of formats, or a package, from the same approved words | One file in one pass |
 | Later | Revisions keep the layouts you approved | Say "full proof" to move it into the full process |
 
 ## The full process, step by step
@@ -35,6 +35,19 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 6. **Design mode.** A wireframe of every format opens on a Claude Design canvas: the real words, real icons, link addresses in blue chips, the brand's touches sketched in grey. Retype text, drag blocks or slides into a new order, delete what should go, or describe changes in chat. Say **"done"** and the files are exported in the brand styles, and the canvas updates to match. After that, every change you ask for is exported again straight away. Say "just build it" to skip design mode.
 <!-- /claude-only -->
 7. **Delivery.** Every file is number-checked against the approved words, built, previewed and brand-verified before it reaches you, with a note of what each formatter had to cut.
+
+## Packages
+
+A package is a set number of finished files from one approved piece, so nobody has to remember every asset. List them with `.prism-kit/run.sh packages` when presenting this (a brand can add its own). Say "draft this into a case study package": the case study package is two social posts with their captions, a story, a blog post, a PowerPoint deck, a one-pager, the full multipage case study PDF and an HTML email; a demo follow-up package is a takeaway PDF and a follow-up email. Change the set as you ask ("no deck", "three posts"), or describe a set of your own for one piece.
+
+Make your own: say "make a package" (or "save this as a package" after a piece). Prism asks what it holds, writes the definition, and you add it to the brand's design system, where everyone on the team gets it.
+
+- The words are written and proofed once, for the whole set.
+<!-- claude-only -->
+- After approval, every output opens side by side in design mode.
+<!-- /claude-only -->
+- Edit each output on its own (reword, cut, rearrange); the edit stays in that output. Only a changed number or a new claim is flagged, and you choose: make it the approved claim in every output that carries it, or keep the approved one.
+- Everything is delivered as one zip, a folder per output, and every later export is a new zip.
 
 ## Revising
 
@@ -80,5 +93,6 @@ When a brand's design system changes, the same skill updates it and shows only w
 ## Try it
 
 - "Draft this into a case study. I want a sheet, a brochure and three posts."
+- "Draft this into a case study package, but skip the deck."
 - "Quick one sheet from these notes, for supervisors, ending on a demo invite."
 - "Make a trifold with the left + spread inside layout."

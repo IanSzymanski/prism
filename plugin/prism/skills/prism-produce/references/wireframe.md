@@ -7,10 +7,15 @@ State lives in the project: `.prism-kit/run.sh state <slug> ...` keeps the canva
 ## Open the canvas (step 1b of the skill: opens on its own before the first build)
 
 1. **Photos** (only when the piece has its own photos, not placeholders): if the canvas does not exist yet, create it first (step 2), then upload every file in `images/` that a format file uses in one call (the Artifact tool's publish with the canvas `url`, `asset: true` and `file_paths`), and write `wire/assets.json`, each image path as the format files write it mapped to the `url` the upload returned: `{"images/visit.jpg": "/_blob/…"}`. Boards then show the photos, cropped around their focal points. Skip this when there are no photos: grey boxes are fine.
-2. **Create the canvas** once per piece: the Artifact tool's quickstart with intent "design" gives the Design type's link; publish with that `type_url`, the title "<piece title> design" and `auto_open: "after_first_write"`. Record its link: `state <slug> canvas --url <link>`.
+2. **Create the canvas** once per piece: the Artifact tool's quickstart with intent "design" gives the Design type's link; publish with that `type_url`, the title "<piece title> design" (a package: "<piece title> · <package name>") and `auto_open: "after_first_write"`. Record its link: `state <slug> canvas --url <link>`.
 3. **Build every board in one command** (one browser for all of them):
    ```bash
    .prism-kit/run.sh wire formats/sheet.md formats/deck.md --out wire --canvas wire/canvas --title "<piece title> design"
+   ```
+
+   A package passes every output's format file in package.json's order, so the boards sit side by side as one set.
+
+   ```bash
    ```
    It writes `wire/<format>/<format>.dc.html` and `wire.json` (the snapshot the diff needs) for each format, `wire/canvas/project/` with every board and `canvas.json` (boards left to right, the how-to note, `createdOnFiles`), and prints a `publish:` line. Never edit these files by hand.
 4. **Publish in one call** with exactly what the `publish:` line gives (`root`, `file_path`, `files`) and the canvas `url`. Then record the version the publish result names: `state <slug> canvas --version <version id>`.
@@ -24,7 +29,7 @@ State lives in the project: `.prism-kit/run.sh state <slug> ...` keeps the canva
 3. Per format: `.prism-kit/run.sh wire-diff wire/<format>/ <saved file> --apply formats/<format>.md`. It prints every change, rewrites the format file with blocks in their new order and removed blocks dropped, then runs `vet --fix` on it:
    - `MOVED` and `REMOVED`: already applied. On frame formats a block is a whole slide, post or panel.
    - `REORDER` items: blocks moved inside one row, slide or post. Reorder those lines in the format file.
-   - `EDITED`: a wording change. Content lane: content.md first, then every format file that carries it; number check; run the reviewer if a number, quote or claim changed. Then use judgment the wireframe can't show: an icon that fits a card's new title, an accent word kept in a rewritten heading, a stat label shortened, text that no longer fits its slide.
+   - `EDITED`: a wording change. In a package, the change stays in that output; only a changed number or a new claim is flagged ("Packages: edit each output freely, flag claims" in SKILL.md). Otherwise, content lane: content.md first, then every format file that carries it; number check; run the reviewer if a number, quote or claim changed. Then use judgment the wireframe can't show: an icon that fits a card's new title, an accent word kept in a rewritten heading, a stat label shortened, text that no longer fits its slide.
    - `LINK`: an address retyped in its chip (`old -> new`), removed, or typed into the text as a new address. Change the link in content.md and every format file that carries it (a link is content). A new address typed into a sentence becomes a Markdown link on the words it belongs to; when that is unclear, ask under "Needs your call".
    - `ADDED`: a new line or block. Put it in content.md and the format file as the component that fits.
    - The vet renumbers numbered headings, carousel and story counters (`note="02 / 07"`) and point numbers (`[01]{.num}`) to their new order, and reports headings left without their text, count headings that no longer match, notes to the editor and doubled words.

@@ -3,7 +3,7 @@ name: prism-onboard
 description: >
   Use to add a brand to Prism or update one: "add a brand", "onboard a brand", "set up our brand", "use our design system",
   "new design system", "the design system changed", "update the brand profile", "add a component", "we added a
-  testimonial block", "new component in the design system", or after a build says "design system changed since this release". Drafts a brand profile from the brand's design system, shows it on the swatch
+  testimonial block", "make a package", "save this as a package", "change the case study package", "new component in the design system", or after a build says "design system changed since this release". Drafts a brand profile from the brand's design system, shows it on the swatch
   sheet for review, and packs the finished brand as a bundle for the next Prism release.
 metadata:
   version: "0.16.0-dev"
@@ -109,6 +109,23 @@ It arrives three ways: an update lists `new design-system component: <name>` (se
 3. **Build it**: the markup, by default a core block with its own class (`::: {.quote .testimonial}`) so every format can draw it; a block of its own (`::: testimonial`) only when no core block is close. Its look goes in the brand's sheet layer once (from the design system's styles, in roles and `--brand-<token>` values): sheets, brochures, social posts, carousels, email headers and blog headers all load it; add a size tweak in the social layer only if a post needs it. Decks and HTML emails can't use the brand's CSS: they draw the component as the core block it is like (`--like`; taken from the markup when it starts with a core block), in the brand's colours. Then a sample for the swatch.
 4. **Record it**: `bash .prism-kit/run.sh onboard component <id> <component-id> --use "<what it is for>" --when "<content that calls for it>" --max <n> --rule "<rule>" --rule "<rule>" --formats sheet,social --markup "::: {.quote .testimonial}" --like quote --sample sample.md --from <design system name>`. Leave `--formats` out when it may go anywhere. Formatters get all of it (`run.sh brands --json`): they use it only where it fits, never past its limit, and keep its rules.
 5. Pin, rebuild the swatch (it draws the sample), send it, take changes; then bundle as in section 5.
+
+### A package
+
+A package is a set number of outputs made from one approved piece (`run.sh packages` lists them: core's starters and the brand's own). A brand's own packages are made by its people and kept in its design system, as `packages.json` at its root, so the whole team gets them and no release is needed. Prism never changes a design system: it writes the file and the person puts it there.
+
+It starts three ways: "make a package" or "change the case study package", "save this as a package" after a piece that used a one-off set (its `<slug>/package.json`), or a draft brand that needs one.
+
+1. **Interview**, in one round, each question with "Skip for now": its **name** and what it is for; the **outputs** (any of sheet, brochure, deck, social, email, html-email, carousel, blog, each with a short id when one format appears twice, such as `sheet` and `case-study`); the **counts** (posts, stories, pages, or at least so many pages); a one-line **brief** per output (what it carries); the **phrases** people will use for it ("trade show package"); the usual **length** and **piece type**. Saving from a piece: its set is the starting point; ask only what changed.
+2. **Write it**: `bash .prism-kit/run.sh packages save <package-id> packages.json --brand <id> [--from <slug> | --base <package>] --name "<name>" --use "<what it is for>" --asks "<phrase>, <phrase>" --length <short|standard|long> --piece "<piece type>"`, then `--add <output id>:<format>`, `--set <output id>.posts=2` (`stories`, `pages`, `min_pages`, `max_pages`, `brief="..."`) and `--drop <output id>` for each output. It starts from the design system's current packages, so nothing else in the file is lost, and refuses a definition that doesn't fit (a page count on a deck, a social output with no posts). `--remove` takes a package out (a core one is switched off for this brand).
+<!-- claude-only -->
+   Read the design system first (the Artifact tool, its link from `run.sh brands --json`, no path) and pass `--live <the folder the read names>`, so the file starts from the packages it has now.
+<!-- /claude-only -->
+3. **Hand it over**: send `packages.json` and say in two lines where it goes: the design system's root, replacing the one there. Show the package as `run.sh packages show` prints it.
+<!-- claude-only -->
+4. Once it is in the design system, every piece reads it from there the next time Prism reads the design system; nothing waits for a release.
+<!-- /claude-only -->
+5. The brand's saved copy (`snapshot/packages.json`) updates with its next update (section 6) and ships with the release after it, which is where pieces without a live read of the design system find it.
 
 ## 5. Done: the bundle
 

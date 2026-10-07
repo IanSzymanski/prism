@@ -2,6 +2,10 @@
 
 State as of 6 October 2026, version **0.16.0-dev**. Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. **No interim releases: the next and only version cut is v1.** Until then the tree stays `0.x-dev`. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
 
+## Backlog
+
+The backlog lives in the pinned **Prism Backlog** artifact: https://claude.ai/artifact/2BUkVs8xT8bpYM7NfzHgHD. Items (F features, D design-system agnostic, T training and connectors, M design mode) are rows in its database, collection `items`; read them with `ArtifactData` (`list`, collection `items`), not the page HTML. Status, priority, release, notes and Ian's leanings are kept there; this file records what was built. Check it first when asked what's next, and update an item's status and notes there when its work lands.
+
 ## What it is
 
 `prism` is a plugin that turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. One approved `content.md` feeds every output, and a fixed build kit makes every file in the brand the content names (`kit/brands/`: Case Amplify, the default, and Prism). It ships in two editions, built from one source:
@@ -112,7 +116,7 @@ Small "spotlight" glows read as stains, so don't use them.
   - The 0.12 session rules: ask, then no build until "done".
   - The multi-board canvas layout.
 - **Done in 0.12.1:** arrows in every kit font; the guide brought up to 0.12 (the ask-first step, no build until "done", chat requests pulling canvas edits first, the `changes:` list, size chart remeasured). The guide is still 14 pages.
-- **Possible next steps:**
+- **Possible next steps** (from 0.12; the backlog artifact above is the current list):
   - Run design mode through the ChatGPT edition's equivalent (chat-only) on a real piece.
   - Confirm the 0.12 session rules and the multi-board canvas live (above).
   - Optional: in the guide, the "readback after every revision" callout now starts page 5 rather than sitting under "Every edit, vetted". It reads fine; trim the design mode page if you want them together again.
@@ -299,3 +303,15 @@ Design-mode component editing is dropped (Ian, Oct 6): full redesigns happen in 
 - **D16:** the outputs question is gone (it changed nothing that gets filled). The report is short by default: exact name matches are counted, not listed; roles without a match list only those with candidates, the rest on one line; unused names without their usage notes. `onboard report <id> --full` and the bundle notes give everything.
 - **Proof:** `tests/roles.test.js` 169 checks; resolve test reads Case Amplify's moved values through their own- names (unchanged); every fixture in Case Amplify and Prism identical to main.
 
+
+
+## Packages (F4, started Oct 7)
+
+Ian's direction: a package is a set number of finished outputs from one approved piece. The case study package is two social posts with captions, one story, a blog post, a deck, a one-pager, a multipage PDF and an HTML email. After the proof, every output opens side by side in design mode; each output can be edited on its own in design mode (the edit stays in that output), and only a changed number or a new claim is flagged (Ian, Oct 7); everything is delivered as one zip.
+
+- **Definitions:** `kit/packages.json` (core, brand-free): `case-study` and `demo-follow-up` (the backlog's example: takeaway PDF and follow-up email). Each output has an `id` (its format file is `formats/<id>.md`, so a one-pager and the full PDF, both sheets, never share a file), a `format` (a card), a `brief` for the formatter, and counts (`posts`, `stories`, `pages`, `min_pages`, `max_pages`). Bad definitions stop with the reason.
+- **People make packages; they live in the design system** (Ian, Oct 7). A brand's own packages are `packages.json` at its design system's root (same shape as core's): they add packages, replace a core one by id, or switch one off with `null`. `packages --live <design system folder>` reads them live (Claude reads the design system before listing packages), so a new package needs no release; without a live read, the brand's saved copy in `snapshot/packages.json` is used (onboarding copies and pins it; `onboard update` reports it new or changed; the live drift check skips it). Prism never changes a design system: `packages save <id> OUT.json [--from <slug> | --base <pkg>] ...` writes the design system's whole packages.json with one package added, changed or removed (`--remove`), and the person puts it in. prism-onboard has "A package" (interview, save, hand over). One-off sets for a single piece: `packages use <slug> --new "<name>" --add ...` (`from: this piece`); produce offers once to save one.
+- **`run.sh packages`** (`kit/packages.js`): `list`, `show <id>`, `use <slug> <id> [--drop a,b] [--set out.key=value] [--add id:format]` (writes the piece's `package.json` and prints the `package:` and `exports:` lines), `check <slug> [--built]` (format files, post and story counts with carousel panels aside, email/brochure layouts; `--built` adds PDF page counts), `claims <slug>` (numbers in any output that content.md lacks, and which outputs carry each claims.md row), `zip <slug>` (`out/<slug>-<package>-v<version>.zip`, a folder per output, `_guides/` left out, the font pack, `CONTENTS.txt`; refused while an output is unbuilt). Folder builds of package outputs go to `out/<output id>`. `check-numbers.js` now exports its number reader.
+- **Skills:** draft runs `packages use` when a package is named and offers packages in the Outputs question (a skipped length takes the package's); the writer writes for the longest output; formatters get each output's brief and counts; produce runs `check` before design mode, opens every output side by side ("<piece title> · <package name>"), runs `check --built` and `claims` before delivery, keeps per-output edits in their output, flags a changed number or a new claim under "Needs your call" (make it the approved claim everywhere, or keep the approved one; that output waits for the answer), and delivers the zip. Quick mode sends packages to the full process. Tutorial has a Packages section; `check-tutorial.py` requires it to point at `run.sh packages`.
+- **Proof:** `tests/packages.test.js` (32 checks); every other suite unchanged; the ChatGPT edition builds. Built end to end locally from the fixtures: all 7 case study outputs, `check --built` OK, a 22-entry zip.
+- **Open:** the claims check is deterministic for numbers only; quotes and capability claims are read by the model against claims.md. Not run live in Cowork (the side-by-side canvas with 7 boards, the zip delivery). Template-style choices per output (which deck layouts, which sheet shape) come from the briefs only.

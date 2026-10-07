@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 // Lists every number in a format file that does not appear in content.md. Usage: check-numbers.js content.md format.md
 const fs = require("fs");
-const [contentPath, formatPath] = process.argv.slice(2);
-if (!contentPath || !formatPath) { console.error("usage: check-numbers.js content.md format.md"); process.exit(2); }
 
 // Layout-only numbers (attributes, list markers, chart sizing, counters) are not claims, so they are removed first.
 function claimsText(md) {
@@ -25,6 +23,10 @@ function claimsText(md) {
 }
 const numbers = md => new Set((claimsText(md).match(/\d[\d,]*(?:\.\d+)?/g) || []).map(n => n.replace(/,/g, "")).map(n => String(parseFloat(n))));
 
+module.exports = { claimsText, numbers };
+if (require.main !== module) return;
+const [contentPath, formatPath] = process.argv.slice(2);
+if (!contentPath || !formatPath) { console.error("usage: check-numbers.js content.md format.md"); process.exit(2); }
 const known = numbers(fs.readFileSync(contentPath, "utf8"));
 const found = numbers(fs.readFileSync(formatPath, "utf8"));
 const unknown = [...found].filter(n => !known.has(n));
