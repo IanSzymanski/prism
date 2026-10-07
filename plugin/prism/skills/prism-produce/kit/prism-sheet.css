@@ -297,16 +297,16 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
    bottom is baked into the photo's pixels by the build (.prism-cover__img), so the text reads on any photo. */
 .layout-photo-led .prism-mast{display:grid;padding-top:.42in;margin-bottom:24pt}
 .layout-photo-led .prism-mast__bar{margin-bottom:.28in}
-.layout-photo-led .prism-cover{display:block;grid-area:2/1;margin:0 calc(var(--page-x) * -1);height:4.5in;break-inside:avoid}
+.layout-photo-led .prism-cover{display:block;grid-area:2/1;margin:0 calc(var(--page-x) * -1);height:4.1in;break-inside:avoid}
 .layout-photo-led .prism-cover__img{display:block;width:100%;height:100%;object-fit:cover;border-radius:0;box-shadow:none;max-width:none}
 .layout-photo-led .prism-cover{border-radius:0;box-shadow:none;padding:0}
 .layout-photo-led .prism-mast__title{grid-area:2/1;align-self:end;position:relative;padding:0 0 .38in}
-.layout-photo-led .prism-mast__title .eyebrow,.layout-photo-led .prism-meta{color:var(--prism-color-eyebrow-on-dark)}
-.layout-photo-led .prism-mast__title h1,.layout-photo-led .prism-lede{color:var(--prism-color-text-on-photo)}
-.layout-photo-led .prism-mast__title h1 em{color:var(--prism-color-eyebrow-on-dark)}
+/* Everything over the photo is the brand's text-on-photo colour: a grey label or an accent word can vanish on a busy photo. */
+.layout-photo-led .prism-mast__title .eyebrow,.layout-photo-led .prism-meta,.layout-photo-led .prism-mast__title h1,
+.layout-photo-led .prism-mast__title h1 em,.layout-photo-led .prism-lede{color:var(--prism-color-text-on-photo)}
 .layout-photo-led .prism-lede{margin-bottom:6pt}
-.layout-photo-led.hero-small .prism-cover{height:3.6in}
-.layout-photo-led.hero-x-small .prism-cover{height:2.9in}
+.layout-photo-led.hero-small .prism-cover{height:3.2in}
+.layout-photo-led.hero-x-small .prism-cover{height:2.6in}
 
 /* Stat-first: one very large figure and what it measures lead; the title follows, smaller. */
 .layout-stat-first .prism-mast__bar{margin-bottom:.5in}

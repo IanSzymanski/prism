@@ -92,8 +92,10 @@ async function prepareImages([printScale, ground, fadeOn, scrimColor]) {
     }
     if (scrimmed(i)) {
       const [r, gg, b] = scrimColor, s = c.createLinearGradient(0, 0, 0, H);
-      s.addColorStop(0, `rgba(${r},${gg},${b},0)`); s.addColorStop(0.35, `rgba(${r},${gg},${b},0.05)`);
-      for (let k = 1; k <= 10; k++) { const t = k / 10; s.addColorStop(0.35 + 0.65 * t, `rgba(${r},${gg},${b},${(0.05 + 0.83 * t * t * (3 - 2 * t)).toFixed(3)})`); }
+      // Clear at the top, then a smooth ramp from 15% to 75% of the height up to 90%, so a light photo still carries white text.
+      s.addColorStop(0, `rgba(${r},${gg},${b},0)`); s.addColorStop(0.15, `rgba(${r},${gg},${b},0)`);
+      for (let k = 1; k <= 10; k++) { const t = k / 10; s.addColorStop(0.15 + 0.6 * t, `rgba(${r},${gg},${b},${(0.9 * t * t * (3 - 2 * t)).toFixed(3)})`); }
+      s.addColorStop(1, `rgba(${r},${gg},${b},0.9)`);
       c.fillStyle = s; c.fillRect(0, 0, W, H);
     }
     // Room for the shadow: it reaches 12px up, 32px sideways and 50px down, so the canvas only grows that far.
