@@ -8,7 +8,7 @@ Build: `run.sh sheet formats/sheet.md out/<tag>.pdf` (tag: see Naming in SKILL.m
 ---
 title: How *Harbor Point* got its afternoons back   # accent word in *asterisks*
 pagetitle: Harbor Point case study                  # plain text: PDF title and page footer
-doctype: Case study                                 # top-right label: White paper, Research brief, One-pager
+doctype: Case study                                 # top-right label: White paper, Research brief; leave out for a one-pager
 eyebrow: Child & family services · Illustrative example
 subtitle: One or two sentences.
 author: <brand name>
