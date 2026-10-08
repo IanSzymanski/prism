@@ -16,7 +16,7 @@ It ships as a Claude plugin, built from this repository (the ChatGPT edition is 
 | `chatgpt/` | **Deprecated.** The frozen ChatGPT edition builder, kept for reference; not updated or built |
 | `fixtures/` | One sample per output type, used for every regression build |
 | `guide/` | The user guide (built as a sheet) |
-| `docs/architecture.html` | Architecture map: pipeline, kit, brand system, co-op layer and open backlog items (open in a browser) |
+| `docs/architecture.md` | Architecture diagrams (Mermaid): system overview, piece pipeline, build kit, brand system, co-op flow and open backlog items |
 | `tests/` | `resolve.test.js`, `brands.test.js`, `drafts.test.js`, `onboard.test.js`, `diff-builds.py`, and the frozen `reference-0.13.1/` sources |
 | `tools/` | `check-tutorial.py` (the tutorial matches the plugin; run before every build), `pin-profile.js` (re-pin a brand after its files change), `add-brand.py` (merge an onboarding bundle), `brand-art/` (Prism's artwork generator) |
 
