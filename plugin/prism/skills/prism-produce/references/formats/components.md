@@ -94,10 +94,10 @@ A scannable code for the address content.md gives with `QR code:` (see content-s
 | Code centred, text centred below | `{.qr .center url="..."}` |
 | Code alone | the block with no text inside |
 
-- **Style:** the brand's by default: modules in the strong text colour and the three corner squares in the accent, on the page ground. `bg="white"`, `bg="black"` (light modules) or `bg="transparent"` (no ground) changes the ground. Black, and transparent on a dark ground, print light on dark: phone cameras read them, some older scanner apps don't, so keep the default or white unless the design calls for it. The code keeps its own ground and blank margin on any surface, so it works inside the closing card. If the accent is too faint to scan, the build draws the corner squares in the text colour and says so.
+- **Style:** unbranded: black on white, with no brand colours or logo, so it scans everywhere. `bg="black"` (white modules) or `bg="transparent"` (no ground) changes the ground. Black, and transparent on a dark ground, print light on dark: phone cameras read them, some older scanner apps don't, so keep the default unless the design calls for it. The code keeps its own ground and blank margin on any surface, so it works inside the closing card.
 - **Size:** `.small` (0.85 in), default (1.15 in), `.large` (1.6 in). A long address makes a denser code; the build warns when its modules print under 0.4 mm. Shorten the address or use `.large`.
 - `label="..."` prints a short line under the code (the address people can type, or "Scan to register"). `.top` aligns the text to the top instead of the middle.
-- **Uploaded code:** when the person uploaded a QR code (a tracked or designed one; images.md Role `qr: <address>`), use it: `image="images/qr-summit.png"`. It replaces the generated code and is printed as it is, without the brand style or `bg`. Keep `url` beside it so email can link the address.
+- **Uploaded code:** when the person uploaded a QR code (a tracked or designed one; images.md Role `qr: <address>`), use it: `image="images/qr-summit.png"`. It replaces the generated code and is printed as it is, without `bg`. Keep `url` beside it so email can link the address.
 - One code per page or post, two at most; put it where the reader acts (the closing card, an event box), with the text saying what scanning does.
 - Sheets, brochures, social posts, stories and carousel panels. Decks use the `qr` slide layout (deck.md). HTML email draws the text and a link to the address instead (a code can't be scanned from the screen it is read on).
 

@@ -79,6 +79,7 @@ local function attr_esc(s) return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub('
 
 -- ::: {.qr url="..."} becomes the code (vector SVG from qr.js, with an optional label under it) and a text column.
 -- image="images/qr.png" uses an uploaded code instead of generating one (a tracked or designed code), shown as it is.
+-- Black on white by default.
 local function qr(el)
   local url, image = el.attributes.url, el.attributes.image
   if (not url or url == "") and not image then error('prism-sheet.lua: a qr block needs the address it opens (url="https://...") or an uploaded code (image="images/qr.png")') end
@@ -91,7 +92,7 @@ local function qr(el)
     if not url:match("^%a[%w+.-]*:") then io.stderr:write('[sheet] qr code for "' .. url .. '" has no scheme: phones may search for it instead of opening it (write https://...)\n') end
     svg = pandoc.pipe("node", { kit .. "qr.js", url }, "")
   end
-  -- bg="white|black|transparent" sets the code's ground; without it the code takes the brand's own ground and colours.
+  -- bg="white|black|transparent" sets the code's ground (white by default).
   local bg = el.attributes.bg
   if bg then
     if bg ~= "white" and bg ~= "black" and bg ~= "transparent" then error('prism-sheet.lua: qr bg is white, black or transparent, not "' .. bg .. '"') end

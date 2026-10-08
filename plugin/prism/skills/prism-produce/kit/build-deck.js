@@ -243,16 +243,17 @@ function footer(slide, n) {
 }
 const paras = blocks => blocks.filter(b => b.t === "Para" && !(b.c.length === 1 && b.c[0].t === "Span"));
 
-// The brand style (strong text with accent corner squares on the slide ground) and the bg options, as in sheets.
-const QR_COLORS = { brand: { ground: "#" + C.paper, ink: "#" + C.ink, eye: "#" + C.accent }, white: { ground: "#fff", ink: "#" + C.ink, eye: "#" + C.accent },
-  black: { ground: "#000", ink: "#fff", eye: "#fff" }, transparent: { ground: null, ink: "#" + C.ink, eye: "#" + C.accent } };
+// Black on white as in sheets, and the bg options.
+const QR_COLORS = { white: { ground: "#fff", ink: "#000" }, black: { ground: "#000", ink: "#fff" }, transparent: { ground: null, ink: "#000" } };
 // QR slide: the code beside the text (right by default, .left), or above it (.center), with an optional label under the code.
 async function qrSlide(slide, blocks, [, cls, kv]) {
   const at = Object.fromEntries(kv), url = at.url;
   if (!url && !at.image) throw new Error(`slide ${SLIDE_N} (qr): the slide needs the address its code opens (url="https://...") or an uploaded code (image="images/qr.png")`);
   // An uploaded code (image="...") is used as it is, in place of a generated one.
+  const colors = QR_COLORS[at.bg || "white"];
+  if (!colors) throw new Error(`slide ${SLIDE_N} (qr): bg is white, black or transparent, not "${at.bg}"`);
   const code = at.image ? B.src(at.image, path.dirname(md))
-    : await png("qr.png", require("./qr.js").svg(url, QR_COLORS[at.bg || "brand"] || (() => { throw new Error(`slide ${SLIDE_N} (qr): bg is white, black or transparent, not "${at.bg}"`); })()).replace("<svg ", '<svg width="1200" height="1200" '), 1200);
+    : await png("qr.png", require("./qr.js").svg(url, colors).replace("<svg ", '<svg width="1200" height="1200" '), 1200);
   if (!fs.existsSync(code)) throw new Error(`slide ${SLIDE_N} (qr): uploaded qr code "${at.image}" not found`);
   const center = cls.includes("center"), left = cls.includes("left"), s = center ? 2.8 : 3.4;
   const x = center ? (SW - s) / 2 : left ? MX : SW - MX - s, y = center ? 1.9 : 2.05;

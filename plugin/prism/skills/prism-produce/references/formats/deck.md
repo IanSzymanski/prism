@@ -41,7 +41,7 @@ Speaker notes, plain sentences.
 | `quote` | A blockquote with `[Name, Role]{.cite}`, nothing else |
 | `media` | `##` heading (drawn with a plain line, never the brand's section rule) + one image + `###` subhead, paragraphs or a short list. Image on the left (`{.slide .media .flip}` for right), sized to its orientation; add `{.fade}` on the image to fade it toward the text. |
 | `chart` | `##` heading + one chart block + optional 1–2 short paragraphs (takeaway beside the chart). bar, hbar, line, donut. |
-| `qr` | `##` heading + paragraphs or a short list beside a QR code: `{.slide .qr url="https://..." label="example.com/x"}`. Code right (`.left` for left, `.center` above centred text). `bg="white"`, `"black"` or `"transparent"` as in components.md; `image="images/qr.png"` uses an uploaded code instead. |
+| `qr` | `##` heading + paragraphs or a short list beside a QR code: `{.slide .qr url="https://..." label="example.com/x"}`. Code right (`.left` for left, `.center` above centred text). `bg="black"` or `"transparent"` as in components.md; `image="images/qr.png"` uses an uploaded code instead. |
 | `closing` | `[Eyebrow]{.eyebrow}` + `##` + 1–2 paragraphs; last paragraph is the URL. Dark background. Always last. |
 | `content` | `##` heading + paragraphs and bullet or numbered lists. For sources, agendas, anything without a better layout. Each paragraph and item is its own line; type shrinks as the text grows. |
 

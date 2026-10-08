@@ -14,9 +14,7 @@ const finder = (r0, c0) => [0, 6].every(i => [0, 1, 2, 3, 4, 5, 6].every(j => c.
 ok(finder(0, 0) && finder(0, c.n - 7) && finder(c.n - 7, 0), "finder squares in three corners");
 const svg = qr.svg("https://example.com/demo");
 ok(/viewBox="0 0 33 33"/.test(svg) && /data-modules="33"/.test(svg), "four modules of blank margin on every side");
-ok((svg.match(/<path/g) || []).length === 2 && /class="prism-qr__ground"/.test(svg) && /class="prism-qr__modules"/.test(svg) && /class="prism-qr__eyes"/.test(svg), "modules and corner squares as two paths, with classes the sheet recolours");
-const eyes = /class="prism-qr__eyes"[^>]* d="([^"]*)"/.exec(svg)[1];
-ok((eyes.match(/M/g) || []).length === 45 && /^M4 4h7/.test(eyes), `the corner-square path holds the three finder squares and nothing else: ${eyes.slice(0, 60)}`);
+ok((svg.match(/<path/g) || []).length === 1 && /class="prism-qr__ground" width="33" height="33" fill="#fff"/.test(svg) && /class="prism-qr__modules" fill="#000"/.test(svg), "one path, black on white, with classes the sheet recolours for bg");
 ok(!/<rect/.test(qr.svg("https://example.com/demo", { ground: null })), "a transparent code has no ground");
 ok(/aria-label="QR code: https:\/\/example.com\/demo"/.test(qr.svg("https://example.com/demo")), "the code is labelled for screen readers");
 ok(qr.encode("https://example.com/events/2026/fall-summit?utm_source=print&utm_medium=sheet").n > c.n, "a longer address makes a denser code");
@@ -49,11 +47,11 @@ ok(h.status === 0 && /prism-qr--uploaded/.test(h.stdout), "an uploaded code need
 h = pandoc('::: {.qr image="images/missing.png"}\n:::\n');
 ok(h.status !== 0 && /not found/.test(h.stderr), "a missing upload stops the build");
 
-// 3. Core CSS: three layouts and sizes from roles, the code's own light ground.
+// 3. Core CSS: three layouts and sizes, an unbranded code with its own ground.
 const css = fs.readFileSync(path.join(KIT, "prism-sheet.css"), "utf8"), qcss = css.split("/* QR code")[1].split("\n\n")[0];
 ok(/\.qr\.left\{/.test(qcss) && /\.qr\.center\{/.test(qcss) && /\.qr\.small\{/.test(qcss) && /\.qr\.large\{/.test(qcss), "core has left, centre, small and large");
-ok(/prism-qr__ground\{fill:var\(--prism-color-surface\)\}/.test(qcss) && /prism-qr__modules\{fill:var\(--prism-color-text-strong\)\}/.test(qcss) && /prism-qr__eyes\{fill:var\(--prism-color-accent\)\}/.test(qcss) && !/#[0-9a-f]{3,6}\b/i.test(qcss), "the brand style takes its colours from roles");
-ok(/\.qr\.bg-white \.prism-qr__ground\{fill:white\}/.test(qcss) && /\.qr\.bg-black \.prism-qr__ground\{fill:black\}/.test(qcss) && /\.qr\.bg-transparent \.prism-qr__ground\{fill:none\}/.test(qcss), "white, black and transparent grounds");
+ok(/prism-qr__ground\{fill:white\}/.test(qcss) && /prism-qr__modules\{fill:black\}/.test(qcss) && !/--prism-color|--brand-|--prism-radius/.test(qcss.split(".qr__label")[0]), "the code is unbranded: black on white, no brand colours or corners");
+ok(/\.qr\.bg-black \.prism-qr__ground\{fill:black\}/.test(qcss) && /\.qr\.bg-transparent \.prism-qr__ground\{fill:none\}/.test(qcss), "black and transparent grounds (white is the default)");
 ok(typeof qr.check === "function" && /qr\.js"\)\.check/.test(fs.readFileSync(path.join(KIT, "build-sheet.js"), "utf8")) && /qr\.js"\)\.check/.test(fs.readFileSync(path.join(KIT, "build-social.js"), "utf8")), "sheets and social posts check each code's size and contrast");
 
 // 4. Email links the address (a code can't be scanned from the screen it is read on); design mode draws the layout.
