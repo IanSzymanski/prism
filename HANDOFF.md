@@ -4,7 +4,7 @@ State as of 6 October 2026, version **0.16.0-dev**. Everything through 0.16 (F1,
 
 ## Backlog
 
-The backlog lives in the pinned **Prism Backlog** artifact: https://claude.ai/artifact/2BUkVs8xT8bpYM7NfzHgHD. Items (F features, D design-system agnostic, T training and connectors, M design mode) are rows in its database, collection `items`; read them with `ArtifactData` (`list`, collection `items`), not the page HTML. Status, priority, release, notes and Ian's leanings are kept there; this file records what was built. Check it first when asked what's next, and update an item's status and notes there when its work lands.
+The backlog lives in the pinned **Prism Backlog** artifact: https://claude.ai/artifact/2BUkVs8xT8bpYM7NfzHgHD. Items (F features, D design-system agnostic, T training and connectors, M design mode, L links and QR, A accessibility and compliance, C copy checks, I intake, O output formats) are rows in its database, collection `items`; read them with `ArtifactData` (`list`, collection `items`), not the page HTML. Status, priority, release, notes and Ian's leanings are kept there; this file records what was built. Check it first when asked what's next, and update an item's status and notes there when its work lands.
 
 ## What it is
 
