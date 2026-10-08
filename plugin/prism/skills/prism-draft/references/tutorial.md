@@ -93,6 +93,7 @@ When a brand's design system changes, the same skill updates it and shows only w
 
 - Decks need the brand's Office fonts installed to present; the first deck comes with the font pack.
 - HTML emails come with the HTML, an images zip, a plain-text version and light and dark previews; merge tags pass through untouched.
+- QR codes: give the address to scan ("add a QR code for the sign-up page") and it's drawn black on white, beside the text or centred above it (a black or clear background on request). Upload your own code (a tracked one, say) to use it instead. HTML emails link the address rather than show a code.
 - "Editable" Illustrator, Canva or InDesign files aren't offered: changes are made here and rebuilt.
 - Quick mode isn't proofed. Treat it as a draft until someone has checked its claims list.
 <!-- claude-only -->

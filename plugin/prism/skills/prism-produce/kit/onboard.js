@@ -486,7 +486,7 @@ if (cmd === "start") {
     if (opt("--sample")) c.sample = fs.readFileSync(opt("--sample"), "utf8").trim();
     if (opt("--from")) c.from = opt("--from");
     // The core block it behaves like, for the formats that can't use the brand's CSS (decks, HTML email).
-    const LIKE = ["quote", "callout", "stats", "features", "cards", "checks", "flow", "media", "cta-card", "band", "cols", "gallery"];
+    const LIKE = ["quote", "callout", "stats", "features", "cards", "checks", "flow", "media", "cta-card", "band", "cols", "gallery", "qr"];
     if (opt("--like")) { if (!LIKE.includes(opt("--like"))) die(`--like is one of ${LIKE.join(", ")}`); c.like = opt("--like"); }
     if (!c.like) { const first = (/\{\s*\.([\w-]+)\s+\./.exec(c.markup || "") || [])[1]; if (LIKE.includes(first)) c.like = first; }
     if (!c.markup || !c.use) die(`component ${cid} needs --markup (how a format file writes it) and --use (what it is for)`);

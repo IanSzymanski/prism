@@ -217,6 +217,11 @@ function wireOne(md, B) {
         const flip = classes.includes(".flip");
         const pic = `<div style="width: 42%; flex-shrink: 0">${imgBox(x[1], x[2] || "", 190)}</div>`, txt = `<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">${paras(rest).map(t => `<p class="wx">${inline(t.replace(/^#+\s*/, ""))}</p>`).join("")}</div>`;
         return wrap("image + text", `<div style="display: flex; gap: 18px; align-items: center">${flip ? txt + pic : pic + txt}</div>`); }
+      if (cls === "qr") { const url = (/image="([^"]*)"/.exec(first) ? "uploaded " : "") + ((/url="([^"]*)"/.exec(first) || /image="([^"]*)"/.exec(first) || [, ""])[1]), center = classes.includes(".center"), left = classes.includes(".left");
+        const code = `<div style="width: 120px; flex-shrink: 0"><div class="wimg" style="height: 120px; font-size: 11px; word-break: break-all">QR: ${esc(url)}</div></div>`;
+        const txt = `<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">${paras(inner).map(t => `<p class="wx">${inline(t.replace(/^#+\s*/, ""))}</p>`).join("")}</div>`;
+        const bg = (/bg="(\w+)"/.exec(first) || [])[1];
+        return wrap(`qr code, ${center ? "centred" : left ? "left" : "right"}${bg ? `, ${bg} ground` : ""}`, `<div style="display: flex; gap: 18px; align-items: center${center ? "; flex-direction: column; text-align: center" : ""}">${center || left ? code + txt : txt + code}</div>`); }
       if (cls === "ornament" && !inner.trim()) return wrap("brand divider", W_.divider ? W_.divider({}, B) : `<div class="wdiv"></div>`);
       // callout, closing card, band and anything else: its text in order.
       // The closing card in lo-fi: the brand's card, centred and narrower for .centered, no ground for .plain (content only).

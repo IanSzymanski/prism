@@ -127,6 +127,12 @@ const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `page
   "::: gallery", "![Gallery one.](prism:placeholder)", "", "![Gallery two.](prism:placeholder-dark)", ":::", "",
   "::: shadow", "![Figure with the one standout shadow.](prism:placeholder)", ":::", "",
   "| Table | Value |", "|---|---|", "| Row one | 12 |", "| Row two | 34 |", "", ": Table caption.", "",
+  "## QR codes", "", '::: {.qr url="https://example.com/qr-right" label="example.com/qr-right"}', "### Code right", "", "The default: text on the left, the code on the right.", ":::", "",
+  '::: {.qr .left .small url="https://example.com/qr-left"}', "### Code left, small", "", "The code on the left, text on the right.", ":::", "",
+  '::: {.qr .center url="https://example.com/qr-center"}', "**Code centred.** Text centred below it.", ":::", "",
+  "::: cols", '::: {.qr .left .small bg="white" url="https://example.com/qr-white"}', '**bg="white"** (the default)', ":::", "",
+  '::: {.qr .left .small bg="transparent" url="https://example.com/qr-clear"}', '**bg="transparent"**', ":::", ":::", "",
+  "::: {.cta-card .centered}", '::: {.qr .center .small bg="black" url="https://example.com/qr-black"}', '**bg="black"** on the closing card', ":::", ":::", "",
   "![](prism:logo){.logo}", "", "---", "",
   // The closing styles every brand has: content only and the centred card here, the full-width card last, as a piece ends.
   "::: {.cta-card .plain}", `[${B.name}]{.eyebrow}`, "", "## Closing, content only", "", "No ground: the close in the page's own colours.", ":::", "",

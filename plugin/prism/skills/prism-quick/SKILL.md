@@ -101,6 +101,14 @@ For a process, use a flow instead of feature cards (2 to 5 steps; wrap it in `::
 :::
 ```
 
+When the source gives an address to scan (an event, a sign-up, a download), add a QR code where the reader acts, often inside the closing card. The build draws it black on white (no branding). `.left` puts the code left, `.center` puts it above centred text, `bg="black"` or `"transparent"` changes its ground, and `image="images/qr.png"` uses a code the user uploaded instead (copied unchanged, not through images.py):
+
+```markdown
+::: {.qr url="https://example.com/summit" label="example.com/summit"}
+Scan to register for the fall summit.
+:::
+```
+
 Shape: hero (optional) → 2–3 short sections using the blocks above → cta-card last. About 350–450 words fits one page. Icons: shield-check, clock, users, file-text, chat-circle-text, calendar, clipboard-text, list-checks, sparkle, chart-bar, magnifying-glass, user-check.
 
 ### Social post cheat sheet

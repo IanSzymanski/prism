@@ -75,6 +75,32 @@ One or two sentences.
 
 `flow` shows 2–5 numbered steps side by side: use it for any process or workflow instead of feature cards. `band` is a tinted strip for one key idea and can hold a flow. Sheets and brochures; decks use the `steps` layout for the same thing.
 
+## QR code
+
+```markdown
+::: {.qr url="https://example.com/summit" label="example.com/summit"}
+### Save your seat
+
+Scan to register for the fall summit.
+:::
+```
+
+A scannable code for the address content.md gives with `QR code:` (see content-spec). The build draws it, so never generate a QR image yourself.
+
+| Layout | Markup |
+|---|---|
+| Code right, text left (default) | `{.qr url="..."}` |
+| Code left, text right | `{.qr .left url="..."}` |
+| Code centred, text centred below | `{.qr .center url="..."}` |
+| Code alone | the block with no text inside |
+
+- **Style:** unbranded: black on white, with no brand colours or logo, so it scans everywhere. `bg="black"` (white modules) or `bg="transparent"` (no ground) changes the ground. Black, and transparent on a dark ground, print light on dark: phone cameras read them, some older scanner apps don't, so keep the default unless the design calls for it. The code keeps its own ground and blank margin on any surface, so it works inside the closing card.
+- **Size:** `.small` (0.85 in), default (1.15 in), `.large` (1.6 in). A long address makes a denser code; the build warns when its modules print under 0.4 mm. Shorten the address or use `.large`.
+- `label="..."` prints a short line under the code (the address people can type, or "Scan to register"). `.top` aligns the text to the top instead of the middle.
+- **Uploaded code:** when the person uploaded a QR code (a tracked or designed one; images.md Role `qr: <address>`), use it: `image="images/qr-summit.png"`. It replaces the generated code and is printed as it is, without `bg`. Keep `url` beside it so email can link the address.
+- One code per page or post, two at most; put it where the reader acts (the closing card, an event box), with the text saying what scanning does.
+- Sheets, brochures, social posts, stories and carousel panels. Decks use the `qr` slide layout (deck.md). HTML email draws the text and a link to the address instead (a code can't be scanned from the screen it is read on).
+
 ## Icons
 
 `[]{.icon .ph-NAME}` with any Phosphor icon name (phosphoricons.com). Ink by default; add `.accent` for the brand's accent colour. Reliable names: check, shield-check, lock, clock, users, file-text, files, chart-line-down, chart-bar, sparkle, link-simple, magnifying-glass, calendar-x, calendar, flag, chat-circle-text, user-check, info, warning, arrow-right, heart, house, handshake, clipboard-text, list-checks.
