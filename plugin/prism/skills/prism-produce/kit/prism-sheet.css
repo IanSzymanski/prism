@@ -221,6 +221,39 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .cols{column-count:2;column-gap:24pt;margin-bottom:var(--space)}
 .cols > *{break-inside:avoid-column}
 
+/* QR code: ::: {.qr url="..."}. The code sits right of its text; .left puts it left, .center stacks it above centred text.
+   Brand style by default: modules in the strong text colour, corner squares in the accent, on the page ground, which the code
+   keeps (with the blank margin scanners need) on any surface. bg="white|black|transparent" changes the ground. */
+.qr{--qr-size:1.15in;display:grid;grid-template-columns:1fr auto;gap:12pt 20pt;align-items:center;margin:14pt 0 18pt;break-inside:avoid}
+.qr > .qr__code{order:2}
+.qr.left{grid-template-columns:auto 1fr}
+.qr.left > .qr__code{order:0}
+.qr.center{grid-template-columns:1fr;justify-items:center;text-align:center}
+.qr.center > .qr__code{order:0}
+.qr.center > .qr__text{max-width:4.6in}
+.qr:not(.center) > .qr__text{text-align:left}
+.qr.top{align-items:start}
+.qr:not(:has(> .qr__text)){grid-template-columns:auto;justify-content:start}
+.qr.center:not(:has(> .qr__text)){justify-content:center}
+.qr.small{--qr-size:.85in}
+.qr.large{--qr-size:1.6in}
+.qr .qr__code{display:flex;flex-direction:column;align-items:center;width:auto;margin:0}
+.qr .qr__code .prism-qr{display:block;width:var(--qr-size);height:auto;border-radius:var(--prism-radius-code,0)}
+.qr .prism-qr__ground{fill:var(--prism-color-surface)}
+.qr .prism-qr__modules{fill:var(--prism-color-text-strong)}
+.qr .prism-qr__eyes{fill:var(--prism-color-accent)}
+.qr.bg-white .prism-qr__ground{fill:white}
+.qr.bg-black .prism-qr__ground{fill:black}
+.qr.bg-black .prism-qr__modules,.qr.bg-black .prism-qr__eyes{fill:white}
+.qr.bg-transparent .prism-qr__ground{fill:none}
+/* Transparent on a dark card: the modules take the card's light text colour, so the code still reads. */
+.cta-card:not(.plain) .qr.bg-transparent .prism-qr__modules,.cta-card:not(.plain) .qr.bg-transparent .prism-qr__eyes{fill:currentColor}
+.qr__label{margin:4pt 0 0;text-align:center;font:var(--prism-type-caption);letter-spacing:var(--prism-type-caption-ls);color:var(--prism-color-text-muted);white-space:nowrap}
+.qr__text > :first-child{margin-top:0}
+.qr__text > :last-child{margin-bottom:0}
+/* On a dark card the label sits on the card, so it takes the card's own text colour. */
+.cta-card:not(.plain) .qr__label{color:inherit}
+
 /* Closing card: one per sheet, always last. Core sets its place and sizes; its look is the brand layer's. */
 .cta-card{margin:26pt 0 10pt;padding:26pt 30pt 22pt;break-inside:avoid;border-radius:var(--prism-radius-hero)}
 .cta-card h2,.cta-card h3{display:block;font:var(--prism-type-cta-heading);letter-spacing:var(--prism-type-cta-heading-ls);margin:8pt 0 10pt}

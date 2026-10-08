@@ -43,6 +43,8 @@ When the upload includes images (JPG, PNG, WebP, HEIC), now or at any later poin
 
 Uploads belong to this piece and this conversation; they are not kept for other pieces. A photo worth reusing (the team, the office, the product) belongs in the brand's design system, in its photo library, so any piece can use it: when one looks reusable, say so once.
 
+An uploaded QR code is not a photo: copy it into `images/` unchanged (no `run.sh images`), give it the Role `qr: <address>` in images.md, and ask which address it opens unless the person said so. It replaces the generated code for that address in every output.
+
 1. Keep the originals in `source/`. Normalise copies into `images/` with the kit: `bash .prism-kit/run.sh images <slug>/images <image files>`. It fixes phone rotation, converts colour, and prints a table of pixels, orientation, how large each can print, and its focal point (the spot every layout keeps in frame when it crops; stored in `images/.focus.json`). HEIC may fail to open; ask for JPG or PNG then.
 2. Look at every image with the Read tool. Note what it shows, whether identifiable people are in it (and whether they look like staff, clients or children), any text in the image, and anything that makes it unusable (blur, screenshots of private data, other organisations' branding).
 3. Write `images.md` as described in `references/content-spec.md`: the kit's columns plus Shows, People and a proposed Role. If the focal point misses what matters (a face at the edge, a sign), correct it in images.md's Focus column and in `images/.focus.json`. Propose one hero only if a landscape image prints at 6.5 in or wider and suits the opening.

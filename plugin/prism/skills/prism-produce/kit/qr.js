@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+// QR codes for the qr block, drawn as one SVG path so PDFs carry them as vector shapes.
+// Usage: node qr.js "https://example.com/demo" prints the SVG (the Lua filter calls this).
+const qrcode = require("./vendor/qrcode-generator/qrcode.js");
+qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+
+const QUIET = 4;  // modules of blank margin every scanner expects around the code
+
+// Smallest code that holds the text at level M (about 15% of the code can be damaged and still scan).
+function encode(text, level = "M") {
+  const q = qrcode(0, level);
+  q.addData(String(text));
+  q.make();
+  const n = q.getModuleCount();
+  return { n, dark: (r, c) => q.isDark(r, c) };
+}
+
+// The three finder squares in the corners ("eyes"), which a brand style colours on their own.
+const isEye = (n, r, c) => (r < 7 && (c < 7 || c >= n - 7)) || (r >= n - 7 && c < 7);
+
+// Each row's runs of dark modules become one rectangle, so the path stays short. eyes: true draws only the finder squares, false the rest.
+function path({ n, dark }, at = QUIET, eyes = null) {
+  const on = (r, c) => dark(r, c) && (eyes === null || isEye(n, r, c) === eyes);
+  let d = "";
+  for (let r = 0; r < n; r++)
+    for (let c = 0; c < n; c++) {
+      if (!on(r, c)) continue;
+      let w = 1;
+      while (c + w < n && on(r, c + w)) w++;
+      d += `M${c + at} ${r + at}h${w}v1h-${w}z`;
+      c += w - 1;
+    }
+  return d;
+}
+
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+// Colours default to black on white; sheets recolour the three classes from the brand's roles. ground: null leaves it transparent.
+function svg(text, { ground = "#fff", ink = "#000", eye = ink, level } = {}) {
+  const code = encode(text, level), size = code.n + 2 * QUIET;
+  return `<svg class="prism-qr" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges" role="img" aria-label="QR code: ${esc(text)}" data-modules="${size}">` +
+    (ground ? `<rect class="prism-qr__ground" width="${size}" height="${size}" fill="${ground}"/>` : "") +
+    `<path class="prism-qr__modules" fill="${ink}" d="${path(code, QUIET, false)}"/><path class="prism-qr__eyes" fill="${eye}" d="${path(code, QUIET, true)}"/></svg>`;
+}
+
+// Runs in the page after layout: modules printed under ~0.4 mm (print only, scale given) and contrast with what is behind the code.
+function check(scale) {
+  return [...document.querySelectorAll(".qr")].flatMap(q => {
+    const u = q.querySelector("img.prism-qr");
+    // An uploaded code is printed as it is; only its shape can be checked.
+    if (u) return u.naturalWidth && Math.abs(u.naturalWidth / u.naturalHeight - 1) > 0.05 ? [`uploaded qr code ${u.getAttribute("src").split("/").pop()} isn't square: crop it to the code and its margin`] : [];
+    const s = q.querySelector("svg.prism-qr"); if (!s) return [];
+    const out = [], mm = s.getBoundingClientRect().width / 96 * scale * 25.4 / +s.dataset.modules;
+    if (scale && mm < 0.4) out.push(`qr code for ${q.dataset.url} prints its modules at ${mm.toFixed(2)} mm (0.4 mm or more scans reliably): use a shorter address or {.qr .large}`);
+    // Modules and corner squares need strong contrast with what is behind them (the code's ground, or the page when transparent).
+    const rgb = c => (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number), lum = c => { const [r, g, b] = rgb(c).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+    const g = s.querySelector(".prism-qr__ground"), gf = g && getComputedStyle(g).fill;
+    let ground = gf && gf !== "none" ? gf : null;
+    for (let e = q; !ground && e; e = e.parentElement) { const st = getComputedStyle(e); if (st.backgroundImage !== "none") return out; if (!/rgba\(.*, 0\)|transparent/.test(st.backgroundColor)) ground = st.backgroundColor; }
+    const mod = s.querySelector(".prism-qr__modules"), eyes = s.querySelector(".prism-qr__eyes"), behind = ground || "rgb(255, 255, 255)";
+    const rm = ratio(getComputedStyle(mod).fill, behind), re = ratio(getComputedStyle(eyes).fill, behind);
+    if (rm < 4) out.push(`qr code for ${q.dataset.url}: its modules are ${rm.toFixed(1)}:1 against their ground (4:1 or more scans reliably): use bg="white" or bg="black"`);
+    // Accent corner squares too faint to scan take the modules' colour instead.
+    else if (re < 4) { eyes.style.fill = getComputedStyle(mod).fill; out.push(`qr code for ${q.dataset.url}: the accent is ${re.toFixed(1)}:1 against the code's ground, so its corner squares are drawn in the module colour`); }
+    return out;
+  });
+}
+
+module.exports = { encode, svg, check, QUIET };
+
+if (require.main === module) {
+  const text = process.argv[2];
+  if (!text) { console.error("usage: node qr.js <text>"); process.exit(1); }
+  process.stdout.write(svg(text));
+}

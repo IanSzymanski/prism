@@ -129,6 +129,8 @@ function stamp(file) {
   await page.addScriptTag({ content: require("./focus.js").inPage });
   const warnings = await page.evaluate(prepareImages, [brochure ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
+  // QR codes: print size and contrast (qr.js check).
+  warnings.push(...await page.evaluate(require("./qr.js").check, brochure ? 1 : 0.9));
   // Brochure panels clip instead of flowing on, so report any panel or column whose content runs past its bottom edge.
   if (brochure) warnings.push(...await page.evaluate(() => {
     const out = [];

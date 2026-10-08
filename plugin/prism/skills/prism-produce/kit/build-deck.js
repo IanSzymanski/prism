@@ -243,6 +243,25 @@ function footer(slide, n) {
 }
 const paras = blocks => blocks.filter(b => b.t === "Para" && !(b.c.length === 1 && b.c[0].t === "Span"));
 
+// The brand style (strong text with accent corner squares on the slide ground) and the bg options, as in sheets.
+const QR_COLORS = { brand: { ground: "#" + C.paper, ink: "#" + C.ink, eye: "#" + C.accent }, white: { ground: "#fff", ink: "#" + C.ink, eye: "#" + C.accent },
+  black: { ground: "#000", ink: "#fff", eye: "#fff" }, transparent: { ground: null, ink: "#" + C.ink, eye: "#" + C.accent } };
+// QR slide: the code beside the text (right by default, .left), or above it (.center), with an optional label under the code.
+async function qrSlide(slide, blocks, [, cls, kv]) {
+  const at = Object.fromEntries(kv), url = at.url;
+  if (!url && !at.image) throw new Error(`slide ${SLIDE_N} (qr): the slide needs the address its code opens (url="https://...") or an uploaded code (image="images/qr.png")`);
+  // An uploaded code (image="...") is used as it is, in place of a generated one.
+  const code = at.image ? B.src(at.image, path.dirname(md))
+    : await png("qr.png", require("./qr.js").svg(url, QR_COLORS[at.bg || "brand"] || (() => { throw new Error(`slide ${SLIDE_N} (qr): bg is white, black or transparent, not "${at.bg}"`); })()).replace("<svg ", '<svg width="1200" height="1200" '), 1200);
+  if (!fs.existsSync(code)) throw new Error(`slide ${SLIDE_N} (qr): uploaded qr code "${at.image}" not found`);
+  const center = cls.includes("center"), left = cls.includes("left"), s = center ? 2.8 : 3.4;
+  const x = center ? (SW - s) / 2 : left ? MX : SW - MX - s, y = center ? 1.9 : 2.05;
+  slide.addImage({ path: code, x, y, w: s, h: s, altText: "QR code" + (url ? ": " + url : "") });
+  if (at.label) slide.addText(at.label, T({ x: x - 0.75, y: y + s + 0.08, w: s + 1.5, h: 0.3, fontFace: F.mono, fontSize: 12, color: C.muted, align: "center" }));
+  if (center) textBlocks(slide, blocks, { x: 2.2, y: y + s + (at.label ? 0.5 : 0.3), w: SW - 4.4, h: SH - 0.75 - (y + s + (at.label ? 0.5 : 0.3)), align: "center" }, 18);
+  else textBlocks(slide, blocks, { x: left ? MX + s + 0.6 : MX, y: 2.05, w: CW - s - 0.6, h: s, valign: "middle" }, 20);
+}
+
 async function chartSlide(slide, blocks) {
   const cb = blocks.find(b => b.t === "CodeBlock" && b.c[0][1].includes("chart"));
   const { spec, rows } = parseChart(cb.c[1]);
@@ -308,9 +327,9 @@ async function chartSlide(slide, blocks) {
   for (const div of slides) {
     n++;
     // A brand component slide takes the slide layout of the core block it is like (PowerPoint can't carry the brand's CSS).
-    const DECK_KIND = { quote: "quote", stats: "stats", features: "features", cards: "features", checks: "features", flow: "steps", media: "media", "cta-card": "closing", chart: "chart" };
+    const DECK_KIND = { quote: "quote", stats: "stats", features: "features", cards: "features", checks: "features", flow: "steps", media: "media", "cta-card": "closing", chart: "chart", qr: "qr" };
     const like = B.likeOf(...div.c[0][1].filter(c => c !== "slide"));
-    const kind = (like && (DECK_KIND[like] || "content")) || div.c[0][1].find(c => c !== "slide") || "content";
+    const kind = (like && (DECK_KIND[like] || "content")) || (div.c[0][1].includes("qr") && "qr") || div.c[0][1].find(c => c !== "slide") || "content";
     SLIDE_N = n; KIND = kind;
     const blocks = div.c[1].filter(b => !(b.t === "Div" && b.c[0][1].includes("notes")));
     const notes = div.c[1].find(b => b.t === "Div" && b.c[0][1].includes("notes"));
@@ -401,6 +420,8 @@ async function chartSlide(slide, blocks) {
         textBlocks(slide, blocks.filter(b => b.t !== "Figure"), { x: tx, y: 2.0, w: CW - iw - 0.5, h: 4.5, valign: "middle" }, 18);
       } else if (kind === "chart") {
         await chartSlide(slide, blocks);
+      } else if (kind === "qr") {
+        await qrSlide(slide, blocks, div.c[0]);
       } else {
         textBlocks(slide, blocks, { x: MX, y: 2.0, w: CW, h: 4.6 });
       }

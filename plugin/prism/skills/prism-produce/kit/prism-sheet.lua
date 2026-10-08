@@ -73,8 +73,44 @@ function Span(s)
   end
 end
 
+local kit = PANDOC_SCRIPT_FILE:match("^(.*/)") or "./"
+
+local function attr_esc(s) return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub('"', "&quot;")) end
+
+-- ::: {.qr url="..."} becomes the code (vector SVG from qr.js, with an optional label under it) and a text column.
+-- image="images/qr.png" uses an uploaded code instead of generating one (a tracked or designed code), shown as it is.
+local function qr(el)
+  local url, image = el.attributes.url, el.attributes.image
+  if (not url or url == "") and not image then error('prism-sheet.lua: a qr block needs the address it opens (url="https://...") or an uploaded code (image="images/qr.png")') end
+  local svg
+  if image then
+    local file = image:match("^%a+:") and image or (image:sub(1, 1) == "/" and image or base_dir() .. image)
+    if not image:match("^%a+:") and not io.open(file, "r") then error('prism-sheet.lua: uploaded qr code "' .. image .. '" not found') end
+    svg = '<img class="prism-qr prism-qr--uploaded" src="' .. attr_esc(image:match("^%a+:") and image or "file://" .. file) .. '" alt="QR code' .. (url and (": " .. attr_esc(url)) or "") .. '">'
+  else
+    if not url:match("^%a[%w+.-]*:") then io.stderr:write('[sheet] qr code for "' .. url .. '" has no scheme: phones may search for it instead of opening it (write https://...)\n') end
+    svg = pandoc.pipe("node", { kit .. "qr.js", url }, "")
+  end
+  -- bg="white|black|transparent" sets the code's ground; without it the code takes the brand's own ground and colours.
+  local bg = el.attributes.bg
+  if bg then
+    if bg ~= "white" and bg ~= "black" and bg ~= "transparent" then error('prism-sheet.lua: qr bg is white, black or transparent, not "' .. bg .. '"') end
+    el.classes:insert("bg-" .. bg)
+  end
+  local label = el.attributes.label
+  el.attributes.url, el.attributes.label, el.attributes.image, el.attributes.bg = nil, nil, nil, nil
+  el.attributes["data-url"] = url or image
+  local code = '<figure class="qr__code">' .. svg
+    .. (label and ('<figcaption class="qr__label">' .. label:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</figcaption>") or "") .. "</figure>"
+  local out = pandoc.List({ pandoc.RawBlock("html", code) })
+  if #el.content > 0 then out:insert(pandoc.Div(el.content, { class = "qr__text" })) end
+  el.content = out
+  return el
+end
+
 -- Groups everything after the image in a media row into one text column.
 function Div(el)
+  if el.classes:includes("qr") then return qr(el) end
   if el.classes:includes("media") and #el.content > 1 then
     local first = el.content[1]
     local rest = pandoc.List({})

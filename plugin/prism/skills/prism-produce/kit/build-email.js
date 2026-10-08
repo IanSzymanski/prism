@@ -199,7 +199,7 @@ function render(b) {
   if ((m = /^:{3,}\s*\{?\s*\.?([\w-]+)([^}]*)\}?\s*$/.exec(first))) {
     // A brand component takes the core block it is like (an email can't carry the brand's CSS); its own class stays for the record.
     const like = BR.likeOf(...(first.match(/\.([\w-]+)/g) || []).map(k => k.slice(1)), m[1]);
-    const cls = like && ["stats", "features", "cards", "media", "callout"].includes(like) ? like : m[1], a = attrs(first), x = inner(b);
+    const cls = like && ["stats", "features", "cards", "media", "callout", "qr"].includes(like) ? like : m[1], a = attrs(first), x = inner(b);
     // Like a block email draws from its content (a quote, the closing card, a band): its content, drawn as usual.
     if (like && cls !== like) { kinds.push(like); return chunks(x).map(render).join(""); }
     kinds.push(cls);
@@ -244,6 +244,14 @@ function render(b) {
       for (const r of ls) text.push(plain(r));
       const t = ls.map((r, i) => p(inl(r), i ? font("sans", 14, 20, 400, L.muted, "tm") : font("sans", 16, 22, 600, L.ink, "tx"))).join("");
       return row(`<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>${im ? `<td width="68" valign="middle">${img({ src: im[2], alt: im[1], width: 56, square: true, style: "border-radius:28px" })}</td>` : ""}<td valign="middle">${t}</td></tr></table>`, `8px ${P}px 26px`);
+    }
+    if (cls === "qr") {
+      // A code can't be scanned from the screen it is read on, so email draws the block's content and links its address.
+      if (!a.url) say('qr block without url="...": drawn as its content only');
+      const body = chunks(x).map(render).join("");
+      const go = a.url ? (text.push(`${a.label || a.url.replace(/^https?:\/\//, "")}: ${a.url}`, ""),
+        row(p(`<a href="${href(a.url)}" class="lk" style="color:${L.accent};font-weight:600;text-decoration:none">${esc(a.label || a.url.replace(/^https?:\/\//, ""))} &rarr;</a>`, font("sans", 16, 22, 600, L.accent, "ac")), `0 ${P}px 22px`)) : "";
+      return body + go;
     }
     if (cls === "footer") { footer = x; kinds.pop(); return ""; }
     say(`unknown block ::: ${cls}; drawn as plain text`);

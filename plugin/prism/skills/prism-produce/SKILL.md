@@ -187,3 +187,4 @@ Classify each requested change before touching files. Tell the user the lane in 
 3. Each photo is cropped to its slot around its focal point. "Keep her face in frame", "show more of the building": change that image's focus in images.md and `.focus.json` (every format), or write `{focus="x% y%"}` on it in one format file (that format only).
 4. In design mode, republish the changed boards; otherwise number check, rebuild, deliver.
 5. A photo worth reusing across pieces belongs in the brand's design system photo library; say so once.
+6. An uploaded QR code (images.md Role `qr: <address>`) replaces the generated one: add `image="images/<file>"` to every qr block and qr slide with that address (layout lane), copied into `formats/images/` unchanged.

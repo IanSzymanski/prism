@@ -62,6 +62,7 @@ Opening paragraph.
 | Media | `::: media`: image, then `###`, text, optional button | Image left; `{.media .flip}` puts it right |
 | Callout | `::: callout` with `####` label and text | Tinted box; caveats and "good to know" |
 | Quote | `>` quote, `>` blank, `> [Name, Role]{.cite}` | Verbatim from content.md |
+| QR | `::: {.qr url="https://..." label="Register for the summit"}` with text | No code: a code can't be scanned from the screen it is read on. The text, then a link to `url` labelled with `label` (else the address). Write text that works without the code ("Register in a minute", not "Scan to register") |
 | Divider | `::: ornament` / `:::` or `---` | `ornament` is the brand's own divider (its ornament): never next to a person's photo, a quote or a signature (use `---` there) |
 | Signature | `::: signature`: optional headshot, name, role | Letter template. The headshot is cropped square and round |
 | Footer | `::: footer` | Required: sender's postal address and an unsubscribe merge tag. Sits under the card |
