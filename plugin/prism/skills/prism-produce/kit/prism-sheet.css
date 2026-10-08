@@ -252,6 +252,22 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 /* On a dark card the label sits on the card, so it takes the card's own text colour. */
 .cta-card:not(.plain) .qr__label{color:inherit}
 
+/* Logo inside any block: logo="top-left|top|top-right|bottom-left|bottom|bottom-right" (prism-sheet.lua). One size and one
+   gap everywhere. The build shows the on-dark logo on a dark ground (inlogo.js) and none when the brand has no on-dark logo. */
+.prism-inlogo{display:flex;grid-column:1/-1;column-span:all;order:-1;margin:0 0 12pt;line-height:0}
+[class*="logo-bottom"] > .prism-inlogo{order:99;margin:12pt 0 0}
+.logo-top > .prism-inlogo,.logo-bottom > .prism-inlogo{justify-content:center}
+.logo-top-right > .prism-inlogo,.logo-bottom-right > .prism-inlogo{justify-content:flex-end}
+/* Two classes, so photo rules (.media img, .gallery img) never crop or stretch a logo. */
+.prism-inlogo .prism-inlogo__light,.prism-inlogo .prism-inlogo__dark{display:block;height:16pt;width:auto;max-width:none;aspect-ratio:auto;object-fit:contain;margin:0;border-radius:0;box-shadow:none}
+.prism-inlogo .prism-inlogo__dark,.prism-inlogo.is-dark .prism-inlogo__light{display:none}
+.prism-inlogo.is-dark .prism-inlogo__dark{display:block}
+/* Beside a block: logo="left|right". The block keeps its own look and spacing; the logo sits centred on it. */
+.prism-beside{display:flex;align-items:center;gap:20pt;break-inside:avoid}
+.prism-beside > :not(.prism-inlogo){flex:1;min-width:0}
+.prism-beside > .prism-inlogo{flex:none;order:0;margin:0}
+.prism-beside.logo-right > .prism-inlogo{order:2}
+
 /* Closing card: one per sheet, always last. Core sets its place and sizes; its look is the brand layer's. */
 .cta-card{margin:26pt 0 10pt;padding:26pt 30pt 22pt;break-inside:avoid;border-radius:var(--prism-radius-hero)}
 .cta-card h2,.cta-card h3{display:block;font:var(--prism-type-cta-heading);letter-spacing:var(--prism-type-cta-heading-ls);margin:8pt 0 10pt}

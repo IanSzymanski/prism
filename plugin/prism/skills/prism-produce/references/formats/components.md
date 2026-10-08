@@ -101,6 +101,29 @@ A scannable code for the address content.md gives with `QR code:` (see content-s
 - One code per page or post, two at most; put it where the reader acts (the closing card, an event box), with the text saying what scanning does.
 - Sheets, brochures, social posts, stories and carousel panels. Decks use the `qr` slide layout (deck.md). HTML email draws the text and a link to the address instead (a code can't be scanned from the screen it is read on).
 
+## Logo positions
+
+```markdown
+::: {.callout logo="top-right"}
+#### Good to know
+
+One or two sentences.
+:::
+```
+
+When someone asks for the logo in a place ("put our logo at the top right of the callout", "logo next to the stats"), add `logo="<position>"` to that block. Every position has one fixed size and gap, so a logo lands in the same place on every block and in every brand. Never place a logo with an image line (`![](prism:logo)`) for this.
+
+| Position | Where |
+|---|---|
+| `top-left`, `top`, `top-right` | Inside the block, above its content |
+| `bottom-left`, `bottom`, `bottom-right` | Inside the block, below its content |
+| `left`, `right` | Beside the block, centred on it |
+
+- Works on any block: callout, band, stats, features, checks, cols, media, gallery, QR code, the closing card, brochure panels, and blocks inside posts.
+- The build picks the logo for the ground: the on-dark logo on a dark ground (the brand's dark closing card, a dark panel), the usual one elsewhere. A brand without an on-dark logo gets none on a dark ground, with a note. Add `.on-dark` or `.on-light` to the block only if the build picks wrong.
+- **Posts, stories, carousel panels and email headers** already carry a logo. On them, `logo="top-left|top-right|bottom-left|bottom-right"` moves it to that corner, inside the frame's margins (the note moves to the other side if they would meet), and `logo="none"` hides it. A carousel panel other than the cover and end shows the logo only when it asks for one.
+- One logo per page or post besides the masthead's is plenty; don't repeat it on every block.
+
 ## Icons
 
 `[]{.icon .ph-NAME}` with any Phosphor icon name (phosphoricons.com). Ink by default; add `.accent` for the brand's accent colour. Reliable names: check, shield-check, lock, clock, users, file-text, files, chart-line-down, chart-bar, sparkle, link-simple, magnifying-glass, calendar-x, calendar, flag, chat-circle-text, user-check, info, warning, arrow-right, heart, house, handshake, clipboard-text, list-checks.

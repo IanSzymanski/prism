@@ -196,7 +196,9 @@ function wireOne(md, B) {
     const fr = id !== "x" && frameOf(first);
     if (fr) return renderFrame(b, id, fr);
     const inner = b.replace(/^:{3,}.*\n/, "").replace(/\n:{3,}\s*$/, "").replace(/^:{3,}\s*$/, "");
-    const wrap = (label, html, cls = "") => `<div data-block="${id}" class="wb${cls ? " " + cls : ""}">${tag(label)}${html}</div>`;
+    // A logo the block asks for (logo="top-right") is named on its label.
+    const lg = (/^:{3,}.*\blogo="([\w-]+)"/.exec(first) || [])[1];
+    const wrap = (label, html, cls = "") => `<div data-block="${id}" class="wb${cls ? " " + cls : ""}">${tag(lg ? `${label} · logo ${lg}` : label)}${html}</div>`;
     let m;
     if ((m = /^(#{1,4})\s+(.*)$/.exec(first)) && b.split("\n").length === 1) return heading(m[1].length, m[2], id, !framed && meta.layout !== "email");
     if ((m = /^:{3,}\s*\{?\s*\.?([\w-]+)/.exec(first))) {

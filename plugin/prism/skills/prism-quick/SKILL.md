@@ -109,6 +109,8 @@ Scan to register for the fall summit.
 :::
 ```
 
+When the user asks for the logo in a place, add `logo="top-left|top|top-right|bottom-left|bottom|bottom-right"` (inside the block) or `logo="left|right"` (beside it) to that block; on a post, a corner moves the post's own logo.
+
 Shape: hero (optional) → 2–3 short sections using the blocks above → cta-card last. About 350–450 words fits one page. Icons: shield-check, clock, users, file-text, chat-circle-text, calendar, clipboard-text, list-checks, sparkle, chart-bar, magnifying-glass, user-check.
 
 ### Social post cheat sheet

@@ -342,3 +342,13 @@ Ian's direction (Oct 7): the owner invites teammates by @name; everyone edits th
 - **Proof:** `tests/qr.test.js` (28 checks); every existing fixture identical to main (`diff-builds.py`, 0 differences); every generated code in sheets (both brands), social posts and deck slides decoded back to its address with OpenCV (light-on-dark ones once inverted, as phones do), and the uploaded code decoded to its own address, not the block's `url`.
 - **Known, not changed:** a story with no `note` warns "the note is outside the safe area".
 
+
+## Logo positions (Oct 8, Ian)
+
+Ian's ask: ask for the logo in a position or next to a component and have one consistent place for it.
+
+- **Markup:** `logo="<position>"` on any fenced block. Inside the block: `top-left`, `top`, `top-right` (above its content), `bottom-left`, `bottom`, `bottom-right` (below). Beside it: `left`, `right` (the block and its logo in a `.prism-beside` row, centred). One height (16pt in sheets) and one gap (12pt) everywhere.
+- **Kit:** `prism-sheet.lua` (`inline_logo`, after the media and QR transforms) adds `.prism-inlogo` with both the logo and the on-dark logo; grid blocks (media, qr, gallery) get it as their last child so a flipped media row keeps its photo first, and CSS orders it. `inlogo.js` (`pick`, in the sheet and social builds) marks a logo `is-dark` when its block's text is light, since brands' layers pair light text with dark grounds (Case Amplify's closing card is dark, Prism's is light), with `.on-dark`/`.on-light` to force it; with no on-dark logo it is left out with a note. Logos are kept out of the photo pass (orientation, resolution warnings) and beyond `.media img`/`.gallery img` by two-class selectors. `brand.js` env adds `PRISM_BRAND_NAME` for the alt text.
+- **Frames:** on posts, stories, carousel panels and email headers, the four corners move the frame's own `::before` logo inside its margins (`--logo-side/top/bottom` per frame), the note steps to the other side when they would meet, `none` hides it; any other position stops the build. Carousel panels other than cover and end show it only when asked.
+- **Decks:** `logo=` on any slide but the title: 0.3 in tall in the margin band above the heading or in the footer line; footer text and slide number step aside; the closing slide uses the on-dark logo. **HTML email:** a logo row above or below the block on that side (`left`/`right` go above). **Design mode:** the block's label names it. **Swatch:** samples of inside, below and beside.
+- **Proof:** `tests/logo.test.js` (17 checks, including real sheet, deck and email builds and the dark pick in the page); every existing fixture identical to main.

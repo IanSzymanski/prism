@@ -109,16 +109,44 @@ local function qr(el)
   return el
 end
 
+-- logo="top-left|top|top-right|bottom-left|bottom|bottom-right" on any block puts the brand's logo inside it, above or below
+-- its content; logo="left|right" puts it beside the block, centred on it. Same size and gap everywhere (prism-sheet.css).
+-- On a frame (a post, story, carousel panel or email header) a corner moves the frame's own logo there; "none" hides it.
+local LOGO_AT = { ["top-left"] = true, top = true, ["top-right"] = true, ["bottom-left"] = true, bottom = true, ["bottom-right"] = true, left = true, right = true, none = true }
+local function inline_logo(el)
+  local at = el.attributes.logo
+  if not at then return el end
+  if not LOGO_AT[at] then error('prism-sheet.lua: logo is top-left, top, top-right, bottom-left, bottom, bottom-right or none, not "' .. at .. '"') end
+  el.attributes.logo = nil
+  local frame = el.classes:includes("post")
+  if frame and (at == "left" or at == "right" or at == "top" or at == "bottom") then error('prism-sheet.lua: a post\'s logo goes in a corner (top-left, top-right, bottom-left, bottom-right) or none, not "' .. at .. '"') end
+  if not frame and at == "none" then error('prism-sheet.lua: logo="none" is for posts, which carry a logo of their own') end
+  if at ~= "left" and at ~= "right" then el.classes:insert("logo-" .. at) end
+  if frame then return el end
+  local light, dark = os.getenv("PRISM_ASSET_LOGO"), os.getenv("PRISM_ASSET_LOGO_ON_DARK")
+  local alt = attr_esc(os.getenv("PRISM_BRAND_NAME") or "Logo")
+  -- Both logos go in; CSS shows the one for the ground. Without an on-dark logo, a dark ground shows none.
+  local html = '<div class="prism-inlogo"><img class="prism-inlogo__light" src="file://' .. attr_esc(light) .. '" alt="' .. alt .. '">'
+    .. (dark and ('<img class="prism-inlogo__dark" src="file://' .. attr_esc(dark) .. '" alt="' .. alt .. '">') or "") .. "</div>"
+  -- Grid blocks keep their own first child (a media row's photo), so the logo goes last and CSS orders it.
+  local grid = el.classes:includes("media") or el.classes:includes("qr") or el.classes:includes("gallery")
+  -- Beside: the block and its logo side by side in a row of their own.
+  if at == "left" or at == "right" then return pandoc.Div({ pandoc.RawBlock("html", html), el }, { class = "prism-beside logo-" .. at }) end
+  if grid or at:match("^bottom") then el.content:insert(pandoc.RawBlock("html", html))
+  else el.content:insert(1, pandoc.RawBlock("html", html)) end
+  return el
+end
+
 -- Groups everything after the image in a media row into one text column.
 function Div(el)
-  if el.classes:includes("qr") then return qr(el) end
+  if el.classes:includes("qr") then return inline_logo(qr(el)) end
   if el.classes:includes("media") and #el.content > 1 then
     local first = el.content[1]
     local rest = pandoc.List({})
     for i = 2, #el.content do rest:insert(el.content[i]) end
     el.content = pandoc.List({ first, pandoc.Div(rest, { class = "media__text" }) })
   end
-  return el
+  return inline_logo(el)
 end
 
 -- A one-pager carries no document type: "One-pager" or "One sheet" in the top-right corner says nothing.

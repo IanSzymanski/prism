@@ -133,6 +133,9 @@ const md = ["---", `brand: ${id}`, `title: Layout samples in *${B.name}*`, `page
   "::: cols", '::: {.qr .left .small bg="white" url="https://example.com/qr-white"}', '**bg="white"** (the default)', ":::", "",
   '::: {.qr .left .small bg="transparent" url="https://example.com/qr-clear"}', '**bg="transparent"**', ":::", ":::", "",
   "::: {.cta-card .centered}", '::: {.qr .center .small bg="black" url="https://example.com/qr-black"}', '**bg="black"** on the closing card', ":::", ":::", "",
+  "## Logo positions", "", '::: {.callout logo="top-left"}', '#### logo="top-left"', "", "Inside the block, above its content. Also top and top-right.", ":::", "",
+  '::: {.band logo="bottom-right"}', '### logo="bottom-right"', "", "Below the content. Also bottom-left and bottom.", ":::", "",
+  '::: {.checks logo="right"}', '- logo="right": beside the block, centred on it', '- logo="left" for the other side', ":::", "",
   "![](prism:logo){.logo}", "", "---", "",
   // The closing styles every brand has: content only and the centred card here, the full-width card last, as a piece ends.
   "::: {.cta-card .plain}", `[${B.name}]{.eyebrow}`, "", "## Closing, content only", "", "No ground: the close in the page's own colours.", ":::", "",

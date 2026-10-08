@@ -111,6 +111,7 @@ module.exports = function brand(md, forceId) {
         if (r.kind === "asset") e[n.toUpperCase().replace(/-/g, "_")] = r.value.path;
       }
       for (const [n, l] of Object.entries(res.library)) { if (!l.path) continue; const k = "PRISM_LIBRARY_" + n.toUpperCase().replace(/-/g, "_"); e[k] = l.path; if (l.focus) e[k + "_FOCUS"] = l.focus; }
+      e.PRISM_BRAND_NAME = B.name;
       e.PRISM_CHART_BARS = B.option("charts.bars", "flat");
       e.PRISM_ICON_CLASS = B.icons.cls;
       // Placeholder photos: the brand's test images when it has them, otherwise core's neutral ones.

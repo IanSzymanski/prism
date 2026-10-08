@@ -237,9 +237,26 @@ function heading(slide, blocks, rule = true) {
   if (R) slide.addImage({ path: R.path, x: MX, y: 1.38, w: CW, h: R.h });
   else slide.addShape("line", { x: MX, y: 1.55, w: CW, h: 0, line: { color: C.line, width: 0.75 } });
 }
+// A logo a slide asks for (logo="top-right" and so on): 0.3 in tall in the margin band above the heading or in the footer line.
+// The footer text and slide number step aside for it. Dark slides take the on-dark logo, or none when the brand has none.
+const LOGO_AT = ["top-left", "top", "top-right", "bottom-left", "bottom", "bottom-right"];
+let SLIDE_LOGO = null;
+async function slideLogo(slide, at, dark) {
+  SLIDE_LOGO = null;
+  if (!at) return;
+  if (!LOGO_AT.includes(at)) { console.warn(`[deck] slide ${SLIDE_N}: logo goes ${LOGO_AT.join(", ")} on a slide, not "${at}"; left out`); return; }
+  const role = dark ? "prism-asset-logo-on-dark" : "prism-asset-logo";
+  if (!B.has(role)) { console.warn(`[deck] slide ${SLIDE_N}: the brand has no logo for dark grounds (prism-asset-logo-on-dark); left out`); return; }
+  const h = 0.3, file = await B.raster(B.asset(role), 600), m = await sharp(file).metadata(), w = h * m.width / m.height;
+  const x = at.endsWith("left") ? MX : at.endsWith("right") ? SW - MX - w : (SW - w) / 2, y = at.startsWith("top") ? 0.22 : 6.92;
+  slide.addImage({ path: file, x, y, w, h, altText: B.name });
+  SLIDE_LOGO = { at, w };
+}
 function footer(slide, n) {
-  slide.addText(meta.footer ? plain(meta.footer) : B.name, T({ x: MX, y: 6.95, w: 8, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted, charSpacing: 1 }));
-  slide.addText(String(n).padStart(2, "0"), T({ x: SW - MX - 1, y: 6.95, w: 1, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted, align: "right" }));
+  const L = SLIDE_LOGO && SLIDE_LOGO.at.startsWith("bottom") ? SLIDE_LOGO : null, shift = L ? L.w + 0.25 : 0;
+  const left = L && L.at === "bottom-left" ? shift : 0, right = L && L.at === "bottom-right" ? shift : 0;
+  slide.addText(meta.footer ? plain(meta.footer) : B.name, T({ x: MX + left, y: 6.95, w: 8 - left, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted, charSpacing: 1 }));
+  slide.addText(String(n).padStart(2, "0"), T({ x: SW - MX - 1 - right, y: 6.95, w: 1, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted, align: "right" }));
 }
 const paras = blocks => blocks.filter(b => b.t === "Para" && !(b.c.length === 1 && b.c[0].t === "Span"));
 
@@ -336,6 +353,9 @@ async function chartSlide(slide, blocks) {
     const notes = div.c[1].find(b => b.t === "Div" && b.c[0][1].includes("notes"));
     const slide = pres.addSlide();
     slide.background = { color: C.paper };
+    const logoAt = (div.c[0][2].find(([k]) => k === "logo") || [])[1];
+    if (logoAt && kind === "title") console.warn(`[deck] slide ${n}: the title slide carries its own logo; logo="${logoAt}" left out`);
+    await slideLogo(slide, kind === "title" ? null : logoAt, kind === "closing");
 
     if (kind === "title") {
       const hero = meta.image ? await photoImage({ src: B.src(plain(meta.image), path.dirname(md)) }, 6.2, SH, "left") : null;
