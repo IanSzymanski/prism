@@ -50,7 +50,6 @@ The resolve line (`<brand>`: the one the user named, else `default`) checks the 
 ---
 title: Headline with one *accent* word
 pagetitle: Plain-text title
-doctype: One-pager
 eyebrow: Topic · Audience
 subtitle: One or two sentences.
 author: <brand name>

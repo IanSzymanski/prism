@@ -84,6 +84,13 @@ function Div(el)
   return el
 end
 
+-- A one-pager carries no document type: "One-pager" or "One sheet" in the top-right corner says nothing.
+function Meta(meta)
+  local t = meta.doctype and pandoc.utils.stringify(meta.doctype):lower():gsub("[%s%-]", "")
+  if t == "onepager" or t == "onesheet" or t == "onesheeter" then meta.doctype = nil end
+  return meta
+end
+
 -- Brochures: every three panel slots become one printed side (outside first, then inside). A `.wide` panel takes two, a `.full` panel all three.
 function Pandoc(doc)
   local out, side, n = pandoc.List({}), pandoc.List({}), 0

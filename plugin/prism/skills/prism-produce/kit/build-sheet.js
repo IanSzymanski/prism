@@ -145,7 +145,13 @@ function stamp(file) {
   }));
   for (const w of warnings) console.warn("[sheet] " + w);
   // Sheets print at 90% (every size in prism-sheet.css was tuned at that scale); brochures print at true size.
-  await page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: brochure ? 1 : 0.9 });
+  const print = () => page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: brochure ? 1 : 0.9 });
+  const count = buf => (buf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+  // A one-page sheet carries no page number ("1 / 1" says nothing), so it prints again without one.
+  if (count(await print()) === 1 && !brochure) {
+    await page.addStyleTag({ content: "@page{@bottom-right{content:none}}" });
+    await print();
+  }
   await browser.close();
   if (!args.includes("--html")) fs.unlinkSync(html);
   // Whole-line text runs, so copy, search and screen readers get words rather than letters; skipped with a note if pikepdf is missing.
@@ -153,6 +159,6 @@ function stamp(file) {
   catch (e) { console.warn("[sheet] text left letter by letter (pikepdf missing): run `run.sh setup sheet`, then rebuild"); }
   stamp(pdf);
   // Page count from the PDF itself, so no PDF tools are needed to check fit.
-  const pages = (fs.readFileSync(pdf, "latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+  const pages = count(fs.readFileSync(pdf));
   console.log(`wrote ${pdf} (${pages} page${pages === 1 ? "" : "s"})`);
 })();
