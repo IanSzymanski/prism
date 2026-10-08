@@ -47,6 +47,8 @@ Speaker notes, plain sentences.
 
 `{.slide .<layout> .no-rule}` swaps the heading's section rule for a plain line on any slide.
 
+`logo="top-left|top|top-right|bottom-left|bottom|bottom-right"` on any slide but the title puts the brand's logo in the margin band above the heading or in the footer line (the footer text and slide number step aside). The closing slide takes the on-dark logo.
+
 The build estimates whether each heading, card, step and text box fits and prints `[deck] slide N (<layout>): ... may not fit` when it doesn't. Shorten the text named; don't rely on PowerPoint shrinking it.
 
 Rules: 6–10 slides. One idea per slide. Headings under ~6 words. Body text a sentence, not a paragraph. Put detail in notes, not on the slide. Label illustrative decks in `footer`.

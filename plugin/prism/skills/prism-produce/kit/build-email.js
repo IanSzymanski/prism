@@ -191,6 +191,15 @@ function header(b) {
 function render(b) {
   const first = b.split("\n")[0];
   let m;
+  // logo="..." on a block: a logo row above or below it, aligned to that side. Email can't set a logo beside a block,
+  // so left and right go above it, on that side.
+  if ((m = /^(:{3,}.*?)\s*logo="([\w-]+)"(.*)$/.exec(first))) {
+    const at = m[2], rest = render([m[1] + m[3], ...b.split("\n").slice(1)].join("\n").replace(/^(:{3,})\s*\{\s*\}/, "$1"));
+    const align = /left/.test(at) ? "left" : /right/.test(at) ? "right" : "center", below = at.startsWith("bottom");
+    if (!["top-left", "top", "top-right", "bottom-left", "bottom", "bottom-right", "left", "right"].includes(at)) { say(`logo="${at}" is not a position; left out`); return rest; }
+    const logo = `<tr><td class="px" align="${align}" style="padding:${below ? "0" : "6px"} ${P}px ${below ? "22px" : "10px"}"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="${align}"${align === "center" ? ' style="margin:0 auto"' : ""}><tr><td>${logoHtml(110)}</td></tr></table></td></tr>`;
+    return below ? rest + logo : logo + rest;
+  }
   if (/^#{1,4}\s/.test(first) && !b.includes("\n")) {
     const lvl = first.match(/^#+/)[0].length; text.push("", (lvl <= 2 ? plain(first.replace(/^#+\s+/, "")).toUpperCase() : plain(first.replace(/^#+\s+/, ""))), "");
     kinds.push("heading");

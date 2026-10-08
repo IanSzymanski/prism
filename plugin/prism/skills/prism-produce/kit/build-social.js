@@ -74,6 +74,8 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   // Photo crops centre on their focal points.
   await page.addScriptTag({ content: require("./focus.js").inPage });
   await page.evaluate(() => window.prismFocus());
+  // Logos inside blocks: the on-dark logo on dark grounds.
+  for (const w of await page.evaluate(require("./inlogo.js").pick)) console.warn("[social] " + w);
   // QR codes: contrast with what is behind them (screens, so no print-size check).
   for (const w of await page.evaluate(require("./qr.js").check, null)) console.warn("[social] " + w);
   const posts = await page.$$(".post");

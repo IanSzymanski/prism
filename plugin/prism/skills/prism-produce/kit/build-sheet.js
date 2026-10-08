@@ -23,7 +23,7 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, brochure ? "pris
 // Runs inside the page: tags image orientation, checks print resolution, and bakes fade and shadow
 // into solid pixels on the background colour (PDF viewers blend transparency inconsistently).
 async function prepareImages([printScale, ground, fadeOn]) {
-  const imgs = [...document.images].filter(i => !i.closest(".prism-mast__bar"));
+  const imgs = [...document.images].filter(i => !i.closest(".prism-mast__bar, .prism-inlogo"));
   await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
   const orient = i => { const r = i.naturalWidth / i.naturalHeight; return r > 1.15 ? "landscape" : r < 0.87 ? "portrait" : "square"; };
   for (const i of imgs) {
@@ -129,6 +129,8 @@ function stamp(file) {
   await page.addScriptTag({ content: require("./focus.js").inPage });
   const warnings = await page.evaluate(prepareImages, [brochure ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
+  // Logos inside blocks: the on-dark logo on dark grounds.
+  warnings.push(...await page.evaluate(require("./inlogo.js").pick));
   // QR codes: print size and contrast (qr.js check).
   warnings.push(...await page.evaluate(require("./qr.js").check, brochure ? 1 : 0.9));
   // Brochure panels clip instead of flowing on, so report any panel or column whose content runs past its bottom edge.

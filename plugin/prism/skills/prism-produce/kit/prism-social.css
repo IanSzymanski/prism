@@ -124,3 +124,19 @@ body.prism-social{margin:0;padding:40px;background:var(--prism-color-desk);max-w
 .post.story.photo-card > p:has(> img.photo){zoom:1;position:static;width:auto;height:auto;margin:0 0 56px;max-width:none}
 .post.story.photo-card img.photo{display:block;width:100%;height:520px;object-fit:cover;border-radius:28px;-webkit-mask-image:none;mask-image:none}
 .post.story.photo-card > p:has(> img.photo):last-child{margin:56px 0 0}
+
+/* logo="top-left|top-right|bottom-left|bottom-right|none" on a post, story, carousel panel or email header moves its own logo
+   to that corner, inside the frame's margins (its insets below); the note moves to the other side when they would meet. */
+.post{--logo-side:88px;--logo-top:62px;--logo-bottom:62px}
+.post.wide{--logo-side:64px;--logo-top:40px;--logo-bottom:40px}
+.post.email{--logo-side:72px;--logo-top:52px;--logo-bottom:40px}
+.post.story{--logo-side:var(--side);--logo-top:calc(var(--safe-top) + 8px);--logo-bottom:calc(var(--safe-bottom) + 20px)}
+.carousel .post{--logo-side:96px;--logo-top:96px;--logo-bottom:96px}
+/* Repeated .post so a requested corner wins over each frame's own placement (carousel cover, story photo layouts). */
+.post.post.post.logo-top-left::before,.post.post.post.logo-top-right::before{top:var(--logo-top);bottom:auto}
+.post.post.post.logo-bottom-left::before,.post.post.post.logo-bottom-right::before{top:auto;bottom:var(--logo-bottom)}
+.post.post.post.logo-top-left::before,.post.post.post.logo-bottom-left::before{left:var(--logo-side);right:auto;background-position:left center}
+.post.post.post.logo-top-right::before,.post.post.post.logo-bottom-right::before{left:auto;right:var(--logo-side);background-position:right center}
+.carousel .post.post[class*="logo-"]:not(.logo-none)::before{display:block}
+.post.post.post.logo-none::before{display:none}
+.post.post.post.logo-bottom-right:not(.email)::after,.post.email.logo-top-right::after{right:auto;left:var(--logo-side)}
