@@ -11,14 +11,24 @@ const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.j
 const html = md.replace(/\.md$/, ".sheet.html");
 // `layout: brochure` in the front matter builds a Letter trifold instead of a portrait sheet.
 const brochure = /^---[\s\S]*?^layout:\s*brochure\s*$[\s\S]*?^---/m.test(fs.readFileSync(md, "utf8"));
+// PDF details (title, author, subject, keywords, language): the format file's front matter, then content.md's, then the brand.
+const front = f => { const m = fs.existsSync(f) && /^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n")), o = {};
+  for (const l of (m ? m[1] : "").split("\n")) { const k = /^([\w-]+):\s*(.*?)\s*(#.*)?$/.exec(l); if (k && k[2]) o[k[1]] = k[2].replace(/^["']|["']$/g, ""); } return o; };
+const fm = { ...front(path.join(path.dirname(md), "..", "content.md")), ...front(md) };
+const plainText = s => String(s || "").replace(/[*_`]|\\(?=\s)/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").trim();
+const info = {
+  title: plainText(fm.pagetitle || fm.title), author: plainText(fm.author || B.name), subject: plainText(fm.subtitle),
+  keywords: String(fm.keywords || "").replace(/^\[|\]$/g, "").split(",").map(k => plainText(k.trim().replace(/^["']|["']$/g, ""))).filter(Boolean),
+  lang: fm.lang || B.content.lang || "en-US",
+};
 
 execFileSync("pandoc", [md, "-s", "--template", path.join(here, brochure ? "prism-brochure.html" : "prism-sheet.html"),
   "--css", "file://" + B.icons.css,
   "--css", "file://" + B.css, "--css", "file://" + css, ...(brochure ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-brochure.css"))] : []),
   // The brand's presentation layers come last, so they style core's structure.
   ...[B.layer("sheet"), brochure ? B.layer("brochure") : null].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
-  "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--wrap=none",
-  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "--resource-path", path.dirname(md), "-o", html], { env: B.env() });
+  "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "--wrap=none",
+  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, "--resource-path", path.dirname(md), "-o", html], { env: B.env() });
 
 // Runs inside the page: tags image orientation, checks print resolution, and bakes fade and shadow
 // into solid pixels on the background colour (PDF viewers blend transparency inconsistently).
@@ -100,18 +110,16 @@ async function prepareImages([printScale, ground, fadeOn]) {
   return warnings;
 }
 
-// Marks the PDF as built by this kit (Creator field), so verify.py can tell it from a PDF made any other way.
+// Marks the PDF as built by this kit (Creator field), so verify.py can tell it from a PDF made any other way, and writes its details.
 // Appends a standard incremental update: a new Info object, an xref entry and a trailer pointing back to the old one.
-function stamp(file) {
+const pdfString = v => /^[\x20-\x7e]*$/.test(v) ? `(${v.replace(/[\\()]/g, "\\$&")})` : `<FEFF${[...Buffer.from(v, "utf16le").swap16()].map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase()}>`;
+function stamp(file, ver) {
   const buf = fs.readFileSync(file), s = buf.toString("latin1");
   const tr = s.slice(s.lastIndexOf("trailer"));
   const size = +/\/Size\s+(\d+)/.exec(tr)[1], root = /\/Root\s+(\d+\s+\d+\s+R)/.exec(tr)[1];
   const prev = +/startxref\s+(\d+)/.exec(s.slice(s.lastIndexOf("startxref")))[1];
-  const info = /\/Info\s+(\d+)\s+\d+\s+R/.exec(tr);
-  const old = info ? (new RegExp(`\\n${info[1]} 0 obj\\s*<<([\\s\\S]*?)>>\\s*endobj`).exec(s) || [])[1] || "" : "";
-  const title = (/\/Title\s*(\((?:\\.|[^\\)])*\))/.exec(old) || [, "()"])[1];
-  const ver = fs.readFileSync(path.join(here, "VERSION"), "utf8").trim();
-  const obj = `\n${size} 0 obj\n<</Title ${title}\n/Creator (Prism ${ver})\n/Producer (Skia/PDF via prism-kit)\n/Keywords (prism)>>\nendobj\n`;
+  const fields = [["Title", info.title], ["Author", info.author], ["Subject", info.subject], ["Keywords", info.keywords.join(", ")], ["Creator", `Prism ${ver}`], ["Producer", "Skia/PDF via prism-kit"]];
+  const obj = `\n${size} 0 obj\n<<${fields.filter(([, v]) => v).map(([k, v]) => `/${k} ${pdfString(v)}`).join("\n")}>>\nendobj\n`;
   const at = buf.length + 1, xref = buf.length + Buffer.byteLength(obj, "latin1");
   const tail = `xref\n${size} 1\n${String(at).padStart(10, "0")} 00000 n \ntrailer\n<</Size ${size + 1}\n/Root ${root}\n/Info ${size} 0 R\n/Prev ${prev}>>\nstartxref\n${xref}\n%%EOF\n`;
   fs.appendFileSync(file, obj + tail, "latin1");
@@ -159,9 +167,11 @@ function stamp(file) {
   await browser.close();
   if (!args.includes("--html")) fs.unlinkSync(html);
   // Whole-line text runs, so copy, search and screen readers get words rather than letters; skipped with a note if pikepdf is missing.
-  try { execFileSync("python3", [path.join(here, "tidy_pdf.py"), pdf], { stdio: ["ignore", "ignore", "pipe"] }); }
-  catch (e) { console.warn("[sheet] text left letter by letter (pikepdf missing): run `run.sh setup sheet`, then rebuild"); }
-  stamp(pdf);
+  // It also writes the language and the XMP copy of the details, which screen readers and search read.
+  const ver = fs.readFileSync(path.join(here, "VERSION"), "utf8").trim();
+  try { execFileSync("python3", [path.join(here, "tidy_pdf.py"), pdf, JSON.stringify({ ...info, creator: `Prism ${ver}` })], { stdio: ["ignore", "ignore", "pipe"] }); }
+  catch (e) { console.warn("[sheet] text left letter by letter and no language set (pikepdf missing): run `run.sh setup sheet`, then rebuild"); }
+  stamp(pdf, ver);
   // Page count from the PDF itself, so no PDF tools are needed to check fit.
   const pages = count(fs.readFileSync(pdf));
   console.log(`wrote ${pdf} (${pages} page${pages === 1 ? "" : "s"})`);

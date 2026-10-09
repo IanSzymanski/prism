@@ -3,6 +3,8 @@
 const fs = require("fs"), path = require("path");
 const { load, css, defaultBrand } = require("./resolve.js");
 const KIT = __dirname, cache = {};
+const UNBROKEN = ["SOC 1", "SOC 2", "SOC 3", "SOC 2 Type I", "SOC 2 Type II", "HIPAA", "HITRUST CSF", "ISO 27001", "ISO 27701", "ISO 9001", "PCI DSS",
+  "NIST CSF", "NIST 800-53", "NIST SP 800-53", "FedRAMP High", "FedRAMP Moderate", "WCAG 2.1", "WCAG 2.2", "Section 508", "21 CFR Part 11", "42 CFR Part 2"];
 
 module.exports = function brand(md, forceId) {
   const text = md && fs.existsSync(md) ? fs.readFileSync(md, "utf8") : "";
@@ -104,6 +106,8 @@ module.exports = function brand(md, forceId) {
     // A profile option by dotted path, with core's default: option("images.fade", false).
     option(p, dflt) { let v = res.options; for (const k of p.split(".")) v = v == null ? undefined : v[k]; return v === undefined ? dflt : v; },
     // Colour and asset roles as environment variables for the Lua filters: PRISM_COLOR_ACCENT=#3366CC, PRISM_ASSET_LOGO=/path.
+    // Terms never split across lines (prism-unbroken.lua): standards names, the brand's name and the profile's content.unbroken.
+    unbroken: [...new Set([...UNBROKEN, res.name, ...((res.content && res.content.unbroken) || [])].filter(Boolean))],
     env() {
       const e = { ...process.env };
       for (const [n, r] of Object.entries(res.roles)) {
@@ -112,6 +116,7 @@ module.exports = function brand(md, forceId) {
       }
       for (const [n, l] of Object.entries(res.library)) { if (!l.path) continue; const k = "PRISM_LIBRARY_" + n.toUpperCase().replace(/-/g, "_"); e[k] = l.path; if (l.focus) e[k + "_FOCUS"] = l.focus; }
       e.PRISM_BRAND_NAME = B.name;
+      e.PRISM_UNBROKEN = B.unbroken.join("\n");
       e.PRISM_CHART_BARS = B.option("charts.bars", "flat");
       e.PRISM_ICON_CLASS = B.icons.cls;
       // Placeholder photos: the brand's test images when it has them, otherwise core's neutral ones.

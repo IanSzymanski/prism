@@ -57,7 +57,7 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   "--css", "file://" + B.css, "--css", "file://" + B.stylesheet(path.join(here, "prism-sheet.css")),
   "--css", "file://" + B.stylesheet(path.join(here, "prism-social.css")),
   ...[B.layer("sheet"), B.layer("social")].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
-  "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"),
+  "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"),
   "--wrap=none", "--resource-path", path.dirname(md), "-o", html], { env: B.env() });
 
 (async () => {

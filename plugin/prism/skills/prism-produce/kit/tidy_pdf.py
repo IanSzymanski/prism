@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Joins Chromium's one-glyph-at-a-time text into whole runs, so copying, searching and screen readers get
 whole lines instead of one object per letter. The page looks exactly the same.
-Usage: tidy_pdf.py file.pdf"""
+With details (JSON: title, author, subject, keywords, lang, creator), also sets the document language and XMP metadata.
+Usage: tidy_pdf.py file.pdf [details-json]"""
+import json
 import sys
 import pikepdf
 from pikepdf import Operator, Array
@@ -30,13 +32,30 @@ def cids(s):
     return [b[k] << 8 | b[k + 1] for k in range(0, len(b) - 1, 2)]
 
 
-def tidy(path):
+def tidy(path, details=None):
     pdf = pikepdf.open(path, allow_overwriting_input=True)
     for page in pdf.pages:
         new = rebuild(page)
         if new is not None:
             page.obj.Contents = pdf.make_stream(pikepdf.unparse_content_stream(new))
+    if details:
+        describe(pdf, details)
     pdf.save(path)
+
+
+def describe(pdf, d):
+    """Document info, its XMP copy and the language; build-sheet.js stamps the same info fields after this."""
+    if d.get("lang"): pdf.Root.Lang = pikepdf.String(d["lang"])
+    with pdf.open_metadata(set_pikepdf_as_editor=False) as xmp:
+        if d.get("title"): xmp["dc:title"] = d["title"]
+        if d.get("author"): xmp["dc:creator"] = [d["author"]]
+        if d.get("subject"): xmp["dc:description"] = d["subject"]
+        if d.get("keywords"):
+            xmp["dc:subject"] = set(d["keywords"])
+            xmp["pdf:Keywords"] = ", ".join(d["keywords"])
+        if d.get("lang"): xmp["dc:language"] = [d["lang"]]
+        if d.get("creator"): xmp["xmp:CreatorTool"] = d["creator"]
+        xmp["pdf:Producer"] = "Skia/PDF via prism-kit"
 
 
 def rebuild(page):
@@ -84,4 +103,4 @@ def rebuild(page):
 
 
 if __name__ == "__main__":
-    tidy(sys.argv[1])
+    tidy(sys.argv[1], json.loads(sys.argv[2]) if len(sys.argv) > 2 else None)

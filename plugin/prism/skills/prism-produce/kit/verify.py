@@ -33,6 +33,11 @@ def pdf(path):
     errs = []
     if "/Creator (Prism" not in s:
         errs.append("not built by the Prism kit (no kit stamp)")
+    # The last Info object written is the kit's stamp: it must carry the title and author.
+    at = s.rfind("/Creator (Prism")
+    info = s[s.rfind(" obj", 0, at):s.find("endobj", at)] if at >= 0 else ""
+    missing = [k for k in ("Title", "Author") if not re.search(rf"/{k}\s*[(<](?!\)|>)", info)]
+    if missing: errs.append("PDF details missing: " + ", ".join(missing) + " (rebuild with this kit)")
     fonts = {re.sub(r"^[A-Z]{6}\+", "", f) for f in re.findall(r"/FontName\s*/([^\s/<>\[\]()]+)", s)}
     other = sorted(f for f in fonts if not f.startswith(PDF_FONTS))
     if other: errs.append("non-brand fonts: " + ", ".join(other))
