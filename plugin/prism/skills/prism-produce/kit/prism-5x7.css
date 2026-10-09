@@ -1,0 +1,63 @@
+/* prism-5x7.css: a 5 x 7 in card, two sides at most (front and back), portrait or landscape, optional 1/8 in bleed.
+   Loads after prism-brochure.css, whose narrow-panel styles it reuses; each side is a page-sized spread holding one panel. */
+.c57{--w:5in;--h:7in;--b:0in;--pad:.4in}
+.c57.landscape{--w:7in;--h:5in}
+.c57.bleed{--b:.125in}
+/* The page size (trim plus bleed) is set by the build in the page head: @page can't read these variables. */
+body.c57{font-size:9.2pt;line-height:1.5}
+.c57 .spread{display:block;width:calc(var(--w) + 2 * var(--b));height:calc(var(--h) + 2 * var(--b))}
+.c57 .spread:last-child{break-after:auto}
+/* The bleed sits outside the trim, so text keeps its margin from the cut edge; grounds and photos run into it. */
+.c57 .panel{height:100%;padding:calc(var(--pad) + var(--b)) calc(var(--pad) + var(--b)) calc(var(--pad) + .05in + var(--b))}
+.c57 h1{font-size:26pt;margin:0 0 9pt}
+.c57.landscape h1{font-size:24pt}
+.c57 h2{font-size:15pt}
+.c57 .lede{display:block;font:var(--prism-type-lede);font-size:10.5pt;line-height:1.45;color:var(--prism-color-text);margin:0 0 12pt}
+.c57 img.logo{height:18pt;margin-bottom:16pt}
+.c57 .stats ul{gap:10pt}
+
+/* Front, cover: a photo across the top (portrait) or down the left half (landscape), the words under or beside it. */
+.c57 .panel.cover{padding:0}
+.c57 .panel.cover > .hero-image{margin:0;overflow:hidden}
+.c57 .panel.cover .hero-image img{display:block;height:calc(3.1in + var(--b));border-radius:0}
+.c57 .cover-body{padding:.26in calc(var(--pad) + var(--b)) calc(var(--pad) + var(--b))}
+.c57.landscape .panel.cover{display:grid;grid-template-columns:calc(3.3in + var(--b)) 1fr}
+.c57.landscape .panel.cover .hero-image img{height:calc(var(--h) + 2 * var(--b))}
+.c57.landscape .cover-body{padding:calc(var(--pad) + var(--b)) calc(var(--pad) + var(--b)) calc(var(--pad) + var(--b)) .32in;justify-content:center}
+
+/* Front, statement: one big line, centred on the side, the logo at the foot. */
+.c57 .panel.statement{justify-content:center;text-align:center;align-items:center}
+.c57 .panel.statement h1{font-size:34pt;line-height:1.02;max-width:12ch}
+.c57.landscape .panel.statement h1{max-width:16ch}
+.c57 .panel.statement .lede{max-width:30ch}
+.c57 .panel.statement .push{margin-top:0;position:absolute;left:0;right:0;bottom:calc(var(--pad) + .05in + var(--b));display:flex;flex-direction:column;align-items:center}
+.c57 .panel.statement img.logo{margin:0}
+
+/* Dark sides: the brochure's dark panel, plus the title and lede it never carries. */
+.c57 .panel.dark h1{color:var(--prism-color-surface)}
+.c57 .panel.dark h1 em{color:var(--prism-color-accent-dark)}
+.c57 .panel.dark .lede{color:var(--prism-color-text-dark)}
+.c57 .panel.dark :is(p,li){color:var(--prism-color-text-dark)}
+.c57 .panel.dark .stats ul{border-color:var(--prism-color-rule-on-dark)}
+.c57 .panel.dark .stats li strong{color:var(--prism-color-accent-dark)}
+.c57 .panel.dark .features li{border-color:var(--prism-color-rule-on-dark)}
+.c57 .panel.dark li::marker{color:var(--prism-color-accent-dark)}
+.c57 .panel.dark .checks li::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cpath fill='{{prism-color-accent@dark|uri}}' d='M913 305 401 817Q398 820 394 822Q389 824 384 824Q379 824 374 822Q370 820 367 817L143 593Q140 590 138 586Q137 581 137 577Q137 567 144 560Q151 553 161 553Q165 553 170 554Q174 556 177 559L384 766L879 271Q882 268 886 266Q891 265 895 265Q905 265 912 272Q919 279 919 289Q919 293 918 298Q916 302 913 305Z'/%3E%3C/svg%3E")}
+
+/* Back, split: two `::: col` side by side; anything else spans both. */
+.c57 .panel.split{display:grid;grid-template-columns:1fr 1fr;gap:0 .28in;align-content:start}
+.c57 .panel.split > *:not(.col){grid-column:1 / -1}
+.c57 .panel.split > .col{display:flex;flex-direction:column;min-width:0}
+.c57 .panel.split > .col > :first-child{margin-top:0}
+.c57 .panel.split > .push{grid-column:auto;position:absolute;left:calc(var(--pad) + var(--b));right:calc(var(--pad) + var(--b));bottom:calc(var(--pad) + .05in + var(--b))}
+
+/* Back, mailer: the right half (landscape) or bottom 3 in (portrait) left blank for the address and postage, behind a hairline. */
+.c57 .panel.mailer{padding-right:calc(3.2in + var(--b))}
+.c57 .panel.mailer::after{content:"";position:absolute;top:calc(var(--pad) + var(--b));bottom:calc(var(--pad) + var(--b));right:calc(3.2in + var(--b) - .2in);border-left:.6pt solid var(--prism-color-rule-soft)}
+.c57.portrait .panel.mailer{padding-right:calc(var(--pad) + var(--b));padding-bottom:calc(3in + var(--b))}
+.c57.portrait .panel.mailer::after{top:auto;left:calc(var(--pad) + var(--b));right:calc(var(--pad) + var(--b));bottom:calc(3in + var(--b) - .2in);border-left:0;border-top:.6pt solid var(--prism-color-rule-soft)}
+.c57 .panel.mailer .indicia{position:absolute;top:calc(var(--pad) + var(--b));right:calc(var(--pad) + var(--b));width:1.15in;padding:5pt;border:.8pt solid var(--prism-color-text);text-align:center;font:500 6pt/1.35 var(--prism-font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--prism-color-text)}
+.c57.portrait .panel.mailer .indicia{top:calc(var(--h) - 2.8in + var(--b) + .15in)}
+.c57 .panel.mailer .indicia p{margin:0}
+
+@media screen{.c57 .spread{margin:24px auto}}

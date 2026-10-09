@@ -20,11 +20,11 @@ const { tagFor, kebab } = require("./naming.js");
 const { numbers } = require("./check-numbers.js");
 
 const KIT = __dirname;
-const FORMATS = ["sheet", "brochure", "deck", "social", "email", "html-email", "carousel", "blog"];
+const FORMATS = ["sheet", "brochure", "5x7", "deck", "social", "email", "html-email", "carousel", "blog"];
 // Which counts each format can take; folder builds write into out/<output id>/.
-const COUNTS = { posts: ["social", "email"], stories: ["social"], pages: ["sheet", "brochure"], min_pages: ["sheet", "brochure"], max_pages: ["sheet", "brochure"] };
+const COUNTS = { posts: ["social", "email"], stories: ["social"], pages: ["sheet", "brochure", "5x7"], min_pages: ["sheet", "brochure"], max_pages: ["sheet", "brochure", "5x7"] };
 const FOLDER = new Set(["social", "email", "carousel", "blog", "html-email"]);
-const EXT = { sheet: ".pdf", brochure: ".pdf", deck: ".pptx" };
+const EXT = { sheet: ".pdf", brochure: ".pdf", "5x7": ".pdf", deck: ".pptx" };
 
 const die = m => { console.error(m); process.exit(2); };
 const args = process.argv.slice(2), flag = k => { const i = args.indexOf(k); return i >= 0 ? (args.splice(i, 1), true) : false; };
@@ -47,6 +47,7 @@ function validate(id, p) {
     }
     if (o.format === "social" && !(o.posts || o.stories)) e.push(`${id}.${o.id}: a social output needs posts or stories`);
     if (o.pages != null && (o.min_pages != null || o.max_pages != null)) e.push(`${id}.${o.id}: pages, or min_pages/max_pages, not both`);
+    if (o.format === "5x7" && ((o.pages || 0) > 2 || (o.max_pages || 0) > 2)) e.push(`${id}.${o.id}: a 5x7 card has two pages at most (front and back)`);
   }
   return e;
 }
@@ -206,6 +207,7 @@ else if (cmd === "check") {
     const md = fs.readFileSync(f, "utf8"), layout = fmKey(md, "layout");
     if (o.format === "html-email" && layout !== "email") problems.push(`${o.id}: an html-email format file needs layout: email`);
     if (o.format === "brochure" && layout !== "brochure") problems.push(`${o.id}: a brochure format file needs layout: brochure`);
+    if (o.format === "5x7" && layout !== "5x7") problems.push(`${o.id}: a 5x7 format file needs layout: 5x7`);
     if (o.format === "sheet" && layout) problems.push(`${o.id}: a sheet has no layout: (found ${layout})`);
     if (o.format === "deck" && !/^:{3,}\s*\{[^}]*\.slide\b/m.test(md)) problems.push(`${o.id}: no slides`);
     if (COUNTS.posts.includes(o.format)) {

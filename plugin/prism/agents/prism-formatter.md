@@ -1,7 +1,7 @@
 ---
 name: prism-formatter
 description: |
-  Use this agent to turn an approved content.md into one output's format file (sheet, brochure, deck, social, email or carousel) using that format's reference card, or to patch an existing format file after a content change. Invoked by the prism-produce skill, one instance per requested output, in parallel.
+  Use this agent to turn an approved content.md into one output's format file (sheet, brochure, 5x7 card, deck, social, email or carousel) using that format's reference card, or to patch an existing format file after a content change. Invoked by the prism-produce skill, one instance per requested output, in parallel.
 
   <example>
   Context: content.md is approved and the user wants a sheet and a carousel.

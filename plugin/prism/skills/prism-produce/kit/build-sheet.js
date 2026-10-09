@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Markdown -> sheet or brochure PDF in the document's brand. Usage: node build-sheet.js sheet.md [out.pdf] [--html]
+// Markdown -> sheet, brochure or 5x7 card PDF in the document's brand. Usage: node build-sheet.js sheet.md [out.pdf] [--html]
 const { execFileSync } = require("child_process");
 const path = require("path"), fs = require("fs");
 const { chromium } = require("playwright");
@@ -9,8 +9,13 @@ const md = path.resolve(args.find(a => a.endsWith(".md")));
 const pdf = path.resolve(args.find(a => a.endsWith(".pdf")) || md.replace(/\.md$/, ".pdf"));
 const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.join(here, "prism-sheet.css"));
 const html = md.replace(/\.md$/, ".sheet.html");
-// `layout: brochure` in the front matter builds a Letter trifold instead of a portrait sheet.
-const brochure = /^---[\s\S]*?^layout:\s*brochure\s*$[\s\S]*?^---/m.test(fs.readFileSync(md, "utf8"));
+// `layout: brochure` in the front matter builds a Letter trifold, `layout: 5x7` a two-sided 5 x 7 in card; both print at true size in panels.
+const layout = ((/^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(md, "utf8").replace(/\r\n/g, "\n")) || [, ""])[1].match(/^layout:\s*["']?([\w-]+)/m) || [])[1];
+const brochure = layout === "brochure", card = layout === "5x7", panels = brochure || card;
+// A card's page: 5 x 7 in, or 7 x 5 with `orientation: landscape`, plus 1/8 in on every edge with `bleed: true`.
+const cardFm = (/^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(md, "utf8").replace(/\r\n/g, "\n")) || [, ""])[1];
+const cardBleed = /^bleed:\s*(true|yes)\s*$/m.test(cardFm) ? 0.25 : 0, cardLand = /^orientation:\s*landscape\s*$/m.test(cardFm);
+const cardSize = `${(cardLand ? 7 : 5) + cardBleed}in ${(cardLand ? 5 : 7) + cardBleed}in`;
 // PDF details (title, author, subject, keywords, language): the format file's front matter, then content.md's, then the brand.
 const front = f => { const m = fs.existsSync(f) && /^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n")), o = {};
   for (const l of (m ? m[1] : "").split("\n")) { const k = /^([\w-]+):\s*(.*?)\s*(#.*)?$/.exec(l); if (k && k[2]) o[k[1]] = k[2].replace(/^["']|["']$/g, ""); } return o; };
@@ -22,13 +27,17 @@ const info = {
   lang: fm.lang || B.content.lang || "en-US",
 };
 
-execFileSync("pandoc", [md, "-s", "--template", path.join(here, brochure ? "prism-brochure.html" : "prism-sheet.html"),
+try { execFileSync("pandoc", [md, "-s", "--template", path.join(here, card ? "prism-5x7.html" : brochure ? "prism-brochure.html" : "prism-sheet.html"),
   "--css", "file://" + B.icons.css,
-  "--css", "file://" + B.css, "--css", "file://" + css, ...(brochure ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-brochure.css"))] : []),
+  "--css", "file://" + B.css, "--css", "file://" + css, ...(panels ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-brochure.css"))] : []),
+  // Cards reuse the brochure's narrow-panel styles, then size them.
+  ...(card ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-5x7.css"))] : []),
   // The brand's presentation layers come last, so they style core's structure.
-  ...[B.layer("sheet"), brochure ? B.layer("brochure") : null].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
+  ...[B.layer("sheet"), panels ? B.layer("brochure") : null, card ? B.layer("5x7") : null].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
   "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "--wrap=none",
-  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, "--resource-path", path.dirname(md), "-o", html], { env: B.env() });
+  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, ...(card ? ["-V", "card-size=" + cardSize] : []), "--resource-path", path.dirname(md), "-o", html], { env: B.env(), stdio: ["ignore", "inherit", "pipe"] }); }
+// A filter's own message (a 5x7 card with three sides) is the whole story; pandoc's stack trace is not.
+catch (e) { const m = /\d+: (5x7: .*)/.exec(String(e.stderr || "")); if (!m) throw e; console.error("[sheet] " + m[1]); process.exit(1); }
 
 // Runs inside the page: tags image orientation, checks print resolution, and bakes fade and shadow
 // into solid pixels on the background colour (PDF viewers blend transparency inconsistently).
@@ -83,7 +92,8 @@ async function prepareImages([printScale, ground, fadeOn]) {
     c.drawImage(i, sx, sy, sw, sh, 0, 0, W, H);
     if (fadeOn && i.classList.contains("fade")) {
       // Same smoothstep ramp as .prism-fade on the site, pointing toward the text in a media row.
-      const media = i.closest(".media"), dir = media ? (media.classList.contains("flip") ? "left" : "right") : "bottom";
+      // A landscape card's cover photo sits left of the words, so it fades to the right.
+      const media = i.closest(".media"), dir = media ? (media.classList.contains("flip") ? "left" : "right") : i.closest(".c57.landscape .cover") ? "right" : "bottom";
       const g = dir === "bottom" ? c.createLinearGradient(0, 0, 0, H) : dir === "right" ? c.createLinearGradient(0, 0, W, 0) : c.createLinearGradient(W, 0, 0, 0);
       const start = dir === "bottom" ? 0.58 : 0.5;
       g.addColorStop(0, "#000"); g.addColorStop(start, "#000");
@@ -128,39 +138,41 @@ function stamp(file, ver) {
 (async () => {
   const browser = await chromium.launch({ args: ["--allow-file-access-from-files"], ...(process.env.PRISM_CHROMIUM ? { executablePath: process.env.PRISM_CHROMIUM } : {}) });
   // Viewport matches the printed layout width (Letter at 90%, or a trifold at 100%), so images are measured at their real size.
-  const page = await browser.newPage({ viewport: { width: brochure ? 1056 : 907, height: 1200 } });
+  const page = await browser.newPage({ viewport: { width: panels ? 1056 : 907, height: 1200 } });
   await page.goto("file://" + html, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.emulateMedia({ media: "print" });
   const missingIcons = await require("./icons.js")(page, here, B);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
-  const warnings = await page.evaluate(prepareImages, [brochure ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
+  const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Logos inside blocks: the on-dark logo on dark grounds.
   warnings.push(...await page.evaluate(require("./inlogo.js").pick));
   // QR codes: print size and contrast (qr.js check).
-  warnings.push(...await page.evaluate(require("./qr.js").check, brochure ? 1 : 0.9));
+  warnings.push(...await page.evaluate(require("./qr.js").check, panels ? 1 : 0.9));
   // Brochure panels clip instead of flowing on, so report any panel or column whose content runs past its bottom edge.
-  if (brochure) warnings.push(...await page.evaluate(() => {
+  if (panels) warnings.push(...await page.evaluate(card => {
     const out = [];
     document.querySelectorAll(".spread").forEach((sp, si) => sp.querySelectorAll(":scope > .panel:not(:has(> .col)), .panel > .col").forEach(el => {
       const box = el.getBoundingClientRect(), limit = Math.min(box.bottom, sp.getBoundingClientRect().bottom) - parseFloat(getComputedStyle(el).paddingBottom);
-      const end = Math.max(...[...el.children].map(c => c.getBoundingClientRect().bottom));
+      // Pinned blocks (a card's logo or postage box) sit in the margin on purpose, so they don't count.
+      const end = Math.max(...[...el.children].filter(c => getComputedStyle(c).position !== "absolute").map(c => c.getBoundingClientRect().bottom));
       if (end > limit + 2) {
         const panels = [...sp.querySelectorAll(":scope > .panel")], p = el.closest(".panel");
+        if (card) { out.push(`5x7 ${sp.className.match(/side-(\w+)/)[1]}${el.classList.contains("col") ? ` column ${[...p.querySelectorAll(":scope > .col")].indexOf(el) + 1}` : ""}: content runs ${((end - limit) / 96).toFixed(2)} in past the bottom edge; cut words or an image`); return; }
         const where = `page ${si + 1}, panel ${panels.indexOf(p) + 1}${el.classList.contains("col") ? ` column ${[...p.querySelectorAll(":scope > .col")].indexOf(el) + 1}` : ""}`;
         out.push(`brochure ${where}: content runs ${((end - limit) / 96).toFixed(2)} in past the panel bottom; cut words or an image`);
       }
     }));
     return out;
-  }));
+  }, card));
   for (const w of warnings) console.warn("[sheet] " + w);
   // Sheets print at 90% (every size in prism-sheet.css was tuned at that scale); brochures print at true size.
-  const print = () => page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: brochure ? 1 : 0.9 });
+  const print = () => page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: panels ? 1 : 0.9 });
   const count = buf => (buf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
   // A one-page sheet carries no page number ("1 / 1" says nothing), so it prints again without one.
-  if (count(await print()) === 1 && !brochure) {
+  if (count(await print()) === 1 && !panels) {
     await page.addStyleTag({ content: "@page{@bottom-right{content:none}}" });
     await print();
   }

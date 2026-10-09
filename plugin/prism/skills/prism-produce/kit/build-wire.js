@@ -140,6 +140,9 @@ function wireOne(md, B) {
     const c = first.match(/\.[\w-]+/g) || [];
     const has = k => c.includes("." + k);
     if (has("slide")) return { w: 1280, h: 720, k: 816 / 1280, z: 1, kind: "slide", label: (c.find(x => !/^\.(slide|no-rule|flip)$/.test(x)) || ".content").slice(1) };
+    // 5x7 card sides at real size (96 px to the inch), the split back as two columns.
+    if (has("side") && meta.layout === "5x7") { const land = meta.orientation === "landscape";
+      return { w: land ? 672 : 480, h: land ? 480 : 672, k: 1, z: 0.78, kind: "side", label: [has("back") ? "back" : "front", ...c.map(x => x.slice(1)).filter(x => /^(cover|statement|split|mailer|dark)$/.test(x))].join(" "), cols: has("split") ? 2 : 1 }; }
     if (has("panel") && meta.layout === "brochure") { const n = has("full") ? 3 : has("wide") ? 2 : 1;
       return { w: 352 * n, h: 816, k: 1, z: 0.78, kind: "panel", label: (c.find(x => /^\.(flap|back|cover|wide|full)$/.test(x)) || ".inside").slice(1), cols: n }; }
     if (has("panel")) return { w: 1080, h: 1350, k: 0.42, z: 1, kind: "panel", label: has("cover") ? "cover" : has("end") ? "end" : "panel", tight: true };

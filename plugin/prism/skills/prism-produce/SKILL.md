@@ -2,7 +2,7 @@
 name: prism-produce
 description: >
   Use to build or revise any designed branded file with the brand kit, the only allowed way to
-  make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email (newsletter, announcement, outreach email). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
+  make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email (newsletter, announcement, outreach email). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
   "I'm done editing", an edited format file, or a finished Markdown file in the Prism format. Works from an approved content.md.
 metadata:
@@ -19,12 +19,12 @@ When the next step can't lose work or change meaning, take it without asking: st
 
 ## Build route (always)
 
-Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
+Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
 
 Files next to this SKILL.md:
 
 - `kit/`: build scripts, stylesheets, fonts, images. Entry points `setup.sh` and `run.sh`.
-- `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`) plus `components.md` shared by all.
+- `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `5x7.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`) plus `components.md` shared by all.
 - The brand's digest: its rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, else the default brand (`.prism-kit/run.sh brands` marks it); `run.sh brands --json` gives each brand's `digest` path (a shipped brand's is in `kit/brands/<brand>/`, a draft from onboarding's in `.prism/brands/<brand>/` beside `.prism-kit`).
 - `run.sh swatch <brand> out/<brand>-swatch.pdf`: the swatch sheet, in its own neutral format: how the brand's design system maps onto every core role, its ornaments by place, Office fonts, email palette checks, unused tokens and unmapped roles, then one sample of every sheet layout built in the brand (the layouts' Markdown is written beside it as `-layouts.md`). Make it when a brand profile is new or changed, or when asked to check a brand.
 <!-- claude-only -->
@@ -77,6 +77,7 @@ For each format file:
 2. **Build:**
    - sheet: `.prism-kit/run.sh sheet formats/sheet.md out/<tag>.pdf`
    - brochure: `.prism-kit/run.sh sheet formats/brochure.md out/<tag>.pdf` (the `layout: brochure` front matter switches the builder)
+   - 5x7: `.prism-kit/run.sh sheet formats/5x7.md out/<tag>.pdf` (`layout: 5x7`; two sides at most, a third stops the build)
    - blog: `.prism-kit/run.sh blog formats/blog.md out/blog` (`<tag>-header.png`, chart PNGs, `<tag>-post.md` and `.html` for the CMS)
    - deck: `.prism-kit/run.sh deck formats/deck.md out/<tag>.pptx`
    - html-email: `.prism-kit/run.sh email formats/html-email.md out/html-email` (`<tag>.html`, `<tag>.txt`, images/, `<tag>-images.zip`, `<tag>-preview.png`). It prints `[email]` warnings; act on each (the card lists them). Look at preview.png in the visual check: all four views, light and dark, nothing unreadable in dark mode.
@@ -84,10 +85,11 @@ For each format file:
    - social / email / carousel: `.prism-kit/run.sh social formats/<format>.md out/<format>` (`<tag>-<id>.png` plus `<tag>-captions.md`). It exits with an error and prints `[social] missing caption: <id>` when a post has no caption; fix the format file and rebuild. Read captions.md once before delivering.
 3. **Build warnings:** act on every line the build prints before looking at anything:
    - `[deck] slide N (<layout>): <part> may not fit`: shorten that text or split the slide;
-   - `[sheet] brochure page N, panel N: content runs ... past the panel bottom`: cut words, then an image;
+   - `[sheet] brochure page N, panel N: content runs ... past the panel bottom` or `[sheet] 5x7 front: content runs ... past the bottom edge`: cut words, then an image;
    - `[social] story <id>: ... outside the safe area` or `runs into the logo`: shorten that text. For stories, build with `--guides` and look at `_guides/` in the visual check.
 4. **Visual check:** `.prism-kit/run.sh preview out/<tag>-preview.png <built files>` and look at the image. Fix in the format file and rebuild, at most two rounds:
    - brochure: exactly two pages, nothing cut off at a panel bottom (panels clip, they don't overflow);
+   - 5x7: one or two pages, nothing cut off at a side's bottom edge (sides clip like panels);
    - page count: a sheet asked for as a one-pager must be one page. Follow "Fitting a one-pager" in the sheet card: compact hero and closing card first, then cut content. Never shrink type or margins any other way. Say what was cut;
    - text cut off, overlapping or running past a post or slide edge;
    - a heading stranded at a page bottom, empty or near-empty pages, a closing card alone on a page when trimming a line would pull it back;
