@@ -83,6 +83,8 @@ const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(
 const links = [];
 const href = u => { const r = restore(u); if (!/^(https:\/\/|mailto:|tel:|\uE000|\$|\{\{|\*\||%%)/.test(u) || /^https?:\/\/(example\.com|#)?$/.test(r)) say(`link needs a full https address: "${r}"`);
   if (/^http:\/\//.test(u)) say(`link is not https: ${r}`); links.push(r); return esc(u); };
+const UNBROKEN = BR.unbroken.length ? new RegExp(`(?<![\\w-])(?:[\\w]+-)*(?:${[...BR.unbroken].sort((a, b) => b.length - a.length)
+  .map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+")).join("|")})(?:-[\\w]+)*(?![\\w])`, "gi") : null;
 function inl(s, ctx = {}) {
   const keep = [];
   const hold = h => `\uE002${keep.push(h) - 1}\uE003`;
@@ -90,6 +92,8 @@ function inl(s, ctx = {}) {
     .replace(/\[\^[^\]]+\]/g, "")
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)(\{[^}]*\})?/g, (m, txt, u) => hold(`<a href="${href(u)}" class="lk" style="color:${L.accent};text-decoration:${ctx.heading ? "none" : "underline"}">${inl(txt, ctx)}</a>`))
     .replace(/\[([^\]]*)\]\{[^}]*\}/g, "$1");
+  // Standards names and the brand's name stay on one line, with any hyphenated word built on them (prism-unbroken.lua for the rest).
+  if (UNBROKEN) t = t.replace(UNBROKEN, m => hold(`<span style="white-space:nowrap">${esc(m)}</span>`));
   t = esc(t).replace(/\\ /g, "&nbsp;")
     .replace(/\*\*([^*]+)\*\*/g, `<strong style="font-weight:600">$1</strong>`)
     .replace(/\*([^*]+)\*/g, ctx.heading ? `<span class="ac" style="color:${L.accent}">$1</span>` : "<em>$1</em>");

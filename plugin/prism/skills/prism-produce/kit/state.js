@@ -9,8 +9,16 @@
 //        state.js <project> coop --owner NAME [--doc URL] [--exports URL]   (co-op: who owns the piece, its shared links)
 //        state.js <project> invite NAME... [--remove]           (co-op: people invited to edit; the owner still clicks Share)
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
-const [proj, cmd, ...rest] = process.argv.slice(2);
-if (!proj || !cmd) { console.error("usage: state.js <project> show|canvas|export|pull-needed|close|coop|invite ..."); process.exit(2); }
+const [arg, cmd, ...rest] = process.argv.slice(2);
+if (!arg || !cmd) { console.error("usage: state.js <project> show|canvas|export|pull-needed|close|coop|invite ..."); process.exit(2); }
+// The project is the folder holding content.md or formats/; `state <slug>` also works when run from inside <slug>/.
+const isProject = d => ["content.md", "formats", ".prism"].some(f => fs.existsSync(path.join(d, f)));
+const proj = (() => {
+  const named = path.resolve(arg);
+  if (isProject(named)) return named;
+  for (let d = process.cwd(); d !== path.dirname(d); d = path.dirname(d)) if (path.basename(d) === path.basename(named) && isProject(d)) return d;
+  return named;
+})();
 const opt = k => { const i = rest.indexOf(k); return i >= 0 ? rest[i + 1] : null; };
 const dir = path.join(proj, ".prism"), file = path.join(dir, "state.json");
 const S = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : { canvas: null, exports: {}, session: "none" };
@@ -22,8 +30,8 @@ const sha = f => crypto.createHash("sha256").update(fs.readFileSync(f)).digest("
 function content() {
   const f = path.join(proj, "content.md");
   if (!fs.existsSync(f)) return { version: 0, changes: [] };
-  const fm = (/^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(f, "utf8")) || [, ""])[1];
-  const version = +((/^version:\s*(\d+)/m.exec(fm) || [, 0])[1]);
+  const fm = (/^\uFEFF?---\n([\s\S]*?)\n---/.exec(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n")) || [, ""])[1];
+  const version = +((/^version:\s*["']?v?(\d+)/m.exec(fm) || [, 0])[1]);
   const block = (/^changes:\s*\n((?:\s+-.*\n?)*)/m.exec(fm + "\n") || [, ""])[1];
   const changes = block.split("\n").map(l => l.replace(/^\s+-\s*/, "").replace(/^["']|["']$/g, "").trim()).filter(Boolean)
     .map(t => ({ v: +((/^v(\d+)/.exec(t) || [, 0])[1]), text: t }));

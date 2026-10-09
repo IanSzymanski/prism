@@ -16,6 +16,8 @@ figures: real            # real | illustrative
 status: draft            # draft | approved
 version: 1
 date: September 2026     # optional; shown on sheets
+lang: en-US              # optional; the PDF's language (default: the brand's, else en-US)
+keywords: [burnout, workforce]   # optional; PDF search keywords
 ---
 
 ## Section heading
@@ -36,7 +38,7 @@ Paragraphs in plain Markdown.
 
 Rules:
 
-- **Front matter**: all keys except `date`, always. `exports` lists only what the user asked for. With a package, `package:` names it and `exports` lists its output ids (`run.sh packages use` prints both lines); `package.json` says which format each output is. `figures: illustrative` means every output must label the piece as fictional.
+- **Front matter**: all keys except `date`, `lang` and `keywords`, always. `exports` lists only what the user asked for. With a package, `package:` names it and `exports` lists its output ids (`run.sh packages use` prints both lines); `package.json` says which format each output is. `figures: illustrative` means every output must label the piece as fictional.
 - **Allowed**: headings (`##`, `###`), paragraphs, bullet and numbered lists, bold, italic, links, blockquotes, plain tables, footnotes for sources.
 - **QR codes**: when the piece asks readers to scan something, write it as its own paragraph in the section where they act: `QR code: [Register for the summit](https://example.com/summit)`. The link text says what scanning does; the address is the full https address. Formatters draw the code (or link it in email). An uploaded code is not placed here: it goes in images.md with Role `qr: <address>`.
 - **Images**: plain Markdown only, in the section the image belongs to: `![Caption](images/file.jpg)`. A photo from the brand's image library (`run.sh library <brand>`) is `![Caption](brand:<id>)`. The caption is content, so it is proofed like any sentence; write `![](images/file.jpg)` only for a purely decorative image. No classes, no sizes, no crops: layout is the formatter's job, and every layout crops around the image's focal point on its own. Roles (hero, supporting) live in images.md, not here.

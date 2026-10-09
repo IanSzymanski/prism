@@ -108,7 +108,7 @@ if (charts.length) {
   const fields = ["title", "author", "role", "type", "excerpt", "tags"].filter(k => meta[k]).map(k => `${k}: ${k === "title" ? plain(meta[k]) : meta[k]}`);
   fs.writeFileSync(path.join(outDir, named(TAG, "post", ".md")), `---\n${fields.join("\n")}\n---\n\n${postMd.trim()}\n`);
   fs.writeFileSync(path.join(outDir, ".body.md"), postMd.trim() + "\n");
-  execFileSync("pandoc", [path.join(outDir, ".body.md"), "-f", "markdown-yaml_metadata_block", "-t", "html", "--wrap=none", "-o", path.join(outDir, named(TAG, "post", ".html"))]);
+  execFileSync("pandoc", [path.join(outDir, ".body.md"), "-f", "markdown-yaml_metadata_block", "-t", "html", "--wrap=none", "--lua-filter", path.join(here, "prism-unbroken.lua"), "-o", path.join(outDir, named(TAG, "post", ".html"))], { env: B.env() });
   fs.unlinkSync(path.join(outDir, ".body.md"));
 
   // Build stamp checked by verify.py, as for social images.

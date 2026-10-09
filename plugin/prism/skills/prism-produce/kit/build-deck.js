@@ -27,7 +27,7 @@ const F = B.office.fonts;
 const SW = 13.333, SH = 7.5, MX = 0.75, CW = SW - 2 * MX;
 
 // ---------- Markdown -> pandoc AST ----------
-const ast = JSON.parse(execFileSync("pandoc", [md, "-t", "json"], { maxBuffer: 1 << 26 }).toString());
+const ast = JSON.parse(execFileSync("pandoc", [md, "-t", "json", "--lua-filter", path.join(__dirname, "prism-unbroken.lua")], { maxBuffer: 1 << 26, env: B.env() }).toString());
 const meta = {};
 for (const [k, v] of Object.entries(ast.meta)) meta[k] = v.t === "MetaInlines" ? v.c : v.c;
 
