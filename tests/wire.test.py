@@ -21,7 +21,7 @@ def run(*a, cwd=None):
 
 tmp = tempfile.mkdtemp(prefix="prism-wire-")
 try:
-    names = ["sheet-paperwork-brief", "brochure", "deck", "social", "carousel", "stories", "email", "html-email-newsletter", "blog"]
+    names = ["sheet-paperwork-brief", "brochure", "5x7", "5x7-landscape", "deck", "social", "carousel", "stories", "email", "html-email-newsletter", "blog"]
     shutil.copytree(FIX, os.path.join(tmp, "fixtures"))
     r = run("wire", *[f"fixtures/{x}.md" for x in names], "--out", "wire", "--canvas", "wire/canvas", "--title", "Test design", cwd=tmp)
     check("one command builds every board", r.returncode == 0, r.stderr)

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="$if(lang)$$lang$$else$en$endif$">
+<head>
+<meta charset="utf-8">
+<title>$pagetitle$</title>
+$for(css)$
+<link rel="stylesheet" href="$css$">
+$endfor$
+<style>@page{size:$card-size$;margin:0}</style>
+</head>
+<body class="brochure c57 $if(orientation)$$orientation$$else$portrait$endif$$if(bleed)$ bleed$endif$">
+$body$
+</body>
+</html>

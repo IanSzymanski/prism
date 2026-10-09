@@ -24,6 +24,7 @@ Raw material in, on-brand files out, with a human proof in between. Brands live 
 |---|---|---|
 | sheet | PDF, Letter | One-pagers, briefs, case studies, white papers. Photos as a hero band, media rows beside text, galleries or figures. |
 | brochure | PDF, Letter trifold | Two sides, three panels each; the brand's section rules throughout, and one design across the inside center and right |
+| 5x7 | PDF, 5 × 7 in card | Postcards, invitations, mailers, handouts. Front and an optional back (two pages at most), portrait or landscape, optional bleed. Fronts: standard, photo cover, statement; backs: standard, two columns, mailer with the address area left blank |
 | blog | header PNG + post.md/html | A 16:9 header whose design follows the post type, chart PNGs, and the post text for WordPress |
 | deck | PPTX, 16:9 | Editable text and charts; photo on the title slide and media slides. Install the brand's Office fonts (`skills/prism-produce/kit/brands/<brand>/office`, sent as a zip with the first deck) to edit or present. |
 | social | PNGs + captions | Square, portrait and wide posts, and 1080×1920 stories kept inside the app's safe area |

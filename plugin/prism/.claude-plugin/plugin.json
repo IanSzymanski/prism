@@ -1,7 +1,7 @@
 {
   "name": "prism",
   "version": "0.16.0-dev",
-  "description": "Turn raw notes, transcripts or documents into proofed content, then into on-brand PDFs, trifold brochures, PowerPoint decks, social posts, email headers, HTML emails and carousels, in any brand installed in its kit. Includes a quick mode for a finished document in one pass.",
+  "description": "Turn raw notes, transcripts or documents into proofed content, then into on-brand PDFs, trifold brochures, 5x7 cards, PowerPoint decks, social posts, email headers, HTML emails and carousels, in any brand installed in its kit. Includes a quick mode for a finished document in one pass.",
   "author": {
     "name": "Ian"
   },

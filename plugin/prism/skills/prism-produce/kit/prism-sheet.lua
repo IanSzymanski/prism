@@ -156,8 +156,35 @@ function Meta(meta)
   return meta
 end
 
+-- 5x7 cards: each `.side` becomes one printed page, a panel inside a page-sized spread. Two sides at most (front and back);
+-- with no sides the whole file is the front. Blocks between sides join the side before them.
+local function card(doc)
+  local sides, loose = pandoc.List({}), pandoc.List({})
+  for _, b in ipairs(doc.blocks) do
+    if b.t == "Div" and b.classes:includes("side") then sides:insert(b)
+    elseif #sides > 0 then sides[#sides].content:insert(b)
+    else loose:insert(b) end
+  end
+  if #loose > 0 then
+    if #sides > 0 then for i = #loose, 1, -1 do sides[1].content:insert(1, loose[i]) end
+    else sides:insert(pandoc.Div(loose, { class = "side front" })) end
+  end
+  if #sides > 2 then error("5x7: a card has two sides at most (front and back); this one has " .. #sides .. ". Cut or merge sides.") end
+  local out = pandoc.List({})
+  for i, s in ipairs(sides) do
+    local which = s.classes:includes("back") and "back" or s.classes:includes("front") and "front" or (i == 1 and "front" or "back")
+    local cls = pandoc.List({ "panel", which })
+    for _, c in ipairs(s.classes) do if c ~= "side" and c ~= "front" and c ~= "back" then cls:insert(c) end end
+    s.classes = cls
+    out:insert(pandoc.Div({ s }, { class = "spread side-" .. which }))
+  end
+  doc.blocks = out
+  return doc
+end
+
 -- Brochures: every three panel slots become one printed side (outside first, then inside). A `.wide` panel takes two, a `.full` panel all three.
 function Pandoc(doc)
+  if doc.meta.layout and pandoc.utils.stringify(doc.meta.layout) == "5x7" then return card(doc) end
   local out, side, n = pandoc.List({}), pandoc.List({}), 0
   local function flush()
     if #side > 0 then

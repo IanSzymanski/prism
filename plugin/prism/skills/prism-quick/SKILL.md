@@ -2,7 +2,7 @@
 name: prism-quick
 description: >
   Use for any branded file someone needs fast, with no questions or proofing first: a
-  one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header. Triggers: "quick", "fast", "rush", "I need a one sheet now", "skip the proof",
+  one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header. Triggers: "quick", "fast", "rush", "I need a one sheet now", "skip the proof",
   "just make it", "quick mode". Builds one output in one pass with the brand kit, the only
   allowed way to make a designed branded file. Not for pieces to be drafted and proofed first (prism-draft).
 metadata:
@@ -15,7 +15,7 @@ For someone who needs a document now and will review it afterwards. Speed comes 
 
 ## Build route (always)
 
-Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
+Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel or email header) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
 
 ## 1. Start (one Bash call, first thing)
 
@@ -143,6 +143,10 @@ Sizes: `.square` 1080×1080 (default), `.portrait` 1080×1350, `.wide` 1200×627
 
 Read `../prism-produce/references/formats/brochure.md` and use the full-spread inside layout.
 
+### 5x7 card
+
+Read `../prism-produce/references/formats/5x7.md`. Front `.cover` when there is a photo, else standard (`.statement` for an invitation); standard back, or `.mailer` when it is mailed. Two sides at most.
+
 ## 4. Build, check, deliver
 
 1. One Bash call: check numbers against the source, build (the build prints the page count and any fit warnings).
@@ -162,7 +166,7 @@ Read `../prism-produce/references/formats/brochure.md` and use the full-spread i
    - `[social] missing caption`, or any empty section in the captions file: move the `::: caption` inside that post's `::::` fence;
    - a number the check lists: remove it (the source wins);
    - a one-pager on two pages: `hero: x-small` and `{.cta-card .x-small}`; still two, cut the last section;
-   - `[deck] slide N ... may not fit` or `[sheet] brochure ... runs past the panel bottom`: shorten that text.
+   - `[deck] slide N ... may not fit` or `[sheet] brochure ... runs past the panel bottom` or `[sheet] 5x7 ... past the bottom edge`: shorten that text.
 3. One quick look: `.prism-kit/run.sh preview <slug>/out/preview.png <built file>` and look at the image once (for a deck only when LibreOffice, `soffice`, is installed). Fix only clipped or overlapping text or an empty page, then rebuild once. No second review round.
 4. `.prism-kit/run.sh verify <built file or image folder>` (add `--brand <brand>` when the piece is not in the default brand). Deliver only on `OK`; on `FAIL`, rebuild through `run.sh`.
 5. Send the PDF (or the PNGs and the captions file, or the PPTX) and the format file with SendUserFile.

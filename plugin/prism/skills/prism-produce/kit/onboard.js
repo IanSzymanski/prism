@@ -475,7 +475,7 @@ if (cmd === "start") {
   const prof = readProf(id), comps = prof.components = prof.components || {};
   if (a.includes("--remove")) delete comps[cid];
   else {
-    const FORMATS = ["sheet", "brochure", "deck", "social", "email", "html-email", "carousel", "blog"], c = comps[cid] = comps[cid] || {};
+    const FORMATS = ["sheet", "brochure", "5x7", "deck", "social", "email", "html-email", "carousel", "blog"], c = comps[cid] = comps[cid] || {};
     const rules = a.flatMap((x, i) => x === "--rule" ? [a[i + 1]] : []);
     if (opt("--use")) c.use = opt("--use");
     if (opt("--when")) c.when = opt("--when");
