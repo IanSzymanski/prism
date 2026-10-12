@@ -1,5 +1,5 @@
 // Small kit fixes: file tags always keep the output name (O6), state finds the project from inside it and reads its version (M14),
-// terms stay on one line (O4) and sheets carry their PDF details (A1).
+// terms stay on one line (O4), sheets carry their PDF details (A1), photos lose their location data (I4) and print copies are white (O3).
 // Usage: node tests/kit-small.test.js (pandoc and node are needed; the PDF check also needs the kit's sheet setup and pikepdf)
 const fs = require("fs"), os = require("os"), path = require("path"), { spawnSync } = require("child_process");
 const ROOT = path.join(__dirname, ".."), KIT = path.join(ROOT, "plugin", "prism", "skills", "prism-produce", "kit");
@@ -49,6 +49,23 @@ if (fs.existsSync(path.join(KIT, ".ready-sheet"))) {
   ok(d["/Title"] === "The paperwork problem" && d["/Author"] === B.name && d["/Subject"] === "Why it matters." && d["/Keywords"] === "burnout, social work" && d.lang === "en-GB", `PDF details: ${info.stdout}${info.stderr}${r.stderr}`);
   r = run("python3", [path.join(KIT, "verify.py"), "--brand", "prism", pdf]);
   ok(r.status === 0, `verify accepts it: ${r.stdout}`);
+
+  // 5. Photo metadata (I4): a GPS-tagged photo that skipped images.py loses its location in the PDF. Print copy (O3): a white page,
+  // in the default brand, whose surface is off-white.
+  fs.mkdirSync(path.join(proj, "formats", "images"), { recursive: true });
+  run("python3", ["-c", "import sys;from PIL import Image;e=Image.Exif();e[0x8825]={1:'N',2:(47.0,36.0,0.0)};Image.new('RGB',(800,450),(90,120,160)).save(sys.argv[1],exif=e.tobytes())", path.join(proj, "formats", "images", "where.jpg")]);
+  fs.writeFileSync(sheet, "---\ntitle: T\n---\n\n## One\n\n![A photo](images/where.jpg)\n\nText.\n");
+  // The page's colour at the bottom edge, below the header glow the print copy keeps.
+  const edge = f => { const p = run("pdftoppm", ["-r", "20", "-png", "-singlefile", f, f.replace(/\.pdf$/, "")]); return p.status === 0 ? run("python3", ["-c", "import sys;from PIL import Image;i=Image.open(sys.argv[1]).convert('RGB');print(i.getpixel((i.width // 2, i.height - 2)))", f.replace(/\.pdf$/, ".png")]).stdout.trim() : null; };
+  const screen = path.join(TMP, "screen.pdf"), printed = path.join(TMP, "print.pdf");
+  r = run("bash", [path.join(KIT, "run.sh"), "sheet", sheet, screen]);
+  const r2 = run("bash", [path.join(KIT, "run.sh"), "sheet", sheet, printed, "--print"]);
+  ok(/print copy on white/.test(r2.stdout), `the print build says so: ${r2.stdout}${r2.stderr}`);
+  r = run("python3", [path.join(KIT, "verify.py"), screen, printed]);
+  ok(r.status === 0 && !fs.readFileSync(screen).includes("Exif"), `the photo's location data is gone: ${r.stdout}`);
+  const c1 = edge(screen), c2 = edge(printed);
+  if (c1 === null) console.log("skipped the print-copy colour check: pdftoppm missing");
+  else { ok(c2 === "(255, 255, 255)", `the print copy's page is white: ${c2}`); ok(c1 !== c2, `the screen copy keeps the brand surface: ${c1}`); }
 } else console.log("skipped the PDF check: run `run.sh setup sheet` first");
 
 fs.rmSync(TMP, { recursive: true, force: true });

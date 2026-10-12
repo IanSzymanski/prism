@@ -178,6 +178,34 @@ console.log(JSON.stringify({ p, focus: p && B.focus(p), written: p && B.focus(p,
     for b in ["case-amplify", "prism"]:
         r = subprocess.run(["node", os.path.join(KIT, "library.js"), b], capture_output=True, text=True)
         check(f"{b} library lists", r.returncode == 0 and "image library" in r.stdout, r.stderr)
+
+    # 6. Photo metadata (I4): location and camera data never reach an export.
+    sys.path.insert(0, KIT)
+    from photometa import strip_jpeg, gps_in, gps_in_image
+    import io
+    ex = Image.Exif(); ex[0x010F] = "Canon"; ex[0x8825] = {1: "N", 2: (47.0, 36.0, 0.0)}
+    buf = io.BytesIO(); Image.new("RGB", (64, 48), (90, 120, 160)).save(buf, "JPEG", exif=ex.tobytes(), xmp=b"<x:xmpmeta>secret</x:xmpmeta>")
+    located = buf.getvalue()
+    check("a GPS-tagged JPEG is found", gps_in(located))
+    clean = strip_jpeg(located)
+    check("stripping drops GPS, camera and XMP", not gps_in(clean) and b"Canon" not in clean and b"secret" not in clean)
+    check("stripping keeps the pixels", Image.open(io.BytesIO(clean)).tobytes() == Image.open(io.BytesIO(located)).tobytes())
+    check("a clean JPEG comes back unchanged", strip_jpeg(clean) is clean)
+    buf = io.BytesIO(); Image.new("RGBA", (8, 8)).save(buf, "PNG", exif=ex.tobytes())
+    check("GPS in a PNG's Exif chunk is found", gps_in_image(buf.getvalue()))
+    open(os.path.join(src, "where.jpg"), "wb").write(located)
+    norm = os.path.join(tmp, "norm")
+    subprocess.run([sys.executable, os.path.join(KIT, "images.py"), norm, os.path.join(src, "where.jpg")], capture_output=True, check=True)
+    check("images.py drops GPS data", not gps_in_image(open(os.path.join(norm, "where.jpg"), "rb").read()))
+    # verify fails an export folder holding a located photo, even one the build fingerprinted.
+    exp = os.path.join(tmp, "export"); os.makedirs(exp)
+    open(os.path.join(exp, "photo.jpg"), "wb").write(located)
+    json.dump({"images": {}}, open(os.path.join(exp, ".prism-build.json"), "w"))
+    r = subprocess.run([sys.executable, os.path.join(KIT, "verify.py"), exp], capture_output=True, text=True)
+    check("verify fails a folder with GPS data", r.returncode == 1 and "GPS" in r.stdout, r.stdout + r.stderr)
+    os.remove(os.path.join(exp, "photo.jpg"))
+    r = subprocess.run([sys.executable, os.path.join(KIT, "verify.py"), exp], capture_output=True, text=True)
+    check("verify passes the folder once it is clean", r.returncode == 0, r.stdout + r.stderr)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 

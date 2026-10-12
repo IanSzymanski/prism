@@ -78,6 +78,7 @@ For each format file:
    - sheet: `.prism-kit/run.sh sheet formats/sheet.md out/<tag>.pdf`
    - brochure: `.prism-kit/run.sh sheet formats/brochure.md out/<tag>.pdf` (the `layout: brochure` front matter switches the builder)
    - 5x7: `.prism-kit/run.sh sheet formats/5x7.md out/<tag>.pdf` (`layout: 5x7`; two sides at most, a third stops the build)
+   - print copy (sheet, brochure, 5x7), only when asked ("print version", "for the office printer", "white background"): the same command with `--print`, to `out/<tag>-print.pdf`, beside the screen copy. It sets the page to plain white and keeps the glow and tinted blocks. Never make a second format file for it, so the two copies can't drift; once asked for, rebuild it with every later export of that format.
    - blog: `.prism-kit/run.sh blog formats/blog.md out/blog` (`<tag>-header.png`, chart PNGs, `<tag>-post.md` and `.html` for the CMS)
    - deck: `.prism-kit/run.sh deck formats/deck.md out/<tag>.pptx`
    - html-email: `.prism-kit/run.sh email formats/html-email.md out/html-email` (`<tag>.html`, `<tag>.txt`, images/, `<tag>-images.zip`, `<tag>-preview.png`). It prints `[email]` warnings; act on each (the card lists them). Look at preview.png in the visual check: all four views, light and dark, nothing unreadable in dark mode.
