@@ -173,14 +173,85 @@ function textBlocks(slide, blocks, box, maxSize = 20) {
   if (out.length) checkFit("body text", parts.map(p => p.r.map(x => x.text).join("")).join("\n"), box.w - (parts.some(p => p.bullet) ? 0.3 : 0), box.h - parts.length * size * 0.6 / 72, size, 1.2);
 }
 
-// First image in a slide, from a figure or a paragraph: { src, classes }.
-function findImage(blocks) {
+// Every image in a slide, from figures and paragraphs, in order: { src, classes, focus, device, tone }.
+function findImages(blocks) {
+  const out = [];
   for (const b of blocks) {
     const inl = b.t === "Para" || b.t === "Plain" ? b.c : b.t === "Figure" ? (b.c[2][0] || {}).c || [] : [];
-    const im = inl.find(x => x.t === "Image");
-    if (im) return { src: B.src(im.c[2][0], path.dirname(md)), classes: im.c[0][1], focus: (im.c[0][2].find(([k]) => k === "focus") || [])[1] };
+    for (const im of inl.filter(x => x.t === "Image")) {
+      const at = k => (im.c[0][2].find(([n]) => n === k) || [])[1];
+      out.push({ src: B.src(im.c[2][0], path.dirname(md)), classes: im.c[0][1], focus: at("focus"), device: at("device"), tone: at("tone"), alt: plain(im.c[1]) });
+    }
   }
-  return null;
+  return out;
+}
+
+// A screenshot in core's device mockup (devices.js), as a PNG on a transparent ground at about 200 dpi for its slide width.
+const DEV = require("./devices.js");
+async function deviceImage(img, wIn) {
+  if (!fs.existsSync(img.src)) { console.warn(`[deck] missing image: ${img.src}`); return null; }
+  const o = { device: img.device, tone: img.tone || "dark", landscape: img.classes.includes("landscape"), focus: B.focus(img.src, img.focus) || undefined };
+  const g = DEV.geometry(o.device, o), width = Math.min(3200, Math.round(wIn * 200));
+  const file = path.join(cache, `device-${o.device}-${o.tone}${o.landscape ? "-l" : ""}-${key(img.src + fs.statSync(img.src).mtimeMs + (o.focus || ""))}-${width}.png`);
+  if (!fs.existsSync(file)) await DEV.render(img.src, file, { ...o, width });
+  return { path: file, ratio: DEV.ratio(g) };
+}
+// Places a picture, cutting off what falls past the slide's left or right edge (an overset picture), so it looks the same
+// in every view and the file keeps no hidden part.
+async function placeClipped(slide, file, x, y, w, h, alt) {
+  const from = Math.max(0, -x), to = Math.min(w, SW - x);
+  if (from <= 0 && to >= w) return slide.addImage({ path: file, x, y, w, h, altText: alt });
+  const m = await sharp(file).metadata(), k = m.width / w;
+  const cut = path.join(cache, `${path.basename(file, path.extname(file))}-cut-${Math.round(from * 100)}-${Math.round(to * 100)}.png`);
+  if (!fs.existsSync(cut)) await sharp(file).extract({ left: Math.round(from * k), top: 0, width: Math.min(m.width - Math.round(from * k), Math.round((to - from) * k)), height: m.height }).png().toFile(cut);
+  slide.addImage({ path: cut, x: x + from, y, w: to - from, h, altText: alt });
+}
+
+// A media slide's pictures. Plain: a photo (or one device) beside the text. .overset-left / .overset-right (or .overset,
+// on the picture's own side): the picture is larger and runs off that edge of the slide. Two device pictures are layers:
+// the first (a laptop, say) behind, the second (a phone) in front at its lower corner on the text side; each stays its own
+// picture in PowerPoint, so either can be moved.
+async function mediaPictures(slide, imgs, cls) {
+  const over = cls.includes("overset-left") ? "left" : cls.includes("overset-right") ? "right" : cls.includes("overset") ? (cls.includes("flip") ? "right" : "left") : null;
+  const side = over || (cls.includes("flip") ? "right" : "left");
+  const devs = imgs.filter(i => i.device);
+  if (imgs.some(i => i.device) && devs.length !== imgs.length) console.warn(`[deck] slide ${SLIDE_N}: device= goes on every picture of a layered slide or none; the photos are left out`);
+  const used = devs.length ? devs.slice(0, 2) : imgs.slice(0, 1);
+  if (imgs.length > used.length) console.warn(`[deck] slide ${SLIDE_N}: a media slide shows ${devs.length ? "two device pictures (back, then front)" : "one photo"}; ${imgs.length - used.length} more left out`);
+  const top = 1.8, bottom = over ? 6.75 : 6.6;
+  // The picture area: inside the margins, or past the edge by up to a third of the group when overset.
+  const maxW = over ? 7.4 : 5.8, maxH = bottom - top;
+  if (!used.length) return { side, inner: side === "left" ? MX : SW - MX };
+  if (!used[0].device) {
+    // A photo: sized to its orientation as before; overset, it bleeds to the slide edge at full height under the heading.
+    const img = used[0], m = fs.existsSync(img.src) ? await sharp(img.src).metadata() : { width: 4, height: 3 }, r = m.width / m.height;
+    const iw = over ? (r > 1.15 ? 6.6 : r < 0.87 ? 4.6 : 5.6) : (r > 1.15 ? 5.6 : r < 0.87 ? 3.8 : 4.75), ih = over ? maxH : 4.75, y = over ? top : 1.85;
+    const x = over ? (side === "left" ? 0 : SW - iw) : (side === "left" ? MX : SW - MX - iw);
+    const photo = await photoImage(img, iw, ih, img.classes.includes("fade") ? (side === "left" ? "right" : "left") : null, over ? 0 : 0.14);
+    if (photo) slide.addImage({ path: photo, x, y, w: iw, h: ih });
+    return { side, inner: side === "left" ? x + iw : x };
+  }
+  // Devices: the back one fits the area; a front one is 62 % of its height, bottoms aligned, sticking out 45 % of its width.
+  const [back, front] = used;
+  const rb = DEV.ratio(DEV.geometry(back.device, { landscape: back.classes.includes("landscape") }));
+  const rf = front ? DEV.ratio(DEV.geometry(front.device, { landscape: front.classes.includes("landscape") })) : 0;
+  const FH = 0.62, OUT = 0.45;
+  const groupW = h => h * rb + (front ? FH * h * rf * OUT : 0);
+  let h = maxH; if (groupW(h) > maxW) h = maxW / groupW(1);
+  const bw = h * rb, gw = groupW(h), y = over ? top + (maxH - h) : top + (maxH - h) / 2;
+  // Overset: a quarter of the back device runs off the edge; otherwise the group sits on the margin.
+  const gx = over ? (side === "left" ? -bw * 0.25 : SW - gw + bw * 0.25) : (side === "left" ? MX : SW - MX - gw);
+  const bx = side === "left" ? gx : gx + gw - bw;
+  const b = await deviceImage(back, bw);
+  const alt = i => i.alt || `${i.device[0].toUpperCase()}${i.device.slice(1)} screen`;
+  if (b) await placeClipped(slide, b.path, bx, y, bw, h, alt(back));
+  if (front) {
+    const fh = FH * h, fw = fh * rf, fx = side === "left" ? bx + bw - fw * (1 - OUT) : bx - fw * OUT;
+    const f = await deviceImage(front, fw);
+    if (f) await placeClipped(slide, f.path, fx, y + h - fh + (back.device === "laptop" ? 0.04 * h : 0), fw, fh, alt(front));
+  }
+  const inner = side === "left" ? Math.min(SW, gx + gw) : Math.max(0, gx);
+  return { side, inner };
 }
 
 // Cover-crops a photo to its slide box and bakes the fade and rounded corners into solid pixels on the paper colour.
@@ -431,14 +502,11 @@ async function chartSlide(slide, blocks) {
           checkFit(`step ${i + 1} text`, textOf(runs(rest)).trim(), w, 1.8, bs, 1.25);
         });
       } else if (kind === "media") {
-        const img = findImage(blocks), flip = div.c[0][1].includes("flip");
-        // Box width follows the photo's shape: landscape 5.6in, square 4.75in, portrait 3.8in (all 4.75in tall).
-        const md0 = img && fs.existsSync(img.src) ? await sharp(img.src).metadata() : { width: 4, height: 3 };
-        const ratio = md0.width / md0.height, iw = ratio > 1.15 ? 5.6 : ratio < 0.87 ? 3.8 : 4.75;
-        const ix = flip ? SW - MX - iw : MX, tx = flip ? MX : MX + iw + 0.5;
-        const photo = img ? await photoImage(img, iw, 4.75, img.classes.includes("fade") ? (flip ? "left" : "right") : null, 0.14) : null;
-        if (photo) slide.addImage({ path: photo, x: ix, y: 1.85, w: iw, h: 4.75 });
-        textBlocks(slide, blocks.filter(b => b.t !== "Figure"), { x: tx, y: 2.0, w: CW - iw - 0.5, h: 4.5, valign: "middle" }, 18);
+        // Photo box width follows its shape: landscape 5.6in, square 4.75in, portrait 3.8in (all 4.75in tall); devices fit theirs.
+        const cls = div.c[0][1], { side, inner } = await mediaPictures(slide, findImages(blocks), cls);
+        const left = side === "left", tx = left ? inner + 0.5 : MX, tw = Math.max(3, left ? SW - MX - tx : inner - 0.5 - MX);
+        const isPic = b => b.t === "Figure" || ((b.t === "Para" || b.t === "Plain") && b.c.some(x => x.t === "Image") && b.c.every(x => x.t === "Image" || x.t === "Space" || x.t === "SoftBreak"));
+        textBlocks(slide, blocks.filter(b => !isPic(b)), { x: tx, y: 2.0, w: tw, h: 4.5, valign: "middle" }, 18);
       } else if (kind === "chart") {
         await chartSlide(slide, blocks);
       } else if (kind === "qr") {

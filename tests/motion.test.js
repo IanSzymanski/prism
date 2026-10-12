@@ -15,7 +15,7 @@ let r = motion("brief", path.join(ROOT, "fixtures", "motion.md"), "--out", dir);
 ok(r.status === 0, `fixture briefs: ${r.stderr}`);
 const film = JSON.parse(fs.readFileSync(path.join(dir, "film.json"), "utf8")), text = fs.readFileSync(path.join(dir, "brief.md"), "utf8");
 ok(film.scenes.map(s => s.id).join() === "before,packet,change,result,close", "scene ids in order");
-ok(film.length === 32.7 && film.scenes[3].start === 20.7, `length and starts add up: ${film.length} ${film.scenes[3].start}`);
+ok(film.length === 48.5 && film.scenes[3].start === 29.2, `length and starts add up: ${film.length} ${film.scenes[3].start}`);
 ok(film.width === 1080 && film.height === 1920 && film.energy === "lively", "story, lively");
 ok(film.assets.length && film.assets.every(a => fs.existsSync(a.path) && a.mime), "every upload is a brand file with a type");
 ok(film.assets.some(a => a.name === "logo-on-dark.png"), "the end card on a dark gradient takes the on-dark logo");
@@ -44,23 +44,34 @@ ok(/\*\*Ends \(wipe into #packet\)\*\*/.test(text) && /\*\*Arrives \(wipe\)\*\*:
 ok(/\.g-before/.test(text) && /One shared\.js/.test(text), "scene color classes and a shared helper");
 const sec = id => text.split(`#${id} · `)[1].split("\n### ")[0];
 ok(/at -1\.4 s it slides in/.test(sec("before")), "the first scene's blocks are in place before frame 0");
-ok(/it leaves upward/.test(sec("before")) && /By 6\.35 s every block that leaves has left/.test(sec("before")), "blocks leave before the transition out");
+ok(/it leaves upward/.test(sec("before")) && /By 10\.05 s every block that leaves has left/.test(sec("before")), "blocks leave before the transition out");
 ok(!/ s it (leaves|fades out|drops away|shrinks away)/.test(sec("close")) && /Ends the film/.test(sec("close")), "nothing leaves the end card");
 ok(/marker band in #E3D0F3/.test(sec("packet")) && /marker band in #E3D0F3/.test(sec("before")), "highlight on the accent word, in the light gradient's color");
 ok(/counts from 5 to its value/.test(sec("result")) && film.scenes[3].counts.join() === "2,3,4,5", "count direction and its steps");
-ok(/whoosh at 6\.4 s/.test(text) && /chime at 29\.1 s/.test(text), "foley and transition whooshes at film time");
+ok(/whoosh at 10\.1 s/.test(text) && /chime at 39\.2 s/.test(text), "foley and transition whooshes at film time");
 
-// 1b. Every scene holds 3 s after its last entrance lands, still moving, before anything leaves; dur= is a minimum.
-ok(M.T.hold === 3 && film.hold === 3, "the hold is 3 s");
-for (const s of film.scenes) ok(Math.abs(s.hold[1] - s.hold[0] - 3) < 0.001 && s.hold[1] <= s.dur + 0.001, `#${s.id}: holds 3 s inside its ${s.dur} s`);
-ok(/Holds from 2\.7 s to 5\.7 s/.test(sec("before")) && /Every scene holds 3 s once everything has landed/.test(text), "the brief states each hold");
+// 1b. Every scene holds after its last entrance lands, still moving, before anything leaves: a second per 20 characters
+// on screen, 3 s at least and 12 s at most; dur= is a minimum.
+ok(M.T.hold.min === 3 && M.T.hold.read === 20 && M.T.hold.max === 12 && film.hold.min === 3, "the hold rule: 3 s at least, 20 characters a second, 12 s at most");
+const holdOf = c => Math.min(12, Math.max(3, Math.ceil(c / 20 * 10) / 10));
+ok(film.scenes.map(s => s.chars).join() === "133,69,150,91,173", `characters on screen per scene: ${film.scenes.map(s => s.chars)}`);
+ok(film.scenes[0].chars === film.scenes[0].lines.join(" ").replace(/[*_]/g, "").length, "the count is the scene's on-screen lines");
+for (const s of film.scenes) ok(Math.abs(s.hold[1] - s.hold[0] - holdOf(s.chars)) < 0.001 && s.hold[1] <= s.dur + 0.001, `#${s.id}: holds ${holdOf(s.chars)} s for ${s.chars} characters inside its ${s.dur} s`);
+ok(/Holds from 2\.7 s to 9\.4 s \(6\.7 s, for 133 characters\)/.test(sec("before")) && /Every scene holds once everything has landed/.test(text) && /a second for every 20 characters on screen/.test(text), "the brief states each hold");
+ok(M.holdFor(10, M.T.hold) === 3 && M.holdFor(1000, M.T.hold) === 12 && M.holdFor(100, M.T.hold) === 5, "short scenes hold 3 s, long ones 12 s at most");
+const slow = brief(FIX.replace("figures: illustrative", "figures: illustrative\nread: 10"), "slow");
+ok(slow.r.status === 0 && slow.film.hold.read === 10 && Math.abs(slow.film.scenes[1].hold[1] - slow.film.scenes[1].hold[0] - 6.9) < 0.001, "read: in the front matter sets the reading rate");
+const fixed = brief(FIX.replace("#close dur=10.8", "#close dur=4 hold=3"), "fixed");
+ok(fixed.r.status === 0 && Math.abs(fixed.film.scenes[4].hold[1] - fixed.film.scenes[4].hold[0] - 3) < 0.001 && /\(3 s, set by hand\)/.test(fixed.text), "hold= on a scene sets its hold by hand");
+ok(brief(FIX.replace("#close dur=10.8", "#close dur=10.8 hold=0"), "badhold").r.status === 1, "hold= below 1 s is refused");
+ok(brief(FIX.replace("figures: illustrative", "figures: illustrative\nread: fast"), "badread").r.status === 1, "read: must be a number");
 for (const id of ["before", "packet", "change", "result"]) {
   const leaves = [...sec(id).matchAll(/at ([\d.]+) s it (?:leaves|fades out|drops away|shrinks away)/g)].map(m => Number(m[1]));
   const hs = film.scenes.find(x => x.id === id).hold;
   ok(leaves.length && Math.min(...leaves) >= hs[1] - 0.001, `#${id}: nothing leaves before its hold ends (${Math.min(...leaves)} >= ${hs[1]})`);
 }
-const short = brief(FIX.replace("#packet dur=7.4", "#packet dur=4"), "short");
-ok(short.r.status === 0 && /#packet runs 7\.2 s, not 4: its entrances land at 3\.2 s, then it holds 3 s/.test(short.r.stderr) && short.film.scenes[1].dur === 7.2, "a scene too short for its hold grows, and says so");
+const short = brief(FIX.replace("#packet dur=7.7", "#packet dur=4"), "short");
+ok(short.r.status === 0 && /#packet runs 7\.7 s, not 4: its entrances land at 3\.2 s, then it holds 3\.5 s/.test(short.r.stderr) && short.film.scenes[1].dur === 7.7, "a scene too short for its hold grows, and says so");
 
 // 2. A plain file still moves: defaults give every block an entrance and exit, every scene a ground, backdrop and transition.
 const plain = brief(`---
@@ -119,7 +130,7 @@ bad("duplicate id", t => t.replace("#packet", "#before"), /used twice/);
 bad("bad id", t => t.replace("#packet", "#The_Packet"), /lower-case/);
 bad("unknown layout", t => t.replace(".compare #packet", ".statement #packet"), /not a stat-story layout/);
 bad("no closing", t => t.replace(".closing #close", ".quote #close"), /last scene is the closing/);
-bad("short end card", t => t.replace("#close dur=5.1", "#close dur=2"), /held 3 s at least/);
+bad("short end card", t => t.replace("#close dur=10.8", "#close dur=2"), /held 3 s at least/);
 bad("count without from", t => t.replace(" .count from=5", " .count"), /needs from=/);
 bad("unknown sound", t => t.replace("sfx=ding", "sfx=airhorn"), /sfx=airhorn is not one of/);
 bad("unknown technique", t => t.replace("technique: stat-story", "technique: claymation"), /technique "claymation"/);
@@ -128,11 +139,11 @@ bad("unknown energy", t => t.replace("energy: lively", "energy: frantic"), /ener
 bad("unknown ground", t => t.replace("bg=tint", "bg=neon"), /bg=neon is not one of/);
 bad("unknown backdrop", t => t.replace("backdrop=dots", "backdrop=confetti"), /backdrop=confetti is not one of/);
 bad("unknown transition", t => t.replace("in=wipe", "in=spin"), /in=spin is not one of/);
-bad("transition into the first scene", t => t.replace("#before dur=6.8", "#before in=wipe dur=6.8"), /first scene has nothing to arrive from/);
+bad("transition into the first scene", t => t.replace("#before dur=10.5", "#before in=wipe dur=10.5"), /first scene has nothing to arrive from/);
 bad("unknown motif", t => t.replace("motif=wave-stop", "motif=sunburst"), /motif sunburst is not one of/);
 bad("icon not in the brand set", t => t.replace(".ph-flag", ".ph-not-an-icon"), /icon not-an-icon is not in the brand's icon set/);
 bad("frame on a line", t => t.replace("[days]{.unit}", "[days]{.unit frame=card}"), /frame= is for pictures/);
-bad("too long", t => t.replace("#close dur=5.1", "#close dur=290"), /300 s at most/);
+bad("too long", t => t.replace("#close dur=10.8", "#close dur=290"), /300 s at most/);
 bad("timing outside the scene", t => t.replace("at=2.2", "at=9"), /outside the scene/);
 bad("unknown attribute", t => t.replace("at=2.2", "speed=2"), /unknown attribute speed/);
 bad("unknown scene attribute", t => t.replace("in=iris", "in=iris tempo=fast"), /unknown scene attribute tempo/);

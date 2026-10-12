@@ -8,7 +8,7 @@ music: calm
 figures: illustrative
 ---
 
-:::: {.scene .title #before dur=6.8 name="Five days" bg=glow backdrop=motif motif=wave-stop}
+:::: {.scene .title #before dur=10.5 name="Five days" bg=glow backdrop=motif motif=wave-stop}
 [Case study · Youth services · Illustrative]{.eyebrow}
 
 # Intake took *5 days*. {.xl .mask .highlight}
@@ -20,7 +20,7 @@ A week calendar under the text: seven day columns headed with weekday initials a
 :::
 ::::
 
-:::: {.scene .compare #packet dur=7.4 name="The packet" in=wipe bg=tint backdrop=dots}
+:::: {.scene .compare #packet dur=7.7 name="The packet" in=wipe bg=tint backdrop=dots}
 ## A 23-page packet, retyped into *4 forms*. {.l .words .highlight}
 
 ::: {.draw .drop at=0.6}
@@ -32,7 +32,7 @@ Four smaller form cards to the right of the stack, in the scene's second color, 
 :::
 ::::
 
-:::: {.scene .list #change dur=6.5 name="What changed" in=iris bg=dark backdrop=motif motif=wave-stop}
+:::: {.scene .list #change dur=11 name="What changed" in=iris bg=dark backdrop=motif motif=wave-stop}
 ## What *changed* {.l .mask}
 
 ::: {.checks .build stagger=0.45}
@@ -42,7 +42,7 @@ Four smaller form cards to the right of the stack, in the scene's second color, 
 :::
 ::::
 
-:::: {.scene .stat #result dur=6.9 name="Two days" in=slide bg=main backdrop=rings}
+:::: {.scene .stat #result dur=8.5 name="Two days" in=slide bg=main backdrop=rings}
 [2]{.stat .xxl .count from=5 at=0.4 sfx=ding}
 
 [days]{.unit}
@@ -56,7 +56,7 @@ A small week calendar beside the label, like the opening one: seven day columns,
 [Down from 5 days, three months after go-live.]{.sub .fade at=2.2}
 ::::
 
-:::: {.scene .closing #close dur=5.1 name="People review" bg=night backdrop=glow}
+:::: {.scene .closing #close dur=10.8 name="People review" bg=night backdrop=glow}
 ## Case managers review every field before it is saved. {.l .words}
 
 [Nothing goes into the record without a person checking it.]{.sub .fade at=1}

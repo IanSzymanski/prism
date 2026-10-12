@@ -20,6 +20,7 @@ aspect: story                           # story 1080×1920 (default) | post 1080
 energy: lively                          # calm | lively | bold (the technique's default when left out)
 music: calm                             # calm (default) | bright | none
 figures: illustrative                   # copy it from content.md when it says so
+read: 20                                # characters a second a viewer reads (20 by default); sets every scene's hold
 ---
 ```
 
@@ -46,7 +47,7 @@ Direction for this scene only, never on screen.
 ```
 
 - `#id`: lower-case letters, digits and `-`, a letter first. It never changes once the film exists: the film's comments and the person's own edits on the film page hang on it.
-- `dur=` seconds, a minimum (the layout's default when left out). Every scene holds 3 s after its last entrance lands, its backdrop and hold moves still going, before anything leaves; when `dur=` is too short for that the build lengthens the scene and says by how much, so set it to what the build reports. `name=` is the label on the film's timeline (from the id when left out), one to three words.
+- `dur=` seconds, a minimum (the layout's default when left out). Every scene holds after its last entrance lands, its backdrop and hold moves still going, before anything leaves. The hold grows with the words on screen: a second for every 20 characters (`read:` in the front matter changes the rate), 3 s at least and 12 s at most, so a scene with a long list stays up long enough to read. `hold=` on a scene sets its hold by hand (1 to 30 s). When `dur=` is too short the build lengthens the scene and says by how much, so set it to what the build reports. `name=` is the label on the film's timeline (from the id when left out), one to three words.
 - `bg=` the scene's ground, from the brand: `light`, `tint`, `wash`, `main` (the brand color, full bleed), `dark`, `deep`, or a brand gradient: `glow`, `mist`, `night`, `vivid`. Ink and the scene's other colors are picked from the brand by contrast. Left out, the layout's default, never the same as the scene before.
 - `backdrop=` a moving layer behind the words: `shapes`, `rings`, `dots`, `grid`, `glow`, `stripes`, `ribbons`, `bars`, `motif` (the brand's own mark), `none`. Left out, the layout's default. `motif=` picks one of the brand's motifs.
 - `in=` how the scene arrives: `wipe`, `iris`, `slide`, `blinds`, `fade`, `zoom`, `morph`, or `cut` for a deliberate hard cut. Every transition is two halves that meet on the same frame, so the cut can't be seen. Left out, the technique cycles through its transitions. The first scene has none.
@@ -67,7 +68,7 @@ Each block is one line (or one `:::` block), in the order they arrive:
 | Icon | `[]{.icon .ph-calendar .pop}`, or `[Label]{.icon .ph-calendar}`; from the brand's icon set | l |
 | Quote | `> Quote` then `> [Name, Role]{.cite}` | l |
 | Logo | `![Brand](prism:logo){.grow}`: the on-dark logo is chosen on dark grounds | |
-| Picture | `![](images/photo.jpg){.pan frame=card}` (`frame=` `card`, `circle`, `arch`, `browser`, `phone`); images from content.md only | |
+| Picture | `![](images/photo.jpg){.pan frame=card}` (`frame=` `card`, `circle`, `arch`, `browser`, `phone`, `tablet`, `laptop`; a screenshot in `phone`, `tablet` or `laptop` sits in core's device mockup); images from content.md only | |
 | Chart | a `chart` code block, as in components.md | |
 | Motif | `[]{.motif .draw}`: the brand's motif as a divider (`name=` picks one) | |
 | Drawn object | `::: {.draw .build n=4}` + one sentence describing it; on-screen words in it go in "quotes" | |

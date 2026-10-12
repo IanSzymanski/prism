@@ -12,7 +12,7 @@ const T = JSON.parse(fs.readFileSync(path.join(KIT, "motion-techniques.json"), "
 const ROLES_BY_CLASS = ["eyebrow", "sub", "label", "note", "stat", "unit", "cite", "body"];
 const LIST_STYLES = Object.keys(T.lists);
 const BLOCK_ATTRS = ["at", "from", "stagger", "sfx", "n", "frame", "name"];
-const SCENE_ATTRS = ["dur", "name", "bg", "backdrop", "in", "motif"];
+const SCENE_ATTRS = ["dur", "name", "bg", "backdrop", "in", "motif", "hold"];
 const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif", ".svg": "image/svg+xml",
   ".ttf": "font/ttf", ".otf": "font/otf", ".woff": "font/woff", ".woff2": "font/woff2" };
 const keys = o => Object.keys(o).filter(k => !k.startsWith("_"));
@@ -170,6 +170,7 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
   if (!T.aspects[aspect]) errors.push(`front matter: aspect "${aspect}" is not one of: ${keys(T.aspects).join(", ")}`);
   if (fm.energy && !T.energy[fm.energy]) errors.push(`front matter: energy is one of ${keys(T.energy).join(", ")}, not "${fm.energy}"`);
   if (fm.music && !T.music[fm.music]) errors.push(`front matter: music is one of ${keys(T.music).join(", ")}, not "${fm.music}"`);
+  if (fm.read !== undefined && !(Number(fm.read) >= 5 && Number(fm.read) <= 60)) errors.push(`front matter: read is the characters a second a viewer reads (5 to 60; ${T.hold.read} by default), not "${fm.read}"`);
   if (fm.ground) errors.push("front matter: ground is set per scene now, with bg= on each scene");
   if (fm.piece && !/^[a-z][a-z0-9-]{0,40}$/.test(fm.piece)) errors.push(`front matter: piece is a lower-case name like case-study, not "${fm.piece}"`);
   const pieceSay = R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand's films";
@@ -196,6 +197,7 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
     if (wantsMotif && !motifs.length) errors.push(`${where}: this brand has no motif (motion.motifs in its profile)`);
     const mid = s.attrs.motif || s.blocks.map(b => b.role === "motif" && b.a.attrs.name).find(Boolean);
     if (mid && motifs.length && !motifs.some(x => x.id === mid)) errors.push(`${where}: motif ${mid} is not one of ${motifs.map(x => x.id).join(", ")}`);
+    if (s.attrs.hold !== undefined && !(Number(s.attrs.hold) >= 1 && Number(s.attrs.hold) <= 30)) errors.push(`${where}: hold= is the seconds the scene holds once everything has landed, 1 to 30`);
     if (s.dur === null) s.dur = lay.dur;
     if (!(s.dur >= 1)) errors.push(`${where}: dur must be a number of seconds, 1 or more`);
     if (lay.min && s.dur < lay.min) errors.push(`${where}: a ${s.layout} scene is held ${lay.min} s at least (dur=${s.dur})`);
@@ -298,6 +300,27 @@ const fill = (tpl, v) => tpl.replace(/\{(\w+)\}/g, (_, k) => v[k] !== undefined 
 const ROTATE = ["main", "dark", "tint", "glow", "light", "mist"];
 const EDGES = [["left", "right"], ["bottom", "top"], ["right", "left"], ["top", "bottom"]];
 
+// The hold rule: at least min seconds, else the scene's characters at the reading rate (characters a second), at most max.
+// `read:` in the front matter sets the rate for one film.
+function holdRule(fm = {}) {
+  const h = typeof T.hold === "number" ? { min: T.hold } : T.hold;
+  return { min: h.min, read: fm.read !== undefined ? Number(fm.read) : h.read, max: h.max };
+}
+const holdFor = (chars, h) => Math.min(Math.max(h.min, h.read ? Math.ceil(chars / h.read * 10) / 10 : h.min), Math.max(h.min, h.max || Infinity));
+const sayHold = h => h.read ? `at least ${h.min} s, a second for every ${h.read} characters on screen, ${h.max} s at most` : `${h.min} s`;
+
+// Every line a scene puts on screen, in order: text blocks and list items, quoted words in draw blocks, chart labels.
+function sceneLines(s) {
+  const lines = [];
+  for (const b of s.blocks) {
+    if (["logo", "image", "draw", "chart", "motif"].includes(b.role)) continue;
+    if (b.role === "list") lines.push(...b.items.map(x => x.text)); else if (b.text) lines.push(b.text);
+  }
+  for (const b of s.blocks) if (b.role === "draw") for (const q of b.say.matchAll(/"([^"]+)"/g)) lines.push(q[1]);
+  for (const b of s.blocks) if (b.role === "chart") lines.push(...chartLabels(b.text));
+  return lines;
+}
+
 // Every decision the brief states, made once: grounds, colors, transitions, block timings and moves.
 function plan(B, doc, v, R = NO_RULES) {
   const { fm, scenes } = doc, tech = T.techniques[fm.technique], energy = T.energy[fm.energy || tech.energy];
@@ -326,9 +349,9 @@ function plan(B, doc, v, R = NO_RULES) {
     return { s, lay, bg, backdrop, ground, colors, into, motif: s.attrs.motif || (motifs.find(m => m.on === (colors.dark ? "dark" : "light") || m.on === "any") || motifs[0] || {}).id || null };
   });
   for (let i = 1; i < out.length; i++) if (out[i].into !== "cut" && out[i].into === out[i - 1].into) warnings.push(`#${out[i].s.id} arrives the same way as the scene before it (${out[i].into})`);
-  // Each scene: its blocks' times, then its length. After the last entrance lands the scene holds (T.hold seconds),
-  // still moving, before anything leaves; dur= in the format file is a minimum.
-  const hold = T.hold;
+  // Each scene: its blocks' times, then its length. After the last entrance lands the scene holds, still moving, before
+  // anything leaves: long enough to read its words (holdFor), or hold= on the scene; dur= in the format file is a minimum.
+  const rule = holdRule(fm);
   out.forEach((p, n) => {
     const { s } = p, next = out[n + 1];
     p.half = energy.half;
@@ -358,6 +381,8 @@ function plan(B, doc, v, R = NO_RULES) {
     p.landed = r2(Math.max(0, ...p.blocks.map(x => x.landed)));
     const leaving = p.blocks.filter(x => x.exit && x.exit !== "stay").sort((a, b) => b.at - a.at);
     const exitSpan = leaving.length ? 0.35 + (leaving.length - 1) * 0.07 + 0.05 : 0;
+    p.chars = sceneLines(s).join(" ").replace(/[*_]/g, "").length;
+    const hold = p.hold = s.attrs.hold !== undefined ? Number(s.attrs.hold) : holdFor(p.chars, rule);
     const need = Math.ceil((p.landed + hold + exitSpan + nextHalf) * 10) / 10;
     if (need > s.dur) { p.grew = { from: s.dur, to: need }; s.dur = need; }
     p.holdFrom = p.landed; p.holdTo = r2(p.landed + hold);
@@ -370,7 +395,7 @@ function plan(B, doc, v, R = NO_RULES) {
   const total = r2(t0);
   // The cut out of each scene is the next scene's transition, seen from this side.
   out.forEach((p, n) => { p.outT = out[n + 1] ? out[n + 1].inT : null; p.outInto = out[n + 1] ? out[n + 1].into : null; p.nextBg = out[n + 1] ? out[n + 1].ground : null; });
-  return { scenes: out, energy, warnings, motifs, R, total, hold };
+  return { scenes: out, energy, warnings, motifs, R, total, hold: rule };
 }
 
 function brief(mdPath, outDir) {
@@ -390,7 +415,7 @@ function brief(mdPath, outDir) {
   const broken = P.warnings.filter(w => w.startsWith("!")).map(w => w.slice(1));
   if (broken.length) fail(broken);
   if (R.known.length && !R.found) v.warnings.push(`this brand has motion rules for ${R.known.join(", ")}; name the piece (piece: ${R.known[0]}) to use them`);
-  for (const p of P.scenes) if (p.grew) P.warnings.push(`#${p.s.id} runs ${p.grew.to} s, not ${p.grew.from}: its entrances land at ${p.landed} s, then it holds ${P.hold} s before leaving`);
+  for (const p of P.scenes) if (p.grew) P.warnings.push(`#${p.s.id} runs ${p.grew.to} s, not ${p.grew.from}: its entrances land at ${p.landed} s, then it holds ${p.hold} s before leaving`);
   if (P.total > 300) fail([`the film runs ${P.total} s with its holds; Motion films are 300 s at most`]);
   const len = T.techniques[doc.fm.technique].length;
   if (P.total < len[0] || P.total > len[1]) P.warnings.push(`the film runs ${P.total} s; a ${doc.fm.technique} film is usually ${len[0]}–${len[1]} s`);
@@ -444,6 +469,14 @@ function brief(mdPath, outDir) {
     if (ext === ".svg") { const name = `motif-${id}.html`; record("modules", name, { kind: "html", text: fs.readFileSync(file, "utf8").trim() }); motifAssets[id] = { name, say: m.say, svg: true }; }
     else { const name = `motif-${id}${ext}`; record("assets", name, { ref: `data:${MIME[ext]};base64,${fs.readFileSync(file).toString("base64")}`, mime: MIME[ext] }); motifAssets[id] = { name, say: m.say }; }
   }
+  // A picture in a phone, tablet or laptop frame: core's device drawing (devices.js) goes in as markup, with its screen's place.
+  const DEV = require("./devices.js");
+  for (const d of new Set(P.scenes.flatMap(p => p.s.blocks.filter(b => b.role === "image" && DEV.DEVICES.includes(b.a.attrs.frame)).map(b => b.a.attrs.frame)))) {
+    const g = DEV.geometry(d), sc = g.screen, pc = (v, of) => +(v / of * 100).toFixed(2);
+    const name = `device-${d}.html`;
+    record("modules", name, { kind: "html", text: DEV.svg(g) });
+    motifAssets["device:" + d] = { name, screen: `left ${pc(sc.x, g.w)}%, top ${pc(sc.y, g.h)}%, width ${pc(sc.w, g.w)}%, height ${pc(sc.h, g.h)}% of the frame, corners ${pc(sc.r, sc.w)}% of the screen's width`, ratio: `${g.w}:${g.h}` };
+  }
   for (const l of Object.values(logos)) if (l.svg) record("assets", l.name, { ref: `data:image/svg+xml;base64,${fs.readFileSync(l.path).toString("base64")}`, mime: "image/svg+xml" });
 
   const film = { v: 2, title: fm.title, technique: fm.technique, piece: fm.piece || null, brand: B.id,
@@ -452,13 +485,7 @@ function brief(mdPath, outDir) {
     assets: [...assets.values()], records: records.map(r => ({ collection: r.collection, doc_id: r.doc_id })), faces: Object.fromEntries(Object.entries(faces).map(([k, f]) => [k, { face: f.face, weight: f.weight }])),
     scenes: P.scenes.map(p => {
       const s = p.s, name = (s.name || s.id.replace(/-/g, " ").replace(/^./, c => c.toUpperCase())).slice(0, 48);
-      const lines = [];
-      for (const b of s.blocks) {
-        if (["logo", "image", "draw", "chart", "motif"].includes(b.role)) continue;
-        if (b.role === "list") lines.push(...b.items.map(x => x.text)); else if (b.text) lines.push(b.text);
-      }
-      for (const b of s.blocks) if (b.role === "draw") for (const q of b.say.matchAll(/"([^"]+)"/g)) lines.push(q[1]);
-      for (const b of s.blocks) if (b.role === "chart") lines.push(...chartLabels(b.text));
+      const lines = sceneLines(s);
       const counts = [], countLines = [];
       for (const bp of p.blocks) if (bp.enter === "count") {
         const to = parseFloat(String(bp.b.text).replace(/,/g, "")), from = Number(bp.b.a.attrs.from);
@@ -467,7 +494,7 @@ function brief(mdPath, outDir) {
       }
       const head = (s.blocks.find(b => b.role === "h1" || b.role === "h2") || {}).text || lines.slice(0, 3).join(" ");
       const desc = (s.notes[0] || `${cap(s.layout)}: ${head}`).split(/(?<=\.)\s/)[0].slice(0, 160);
-      return { id: s.id, name, dur: s.dur, start: p.start, layout: s.layout, desc, bg: p.bg, ground: p.ground.stops, colors: p.colors, backdrop: p.backdrop, into: p.into, hold: [p.holdFrom, p.holdTo], lines, counts, countLines };
+      return { id: s.id, name, dur: s.dur, start: p.start, layout: s.layout, desc, bg: p.bg, ground: p.ground.stops, colors: p.colors, backdrop: p.backdrop, into: p.into, hold: [p.holdFrom, p.holdTo], chars: p.chars, lines, counts, countLines };
     }) };
   try { film.url = JSON.parse(fs.readFileSync(path.join(outDir, "film.json"), "utf8")).url; } catch { /* a first brief */ }
   if (film.url) console.log(`film: ${film.url} (revise this film; never make a second one for this output)`);
@@ -518,7 +545,7 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push("## The three answers", "");
   L.push(`- **Style:** ${tech.look}. ${E.say}.`);
   L.push(`- **Colors:** the brand's design system (${B.name}), no others. In scenes.json: \`"palettes":[["${pal}","${main}","${ink}","${accent}"]]\`, \`"theirs":1\`. Each scene has its own ground and colors from the brand, listed below.`);
-  L.push(`- **Length:** ${film.length} seconds, as the scenes below add up (each holds ${P.hold} s after its last entrance lands).`, "");
+  L.push(`- **Length:** ${film.length} seconds, as the scenes below add up (each holds after its last entrance lands: ${sayHold(P.hold)}).`, "");
   L.push("## The stage", "");
   L.push(`- ${A.width}×${A.height}, 60 fps, scenes.json \`background\` ${film.background}. ${cap(A.safe)}.`);
   L.push(`- \`look\` in scenes.json, word for word: "${tech.look}; brand ${B.name}, font files supplied".`);
@@ -529,7 +556,8 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   if (records.length) {
     L.push(`- **Records Prism prepared**: write each with ArtifactData \`set\` and its \`file_path\`, in the first batch after the uploads, before any scene: ${records.map(r => `\`${r.collection}/${r.doc_id}\` from \`${r.file_path}\``).join("; ")}.`);
     if (records.some(r => r.doc_id === "icons.json")) L.push(`- Icons are the brand's set: \`kit.json('icons.json')[name]\` is an SVG path for \`viewBox="0 0 1024 1024"\`; draw it as \`<svg viewBox="0 0 1024 1024"><path d="…" fill="currentColor"/></svg>\` in the color the scene gives.`);
-    for (const [id, m] of Object.entries(motifAssets)) L.push(m.svg
+    for (const [id, m] of Object.entries(motifAssets).filter(([k]) => k.startsWith("device:"))) L.push(`- Device \`${m.name}\` (${id.slice(7)}): \`kit.module('${m.name}')\` is the frame's <svg> markup, drawn over the screenshot it holds; never redrawn, recolored or reshaped.`);
+    for (const [id, m] of Object.entries(motifAssets).filter(([k]) => !k.startsWith("device:"))) L.push(m.svg
       ? `- Motif \`${m.name}\` (${id}): ${m.say}. \`kit.module('${m.name}')\` is its <svg> markup: insert it as it is, scaled to the frame. Its lines may be thickened (3 to 8 px on screen, \`vector-effect: non-scaling-stroke\`) and colored in the scene's second color through CSS; its shape never changes.`
       : `- Motif \`${m.name}\` (${id}): ${m.say}. Use it as an image (\`kit.assets.url('${m.name}')\`), never redrawn.`);
   }
@@ -546,7 +574,7 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push("- Each scene's `id`, `name` and `dur` are exactly as given; scene order is as given.");
   L.push(`- **No hard cuts.** Every scene ends and the next begins with the two halves of its transition (below): the last frame of one scene and the first frame of the next are the same picture. Prism checks every seam.`);
   L.push(`- **Everything arrives and everything leaves.** Each block enters with its move at its time and leaves with its exit, in reverse order, before the transition out starts (except blocks that stay, and the end card). Nothing simply appears or vanishes.`);
-  L.push(`- **Every scene holds ${P.hold} s once everything has landed**, before anything leaves or the transition starts: the content stays put while the backdrop and every hold move keep going. The times below already include it.`);
+  L.push(`- **Every scene holds once everything has landed**, before anything leaves or the transition starts, long enough to read it (${sayHold(P.hold)}): the content stays put while the backdrop and every hold move keep going. Each scene's hold is below, and its times already include it.`);
   L.push(`- **Nothing is ever still.** The backdrop moves for the whole scene; held blocks keep their hold move. Energy: ${E.say.toLowerCase()} (stagger ${E.stagger} s, overshoot ${E.overshoot}).`);
   for (const r of tech.rules) L.push(`- ${r}`);
   if (B.res.digest) L.push(`- The brand's visual rules apply (from its digest): ${digestVisual(B.res.digest)}`);
@@ -574,7 +602,7 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
     else L.push(`- **Opens the film**: the first blocks are already in place at frame 0 (their entrances start before 0), so the thumbnail reads.`);
     for (const bp of p.blocks) L.push(`- ${blockLine(bp, p, E, motifAssets, highlight)}`);
     for (const note of s.notes) L.push(`- Direction: ${note.replace(/\s+/g, " ")}`);
-    L.push(`- Holds from ${p.holdFrom} s to ${p.holdTo} s: everything has landed; the backdrop and the hold moves keep going${p.goneBy === null ? " to the end" : ""}.`);
+    L.push(`- Holds from ${p.holdFrom} s to ${p.holdTo} s (${p.hold} s${p.s.attrs.hold !== undefined ? ", set by hand" : `, for ${p.chars} characters`}): everything has landed; the backdrop and the hold moves keep going${p.goneBy === null ? " to the end" : ""}.`);
     if (p.goneBy !== null) L.push(`- By ${p.goneBy} s every block that leaves has left.`);
     if (p.outT) L.push(`- **Ends (${p.outT.name} into #${P.scenes[n + 1].s.id})**: ${fill(transitionOf(R, p.outT.name).out, p.outT)}${p.outT.motif && motifAssets[p.outT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.outT.motif].name}\`)` : ""}.`);
     else if (p.outInto === "cut") L.push(`- **Ends**: a deliberate hard cut into #${P.scenes[n + 1].s.id}.`);
@@ -605,6 +633,8 @@ function blockLine(bp, p, E, motifAssets, highlight) {
   const how = `: ${parts.join("; ")}${sfx}.`;
   const size = bp.size ? `, size ${bp.size}` : "";
   if (b.role === "logo") return `The brand logo (asset \`${b.asset}\`)${how}`;
+  const dev = motifAssets["device:" + b.a.attrs.frame];
+  if (b.role === "image" && dev) return `The picture \`${b.asset}\` (${b.text ? `"${b.text}"` : "no caption on screen"}), ${T.frames[b.a.attrs.frame]}: \`kit.module('${dev.name}')\` is the device's <svg> (${dev.ratio}), drawn over the picture and never redrawn or recolored; the picture fills its screen (${dev.screen}), cover-cropped from the top, and the two move as one${how}`;
   if (b.role === "image") return `The picture \`${b.asset}\` (${b.text ? `"${b.text}"` : "no caption on screen"}), ${T.frames[b.a.attrs.frame || "none"]}${how}`;
   if (b.role === "motif") return `The brand motif \`${(motifAssets[b.motif] || {}).name}\` as a divider across the frame${how}`;
   if (b.role === "icon") return `Icon \`${b.icon}\` from the brand set${size}, in the scene's main color${b.text ? `, labelled "${b.text}"` : ""}${how}`;
@@ -845,7 +875,7 @@ async function render(dir, storeDir, playerDir, outDir, assetsDir) {
   return 1;
 }
 
-module.exports = { parse, validate, plan, attrs, screenText, techniquesFor, motifsFor, sceneColors, groundOf, contrast, T };
+module.exports = { parse, validate, plan, attrs, screenText, techniquesFor, motifsFor, sceneColors, groundOf, contrast, holdFor, holdRule, sceneLines, T };
 if (require.main !== module) return;
 
 const [cmd, ...args] = process.argv.slice(2);

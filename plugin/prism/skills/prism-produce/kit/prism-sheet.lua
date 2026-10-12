@@ -46,6 +46,18 @@ function Image(img)
     local file = img.src:sub(1, 1) == "/" and img.src or base_dir() .. img.src
     focus = focus or focal(file)
   end
+  -- device="phone|tablet|laptop" puts the picture (a screenshot) in core's device mockup (devices.js): the frame is
+  -- drawn as vector over it; tone="light" for a silver body, .landscape turns a phone or tablet.
+  local device = img.attributes.device
+  if device then
+    local file = img.src:gsub("^file://", "")
+    if not img.src:match("^%a+:") and file:sub(1, 1) ~= "/" then file = base_dir() .. file end
+    local args = { PANDOC_SCRIPT_FILE:match("^(.*/)") .. "devices.js", "html", "file://" .. file, "--device", device,
+      "--tone", img.attributes.tone or "dark", "--alt", pandoc.utils.stringify(img.caption) }
+    if img.classes:includes("landscape") then table.insert(args, "--landscape") end
+    if focus then table.insert(args, "--focus"); table.insert(args, focus) end
+    return pandoc.RawInline("html", pandoc.pipe("node", args, ""))
+  end
   -- The page centres the crop on it once the frame size is known (focus.js).
   if focus then img.attributes["data-focus"] = focus end
   return img
