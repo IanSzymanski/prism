@@ -137,6 +137,18 @@ function motifsFor(B) {
   return ((B && readProfile(B).motion) || {}).motifs || [];
 }
 
+// The brand's rules for one kind of piece (profile motion.pieces.<piece>): what it never uses, its grounds, backdrops,
+// transitions and the colors of its marks. A piece the brand has no rules for gets core's vocabulary as it is.
+function pieceRules(B, piece) {
+  const all = ((B && readProfile(B).motion) || {}).pieces || {}, r = (piece && all[piece]) || {};
+  const tr = r.transitions || {};
+  return { piece: piece || null, known: keys(all), found: !!(piece && all[piece]), name: r.name || null,
+    deny: { backdrops: [], classes: [], roles: [], ...(r.deny || {}) }, emphasis: r.emphasis || {}, grounds: r.grounds || {},
+    backdrops: { prefer: null, say: {}, ...(r.backdrops || {}) }, transitions: { add: tr.add || {}, after: tr.after || {} }, rules: r.rules || [] };
+}
+const NO_RULES = pieceRules(null, null);
+const transitionOf = (R, name) => (R.transitions.add[name] || T.transitions[name]);
+
 // The classes a block carries, by kind, and the ones that aren't vocabulary.
 function classesOf(b) {
   const out = { size: [], enter: [], emphasis: [], hold: [], exit: [], unknown: [] };
@@ -148,7 +160,7 @@ function classesOf(b) {
   return out;
 }
 
-function validate(doc, allowed, motifs = []) {
+function validate(doc, allowed, motifs = [], R = NO_RULES) {
   const { fm, scenes } = doc, errors = [...doc.errors], warnings = [];
   const tech = T.techniques[fm.technique];
   if (!fm.title) errors.push("front matter: title is missing (the film's name; never \"Video\")");
@@ -159,6 +171,8 @@ function validate(doc, allowed, motifs = []) {
   if (fm.energy && !T.energy[fm.energy]) errors.push(`front matter: energy is one of ${keys(T.energy).join(", ")}, not "${fm.energy}"`);
   if (fm.music && !T.music[fm.music]) errors.push(`front matter: music is one of ${keys(T.music).join(", ")}, not "${fm.music}"`);
   if (fm.ground) errors.push("front matter: ground is set per scene now, with bg= on each scene");
+  if (fm.piece && !/^[a-z][a-z0-9-]{0,40}$/.test(fm.piece)) errors.push(`front matter: piece is a lower-case name like case-study, not "${fm.piece}"`);
+  const pieceSay = R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand's films";
   if (!scenes.length) errors.push("no scenes: write at least a title scene and a closing scene");
   const ids = new Set();
   let total = 0;
@@ -175,7 +189,8 @@ function validate(doc, allowed, motifs = []) {
     if (extraAttrs.length) errors.push(`${where}: unknown scene attribute ${extraAttrs.join(", ")} (${SCENE_ATTRS.join(", ")})`);
     if (s.attrs.bg && (!T.grounds[s.attrs.bg] || s.attrs.bg.startsWith("_"))) errors.push(`${where}: bg=${s.attrs.bg} is not one of ${keys(T.grounds).join(", ")}`);
     if (s.attrs.backdrop && (!T.backdrops[s.attrs.backdrop] || s.attrs.backdrop.startsWith("_"))) errors.push(`${where}: backdrop=${s.attrs.backdrop} is not one of ${keys(T.backdrops).join(", ")}`);
-    if (s.attrs.in && (!T.transitions[s.attrs.in] || s.attrs.in.startsWith("_"))) errors.push(`${where}: in=${s.attrs.in} is not one of ${keys(T.transitions).join(", ")}`);
+    if (s.attrs.in && (!transitionOf(R, s.attrs.in) || s.attrs.in.startsWith("_"))) errors.push(`${where}: in=${s.attrs.in} is not one of ${[...keys(T.transitions), ...keys(R.transitions.add)].join(", ")}`);
+    if (s.attrs.backdrop && R.deny.backdrops.includes(s.attrs.backdrop)) errors.push(`${where}: ${pieceSay} never use backdrop=${s.attrs.backdrop}`);
     if (n === 0 && s.attrs.in && s.attrs.in !== "cut") errors.push(`${where}: the first scene has nothing to arrive from (in=): frame 0 is the thumbnail`);
     const wantsMotif = s.attrs.backdrop === "motif" || s.blocks.some(b => b.role === "motif");
     if (wantsMotif && !motifs.length) errors.push(`${where}: this brand has no motif (motion.motifs in its profile)`);
@@ -191,6 +206,8 @@ function validate(doc, allowed, motifs = []) {
       if (k.unknown.length) errors.push(`${bw}: unknown class .${k.unknown.join(" .")}`);
       const off = b.a.classes.filter(c => T.classes[c] && !tech.classes.includes(c));
       if (off.length) errors.push(`${bw}: .${off.join(" .")} is not used in ${fm.technique}`);
+      const denied = b.a.classes.filter(c => R.deny.classes.includes(c));
+      if (denied.length) errors.push(`${bw}: ${pieceSay} never use .${denied.join(" .")}`);
       for (const kind of ["size", "enter", "emphasis", "hold", "exit"]) if (k[kind].length > 1) errors.push(`${bw}: one ${kind} class per block, not .${k[kind].join(" .")}`);
       if (k.emphasis.length && !b.accent) errors.push(`${bw}: .${k.emphasis[0]} marks the accent word; star one word (*word*)`);
       if (k.enter.includes("count") && (b.a.attrs.from === undefined || isNaN(Number(b.a.attrs.from)))) errors.push(`${bw}: .count needs from=<number>`);
@@ -222,8 +239,8 @@ const dist = (a, b) => { const x = hex(a), y = hex(b); return Math.hypot(x[0] - 
 const minContrast = (c, stops) => Math.min(...stops.map(s => contrast(c, s)));
 
 // A scene's colors on its ground: ink for words, main for numbers and shapes, two more for backdrops and marks.
-function sceneColors(B, ground) {
-  const role = (n, theme) => B.has(n) ? B.color(n, theme) : null;
+function sceneColors(B, ground, R = NO_RULES) {
+  const role = (n, theme) => B.has(n) && !R.deny.roles.includes(n) ? B.color(n, theme) : null;
   const stops = ground.stops;
   const pick = (cands, min, not = []) => cands.filter(Boolean).find(c => minContrast(c, stops) >= min && !not.some(x => dist(x, c) < 40)) || null;
   const inks = [role("prism-color-text-strong"), role("prism-color-text-strong", "dark"), role("prism-color-surface"), role("prism-color-dark-deep"), "#FFFFFF", "#111111"].filter(Boolean);
@@ -233,9 +250,15 @@ function sceneColors(B, ground) {
   const main = pick([role("prism-color-accent"), role("prism-color-accent", "dark"), role("prism-color-eyebrow-on-dark"), ...series.map(n => role(n)), role("prism-color-surface")], 3, stops) || ink;
   const second = pick([...series.map(n => role(n)), role("prism-color-accent", "dark"), role("prism-color-wash"), role("prism-color-surface")], 1.6, [...stops, main]) || main;
   const third = pick([...series.map(n => role(n)), role("prism-color-tint-line"), role("prism-color-wash"), role("prism-color-dark-surface")], 1.3, [...stops, main, second]) || second;
-  return { ink, main, second, third, dark: lum(stops[0]) < 0.25 };
+  // The piece's own choice for this ground wins, when the brand has that role.
+  const own = (R.grounds[ground.name] || {}).colors || {};
+  const out = { ink, main, second, third, dark: lum(stops[0]) < 0.25 };
+  for (const [k, n] of Object.entries(own)) if (role(n)) out[k] = role(n);
+  return out;
 }
-function groundOf(B, name) {
+function groundOf(B, name, R = NO_RULES) {
+  const own = R.grounds[name] || {};
+  if (own.css && own.stops) return { name, stops: own.stops, gradient: true, css: own.css, say: own.say || null };
   const g = T.grounds[name];
   const val = n => B.has(n) ? B.color(n) : null;
   if (g.gradient) { const stops = g.gradient.map(val).filter(Boolean); if (stops.length >= 2) return { name, stops, gradient: true }; }
@@ -243,9 +266,9 @@ function groundOf(B, name) {
   return { name, stops: [fill], gradient: false };
 }
 // The transition panel: a brand color unlike both grounds.
-function panelFor(B, a, b) {
+function panelFor(B, a, b, R = NO_RULES) {
   const cands = ["prism-color-accent", "prism-color-chart-2", "prism-color-chart-3", "prism-color-chart-4", "prism-color-dark-surface", "prism-color-wash"]
-    .filter(n => B.has(n)).map(n => B.color(n));
+    .filter(n => B.has(n) && !R.deny.roles.includes(n)).map(n => B.color(n));
   const all = [...a.stops, ...b.stops];
   return cands.slice().sort((x, y) => Math.min(...all.map(s => dist(y, s))) - Math.min(...all.map(s => dist(x, s))))[0];
 }
@@ -267,22 +290,30 @@ const ROTATE = ["main", "dark", "tint", "glow", "light", "mist"];
 const EDGES = [["left", "right"], ["bottom", "top"], ["right", "left"], ["top", "bottom"]];
 
 // Every decision the brief states, made once: grounds, colors, transitions, block timings and moves.
-function plan(B, doc, v) {
+function plan(B, doc, v, R = NO_RULES) {
   const { fm, scenes } = doc, tech = T.techniques[fm.technique], energy = T.energy[fm.energy || tech.energy];
   const motifs = motifsFor(B);
   const warnings = [];
   let prevBg = null, prevBd = null, tc = 0;
+  const bgs = [], out_prev = n => bgs[n - 1];
   const out = scenes.map((s, n) => {
     const lay = tech.layouts[s.layout];
     // A default ground or backdrop never repeats the scene before it; one set by hand stays.
     let bg = s.attrs.bg || lay.bg;
     if (!s.attrs.bg && bg === prevBg) bg = ROTATE.find(x => x !== prevBg && x !== bg);
     let backdrop = s.attrs.backdrop || lay.backdrop;
-    if (!s.attrs.backdrop && backdrop === prevBd) { const bds = keys(T.backdrops).filter(x => !["none", "motif"].includes(x)); backdrop = bds[(bds.indexOf(backdrop) + 1) % bds.length]; }
+    // A default backdrop the piece never uses, or one that repeats the scene before, steps to the piece's preferred ones.
+    if (!s.attrs.backdrop && (backdrop === prevBd || R.deny.backdrops.includes(backdrop) || (backdrop === "motif" && !motifs.length))) {
+      const bds = (R.backdrops.prefer || keys(T.backdrops)).filter(x => x !== "none" && !R.deny.backdrops.includes(x) && (x !== "motif" || motifs.length));
+      backdrop = bds.find(x => x !== prevBd) || bds[0];
+    }
     if (s.attrs.bg && bg === prevBg) warnings.push(`#${s.id} has the same ground as the scene before it (${bg})`);
-    prevBg = bg; prevBd = backdrop;
-    const ground = groundOf(B, bg), colors = sceneColors(B, ground);
-    const into = n === 0 ? null : (s.attrs.in || tech.transitions[tc++ % tech.transitions.length]);
+    bgs.push(bg); prevBg = bg; prevBd = backdrop;
+    const ground = groundOf(B, bg, R), colors = sceneColors(B, ground, R);
+    // The piece may fix how a scene leaves a given ground (a brand transition out of its main color).
+    const forced = n > 0 ? R.transitions.after[out_prev(n)] : null;
+    if (forced && s.attrs.in && s.attrs.in !== forced) warnings.push(`!#${s.id}: ${R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand"} leave a ${out_prev(n)} scene with ${forced}, not ${s.attrs.in}`);
+    const into = n === 0 ? null : (forced || s.attrs.in || tech.transitions[tc++ % tech.transitions.length]);
     return { s, lay, bg, backdrop, ground, colors, into, motif: s.attrs.motif || (motifs.find(m => m.on === (colors.dark ? "dark" : "light") || m.on === "any") || motifs[0] || {}).id || null };
   });
   for (let i = 1; i < out.length; i++) if (out[i].into !== "cut" && out[i].into === out[i - 1].into) warnings.push(`#${out[i].s.id} arrives the same way as the scene before it (${out[i].into})`);
@@ -291,8 +322,9 @@ function plan(B, doc, v) {
     const { s } = p, next = out[n + 1];
     p.start = r2(t0); t0 += s.dur;
     p.half = energy.half;
-    const [from, to] = EDGES[n % EDGES.length];
-    p.inT = p.into && p.into !== "cut" ? { name: p.into, panel: panelFor(B, out[n - 1].ground, p.ground), from, to, half: energy.half, in: r2(energy.half * 0.7),
+    const own = p.into ? transitionOf(R, p.into) || {} : {};
+    const [from, to] = own.from && own.to ? [own.from, own.to] : EDGES[n % EDGES.length];
+    p.inT = p.into && p.into !== "cut" ? { name: p.into, panel: panelFor(B, out[n - 1].ground, p.ground, R), from, to, half: energy.half, in: r2(energy.half * 0.7),
       next: p.ground.gradient ? `its gradient, starting ${p.ground.stops[0]}` : p.ground.stops[0] } : null;
     // When the content may arrive and must have left.
     const enterAt = n === 0 ? -1.4 : p.inT ? (["wipe", "iris", "blinds"].includes(p.inT.name) ? r2(energy.half * 0.7) : 0.15) : 0.1;
@@ -305,7 +337,8 @@ function plan(B, doc, v) {
       const cl = classesOf(b), def = (tech.defaults[b.role] || {});
       const enter = cl.enter[0] || def.enter || "fade";
       const hold = cl.hold[0] || def.hold || null;
-      const emphasis = cl.emphasis[0] || (b.accent ? def.emphasis : null) || null;
+      let emphasis = cl.emphasis[0] || (b.accent ? def.emphasis : null) || null;
+      if (emphasis && !cl.emphasis[0] && R.deny.classes.includes(emphasis)) emphasis = R.deny.classes.includes("highlight") ? null : "highlight";
       let exit = cl.exit[0] || def.exit || "out";
       if (last) exit = null;
       const at = b.a.attrs.at !== undefined ? Number(b.a.attrs.at) : r2(enterAt + (k++) * (energy.stagger * 3.5));
@@ -321,13 +354,14 @@ function plan(B, doc, v) {
   });
   // The cut out of each scene is the next scene's transition, seen from this side.
   out.forEach((p, n) => { p.outT = out[n + 1] ? out[n + 1].inT : null; p.outInto = out[n + 1] ? out[n + 1].into : null; p.nextBg = out[n + 1] ? out[n + 1].ground : null; });
-  return { scenes: out, energy, warnings, motifs };
+  return { scenes: out, energy, warnings, motifs, R };
 }
 
 function brief(mdPath, outDir) {
   const B = require("./brand.js")(mdPath);
   const text = fs.readFileSync(mdPath, "utf8"), doc = parse(text), allowed = techniquesFor(B), motifs = motifsFor(B);
-  const v = validate(doc, allowed, motifs);
+  const R = pieceRules(B, doc.fm.piece);
+  const v = validate(doc, allowed, motifs, R);
   const fail = errs => { for (const e of errs) console.error(`[motion] ${e}`); console.error(`[motion] ${errs.length} problem(s): fix ${mdPath} and run again`); process.exit(1); };
   if (v.errors.length) fail(v.errors);
   // Icons come from the brand's own set.
@@ -335,7 +369,11 @@ function brief(mdPath, outDir) {
   const wantIcons = [...new Set(doc.scenes.flatMap(s => s.blocks.flatMap(b => b.role === "icon" ? [b.icon] : b.role === "list" ? b.items.map(x => x.icon).filter(Boolean) : [])))];
   const noIcon = wantIcons.filter(n => !iconSet[n]);
   if (noIcon.length) fail([`icon ${noIcon.join(", ")} is not in the brand's icon set (${B.icons.weight})`]);
-  const P = plan(B, doc, v);
+  const P = plan(B, doc, v, R);
+  // A plan warning marked ! is a piece rule the format file breaks.
+  const broken = P.warnings.filter(w => w.startsWith("!")).map(w => w.slice(1));
+  if (broken.length) fail(broken);
+  if (R.known.length && !R.found) v.warnings.push(`this brand has motion rules for ${R.known.join(", ")}; name the piece (piece: ${R.known[0]}) to use them`);
   for (const w of [...v.warnings, ...P.warnings]) console.warn(`[motion] ${w}`);
   const { fm, scenes } = doc, tech = T.techniques[fm.technique], A = T.aspects[v.aspect];
 
@@ -375,6 +413,8 @@ function brief(mdPath, outDir) {
   const usedMotifs = new Set();
   for (const p of P.scenes) {
     if (p.backdrop === "motif") usedMotifs.add(p.motif);
+    const tm = p.inT && (R.transitions.add[p.inT.name] || {}).motif;
+    if (tm) { if (!P.motifs.some(m => m.id === tm)) fail([`transition ${p.inT.name} needs the brand motif ${tm}`]); usedMotifs.add(tm); p.inT.motif = tm; }
     for (const b of p.s.blocks) if (b.role === "motif") { b.motif = b.a.attrs.name || p.motif; usedMotifs.add(b.motif); }
   }
   // An SVG motif goes in as markup (a module), so its stroke can be thickened and recolored without changing its shape.
@@ -386,7 +426,8 @@ function brief(mdPath, outDir) {
   }
   for (const l of Object.values(logos)) if (l.svg) record("assets", l.name, { ref: `data:image/svg+xml;base64,${fs.readFileSync(l.path).toString("base64")}`, mime: "image/svg+xml" });
 
-  const film = { v: 2, title: fm.title, technique: fm.technique, brand: B.id, aspect: v.aspect, width: A.width, height: A.height, fps: 60,
+  const film = { v: 2, title: fm.title, technique: fm.technique, piece: fm.piece || null, brand: B.id,
+    deny: { colors: R.deny.roles.filter(n => B.has(n)).flatMap(n => Object.values(B.res.roles[n].value || {})).filter(x => typeof x === "string" && /^#/.test(x)) }, aspect: v.aspect, width: A.width, height: A.height, fps: 60,
     background: P.scenes[0].ground.stops[0], energy: fm.energy || tech.energy, music: fm.music || "calm", length: v.total,
     assets: [...assets.values()], records: records.map(r => ({ collection: r.collection, doc_id: r.doc_id })), faces: Object.fromEntries(Object.entries(faces).map(([k, f]) => [k, { face: f.face, weight: f.weight }])),
     scenes: P.scenes.map(p => {
@@ -447,10 +488,10 @@ function digestVisual(file) {
 }
 
 function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos) {
-  const { fm } = doc, E = P.energy;
+  const { fm } = doc, E = P.energy, R = P.R;
   const L = [];
   const pal = B.color("prism-color-surface"), main = B.color("prism-color-accent"), ink = B.color("prism-color-text-strong");
-  const accent = B.has("prism-color-chart-2") ? B.color("prism-color-chart-2") : main;
+  const accent = (["prism-color-chart-2", "prism-color-chart-3", "prism-color-accent-strong"].filter(n => B.has(n) && !R.deny.roles.includes(n)).map(n => B.color(n))[0]) || main;
   const faceLine = t => { const f = faces[t]; return f && f.face ? `"${f.face}" (weight ${f.weight}${f.letterSpacing !== "0" ? `, letter-spacing ${f.letterSpacing}` : ""})` : "the brand's text face"; };
   L.push(`# Motion brief: ${fm.title}`, "");
   L.push(`Written by Prism from its approved format file (${fm.technique}, brand ${B.name}). Make this film with the Motion type's own steps, in order, with this brief as the request. Everything below is settled: ask nothing. Where this brief and a Motion page disagree on looks (colors per scene, gradients, transitions, backdrops), this brief wins: it is the person's own brand and direction.`, "");
@@ -488,21 +529,32 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push(`- **Nothing is ever still.** The backdrop moves for the whole scene; held blocks keep their hold move. Energy: ${E.say.toLowerCase()} (stagger ${E.stagger} s, overshoot ${E.overshoot}).`);
   for (const r of tech.rules) L.push(`- ${r}`);
   if (B.res.digest) L.push(`- The brand's visual rules apply (from its digest): ${digestVisual(B.res.digest)}`);
+  if (R.found) {
+    L.push("", `## This brand's ${(R.name || R.piece).toLowerCase()} films`, "");
+    for (const r of R.rules) L.push(`- ${r}`);
+    if (R.deny.backdrops.length) L.push(`- Never as a backdrop: ${R.deny.backdrops.join(", ")}.`);
+    if (R.deny.classes.length) L.push(`- Never: ${R.deny.classes.map(c => `.${c}`).join(", ")}.`);
+    const no = R.deny.roles.filter(n => B.has(n)).map(n => B.color(n));
+    if (no.length) L.push(`- Never these colors, anywhere (marks, panels, backdrops, objects): ${no.join(", ")}.`);
+  }
+  // The highlight band's color, when the piece names one.
+  const highlight = R.emphasis.highlight && B.has(R.emphasis.highlight) ? B.color(R.emphasis.highlight) : null;
   L.push("", "## Scenes", "", "Times are seconds from the scene's own start.", "");
   P.scenes.forEach((p, n) => {
     const s = p.s, f = film.scenes[n], c = p.colors, g = p.ground;
     L.push(`### ${n + 1}. #${s.id} · "${f.name}" · ${s.dur} s (starts at ${f.start} s)`, "");
     L.push(`- scenes.json: \`{"id":"${s.id}","name":"${f.name}","dur":${s.dur},"desc":${JSON.stringify(f.desc)}}\``);
     L.push(`- Layout ${s.layout}: ${p.lay.say}`);
-    L.push(`- **Ground (.g-${s.id})**: ${T.grounds[p.bg].say}, ${g.gradient ? `a gradient ${g.stops.join(" → ")} from top left to bottom right` : g.stops[0]}. Ink ${c.ink}; main ${c.main}; second ${c.c2 || c.second}; third ${c.third}.`);
-    L.push(`- **Backdrop**: ${p.backdrop === "motif" && motifAssets[p.motif] ? `the brand motif \`${motifAssets[p.motif].name}\`: ${T.backdrops.motif}` : T.backdrops[p.backdrop]}.`);
-    if (p.inT) L.push(`- **Arrives (${p.inT.name})**: ${fill(T.transitions[p.inT.name].in, p.inT)}.`);
+    const groundSay = g.css ? `${g.say || T.grounds[p.bg].say}: exactly \`background: ${g.css}\`` : `${T.grounds[p.bg].say}, ${g.gradient ? `a gradient ${g.stops.join(" → ")} from top left to bottom right` : g.stops[0]}`;
+    L.push(`- **Ground (.g-${s.id})**: ${groundSay}. Ink ${c.ink}; main ${c.main}; second ${c.second}; third ${c.third}.`);
+    L.push(`- **Backdrop**: ${p.backdrop === "motif" && motifAssets[p.motif] ? `the brand motif \`${motifAssets[p.motif].name}\`: ${T.backdrops.motif}` : (R.backdrops.say[p.backdrop] || T.backdrops[p.backdrop])}.`);
+    if (p.inT) L.push(`- **Arrives (${p.inT.name})**: ${fill(transitionOf(R, p.inT.name).in, p.inT)}${p.inT.motif && motifAssets[p.inT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.inT.motif].name}\`)` : ""}.`);
     else if (n > 0) L.push(`- **Arrives (cut)**: a deliberate hard cut.`);
     else L.push(`- **Opens the film**: the first blocks are already in place at frame 0 (their entrances start before 0), so the thumbnail reads.`);
-    for (const bp of p.blocks) L.push(`- ${blockLine(bp, p, E, motifAssets)}`);
+    for (const bp of p.blocks) L.push(`- ${blockLine(bp, p, E, motifAssets, highlight)}`);
     for (const note of s.notes) L.push(`- Direction: ${note.replace(/\s+/g, " ")}`);
     if (p.goneBy !== null) L.push(`- By ${p.goneBy} s every block that leaves has left.`);
-    if (p.outT) L.push(`- **Ends (${p.outT.name} into #${P.scenes[n + 1].s.id})**: ${fill(T.transitions[p.outT.name].out, p.outT)}.`);
+    if (p.outT) L.push(`- **Ends (${p.outT.name} into #${P.scenes[n + 1].s.id})**: ${fill(transitionOf(R, p.outT.name).out, p.outT)}${p.outT.motif && motifAssets[p.outT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.outT.motif].name}\`)` : ""}.`);
     else if (p.outInto === "cut") L.push(`- **Ends**: a deliberate hard cut into #${P.scenes[n + 1].s.id}.`);
     else L.push(`- **Ends the film**: held still on the end card, the backdrop still moving gently.`);
     L.push("");
@@ -516,9 +568,12 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push("");
   return L.join("\n");
 }
-function blockLine(bp, p, E, motifAssets) {
+function blockLine(bp, p, E, motifAssets, highlight) {
   const { b } = bp, def = T.roles[b.role] || {};
-  const say = c => fill(T.classes[c].say, { from: b.a.attrs.from, stagger: b.a.attrs.stagger || E.stagger, overshoot: E.overshoot });
+  const say = c => {
+    const t = fill(T.classes[c].say, { from: b.a.attrs.from, stagger: b.a.attrs.stagger || E.stagger, overshoot: E.overshoot });
+    return c === "highlight" && highlight ? t.replace("in the scene's second color", `in ${highlight}, at full strength`) : t;
+  };
   const parts = [`at ${bp.at} s it ${say(bp.enter)}`];
   if (bp.emphasis) parts.push(say(bp.emphasis).replace(/^after it lands, /, "after it lands "));
   if (bp.hold) parts.push(say(bp.hold));
@@ -644,6 +699,11 @@ function check(dir, storeDir) {
   for (const name of Object.keys(st.assets)) if (!known.has(name)) warn.push(`asset ${name} is in the film but not in the brief`);
   if (film.music !== "none" && !st.modules["score.js"]) out.push("no score.js: the brief asks for music");
   if (film.music === "none" && st.modules["score.js"]) out.push("score.js is there: the brief asks for silence");
+  // Colors the piece never uses, anywhere in the film's code.
+  for (const c of [...new Set(((film.deny || {}).colors || []).map(x => x.toLowerCase()))]) {
+    const where = Object.entries(st.modules).filter(([, m]) => (m.text || "").toLowerCase().includes(c)).map(([n]) => n);
+    if (where.length) out.push(`${c} is a color this piece never uses, but ${where.join(", ")} uses it`);
+  }
   for (const w of warn) console.log(`  note: ${w}`);
   if (pageEdits.length) { console.log(`PAGE EDITS: ${pageEdits.length} line(s) retyped on the film page (vet them; ask before carrying them into content.md):`); for (const e of pageEdits) console.log(`  ${e}`); }
   if (!out.length) { console.log(`OK: the film matches ${path.join(dir, "film.json")} (${film.scenes.length} scenes, ${film.length} s, every line verbatim)`); return 0; }

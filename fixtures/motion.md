@@ -1,21 +1,22 @@
 ---
 title: Maple Ridge, intake in two days
 technique: stat-story
+piece: case-study
 aspect: story
 energy: lively
 music: calm
 figures: illustrative
 ---
 
-:::: {.scene .title #before dur=3.5 name="Five days" bg=glow backdrop=shapes}
+:::: {.scene .title #before dur=3.5 name="Five days" bg=glow backdrop=motif motif=wave-stop}
 [Case study · Youth services · Illustrative]{.eyebrow}
 
-# Intake took *5 days*. {.xl .mask .underline}
+# Intake took *5 days*. {.xl .mask .highlight}
 
 [At Maple Ridge Youth Services, from referral to first visit scheduled.]{.sub}
 
-::: {.draw .build n=5 at=1.5 sfx=pop}
-Five small rounded squares in a row under the text, one for each day, in the scene's main color.
+::: {.draw .build at=1.4 sfx=pop}
+A week calendar under the text: seven day columns headed with weekday initials and no dates, the five working days highlighted in the main color one after another.
 :::
 ::::
 
@@ -48,10 +49,14 @@ Four smaller form cards to the right of the stack, in the scene's second color, 
 
 [from referral to first visit scheduled]{.label .words at=1.6}
 
+::: {.draw .build at=1.2}
+A small week calendar beside the label, like the opening one: seven day columns, weekday initials, no dates, two days highlighted in the main color.
+:::
+
 [Down from 5 days, three months after go-live.]{.sub .fade at=2.2}
 ::::
 
-:::: {.scene .closing #close dur=4 name="People review" in=blinds bg=night backdrop=glow}
+:::: {.scene .closing #close dur=4 name="People review" bg=night backdrop=glow}
 ## Case managers review every field before it is saved. {.l .words}
 
 [Nothing goes into the record without a person checking it.]{.sub .fade at=1}

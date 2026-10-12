@@ -15,12 +15,17 @@ Each **technique** is a motion format with its own layouts, classes and defaults
 ---
 title: Harbor Point, notes in a day     # the film's name (never "Video")
 technique: stat-story
+piece: case-study                       # the kind of film: case-study, announcement, walkthrough…
 aspect: story                           # story 1080×1920 (default) | post 1080×1350 | square 1080×1080 | wide 1920×1080
 energy: lively                          # calm | lively | bold (the technique's default when left out)
 music: calm                             # calm (default) | bright | none
 figures: illustrative                   # copy it from content.md when it says so
 ---
 ```
+
+## The brand's rules for a kind of film
+
+A brand can keep its own motion rules for a kind of film, in its profile (`motion.pieces.<piece>`): backdrops, classes and colors it never uses, its own grounds (a gradient drawn from a brand asset), colors per ground, a backdrop's look, a brand transition drawn from its motif (forced out of a ground, if the brand says so) and plain rules (for example, durations in days shown as a calendar). Name the kind with `piece:`; `run.sh motion brief` applies them, refuses a class or backdrop they rule out, and warns when the brand has rules but no `piece:` is named. Read the brief's "This brand's … films" section and lay the film out to suit it. A kind the brand has no rules for uses core's vocabulary as it is.
 
 ## Scenes
 

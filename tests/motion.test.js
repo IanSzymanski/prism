@@ -29,8 +29,8 @@ for (const s of film.scenes) {
   ok(Math.min(...s.ground.map(g => M.contrast(s.colors.main, g))) >= 3, `#${s.id}: main color reads on its ground`);
 }
 ok(new Set(film.scenes.map(s => s.bg)).size === film.scenes.length, "every scene has its own ground");
-ok(film.scenes[0].into === null && film.scenes.slice(1).map(s => s.into).join() === "wipe,iris,slide,blinds", "transitions as written, none into the first scene");
-ok(film.records.map(x => `${x.collection}/${x.doc_id}`).join() === "modules/icons.json,modules/motif-wave-dark.html", "icons and the dark-ground motif are prepared records");
+ok(film.scenes[0].into === null && film.scenes.slice(1).map(s => s.into).join() === "wipe,iris,slide,wave", "transitions as written, none into the first scene; the piece leaves its grape scene on the brand wave");
+ok(film.records.map(x => `${x.collection}/${x.doc_id}`).join() === "modules/icons.json,modules/motif-wave-stop.html,modules/motif-wave-dark.html", "icons, the stop wave (title and transition) and the dark-ground wave are prepared records");
 const icons = JSON.parse(JSON.parse(fs.readFileSync(path.join(dir, "records", "modules", "icons.json.json"), "utf8")).text);
 ok(Object.keys(icons).join() === "file-text,flag,user-check" && Object.values(icons).every(d => /^M/.test(d)), "icon paths from the brand's set");
 const motifRec = JSON.parse(fs.readFileSync(path.join(dir, "records", "modules", "motif-wave-dark.html.json"), "utf8"));
@@ -46,7 +46,7 @@ const sec = id => text.split(`#${id} · `)[1].split("\n### ")[0];
 ok(/at -1\.4 s it slides in/.test(sec("before")), "the first scene's blocks are in place before frame 0");
 ok(/it leaves upward/.test(sec("before")) && /By 3\.05 s every block that leaves has left/.test(sec("before")), "blocks leave before the transition out");
 ok(!/ s it (leaves|fades out|drops away|shrinks away)/.test(sec("close")) && /Ends the film/.test(sec("close")), "nothing leaves the end card");
-ok(/marker band/.test(sec("packet")) && /underline/.test(sec("before")), "emphasis on the accent word");
+ok(/marker band in #E3D0F3/.test(sec("packet")) && /marker band in #E3D0F3/.test(sec("before")), "highlight on the accent word, in the light gradient's color");
 ok(/counts from 5 to its value/.test(sec("result")) && film.scenes[3].counts.join() === "2,3,4,5", "count direction and its steps");
 ok(/whoosh at 3\.1 s/.test(text) && /chime at 17\.5 s/.test(text), "foley and transition whooshes at film time");
 
@@ -83,7 +83,7 @@ if (plain.film) {
 }
 
 // 3. The other shipped brand has its own colors and motifs.
-const other = brief(FIX.replace("technique:", "brand: prism\ntechnique:").replace("backdrop=motif", "backdrop=motif motif=spectrum"), "other");
+const other = brief(FIX.replace("technique:", "brand: prism\ntechnique:").replace(" motif=wave-stop", "").replace("backdrop=motif", "backdrop=motif motif=spectrum"), "other");
 ok(other.r.status === 0, `second brand briefs: ${other.r.stderr}`);
 if (other.film) {
   ok(other.film.brand === "prism" && other.film.scenes[3].ground[0] !== film.scenes[3].ground[0], "second brand has its own grounds");
@@ -97,10 +97,10 @@ const bad = (label, edit, want) => {
   const x = motion("brief", f, "--out", path.join(TMP, `bad-${label.replace(/\W+/g, "-")}`));
   ok(x.status === 1 && want.test(x.stderr), `refuses ${label}: ${x.stderr.split("\n")[0]}`);
 };
-bad("unknown class", t => t.replace("{.xl .mask .underline}", "{.xl .mask .sparkle}"), /unknown class \.sparkle/);
-bad("another technique's class", t => t.replace("{.xl .mask .underline}", "{.xl .split}"), /\.split is not used in stat-story/);
-bad("two entrances", t => t.replace("{.xl .mask .underline}", "{.xl .mask .fade}"), /one enter class per block/);
-bad("two sizes", t => t.replace("{.xl .mask .underline}", "{.xl .l .mask}"), /one size class per block/);
+bad("unknown class", t => t.replace("{.xl .mask .highlight}", "{.xl .mask .sparkle}"), /unknown class \.sparkle/);
+bad("another technique's class", t => t.replace("{.xl .mask .highlight}", "{.xl .split}"), /\.split is not used in stat-story/);
+bad("two entrances", t => t.replace("{.xl .mask .highlight}", "{.xl .mask .fade}"), /one enter class per block/);
+bad("two sizes", t => t.replace("{.xl .mask .highlight}", "{.xl .l .mask}"), /one size class per block/);
 bad("emphasis without accent", t => t.replace("# Intake took *5 days*.", "# Intake took 5 days."), /marks the accent word/);
 bad("missing id", t => t.replace(" #packet", ""), /needs an id/);
 bad("duplicate id", t => t.replace("#packet", "#before"), /used twice/);
@@ -117,7 +117,7 @@ bad("unknown ground", t => t.replace("bg=tint", "bg=neon"), /bg=neon is not one 
 bad("unknown backdrop", t => t.replace("backdrop=dots", "backdrop=confetti"), /backdrop=confetti is not one of/);
 bad("unknown transition", t => t.replace("in=wipe", "in=spin"), /in=spin is not one of/);
 bad("transition into the first scene", t => t.replace("#before dur=3.5", "#before in=wipe dur=3.5"), /first scene has nothing to arrive from/);
-bad("unknown motif", t => t.replace("backdrop=motif", "backdrop=motif motif=sunburst"), /motif sunburst is not one of/);
+bad("unknown motif", t => t.replace("motif=wave-stop", "motif=sunburst"), /motif sunburst is not one of/);
 bad("icon not in the brand set", t => t.replace(".ph-flag", ".ph-not-an-icon"), /icon not-an-icon is not in the brand's icon set/);
 bad("frame on a line", t => t.replace("[days]{.unit}", "[days]{.unit frame=card}"), /frame= is for pictures/);
 bad("too long", t => t.replace("#close dur=4", "#close dur=290"), /300 s at most/);
@@ -130,6 +130,23 @@ bad("unclosed scene", t => t.replace(/::::\s*$/, ""), /never closed/);
 bad("text outside a scene", t => t.replace("---\n\n::::", "---\n\nHello\n\n::::"), /outside a scene/);
 const twice = brief(FIX.replace("bg=tint", "bg=glow"), "twice");
 ok(twice.r.status === 0 && /same ground as the scene before/.test(twice.r.stderr), "warns when a ground set by hand repeats");
+
+// 4b. The brand's rules for a kind of piece (profile motion.pieces): this brand's case study films.
+const sceneSecs = film.scenes.map(x => sec(x.id)).join("\n");
+ok(!/#D1409A/i.test(sceneSecs) && /Never these colors.*#D1409A/.test(text), "magenta is named only as forbidden");
+ok(!/underline/.test(sceneSecs) && !/large flat shapes/.test(sceneSecs), "no underline, no free-flowing shapes");
+ok(/radial-gradient\(95% 55% at 100% 100%, #6A1BAE/.test(sec("close")) && film.scenes[4].ground.includes("#140829"), "the dark card is the brand's cta-card look");
+ok(film.scenes[3].colors.second === B.color("prism-color-eyebrow-on-dark") && /8 px strokes at about 45 %/.test(sec("result")), "rings in lilac, clearly visible, on the grape ground");
+ok(/rises from the bottom edge.*brand wave/.test(sec("result")) && /motif-wave-stop\.html/.test(sec("result")), "the grape scene leaves on the brand wave");
+ok(/Durations in days are shown as a calendar/.test(text), "the piece's own rules are in the brief");
+ok(film.piece === "case-study" && film.deny.colors.includes(B.color("prism-color-chart-2")), "film.json carries the piece and its forbidden colors");
+bad("a backdrop the piece never uses", t => t.replace("backdrop=dots", "backdrop=shapes"), /case study films never use backdrop=shapes/);
+bad("a class the piece never uses", t => t.replace("{.xl .mask .highlight}", "{.xl .mask .underline}"), /case study films never use \.underline/);
+bad("another transition out of the grape scene", t => t.replace('name="People review" bg=night', 'name="People review" in=blinds bg=night'), /leave a main scene with wave, not blinds/);
+const nopiece = brief(FIX.replace("piece: case-study\n", ""), "nopiece");
+ok(nopiece.r.status === 0 && /motion rules for case-study; name the piece/.test(nopiece.r.stderr) && /underline|large flat shapes/.test(nopiece.text) === false, `no piece named: warned, core vocabulary only: ${nopiece.r.stderr.split("\n")[0]}`);
+const shapes = brief(FIX.replace("piece: case-study\n", "").replace("backdrop=dots", "backdrop=shapes"), "shapes");
+ok(shapes.r.status === 0 && /large flat shapes/.test(shapes.text), "without the piece, core's shapes are allowed");
 
 // 5. A brand can keep to some techniques (profile motion.techniques); core lists them all.
 const bdir = path.join(TMP, "brand"); fs.mkdirSync(bdir);
@@ -166,7 +183,7 @@ const writeStore = (mods, opts = {}) => {
   for (const [id, code] of Object.entries(mods)) put("modules", `scene-${id}.js`, { kind: "js", text: code });
   if (opts.retyped) put("modules", "retyped.json", { kind: "json", text: JSON.stringify(opts.retyped) });
 };
-const sceneCode = s => `kit.scene('${s.id}', { init(kit) { kit.stage.append(kit.h('<div class="ground g-${s.id}">' + ${s.lines.map(l => JSON.stringify(`<p style="left:96px">${l}</p>`)).join(" + ") || "''"} + '</div>')); this.v = [5, 4, 3, 2]; ${s.id === "change" ? "kit.json('icons.json'); kit.module('motif-wave-dark.html');" : ""} }, render(t) { this.x = 'scale(' + 1.04 + ')'; } });`;
+const sceneCode = s => `kit.scene('${s.id}', { init(kit) { kit.stage.append(kit.h('<div class="ground g-${s.id}">' + ${s.lines.map(l => JSON.stringify(`<p style="left:96px">${l}</p>`)).join(" + ") || "''"} + '</div>')); this.v = [5, 4, 3, 2]; ${s.id === "change" ? "kit.json('icons.json'); kit.module('motif-wave-dark.html');" : s.id === "before" ? "kit.module('motif-wave-stop.html');" : ""} }, render(t) { this.x = 'scale(' + 1.04 + ')'; } });`;
 const good = Object.fromEntries(film.scenes.map(s => [s.id, sceneCode(s)]));
 writeStore(good);
 r = motion("check", dir, store); ok(r.status === 0 && /^OK/m.test(r.stdout), `faithful film passes: ${r.stdout}`);
@@ -192,6 +209,9 @@ r = motion("check", dir, store); ok(r.status === 1 && /#packet: no scene module/
 writeStore({ ...good, close: good.close.replace("Nothing goes into the record without a person checking it.", "Nothing is saved until a person checks it.") },
   { retyped: [{ was: "Nothing goes into the record without a person checking it.", v: "Nothing is saved until a person checks it." }] });
 r = motion("check", dir, store); ok(r.status === 0 && /PAGE EDITS: 1/.test(r.stdout), `page edit routed, not failed: ${r.stdout}`);
+
+writeStore({ ...good, packet: good.packet.replace("kit.scene(", "const P = '#D1409A'; kit.scene(") });
+r = motion("check", dir, store); ok(r.status === 1 && /#d1409a is a color this piece never uses, but scene-packet\.js uses it/.test(r.stdout), "a forbidden color in the film fails");
 
 // 8. link keeps the film's url across briefs, so a revision never makes a second film.
 r = motion("link", dir, "https://claude.ai/artifact/EXAMPLE");
