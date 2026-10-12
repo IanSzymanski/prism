@@ -55,6 +55,8 @@ a.wlink{color:inherit;text-decoration:underline;text-decoration-color:#7DA2D6}
 .wnote{background:#F7F7F9;padding:24px 14px 12px}
 .wnote .wx{font-size:13px}
 .wcta{background:#EDEDF0}.wcentered{max-width:66%;margin-left:auto;margin-right:auto}
+.wside{display:flex;flex-direction:column}.wside>.wfz{flex:1 0 auto}.wband{border-radius:0}.wband .wp>.wimg{margin:0 auto}
+.wglow{background:radial-gradient(120% 44% at 50% 100%,#ECEAF3 0%,#FFFFFF 100%)}
 .wmeta-t{margin:0;font:700 34px/1.3 system-ui,sans-serif;color:#1C1C24}
 .wmeta-e{margin:0;font:600 12px/1.3 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6A6A73}
 .wmeta-s{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#1C1C24}
@@ -142,7 +144,8 @@ function wireOne(md, B) {
     if (has("slide")) return { w: 1280, h: 720, k: 816 / 1280, z: 1, kind: "slide", label: (c.find(x => !/^\.(slide|no-rule|flip)$/.test(x)) || ".content").slice(1) };
     // 5x7 card sides at real size (96 px to the inch), the split back as two columns.
     if (has("side") && meta.layout === "5x7") { const land = meta.orientation === "landscape";
-      return { w: land ? 672 : 480, h: land ? 480 : 672, k: 1, z: 0.78, kind: "side", label: [has("back") ? "back" : "front", ...c.map(x => x.slice(1)).filter(x => /^(cover|statement|split|mailer|dark)$/.test(x))].join(" "), cols: has("split") ? 2 : 1 }; }
+      return { w: land ? 672 : 480, h: land ? 480 : 672, k: 1, z: 0.78, kind: "side", label: [has("back") ? "back" : "front", ...c.map(x => x.slice(1)).filter(x => /^(cover|statement|split|mailer|dark|glow-bottom)$/.test(x))].join(" "), cols: has("split") ? 2 : 1,
+        glow: has("glow-bottom") && !has("dark") && !(land && has("cover")) }; }
     if (has("panel") && meta.layout === "brochure") { const n = has("full") ? 3 : has("wide") ? 2 : 1;
       return { w: 352 * n, h: 816, k: 1, z: 0.78, kind: "panel", label: (c.find(x => /^\.(flap|back|cover|wide|full)$/.test(x)) || ".inside").slice(1), cols: n }; }
     if (has("panel")) return { w: 1080, h: 1350, k: 0.42, z: 1, kind: "panel", label: has("cover") ? "cover" : has("end") ? "end" : "panel", tight: true };
@@ -173,13 +176,16 @@ function wireOne(md, B) {
       body = `<div style="display: grid; grid-template-columns: repeat(${f.cols}, minmax(0, 1fr)); gap: 16px 22px">${on.map((p, i) => {
         const c = /^:{3,}\s*\{?\s*\.?col\b/.test(p), span = c ? (/\.two\b/.test(p.split("\n")[0]) ? 2 : /\.three\b/.test(p.split("\n")[0]) ? 3 : 1) : f.cols;
         return part(p, i, `grid-column: span ${Math.min(span, f.cols)}`); }).join("")}</div>`;
+    } else if (f.kind === "side") {
+      // A card's closing band sits on the foot of the side, edge to edge, whatever comes before it.
+      body = on.map((p, i) => part(p, i, /^:{3,}.*\.bleed-band\b/.test(p.split("\n")[0]) ? `margin: auto ${-26 / f.z}px ${-22 / f.z}px` : "")).join("");
     } else body = on.map((p, i) => part(p, i)).join("");
     const empty = !on.length && f.label === "title" ? `<span data-wire-tag="" class="wfl" style="position: static; font-size: 12px">Title slide: drawn from the title, subtitle and eyebrow above</span>` : "";
     const notes = side.map(p => { const t = /\bnotes\b/.test(p.split("\n")[0]) ? "speaker notes, not on the slide" : "caption, not on the image";
       return `<div class="wb wnote">${tag(t)}${paras(p.replace(/^:{3,}.*\n/, "").replace(/\n:{3,}\s*$/, "")).map(x => `<p class="wx">${inline(x)}</p>`).join("")}</div>`; }).join("");
     const label = f.kind === "slide" ? `slide ${frameNo} · ${f.label}` : `${f.kind} · ${f.label}`;
     return `<div data-block="${id}" class="wf" style="width: ${W}px">` +
-      `<div class="wfi${f.kind === "panel" && !f.tight ? " sq" : ""}" style="width: ${W}px; min-height: ${H}px"><span data-wire-tag="" class="wfl">${esc(label)}</span>` +
+      `<div class="wfi${f.kind === "panel" && !f.tight ? " sq" : ""}${f.kind === "side" ? " wside" : ""}${f.glow ? " wglow" : ""}" style="width: ${W}px; min-height: ${H}px"><span data-wire-tag="" class="wfl">${esc(label)}</span>` +
       `<div class="wfz"${f.z !== 1 ? ` style="zoom: ${f.z}"` : ""}>${empty}${body}</div></div>${notes}</div>`;
   }
 
@@ -206,7 +212,7 @@ function wireOne(md, B) {
     if ((m = /^(#{1,4})\s+(.*)$/.exec(first)) && b.split("\n").length === 1) return heading(m[1].length, m[2], id, !framed && meta.layout !== "email");
     if ((m = /^:{3,}\s*\{?\s*\.?([\w-]+)/.exec(first))) {
       const cls = m[1], classes = first.match(/\.[\w-]+/g) || [`.${cls}`];
-      const kind = cls === "hero-image" ? "hero image" : cls === "cta-card" ? (classes.includes(".plain") ? "closing (content only)" : classes.includes(".centered") ? "closing card, centred" : "closing card") : cls;
+      const kind = cls === "hero-image" ? "hero image" : cls === "cta-card" ? (classes.includes(".plain") ? "closing (content only)" : classes.includes(".bleed-band") ? "closing band, foot of the side" : classes.includes(".centered") ? "closing card, centred" : "closing card") : cls;
       if (["stats", "features", "checks", "flow", "cards"].includes(cls)) {
         const items = listItems(inner), cols = cls === "checks" ? 1 : cls === "cards" ? 2 : cls === "features" ? (meta.layout === "email" ? 1 : classes.includes(".three") ? 3 : 2) : Math.min(items.length, 5);
         return wrap(`${kind} ×${items.length}`, `<div class="wrow" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr))">${items.map((t, i) =>
@@ -230,7 +236,7 @@ function wireOne(md, B) {
       if (cls === "ornament" && !inner.trim()) return wrap("brand divider", W_.divider ? W_.divider({}, B) : `<div class="wdiv"></div>`);
       // callout, closing card, band and anything else: its text in order.
       // The closing card in lo-fi: the brand's card, centred and narrower for .centered, no ground for .plain (content only).
-      const lofi = cls !== "cta-card" || classes.includes(".plain") ? "" : `${W_.closing ? W_.closing({}, B) : "wcta"}${classes.includes(".centered") ? " wcentered" : ""}`;
+      const lofi = cls !== "cta-card" || classes.includes(".plain") ? "" : `${W_.closing ? W_.closing({}, B) : "wcta"}${classes.includes(".centered") ? " wcentered" : ""}${classes.includes(".bleed-band") ? " wband" : ""}`;
       return wrap(kind, chunks(inner).map(t => /^#{2,4}\s/.test(t) && !t.includes("\n") ? `<p class="wx wstrong">${inline(t.replace(/^#+\s*/, "").replace(/\s*\{[^}]*\}\s*$/, ""))}</p>`
         : render(t, "x").replace(/data-(block|item)="[^"]*"/g, 'data-part=""')).join(""), lofi);
     }
