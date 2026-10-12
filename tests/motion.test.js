@@ -15,7 +15,7 @@ let r = motion("brief", path.join(ROOT, "fixtures", "motion.md"), "--out", dir);
 ok(r.status === 0, `fixture briefs: ${r.stderr}`);
 const film = JSON.parse(fs.readFileSync(path.join(dir, "film.json"), "utf8")), text = fs.readFileSync(path.join(dir, "brief.md"), "utf8");
 ok(film.scenes.map(s => s.id).join() === "before,packet,change,result,close", "scene ids in order");
-ok(film.length === 20 && film.scenes[3].start === 12, "length and starts add up");
+ok(film.length === 32.7 && film.scenes[3].start === 20.7, `length and starts add up: ${film.length} ${film.scenes[3].start}`);
 ok(film.width === 1080 && film.height === 1920 && film.energy === "lively", "story, lively");
 ok(film.assets.length && film.assets.every(a => fs.existsSync(a.path) && a.mime), "every upload is a brand file with a type");
 ok(film.assets.some(a => a.name === "logo-on-dark.png"), "the end card on a dark gradient takes the on-dark logo");
@@ -44,11 +44,23 @@ ok(/\*\*Ends \(wipe into #packet\)\*\*/.test(text) && /\*\*Arrives \(wipe\)\*\*:
 ok(/\.g-before/.test(text) && /One shared\.js/.test(text), "scene color classes and a shared helper");
 const sec = id => text.split(`#${id} · `)[1].split("\n### ")[0];
 ok(/at -1\.4 s it slides in/.test(sec("before")), "the first scene's blocks are in place before frame 0");
-ok(/it leaves upward/.test(sec("before")) && /By 3\.05 s every block that leaves has left/.test(sec("before")), "blocks leave before the transition out");
+ok(/it leaves upward/.test(sec("before")) && /By 6\.35 s every block that leaves has left/.test(sec("before")), "blocks leave before the transition out");
 ok(!/ s it (leaves|fades out|drops away|shrinks away)/.test(sec("close")) && /Ends the film/.test(sec("close")), "nothing leaves the end card");
 ok(/marker band in #E3D0F3/.test(sec("packet")) && /marker band in #E3D0F3/.test(sec("before")), "highlight on the accent word, in the light gradient's color");
 ok(/counts from 5 to its value/.test(sec("result")) && film.scenes[3].counts.join() === "2,3,4,5", "count direction and its steps");
-ok(/whoosh at 3\.1 s/.test(text) && /chime at 17\.5 s/.test(text), "foley and transition whooshes at film time");
+ok(/whoosh at 6\.4 s/.test(text) && /chime at 29\.1 s/.test(text), "foley and transition whooshes at film time");
+
+// 1b. Every scene holds 3 s after its last entrance lands, still moving, before anything leaves; dur= is a minimum.
+ok(M.T.hold === 3 && film.hold === 3, "the hold is 3 s");
+for (const s of film.scenes) ok(Math.abs(s.hold[1] - s.hold[0] - 3) < 0.001 && s.hold[1] <= s.dur + 0.001, `#${s.id}: holds 3 s inside its ${s.dur} s`);
+ok(/Holds from 2\.7 s to 5\.7 s/.test(sec("before")) && /Every scene holds 3 s once everything has landed/.test(text), "the brief states each hold");
+for (const id of ["before", "packet", "change", "result"]) {
+  const leaves = [...sec(id).matchAll(/at ([\d.]+) s it (?:leaves|fades out|drops away|shrinks away)/g)].map(m => Number(m[1]));
+  const hs = film.scenes.find(x => x.id === id).hold;
+  ok(leaves.length && Math.min(...leaves) >= hs[1] - 0.001, `#${id}: nothing leaves before its hold ends (${Math.min(...leaves)} >= ${hs[1]})`);
+}
+const short = brief(FIX.replace("#packet dur=7.4", "#packet dur=4"), "short");
+ok(short.r.status === 0 && /#packet runs 7\.2 s, not 4: its entrances land at 3\.2 s, then it holds 3 s/.test(short.r.stderr) && short.film.scenes[1].dur === 7.2, "a scene too short for its hold grows, and says so");
 
 // 2. A plain file still moves: defaults give every block an entrance and exit, every scene a ground, backdrop and transition.
 const plain = brief(`---
@@ -107,7 +119,7 @@ bad("duplicate id", t => t.replace("#packet", "#before"), /used twice/);
 bad("bad id", t => t.replace("#packet", "#The_Packet"), /lower-case/);
 bad("unknown layout", t => t.replace(".compare #packet", ".statement #packet"), /not a stat-story layout/);
 bad("no closing", t => t.replace(".closing #close", ".quote #close"), /last scene is the closing/);
-bad("short end card", t => t.replace("#close dur=4", "#close dur=2"), /held 3 s at least/);
+bad("short end card", t => t.replace("#close dur=5.1", "#close dur=2"), /held 3 s at least/);
 bad("count without from", t => t.replace(" .count from=5", " .count"), /needs from=/);
 bad("unknown sound", t => t.replace("sfx=ding", "sfx=airhorn"), /sfx=airhorn is not one of/);
 bad("unknown technique", t => t.replace("technique: stat-story", "technique: claymation"), /technique "claymation"/);
@@ -116,11 +128,11 @@ bad("unknown energy", t => t.replace("energy: lively", "energy: frantic"), /ener
 bad("unknown ground", t => t.replace("bg=tint", "bg=neon"), /bg=neon is not one of/);
 bad("unknown backdrop", t => t.replace("backdrop=dots", "backdrop=confetti"), /backdrop=confetti is not one of/);
 bad("unknown transition", t => t.replace("in=wipe", "in=spin"), /in=spin is not one of/);
-bad("transition into the first scene", t => t.replace("#before dur=3.5", "#before in=wipe dur=3.5"), /first scene has nothing to arrive from/);
+bad("transition into the first scene", t => t.replace("#before dur=6.8", "#before in=wipe dur=6.8"), /first scene has nothing to arrive from/);
 bad("unknown motif", t => t.replace("motif=wave-stop", "motif=sunburst"), /motif sunburst is not one of/);
 bad("icon not in the brand set", t => t.replace(".ph-flag", ".ph-not-an-icon"), /icon not-an-icon is not in the brand's icon set/);
 bad("frame on a line", t => t.replace("[days]{.unit}", "[days]{.unit frame=card}"), /frame= is for pictures/);
-bad("too long", t => t.replace("#close dur=4", "#close dur=290"), /300 s at most/);
+bad("too long", t => t.replace("#close dur=5.1", "#close dur=290"), /300 s at most/);
 bad("timing outside the scene", t => t.replace("at=2.2", "at=9"), /outside the scene/);
 bad("unknown attribute", t => t.replace("at=2.2", "speed=2"), /unknown attribute speed/);
 bad("unknown scene attribute", t => t.replace("in=iris", "in=iris tempo=fast"), /unknown scene attribute tempo/);

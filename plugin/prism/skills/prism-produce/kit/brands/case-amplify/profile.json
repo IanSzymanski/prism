@@ -386,7 +386,8 @@
       "underline"
      ],
      "roles": [
-      "prism-color-chart-2"
+      "prism-color-chart-2",
+      "prism-color-chart-3"
      ]
     },
     "emphasis": {
@@ -417,7 +418,37 @@
      "dark": {
       "colors": {
        "second": "prism-color-eyebrow-on-dark",
-       "third": "prism-color-chart-3"
+       "third": "prism-color-chart-5"
+      }
+     },
+     "light": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "tint": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "wash": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "glow": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "mist": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
       }
      }
     },
@@ -452,7 +483,7 @@
      "Durations in days are shown as a calendar: a month or week grid with the counted days highlighted in the scene's main color, never as rows of squares, tallies or bars.",
      "No free-flowing shapes or blobs, in backdrops or as drawn objects.",
      "Accent words are never underlined; a highlight band behind an accent word is the light gradient's deepest color.",
-     "Magenta is never used."
+     "Magenta and the dark blue accent are never used."
     ]
    }
   }

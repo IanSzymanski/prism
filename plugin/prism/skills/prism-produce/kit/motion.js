@@ -284,6 +284,15 @@ function typeFace(B, role) {
   const f = files.slice().sort((a, b) => Math.abs(Number(a.weight) - w) - Math.abs(Number(b.weight) - w))[0];
   return { role, family: v.family, weight: w, letterSpacing: v.letterSpacing || "0", file: f ? f.path : null, face: f ? path.basename(f.path).replace(/\.[^.]+$/, "") : null };
 }
+// When a block's entrance (and its emphasis) has finished, from its own move, length and pieces.
+function entranceEnd(bp, E) {
+  const b = bp.b, st = Number(b.a.attrs.stagger) || E.stagger, txt = String(b.text || "");
+  const nw = txt.split(/\s+/).filter(Boolean).length || 1;
+  const pieces = b.role === "list" ? b.items.length : Number(b.a.attrs.n) || 5;
+  const each = b.role === "list" ? (Number(b.a.attrs.stagger) || E.stagger * 3.5) : st;
+  const d = { words: nw * st + 0.5, mask: nw * st + 0.6, split: txt.length * 0.03 + 0.5, type: txt.length / 24 + 0.3, count: 1.7, build: pieces * each + 0.6 }[bp.enter] || 0.6;
+  return bp.at + d + (bp.emphasis ? 0.5 : 0);
+}
 const fill = (tpl, v) => tpl.replace(/\{(\w+)\}/g, (_, k) => v[k] !== undefined ? v[k] : `{${k}}`);
 // Grounds a default steps to when it would repeat the scene before.
 const ROTATE = ["main", "dark", "tint", "glow", "light", "mist"];
@@ -317,23 +326,22 @@ function plan(B, doc, v, R = NO_RULES) {
     return { s, lay, bg, backdrop, ground, colors, into, motif: s.attrs.motif || (motifs.find(m => m.on === (colors.dark ? "dark" : "light") || m.on === "any") || motifs[0] || {}).id || null };
   });
   for (let i = 1; i < out.length; i++) if (out[i].into !== "cut" && out[i].into === out[i - 1].into) warnings.push(`#${out[i].s.id} arrives the same way as the scene before it (${out[i].into})`);
-  let t0 = 0;
+  // Each scene: its blocks' times, then its length. After the last entrance lands the scene holds (T.hold seconds),
+  // still moving, before anything leaves; dur= in the format file is a minimum.
+  const hold = T.hold;
   out.forEach((p, n) => {
     const { s } = p, next = out[n + 1];
-    p.start = r2(t0); t0 += s.dur;
     p.half = energy.half;
     const own = p.into ? transitionOf(R, p.into) || {} : {};
     const [from, to] = own.from && own.to ? [own.from, own.to] : EDGES[n % EDGES.length];
     p.inT = p.into && p.into !== "cut" ? { name: p.into, panel: panelFor(B, out[n - 1].ground, p.ground, R), from, to, half: energy.half, in: r2(energy.half * 0.7),
       next: p.ground.gradient ? `its gradient, starting ${p.ground.stops[0]}` : p.ground.stops[0] } : null;
-    // When the content may arrive and must have left.
-    const enterAt = n === 0 ? -1.4 : p.inT ? (["wipe", "iris", "blinds"].includes(p.inT.name) ? r2(energy.half * 0.7) : 0.15) : 0.1;
+    // When the content may arrive.
+    const enterAt = n === 0 ? -1.4 : p.inT ? (["wipe", "iris", "blinds"].includes(p.inT.name) || own.motif ? r2(energy.half * 0.7) : 0.15) : 0.1;
     const nextHalf = next && next.into !== "cut" ? energy.half : 0;
     const last = n === out.length - 1;
-    const goneBy = last ? null : r2(s.dur - nextHalf - 0.05);
     let k = 0;
-    const timed = [];
-    p.blocks = s.blocks.map((b, i) => {
+    p.blocks = s.blocks.map(b => {
       const cl = classesOf(b), def = (tech.defaults[b.role] || {});
       const enter = cl.enter[0] || def.enter || "fade";
       const hold = cl.hold[0] || def.hold || null;
@@ -344,17 +352,25 @@ function plan(B, doc, v, R = NO_RULES) {
       const at = b.a.attrs.at !== undefined ? Number(b.a.attrs.at) : r2(enterAt + (k++) * (energy.stagger * 3.5));
       const size = cl.size[0] || (T.roles[b.role] || {}).size || null;
       const bp = { b, enter, hold, emphasis, exit, at, size };
-      timed.push(bp); return bp;
+      bp.landed = r2(entranceEnd(bp, energy));
+      return bp;
     });
+    p.landed = r2(Math.max(0, ...p.blocks.map(x => x.landed)));
+    const leaving = p.blocks.filter(x => x.exit && x.exit !== "stay").sort((a, b) => b.at - a.at);
+    const exitSpan = leaving.length ? 0.35 + (leaving.length - 1) * 0.07 + 0.05 : 0;
+    const need = Math.ceil((p.landed + hold + exitSpan + nextHalf) * 10) / 10;
+    if (need > s.dur) { p.grew = { from: s.dur, to: need }; s.dur = need; }
+    p.holdFrom = p.landed; p.holdTo = r2(p.landed + hold);
+    p.goneBy = last ? null : r2(s.dur - nextHalf - 0.05);
     // Exits run in reverse order of arrival and finish before the next scene's transition starts.
-    const leaving = timed.filter(x => x.exit && x.exit !== "stay").sort((a, b) => b.at - a.at);
-    leaving.forEach((x, i) => { x.leaveAt = r2(goneBy - 0.35 - (leaving.length - 1 - i) * 0.07); });
-    for (const x of leaving) if (x.leaveAt <= x.at + 0.6) warnings.push(`#${s.id}: "${(x.b.text || x.b.role).slice(0, 30)}" has under 0.6 s on screen before it leaves; give the scene more time or bring it in sooner`);
-    p.goneBy = goneBy;
+    leaving.forEach((x, i) => { x.leaveAt = r2(p.goneBy - 0.35 - (leaving.length - 1 - i) * 0.07); });
   });
+  let t0 = 0;
+  out.forEach(p => { p.start = r2(t0); t0 += p.s.dur; });
+  const total = r2(t0);
   // The cut out of each scene is the next scene's transition, seen from this side.
   out.forEach((p, n) => { p.outT = out[n + 1] ? out[n + 1].inT : null; p.outInto = out[n + 1] ? out[n + 1].into : null; p.nextBg = out[n + 1] ? out[n + 1].ground : null; });
-  return { scenes: out, energy, warnings, motifs, R };
+  return { scenes: out, energy, warnings, motifs, R, total, hold };
 }
 
 function brief(mdPath, outDir) {
@@ -374,7 +390,11 @@ function brief(mdPath, outDir) {
   const broken = P.warnings.filter(w => w.startsWith("!")).map(w => w.slice(1));
   if (broken.length) fail(broken);
   if (R.known.length && !R.found) v.warnings.push(`this brand has motion rules for ${R.known.join(", ")}; name the piece (piece: ${R.known[0]}) to use them`);
-  for (const w of [...v.warnings, ...P.warnings]) console.warn(`[motion] ${w}`);
+  for (const p of P.scenes) if (p.grew) P.warnings.push(`#${p.s.id} runs ${p.grew.to} s, not ${p.grew.from}: its entrances land at ${p.landed} s, then it holds ${P.hold} s before leaving`);
+  if (P.total > 300) fail([`the film runs ${P.total} s with its holds; Motion films are 300 s at most`]);
+  const len = T.techniques[doc.fm.technique].length;
+  if (P.total < len[0] || P.total > len[1]) P.warnings.push(`the film runs ${P.total} s; a ${doc.fm.technique} film is usually ${len[0]}–${len[1]} s`);
+  for (const w of [...v.warnings.filter(w => !/^the film runs/.test(w)), ...P.warnings]) console.warn(`[motion] ${w}`);
   const { fm, scenes } = doc, tech = T.techniques[fm.technique], A = T.aspects[v.aspect];
 
   // Faces and uploads: only what the film uses.
@@ -428,7 +448,7 @@ function brief(mdPath, outDir) {
 
   const film = { v: 2, title: fm.title, technique: fm.technique, piece: fm.piece || null, brand: B.id,
     deny: { colors: R.deny.roles.filter(n => B.has(n)).flatMap(n => Object.values(B.res.roles[n].value || {})).filter(x => typeof x === "string" && /^#/.test(x)) }, aspect: v.aspect, width: A.width, height: A.height, fps: 60,
-    background: P.scenes[0].ground.stops[0], energy: fm.energy || tech.energy, music: fm.music || "calm", length: v.total,
+    background: P.scenes[0].ground.stops[0], energy: fm.energy || tech.energy, music: fm.music || "calm", length: P.total, hold: P.hold,
     assets: [...assets.values()], records: records.map(r => ({ collection: r.collection, doc_id: r.doc_id })), faces: Object.fromEntries(Object.entries(faces).map(([k, f]) => [k, { face: f.face, weight: f.weight }])),
     scenes: P.scenes.map(p => {
       const s = p.s, name = (s.name || s.id.replace(/-/g, " ").replace(/^./, c => c.toUpperCase())).slice(0, 48);
@@ -447,13 +467,13 @@ function brief(mdPath, outDir) {
       }
       const head = (s.blocks.find(b => b.role === "h1" || b.role === "h2") || {}).text || lines.slice(0, 3).join(" ");
       const desc = (s.notes[0] || `${cap(s.layout)}: ${head}`).split(/(?<=\.)\s/)[0].slice(0, 160);
-      return { id: s.id, name, dur: s.dur, start: p.start, layout: s.layout, desc, bg: p.bg, ground: p.ground.stops, colors: p.colors, backdrop: p.backdrop, into: p.into, lines, counts, countLines };
+      return { id: s.id, name, dur: s.dur, start: p.start, layout: s.layout, desc, bg: p.bg, ground: p.ground.stops, colors: p.colors, backdrop: p.backdrop, into: p.into, hold: [p.holdFrom, p.holdTo], lines, counts, countLines };
     }) };
   try { film.url = JSON.parse(fs.readFileSync(path.join(outDir, "film.json"), "utf8")).url; } catch { /* a first brief */ }
   if (film.url) console.log(`film: ${film.url} (revise this film; never make a second one for this output)`);
   fs.writeFileSync(path.join(outDir, "film.json"), JSON.stringify(film, null, 1) + "\n");
   fs.writeFileSync(path.join(outDir, "brief.md"), briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos));
-  console.log(`[motion] ${fm.technique} · ${v.aspect} ${A.width}×${A.height} · ${scenes.length} scenes · ${v.total} s · ${film.energy}`);
+  console.log(`[motion] ${fm.technique} · ${v.aspect} ${A.width}×${A.height} · ${scenes.length} scenes · ${P.total} s · ${film.energy}`);
   console.log(`brief: ${path.join(outDir, "brief.md")}`);
   console.log("upload: " + JSON.stringify({ file_paths: film.assets.map(a => a.path) }));
   if (records.length) console.log("records: " + JSON.stringify(records));
@@ -491,14 +511,14 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   const { fm } = doc, E = P.energy, R = P.R;
   const L = [];
   const pal = B.color("prism-color-surface"), main = B.color("prism-color-accent"), ink = B.color("prism-color-text-strong");
-  const accent = (["prism-color-chart-2", "prism-color-chart-3", "prism-color-accent-strong"].filter(n => B.has(n) && !R.deny.roles.includes(n)).map(n => B.color(n))[0]) || main;
+  const accent = (["prism-color-chart-2", "prism-color-chart-3", "prism-color-chart-5", "prism-color-chart-4", "prism-color-accent-strong"].filter(n => B.has(n) && !R.deny.roles.includes(n)).map(n => B.color(n))[0]) || main;
   const faceLine = t => { const f = faces[t]; return f && f.face ? `"${f.face}" (weight ${f.weight}${f.letterSpacing !== "0" ? `, letter-spacing ${f.letterSpacing}` : ""})` : "the brand's text face"; };
   L.push(`# Motion brief: ${fm.title}`, "");
   L.push(`Written by Prism from its approved format file (${fm.technique}, brand ${B.name}). Make this film with the Motion type's own steps, in order, with this brief as the request. Everything below is settled: ask nothing. Where this brief and a Motion page disagree on looks (colors per scene, gradients, transitions, backdrops), this brief wins: it is the person's own brand and direction.`, "");
   L.push("## The three answers", "");
   L.push(`- **Style:** ${tech.look}. ${E.say}.`);
   L.push(`- **Colors:** the brand's design system (${B.name}), no others. In scenes.json: \`"palettes":[["${pal}","${main}","${ink}","${accent}"]]\`, \`"theirs":1\`. Each scene has its own ground and colors from the brand, listed below.`);
-  L.push(`- **Length:** ${film.length} seconds, as the scenes below add up.`, "");
+  L.push(`- **Length:** ${film.length} seconds, as the scenes below add up (each holds ${P.hold} s after its last entrance lands).`, "");
   L.push("## The stage", "");
   L.push(`- ${A.width}×${A.height}, 60 fps, scenes.json \`background\` ${film.background}. ${cap(A.safe)}.`);
   L.push(`- \`look\` in scenes.json, word for word: "${tech.look}; brand ${B.name}, font files supplied".`);
@@ -526,6 +546,7 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push("- Each scene's `id`, `name` and `dur` are exactly as given; scene order is as given.");
   L.push(`- **No hard cuts.** Every scene ends and the next begins with the two halves of its transition (below): the last frame of one scene and the first frame of the next are the same picture. Prism checks every seam.`);
   L.push(`- **Everything arrives and everything leaves.** Each block enters with its move at its time and leaves with its exit, in reverse order, before the transition out starts (except blocks that stay, and the end card). Nothing simply appears or vanishes.`);
+  L.push(`- **Every scene holds ${P.hold} s once everything has landed**, before anything leaves or the transition starts: the content stays put while the backdrop and every hold move keep going. The times below already include it.`);
   L.push(`- **Nothing is ever still.** The backdrop moves for the whole scene; held blocks keep their hold move. Energy: ${E.say.toLowerCase()} (stagger ${E.stagger} s, overshoot ${E.overshoot}).`);
   for (const r of tech.rules) L.push(`- ${r}`);
   if (B.res.digest) L.push(`- The brand's visual rules apply (from its digest): ${digestVisual(B.res.digest)}`);
@@ -553,6 +574,7 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
     else L.push(`- **Opens the film**: the first blocks are already in place at frame 0 (their entrances start before 0), so the thumbnail reads.`);
     for (const bp of p.blocks) L.push(`- ${blockLine(bp, p, E, motifAssets, highlight)}`);
     for (const note of s.notes) L.push(`- Direction: ${note.replace(/\s+/g, " ")}`);
+    L.push(`- Holds from ${p.holdFrom} s to ${p.holdTo} s: everything has landed; the backdrop and the hold moves keep going${p.goneBy === null ? " to the end" : ""}.`);
     if (p.goneBy !== null) L.push(`- By ${p.goneBy} s every block that leaves has left.`);
     if (p.outT) L.push(`- **Ends (${p.outT.name} into #${P.scenes[n + 1].s.id})**: ${fill(transitionOf(R, p.outT.name).out, p.outT)}${p.outT.motif && motifAssets[p.outT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.outT.motif].name}\`)` : ""}.`);
     else if (p.outInto === "cut") L.push(`- **Ends**: a deliberate hard cut into #${P.scenes[n + 1].s.id}.`);
@@ -773,10 +795,11 @@ async function render(dir, storeDir, playerDir, outDir, assetsDir) {
   const shoot = async (t, label) => { const u = await frame(t); const f = path.join(outDir, `t_${t.toFixed(2).padStart(6, "0")}.png`); fs.writeFileSync(f, Buffer.from(u.split(",")[1], "base64")); shots.push({ t, f, label }); return u; };
   await shoot(0, "frame 0");
   for (const [n, s] of film.scenes.entries()) {
-    const settle = await shoot(+(s.start + Math.min(s.dur * 0.55, s.dur - 0.6)).toFixed(2), `#${s.id}`);
-    // A held scene still moves: its picture half a second later is not the same.
-    const later = await frame(+(s.start + Math.min(s.dur * 0.55, s.dur - 0.6) + 0.5).toFixed(2));
-    if (await diff(settle, later) < 0.0004) problems.push(`#${s.id} is frozen around ${r2(s.start + s.dur * 0.55)} s: nothing moves for half a second`);
+    // The middle of the scene's hold (everything landed, nothing leaving yet): it still moves half a second later.
+    const tm0 = s.hold ? s.start + (s.hold[0] + s.hold[1]) / 2 : s.start + Math.min(s.dur * 0.55, s.dur - 0.6);
+    const settle = await shoot(+tm0.toFixed(2), `#${s.id}${s.hold ? " (hold)" : ""}`);
+    const later = await frame(+(tm0 + 0.5).toFixed(2));
+    if (await diff(settle, later) < 0.0004) problems.push(`#${s.id} is frozen around ${r2(tm0)} s: nothing moves for half a second while it holds`);
     // The ground the brief gave, where the edge shows it (flat grounds; a gradient is looked at by eye).
     if (s.ground && s.ground.length === 1) {
       const px = await edges(settle), want = s.ground[0], d = c => Math.hypot(c[0] - hex(want)[0], c[1] - hex(want)[1], c[2] - hex(want)[2]);

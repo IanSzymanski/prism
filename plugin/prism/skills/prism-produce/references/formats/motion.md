@@ -46,7 +46,7 @@ Direction for this scene only, never on screen.
 ```
 
 - `#id`: lower-case letters, digits and `-`, a letter first. It never changes once the film exists: the film's comments and the person's own edits on the film page hang on it.
-- `dur=` seconds (the layout's default when left out). `name=` is the label on the film's timeline (from the id when left out), one to three words.
+- `dur=` seconds, a minimum (the layout's default when left out). Every scene holds 3 s after its last entrance lands, its backdrop and hold moves still going, before anything leaves; when `dur=` is too short for that the build lengthens the scene and says by how much, so set it to what the build reports. `name=` is the label on the film's timeline (from the id when left out), one to three words.
 - `bg=` the scene's ground, from the brand: `light`, `tint`, `wash`, `main` (the brand color, full bleed), `dark`, `deep`, or a brand gradient: `glow`, `mist`, `night`, `vivid`. Ink and the scene's other colors are picked from the brand by contrast. Left out, the layout's default, never the same as the scene before.
 - `backdrop=` a moving layer behind the words: `shapes`, `rings`, `dots`, `grid`, `glow`, `stripes`, `ribbons`, `bars`, `motif` (the brand's own mark), `none`. Left out, the layout's default. `motif=` picks one of the brand's motifs.
 - `in=` how the scene arrives: `wipe`, `iris`, `slide`, `blinds`, `fade`, `zoom`, `morph`, or `cut` for a deliberate hard cut. Every transition is two halves that meet on the same frame, so the cut can't be seen. Left out, the technique cycles through its transitions. The first scene has none.

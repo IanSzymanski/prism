@@ -1,6 +1,8 @@
 {
   "schema": 2,
   "_note": "Core motion vocabulary (brand-free). A technique is a motion format: its layouts, the classes it allows and its defaults. A brand may keep to some techniques (motion.techniques in its profile) and adds its motifs (motion.motifs). Every phrase here becomes direction Claude Motion follows.",
+  "hold": 3,
+  "_hold": "Seconds every scene holds after its last entrance lands, still moving, before anything leaves (Ian, Oct 12).",
   "aspects": {
     "story": {
       "width": 1080,
@@ -469,8 +471,8 @@
       "look": "Number-led brand data story: big numbers that count, charts that build, bold brand-colored grounds that change scene to scene, moving backdrops, every element arriving and leaving with intent",
       "aspect": "story",
       "length": [
-        10,
-        30
+        15,
+        45
       ],
       "energy": "lively",
       "transitions": [
@@ -657,8 +659,8 @@
       "look": "Type-led brand film: one idea per scene, lines that mask up, split and stamp in, grounds that flip between the brand's colors, the accent word landing hard and staying",
       "aspect": "story",
       "length": [
-        8,
-        30
+        12,
+        40
       ],
       "energy": "bold",
       "transitions": [
