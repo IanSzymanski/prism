@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "_note": "Core motion vocabulary (brand-free). A technique is a motion format: its layouts and the classes it allows. A brand may limit itself to some techniques with motion.techniques in its profile. Phrases become the direction Claude Motion follows.",
+  "aspects": {
+    "story": { "width": 1080, "height": 1920, "safe": "keep words and the logo clear of the top 250 px, the bottom 420 px and the right 120 px, where the apps draw over the film",
+      "sizes": { "xxl": 380, "xl": 150, "l": 104, "m": 72, "s": 44, "xs": 30 } },
+    "post": { "width": 1080, "height": 1350, "safe": "keep words and the logo at least 80 px from every edge",
+      "sizes": { "xxl": 320, "xl": 128, "l": 92, "m": 64, "s": 40, "xs": 28 } },
+    "square": { "width": 1080, "height": 1080, "safe": "keep words and the logo at least 80 px from every edge",
+      "sizes": { "xxl": 300, "xl": 120, "l": 88, "m": 60, "s": 38, "xs": 28 } },
+    "wide": { "width": 1920, "height": 1080, "safe": "keep words and the logo at least 96 px from every edge",
+      "sizes": { "xxl": 360, "xl": 150, "l": 110, "m": 76, "s": 44, "xs": 30 } }
+  },
+  "roles": {
+    "_note": "What a block is. size: its default size class; type: the brand type role it is set in.",
+    "h1": { "size": "xl", "type": "title", "say": "the headline" },
+    "h2": { "size": "l", "type": "title", "say": "the heading" },
+    "eyebrow": { "size": "xs", "type": "eyebrow", "say": "the eyebrow, in the main color" },
+    "sub": { "size": "s", "type": "lede", "say": "the subline" },
+    "label": { "size": "s", "type": "heading-3", "say": "the label" },
+    "note": { "size": "xs", "type": "small", "say": "the small note, quiet but legible" },
+    "stat": { "size": "xxl", "type": "stat", "say": "the big number, in the main color" },
+    "unit": { "size": "l", "type": "title", "say": "the unit beside the number" },
+    "quote": { "size": "l", "type": "quote", "say": "the quote" },
+    "cite": { "size": "xs", "type": "cite", "say": "the attribution" },
+    "item": { "size": "m", "type": "heading-2", "say": "the list item" },
+    "body": { "size": "s", "type": "body", "say": "the line" },
+    "logo": { "say": "the brand logo" },
+    "image": { "say": "the picture" },
+    "draw": { "say": "a drawn object" },
+    "chart": { "say": "the chart" }
+  },
+  "classes": {
+    "_note": "Fixed vocabulary. kind: size, enter (one per block), hold (one per block), exit. Placeholders: {at} {from} {stagger}.",
+    "xs": { "kind": "size" }, "s": { "kind": "size" }, "m": { "kind": "size" }, "l": { "kind": "size" }, "xl": { "kind": "size" }, "xxl": { "kind": "size" },
+    "fade": { "kind": "enter", "say": "fades in" },
+    "rise": { "kind": "enter", "say": "rises about 30 px into place as it fades in" },
+    "slide": { "kind": "enter", "say": "slides in from the left edge, easing out" },
+    "words": { "kind": "enter", "say": "enters word by word from the right (about 110 ms apart)" },
+    "type": { "kind": "enter", "say": "types out letter by letter, about 24 a second" },
+    "count": { "kind": "enter", "say": "counts from {from} to its value in whole steps, no faster than three changes a second, and lands with a small settle" },
+    "pop": { "kind": "enter", "say": "pops in with a small overshoot" },
+    "grow": { "kind": "enter", "say": "grows from a dot to full size with a gentle settle" },
+    "wipe": { "kind": "enter", "say": "is revealed by a wipe from left to right" },
+    "drop": { "kind": "enter", "say": "drops into place from above and settles" },
+    "build": { "kind": "enter", "say": "builds piece by piece ({stagger} s apart)" },
+    "drift": { "kind": "hold", "say": "while held, drifts about 2 px a second" },
+    "breathe": { "kind": "hold", "say": "while held, breathes in scale by about 1 % on a 3 s cycle" },
+    "float": { "kind": "hold", "say": "while held, floats up and down a few px" },
+    "pan": { "kind": "hold", "say": "while held, pushes in slowly (2 % over the hold)" },
+    "out": { "kind": "exit", "say": "fades out before the scene ends" }
+  },
+  "sfx": ["tick", "click", "pop", "ding", "chime", "sparkle", "whoosh", "thud", "boing"],
+  "music": {
+    "calm": "a calm, warm wordless score: a soft pad and an electric piano, a light pulse, rising into the end card",
+    "bright": "a bright, mid-tempo wordless score: marimba and a light kit, building into the end card",
+    "none": "silent: no score"
+  },
+  "techniques": {
+    "stat-story": {
+      "name": "Stat story",
+      "look": "Number-led brand data story: big numbers that count, charts that build, calm eased type, flat shapes in the brand palette, one accent doing one job",
+      "aspect": "story",
+      "length": [10, 30],
+      "layouts": {
+        "title": { "dur": 3, "say": "Opening card: the title is already readable at frame 0 (the thumbnail)." },
+        "stat": { "dur": 4, "say": "One number carries the scene; it arrives first and everything else follows it." },
+        "chart": { "dur": 5, "say": "A chart builds in order of the data; the highlighted values land last." },
+        "compare": { "dur": 4, "say": "Before and after side by side or stacked; the change is what moves." },
+        "list": { "dur": 4, "say": "A short list, one item at a time." },
+        "quote": { "dur": 4.5, "say": "A quote, set large, with its attribution." },
+        "closing": { "dur": 3.5, "min": 3, "say": "End card: held at least 3 s, the logo lands on the score's last hit, nothing else moves after it settles." }
+      },
+      "classes": ["xs", "s", "m", "l", "xl", "xxl", "fade", "rise", "words", "count", "pop", "grow", "wipe", "drop", "build", "drift", "breathe", "pan", "out"],
+      "rules": [
+        "One number per stat scene; the number is the biggest thing on screen.",
+        "Counts and charts reach their real values from the format file, never rounded or changed."
+      ]
+    },
+    "kinetic": {
+      "name": "Kinetic type",
+      "look": "Type-led brand film: one idea per scene, lines enter word by word from one direction, the accent word lands and stays, flat ground in the brand palette",
+      "aspect": "story",
+      "length": [8, 30],
+      "layouts": {
+        "title": { "dur": 3, "say": "Opening card: the title is already readable at frame 0 (the thumbnail)." },
+        "statement": { "dur": 3.5, "say": "One statement fills the frame; words move, nothing else competes." },
+        "list": { "dur": 4, "say": "A short list, one item at a time, each replacing or stacking on the last." },
+        "quote": { "dur": 4.5, "say": "A quote, set large, with its attribution." },
+        "closing": { "dur": 3.5, "min": 3, "say": "End card: held at least 3 s, the logo lands on the score's last hit, nothing else moves after it settles." }
+      },
+      "classes": ["xs", "s", "m", "l", "xl", "xxl", "fade", "rise", "slide", "words", "type", "pop", "grow", "wipe", "build", "drift", "breathe", "float", "out"],
+      "rules": [
+        "Words always enter from the same side across the whole film.",
+        "Emphasis is motion or the accent color on the one starred word, never bold or exclamation marks."
+      ]
+    }
+  }
+}

@@ -19,7 +19,7 @@ TUTORIAL = os.path.join(PLUGIN, "skills", "prism-draft", "references", "tutorial
 # How the tutorial names each format card and skill, in words a person uses.
 PHRASES = {
     "format:sheet": ["one sheet"], "format:brochure": ["brochure"], "format:5x7": ["5x7 card"], "format:deck": ["deck"], "format:social": ["social post", "stories"],
-    "format:email": ["email header"], "format:html-email": ["HTML email"], "format:carousel": ["carousel"], "format:blog": ["blog post"],
+    "format:email": ["email header"], "format:html-email": ["HTML email"], "format:carousel": ["carousel"], "format:blog": ["blog post"], "format:motion": ["animated film"],
     "skill:prism-draft": ["Full process", "Proof"], "skill:prism-produce": ["Produce", "Revising"], "skill:prism-quick": ["Quick mode"], "skill:prism-onboard": ["Add a brand"],
 }
 CARDS_NOT_FORMATS = {"components"}

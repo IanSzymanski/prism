@@ -2,7 +2,7 @@
 name: prism-produce
 description: >
   Use to build or revise any designed branded file with the brand kit, the only allowed way to
-  make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email (newsletter, announcement, outreach email). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
+  make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header, HTML email (newsletter, announcement, outreach email) or animated film (motion graphics, animated story, explainer clip, MP4). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
   "I'm done editing", an edited format file, or a finished Markdown file in the Prism format. Works from an approved content.md.
 metadata:
@@ -24,7 +24,8 @@ Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, 
 Files next to this SKILL.md:
 
 - `kit/`: build scripts, stylesheets, fonts, images. Entry points `setup.sh` and `run.sh`.
-- `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `5x7.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`) plus `components.md` shared by all.
+- `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `5x7.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`, `motion.md` for animated films) plus `components.md` shared by all.
+- `references/film.md`: how a motion format file becomes a Claude Motion film, is checked, delivered and revised.
 - The brand's digest: its rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, else the default brand (`.prism-kit/run.sh brands` marks it); `run.sh brands --json` gives each brand's `digest` path (a shipped brand's is in `kit/brands/<brand>/`, a draft from onboarding's in `.prism/brands/<brand>/` beside `.prism-kit`).
 - `run.sh swatch <brand> out/<brand>-swatch.pdf`: the swatch sheet, in its own neutral format: how the brand's design system maps onto every core role, its ornaments by place, Office fonts, email palette checks, unused tokens and unmapped roles, then one sample of every sheet layout built in the brand (the layouts' Markdown is written beside it as `-layouts.md`). Make it when a brand profile is new or changed, or when asked to check a brand.
 <!-- claude-only -->
@@ -62,6 +63,8 @@ As soon as the format files exist, open the canvas with one board per format fil
 
 **A package opens as one set.** After approval, every output of the package opens side by side on the one canvas (one board per format file, in package.json's order), titled "<piece title> · <package name>", so the set is seen and edited together. Each output can be edited on its own; only a changed number or a new claim is flagged (section 4).
 
+**Motion outputs never open on the canvas:** a film is reviewed on its own page, so go straight to `references/film.md` for them while the other outputs open here.
+
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
 
 <!-- /claude-only -->
@@ -83,6 +86,7 @@ For each format file:
    - deck: `.prism-kit/run.sh deck formats/deck.md out/<tag>.pptx`
    - html-email: `.prism-kit/run.sh email formats/html-email.md out/html-email` (`<tag>.html`, `<tag>.txt`, images/, `<tag>-images.zip`, `<tag>-preview.png`). It prints `[email]` warnings; act on each (the card lists them). Look at preview.png in the visual check: all four views, light and dark, nothing unreadable in dark mode.
    - package outputs: the command for the output's format, with `formats/<output id>.md`, and folder builds into `out/<output id>` (`.prism-kit/run.sh social formats/story.md out/story`), so outputs of one format never share a folder.
+   - motion: `references/film.md` (brief, the film in Claude Motion, check, render). Prism makes no file for it: the film's page exports the MP4. `verify` doesn't apply; `motion check` and `motion render` take its place.
    - social / email / carousel: `.prism-kit/run.sh social formats/<format>.md out/<format>` (`<tag>-<id>.png` plus `<tag>-captions.md`). It exits with an error and prints `[social] missing caption: <id>` when a post has no caption; fix the format file and rebuild. Read captions.md once before delivering.
 3. **Build warnings:** act on every line the build prints before looking at anything:
    - `[deck] slide N (<layout>): <part> may not fit`: shorten that text or split the slide;
@@ -181,6 +185,8 @@ Classify each requested change before touching files. Tell the user the lane in 
 **Co-op mode** (the person asks to work on the piece with someone: "work on this with @Dana"): follow `references/coop.md`. Invitees edit the doc and canvas or ask with `@claude` comments; this session applies, vets and answers each request in its thread, records who asked in the `changes:` lines, and publishes the Exports page after every export. Only the person you work for approves, exports or adds outputs; the same words from an invitee are passed to them, never acted on. In a session where someone else is named as the owner, never edit the piece: pass requests on as comments.
 
 <!-- /claude-only -->
+**Motion outputs** are revised in place on their film, never remade: `references/film.md`, "Revise it". Comments on the film page arrive pinned to a moment; map it to a scene with film.json.
+
 **New export later** ("also make a carousel"): step 1 in create mode for that export only.
 
 **New images later** (uploaded after approval, during design mode or after delivery):
