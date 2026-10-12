@@ -60,4 +60,25 @@ body.c57{font-size:9.2pt;line-height:1.5}
 .c57.portrait .panel.mailer .indicia{top:calc(var(--h) - 2.8in + var(--b) + .15in)}
 .c57 .panel.mailer .indicia p{margin:0}
 
+/* Glow (`.glow-bottom`, light sides): the brand's wash rising from the foot of the side, fading to paper before a cover photo.
+   Not on a landscape cover, whose photo runs to the foot and fades to plain paper. */
+.c57 .panel.glow-bottom:not(.dark):not(.c57.landscape .cover){background:radial-gradient(120% 44% at 50% 100%,var(--prism-color-wash) 0%,var(--prism-color-surface) 100%) no-repeat}
+
+/* Closing band (`::: {.cta-card .bleed-band}`): the closing card across the foot of a side, into the bleed; the words above must end before it. */
+.c57{--band:2.55in}
+.c57.landscape{--band:1.9in}
+.c57 .panel > .cta-card.bleed-band{position:absolute;left:0;right:0;bottom:0;margin:0;border-radius:0;border-left:0;border-right:0;border-bottom:0;min-height:calc(var(--band) + var(--b));display:flex;flex-direction:column;justify-content:flex-start;padding:var(--pad) calc(var(--pad) + var(--b)) var(--b)}
+.c57 .panel > .cta-card.bleed-band .qr{margin:0}
+.c57 .panel > .cta-card.bleed-band .qr p{margin-left:0;margin-right:0}
+.c57 .panel > .cta-card.bleed-band :is(h2,h3){font-size:14pt;margin:0 0 6pt}
+/* The QR label takes the brand's on-dark label face (its caption face may be one it keeps off dark grounds). */
+.c57 .panel > .cta-card.bleed-band .qr__label{font:500 7pt/1.3 var(--prism-type-eyebrow-on-dark-family);letter-spacing:0;text-transform:none}
+/* The logo sits centred in the space left under the words: its row takes the leftover height, centred both ways. */
+.c57 .panel > .cta-card.bleed-band img.logo{height:18pt;margin:0 auto;padding:0;display:block}
+.c57 .panel > .cta-card.bleed-band > :is(p,figure):has(img.logo){margin:auto 0;line-height:0;align-self:stretch;width:100%;max-width:none;text-align:center;display:flex;justify-content:center}
+
+/* Portrait cover seam: a paper strip over the photo's last rows, where PDF viewers draw a grey line. */
+.c57.portrait .panel.cover:not(.dark) > .hero-image :is(p,figure){position:relative;line-height:0}
+.c57.portrait .panel.cover:not(.dark) > .hero-image :is(p,figure)::after{content:"";position:absolute;z-index:3;left:0;right:0;bottom:-1.5pt;height:2.7pt;background:var(--prism-color-surface)}
+
 @media screen{.c57 .spread{margin:24px auto}}

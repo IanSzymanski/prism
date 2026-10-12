@@ -122,7 +122,8 @@ async function prepareImages([printScale, ground, fadeOn]) {
       }
     }
     d.drawImage(a, X * S, T * S);
-    i.src = f.toDataURL("image/jpeg", 0.9);
+    // A card's faded cover goes in as PNG: JPEG leaves the fade's tail a few levels off the paper.
+    i.src = fadeOn && i.classList.contains("fade") && i.closest(".c57 .cover") ? f.toDataURL("image/png") : f.toDataURL("image/jpeg", 0.9);
     Object.assign(i.style, { width: `calc(100% + ${2 * X}px)`, height: "auto", maxWidth: "none", margin: `${-T}px ${-X}px ${-B}px`, borderRadius: "0", objectFit: "fill", aspectRatio: "auto" });
     await i.decode();
   }
@@ -169,8 +170,14 @@ function stamp(file, ver) {
       const box = el.getBoundingClientRect(), limit = Math.min(box.bottom, sp.getBoundingClientRect().bottom) - parseFloat(getComputedStyle(el).paddingBottom);
       // Pinned blocks (a card's logo or postage box) sit in the margin on purpose, so they don't count.
       const end = Math.max(...[...el.children].filter(c => getComputedStyle(c).position !== "absolute").map(c => c.getBoundingClientRect().bottom));
+      const panels = [...sp.querySelectorAll(":scope > .panel")], p = el.closest(".panel");
+      // A card's closing band is pinned over the foot of the side: everything else, pinned blocks too, must end 12 pt above it.
+      const band = card && p.querySelector(":scope > .cta-card.bleed-band");
+      if (band) {
+        const top = band.getBoundingClientRect().top - 16, over = Math.max(...[...el.children].filter(c => c !== band).map(c => c.getBoundingClientRect().bottom)) - top;
+        if (over > 2) { out.push(`5x7 ${sp.className.match(/side-(\w+)/)[1]}${el.classList.contains("col") ? ` column ${[...p.querySelectorAll(":scope > .col")].indexOf(el) + 1}` : ""}: content runs ${(over / 96).toFixed(2)} in into the closing band; cut words or an image`); return; }
+      }
       if (end > limit + 2) {
-        const panels = [...sp.querySelectorAll(":scope > .panel")], p = el.closest(".panel");
         if (card) { out.push(`5x7 ${sp.className.match(/side-(\w+)/)[1]}${el.classList.contains("col") ? ` column ${[...p.querySelectorAll(":scope > .col")].indexOf(el) + 1}` : ""}: content runs ${((end - limit) / 96).toFixed(2)} in past the bottom edge; cut words or an image`); return; }
         const where = `page ${si + 1}, panel ${panels.indexOf(p) + 1}${el.classList.contains("col") ? ` column ${[...p.querySelectorAll(":scope > .col")].indexOf(el) + 1}` : ""}`;
         out.push(`brochure ${where}: content runs ${((end - limit) / 96).toFixed(2)} in past the panel bottom; cut words or an image`);

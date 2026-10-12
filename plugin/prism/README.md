@@ -27,7 +27,7 @@ New to Prism? Run `/prism-tutorial` for a rundown (add a topic, such as `/prism-
 |---|---|---|
 | sheet | PDF, Letter | One-pagers, briefs, case studies, white papers. Photos as a hero band, media rows beside text, galleries or figures; charts, flows, stats, QR codes. A white print copy on request. |
 | brochure | PDF, Letter trifold | Two sides, three panels each; the brand's section rules throughout, and one design across the inside centre and right |
-| 5x7 | PDF, 5 × 7 in card | Postcards, invitations, mailers, handouts. Front and an optional back, portrait or landscape, optional bleed. Fronts: standard, photo cover, statement; backs: standard, two columns, mailer with the address area left blank |
+| 5x7 | PDF, 5 × 7 in card | Postcards, invitations, mailers, handouts. Front and an optional back, portrait or landscape, optional bleed. Fronts: standard, photo cover, statement; backs: standard, two columns, mailer with the address area left blank. Extras: a glow rising from the foot, a closing band across the foot into the bleed |
 | deck | PPTX, 16:9 | Editable text and native charts; title, stats, features, workflow steps, quote, media, chart, QR and closing slides. Photos or device mockups on media slides, overset off the slide's edge or layered (a phone in front of a laptop). Install the brand's Office fonts (`skills/prism-produce/kit/brands/<brand>/office`, sent as a zip with the first deck) to edit or present. |
 | social | PNGs + captions | Square, portrait and wide posts, and 1080×1920 stories kept inside the app's safe area |
 | carousel | PNG panels + caption | One brand ornament line can run across every panel |

@@ -1,5 +1,5 @@
 // 5x7 cards: page size (portrait, landscape, bleed), two sides at most, the one-sided fallback, side overflow warnings,
-// the format in packages and design mode.
+// the format in packages and design mode, the glow and the closing band.
 // Usage: node tests/card5x7.test.js (needs the kit's sheet setup: pandoc, Chromium, pikepdf)
 const fs = require("fs"), os = require("os"), path = require("path"), { spawnSync } = require("child_process");
 const ROOT = path.join(__dirname, ".."), KIT = path.join(ROOT, "plugin", "prism", "skills", "prism-produce", "kit");
@@ -50,6 +50,22 @@ r = pk("check", proj); ok(r.status === 0 && /^OK/m.test(r.stdout), `a 5x7 format
 r = run("node", [path.join(KIT, "build-wire.js"), path.join(TMP, "5x7-landscape.md"), path.join(TMP, "wire")]);
 const board = r.status === 0 ? fs.readFileSync(path.join(TMP, "wire", "5x7-landscape.dc.html"), "utf8") : "";
 ok(/side · front statement dark/.test(board) && /side · back mailer/.test(board) && /width: 672px; min-height: 480px/.test(board), `landscape sides drawn as 7 x 5 frames: ${r.stderr}`);
+
+// 7. Extras: the glow and the closing band fit in portrait and in landscape with bleed; words running into the band are named;
+// a card's faded cover goes in as PNG (no JPEG tail on the paper); design mode labels both.
+const band = (more = "") => ":::: {.side .front .cover .glow-bottom}\n::: hero-image\n![](prism:placeholder){.fade}\n:::\n\n::: cover-body\n# Front\n:::\n::::\n\n" +
+  ":::: {.side .back}\n## Back\n\n- One point\n" + more + "\n:::: {.cta-card .bleed-band}\n::: {.qr .small url=\"https://example.com/qr\"}\n### Close\n\nOne sentence.\n:::\n\n![](prism:logo-on-dark){.logo}\n::::\n::::\n";
+r = sheet("band", "---\nlayout: 5x7\n---\n\n" + band());
+ok(r.status === 0 && !/runs .* (past|into)/.test(r.stderr), `a closing band fits: ${r.stderr}`);
+r = sheet("band-land", "---\nlayout: 5x7\norientation: landscape\nbleed: true\n---\n\n" + band());
+ok(r.status === 0 && !/runs .* (past|into)/.test(r.stderr) && JSON.stringify(pages("band-land")) === "[[7.25,5.25],[7.25,5.25]]", `a closing band fits landscape with bleed: ${r.stderr}`);
+r = sheet("band-long", "---\nlayout: 5x7\n---\n\n" + band("- " + "A point that keeps going. ".repeat(60) + "\n"));
+ok(/\[sheet\] 5x7 back: content runs [\d.]+ in into the closing band/.test(r.stderr), `words under the band are reported: ${r.stderr}`);
+r = run("python3", ["-c", "import sys,pikepdf;p=pikepdf.open(sys.argv[1]);print(sorted({str(x.Filter) for x in p.pages[0].images.values()}))", path.join(TMP, "band.pdf")]);
+ok(/FlateDecode/.test(r.stdout) && !/DCTDecode/.test(r.stdout), `the faded cover is PNG: ${r.stdout}`);
+r = run("node", [path.join(KIT, "build-wire.js"), path.join(TMP, "band.md"), path.join(TMP, "wire-band")]);
+const bboard = r.status === 0 ? fs.readFileSync(path.join(TMP, "wire-band", "band.dc.html"), "utf8") : "";
+ok(/side · front cover glow-bottom/.test(bboard) && /wglow/.test(bboard) && /closing band, foot of the side/.test(bboard) && /wband/.test(bboard), `design mode draws the glow and the band: ${r.stderr}`);
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
