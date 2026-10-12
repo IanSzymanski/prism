@@ -351,5 +351,21 @@
    "wave",
    "grape"
   ]
+ },
+ "motion": {
+  "motifs": [
+   {
+    "id": "wave",
+    "file": "snapshot/assets/Wave/wave-opener-start.svg",
+    "on": "light",
+    "say": "the brand's wave: one flat fine line with one damped burst, which reads as signal; it draws on from left to right and may run edge to edge. Never beside or above a person's photo, name or quote, and never directly above any photo"
+   },
+   {
+    "id": "wave-dark",
+    "file": "snapshot/assets/Wave/wave-opener-start-dark.svg",
+    "on": "dark",
+    "say": "the brand's wave for dark grounds: one flat fine line with one damped burst, which reads as signal; it draws on from left to right and may run edge to edge. Never beside or above a person's photo, name or quote, and never directly above any photo"
+   }
+  ]
  }
 }

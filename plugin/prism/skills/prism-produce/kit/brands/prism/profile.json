@@ -294,5 +294,27 @@
   "terms": [
    "spectrum"
   ]
+ },
+ "motion": {
+  "motifs": [
+   {
+    "id": "spectrum",
+    "file": "snapshot/assets/Spectrum/spectrum-stop.svg",
+    "on": "any",
+    "say": "the brand's spectrum stop: four flat bands, always red, amber, green, blue in that order; it grows from the left. Never over a photo or a face, never behind text, one per frame"
+   },
+   {
+    "id": "fan",
+    "file": "snapshot/assets/Spectrum/fan-light.svg",
+    "on": "light",
+    "say": "the brand's fan: the four spectrum bands leaving the glyph toward the right edge; right third of the frame only, never behind text or over a photo"
+   },
+   {
+    "id": "fan-dark",
+    "file": "snapshot/assets/Spectrum/fan-dark.svg",
+    "on": "dark",
+    "say": "the brand's fan for dark grounds: the four spectrum bands leaving the glyph toward the right edge; right third of the frame only, never behind text or over a photo"
+   }
+  ]
  }
 }
