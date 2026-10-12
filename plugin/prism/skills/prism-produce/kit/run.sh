@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# One entry point for every build: ./run.sh sheet|deck|social|blog|email|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard <args>
+# One entry point for every build: ./run.sh sheet|deck|social|blog|email|motion|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard <args>
 # Runs the setup a build needs the first time it is used, so no separate setup step is required.
 KIT="$(cd "$(dirname "$0")" && pwd)"
 cmd="$1"; shift
-case "$cmd" in sheet|social|blog|email|wire|swatch) part=sheet ;; deck) part=deck ;; *) part="" ;; esac
+case "$cmd" in sheet|social|blog|email|wire|swatch) part=sheet ;; deck) part=deck ;; motion) [ "$1" = render ] && part=sheet || part="" ;; *) part="" ;; esac
 if [ -n "$part" ] && [ ! -f "$KIT/.ready-$part" ]; then bash "$KIT/setup.sh" "$part" || exit 1; fi
 [ -f "$KIT/env.sh" ] && . "$KIT/env.sh"
 [ -n "$NODE_PATH" ] || export NODE_PATH="$KIT/node_modules:$(npm root -g 2>/dev/null)"
@@ -13,6 +13,7 @@ case "$cmd" in
   social)  node "$KIT/build-social.js" "$@" ;;
   blog)    node "$KIT/build-blog.js" "$@" ;;
   email)   node "$KIT/build-email.js" "$@" ;;
+  motion)  node "$KIT/motion.js" "$@" ;;
   tag)     node "$KIT/naming.js" "$@" ;;
   check)   node "$KIT/check-numbers.js" "$@" ;;
   preview) python3 "$KIT/preview.py" "$@" ;;
@@ -34,5 +35,5 @@ case "$cmd" in
   pin)     node "$KIT/pin.js" "$@" ;;
   onboard) node "$KIT/onboard.js" "$@" ;;
   setup)   bash "$KIT/setup.sh" "$@" ;;
-  *) echo "usage: run.sh sheet|deck|social|blog|email|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|wire|wire-diff|setup <args>"; exit 2 ;;
+  *) echo "usage: run.sh sheet|deck|social|blog|email|motion|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|wire|wire-diff|setup <args>"; exit 2 ;;
 esac

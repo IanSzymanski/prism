@@ -5,7 +5,7 @@ Give this rundown when someone asks how to use Prism ("how does this work", "tut
 
 ## What Prism is
 
-Prism turns raw material (notes, a transcript, a document, photos) into proofed, on-brand files: one sheets, briefs, case studies, trifold brochures, 5x7 cards (postcards, invitations, mailers), PowerPoint decks, blog posts and headers, social posts, Instagram stories, carousels, email header images and whole HTML emails. The words are written and approved once, in `content.md`, and every format is laid out from them, so nothing drifts and no number appears that isn't in the approved words. Brands come from the kit: list them with `.prism-kit/run.sh brands` (it marks the default) when presenting this; a piece picks one with `brand:`.
+Prism turns raw material (notes, a transcript, a document, photos) into proofed, on-brand files: one sheets, briefs, case studies, trifold brochures, 5x7 cards (postcards, invitations, mailers), PowerPoint decks, blog posts and headers, social posts, Instagram stories, carousels, email header images, whole HTML emails and short animated films. The words are written and approved once, in `content.md`, and every format is laid out from them, so nothing drifts and no number appears that isn't in the approved words. Brands come from the kit: list them with `.prism-kit/run.sh brands` (it marks the default) when presenting this; a piece picks one with `brand:`.
 
 ## Two ways to work
 
@@ -97,6 +97,9 @@ When a brand's design system changes, the same skill updates it and shows only w
 - HTML emails come with the HTML, an images zip, a plain-text version and light and dark previews; merge tags pass through untouched.
 - Logos: ask for the logo anywhere ("logo at the top right of the closing card", "logo next to the stats") and it lands in the same spot, at the same size, every time, in the right version for a dark or light background.
 - QR codes: give the address to scan ("add a QR code for the sign-up page") and it's drawn black on white, beside the text or centred above it (a black or clear background on request). Upload your own code (a tracked one, say) to use it instead. HTML emails link the address rather than show a code.
+<!-- claude-only -->
+- Animated films: ask for an animated film ("a 15-second animated story of the results") and Prism writes a direction script from the approved words (a technique such as a stat story or kinetic type, scene by scene), Claude makes the film with Claude Motion in the brand's colours, fonts, icons, motif and logo: each scene on its own brand ground with a moving backdrop, everything arriving and leaving, and transitions (wipes, irises, slides, blinds) instead of hard cuts. Prism checks every line and number in it, every transition seam and every scene's colours, and shows you stills. Review it on the film's own page (comments pin to a moment), and **Export** there saves the MP4. Films need Claude Motion (Team and Enterprise plans) and skip design mode.
+<!-- /claude-only -->
 - "Editable" Illustrator, Canva or InDesign files aren't offered: changes are made here and rebuilt.
 - Quick mode isn't proofed. Treat it as a draft until someone has checked its claims list.
 <!-- claude-only -->
@@ -111,3 +114,4 @@ When a brand's design system changes, the same skill updates it and shows only w
 - "Quick one sheet from these notes, for supervisors, ending on a demo invite."
 - "Make a 5x7 card inviting partners to the open house: photo on the front, a mailer back."
 - "Make a trifold with the left + spread inside layout."
+- "Also make a 15-second animated film of the results for Instagram stories."

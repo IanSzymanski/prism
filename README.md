@@ -38,6 +38,7 @@ bash .prism-kit/run.sh deck fixtures/deck.md out/deck.pptx
 bash .prism-kit/run.sh social fixtures/carousel.md out/carousel
 bash .prism-kit/run.sh email fixtures/html-email-newsletter.md out/newsletter
 bash .prism-kit/run.sh blog fixtures/blog.md out/blog
+bash .prism-kit/run.sh motion brief fixtures/motion.md --out out/motion   # the brief Claude Motion makes the film from (then check, render)
 bash .prism-kit/run.sh swatch prism out/prism-swatch.pdf      # how a brand maps onto Prism
 bash .prism-kit/run.sh verify out/brief.pdf                     # --brand <id> for other brands
 bash .prism-kit/run.sh onboard start acme ~/acme-design-system   # draft a brand (then map, report, bundle)
@@ -60,6 +61,7 @@ node tests/drafts.test.js             # onboarding drafts build like shipped bra
 node tests/onboard.test.js            # onboarding: draft from a design system, map, bundle, update
 node tests/roles.test.js              # optional roles fall back, a required-only brand resolves, the profile's build theme
 node tests/components.test.js         # closing styles, new design-system components noticed, components from the interview
+node tests/motion.test.js             # motion format: the language, the brief, the film check
 ```
 
 **Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.

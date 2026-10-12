@@ -351,5 +351,141 @@
    "wave",
    "grape"
   ]
+ },
+ "motion": {
+  "motifs": [
+   {
+    "id": "wave",
+    "file": "snapshot/assets/Wave/wave-opener-start.svg",
+    "on": "light",
+    "say": "the brand's wave: one flat fine line with one damped burst, which reads as signal; it draws on from left to right and may run edge to edge. Never beside or above a person's photo, name or quote, and never directly above any photo"
+   },
+   {
+    "id": "wave-dark",
+    "file": "snapshot/assets/Wave/wave-opener-start-dark.svg",
+    "on": "dark",
+    "say": "the brand's wave for dark grounds: one flat fine line with one damped burst, which reads as signal; it draws on from left to right and may run edge to edge. Never beside or above a person's photo, name or quote, and never directly above any photo"
+   },
+   {
+    "id": "wave-stop",
+    "file": "snapshot/assets/Wave/wave-stop.svg",
+    "on": "any",
+    "say": "the brand's wave as a centred stop: one flat line with one damped burst in the middle, which reads as signal; it draws on from the centre outward. Never beside or above a person's photo, name or quote, and never directly above any photo"
+   }
+  ],
+  "pieces": {
+   "case-study": {
+    "name": "Case study",
+    "_note": "Ian, Oct 12: training for this brand's case study films only; a UI mockup or other piece gets its own block.",
+    "deny": {
+     "backdrops": [
+      "shapes",
+      "ribbons"
+     ],
+     "classes": [
+      "underline"
+     ],
+     "roles": [
+      "prism-color-chart-2",
+      "prism-color-chart-3"
+     ]
+    },
+    "emphasis": {
+     "highlight": "prism-color-header-light-4"
+    },
+    "grounds": {
+     "night": {
+      "css": "radial-gradient(95% 55% at 100% 100%, #6A1BAE 0%, rgba(106,27,174,0) 72%), linear-gradient(170deg, #140829 0%, #1B0B36 38%, #2B1560 78%, #381D81 100%)",
+      "stops": [
+       "#140829",
+       "#1B0B36",
+       "#2B1560",
+       "#381D81",
+       "#6A1BAE"
+      ],
+      "say": "the brand's dark card, as in its cta-card background: near-black violet at the top, easing to indigo at the bottom left, with a grape glow rising from the bottom right corner",
+      "colors": {
+       "second": "own-color-dark-glow",
+       "third": "prism-color-eyebrow-on-dark"
+      }
+     },
+     "main": {
+      "colors": {
+       "second": "prism-color-eyebrow-on-dark",
+       "third": "prism-color-link-line"
+      }
+     },
+     "dark": {
+      "colors": {
+       "second": "prism-color-eyebrow-on-dark",
+       "third": "prism-color-chart-5"
+      }
+     },
+     "light": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "tint": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "wash": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "glow": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     },
+     "mist": {
+      "colors": {
+       "second": "prism-color-chart-5",
+       "third": "prism-color-link-line"
+      }
+     }
+    },
+    "backdrops": {
+     "prefer": [
+      "motif",
+      "dots",
+      "rings",
+      "grid",
+      "bars",
+      "glow"
+     ],
+     "say": {
+      "rings": "concentric rings in the scene's second color, 8 px strokes at about 45 % opacity, centered off-frame at the top right and slowly expanding outward one after another, so three or four are always clearly in view"
+     }
+    },
+    "transitions": {
+     "add": {
+      "wave": {
+       "motif": "wave-stop",
+       "out": "over its last {half} s a solid panel in {panel} rises from the {from} edge until it covers the frame; its leading edge is the brand wave: the motif's line cropped to the middle sixth around its burst, stretched to the frame width so the burst is about 260 px tall and 120 px wide, filled solid behind the line",
+       "in": "it opens fully covered by that {panel} panel, which leaves toward the {to} edge over the first {half} s, its trailing edge the same brand wave",
+       "from": "bottom",
+       "to": "top"
+      }
+     },
+     "after": {
+      "main": "wave"
+     }
+    },
+    "rules": [
+     "Durations in days are shown as a calendar: a month or week grid with the counted days highlighted in the scene's main color, never as rows of squares, tallies or bars.",
+     "No free-flowing shapes or blobs, in backdrops or as drawn objects.",
+     "Accent words are never underlined; a highlight band behind an accent word is the light gradient's deepest color.",
+     "Magenta and the dark blue accent are never used."
+    ]
+   }
+  }
  }
 }

@@ -1,0 +1,836 @@
+{
+  "schema": 2,
+  "_note": "Core motion vocabulary (brand-free). A technique is a motion format: its layouts, the classes it allows and its defaults. A brand may keep to some techniques (motion.techniques in its profile) and adds its motifs (motion.motifs). Every phrase here becomes direction Claude Motion follows.",
+  "hold": 3,
+  "_hold": "Seconds every scene holds after its last entrance lands, still moving, before anything leaves (Ian, Oct 12).",
+  "aspects": {
+    "story": {
+      "width": 1080,
+      "height": 1920,
+      "safe": "keep words and the logo clear of the top 250 px, the bottom 420 px and the right 120 px, where the apps draw over the film",
+      "sizes": {
+        "xxl": 380,
+        "xl": 150,
+        "l": 104,
+        "m": 72,
+        "s": 44,
+        "xs": 30
+      }
+    },
+    "post": {
+      "width": 1080,
+      "height": 1350,
+      "safe": "keep words and the logo at least 80 px from every edge",
+      "sizes": {
+        "xxl": 320,
+        "xl": 128,
+        "l": 92,
+        "m": 64,
+        "s": 40,
+        "xs": 28
+      }
+    },
+    "square": {
+      "width": 1080,
+      "height": 1080,
+      "safe": "keep words and the logo at least 80 px from every edge",
+      "sizes": {
+        "xxl": 300,
+        "xl": 120,
+        "l": 88,
+        "m": 60,
+        "s": 38,
+        "xs": 28
+      }
+    },
+    "wide": {
+      "width": 1920,
+      "height": 1080,
+      "safe": "keep words and the logo at least 96 px from every edge",
+      "sizes": {
+        "xxl": 360,
+        "xl": 150,
+        "l": 110,
+        "m": 76,
+        "s": 44,
+        "xs": 30
+      }
+    }
+  },
+  "energy": {
+    "_note": "half: seconds of each transition half; stagger: seconds between pieces; overshoot: the back-out on arrivals.",
+    "calm": {
+      "half": 0.5,
+      "stagger": 0.14,
+      "overshoot": 1.3,
+      "say": "Calm: long eased moves, small overshoots, slow drifts"
+    },
+    "lively": {
+      "half": 0.4,
+      "stagger": 0.1,
+      "overshoot": 1.6,
+      "say": "Lively: brisk eased moves with a clear overshoot and settle, every hold still alive"
+    },
+    "bold": {
+      "half": 0.3,
+      "stagger": 0.07,
+      "overshoot": 1.9,
+      "say": "Bold: fast snappy moves, big overshoots, strong contrast between scenes"
+    }
+  },
+  "grounds": {
+    "_note": "What a scene stands on, from the brand's roles. Ink and colors on it are picked by contrast.",
+    "light": {
+      "fill": "prism-color-surface",
+      "say": "the brand's light surface"
+    },
+    "tint": {
+      "fill": "prism-color-tint",
+      "say": "the brand's tint"
+    },
+    "wash": {
+      "fill": "prism-color-wash",
+      "say": "the brand's wash"
+    },
+    "main": {
+      "fill": "prism-color-accent",
+      "say": "the brand's main color, full bleed"
+    },
+    "dark": {
+      "fill": "prism-color-dark-surface",
+      "say": "the brand's dark surface"
+    },
+    "deep": {
+      "fill": "prism-color-dark-deep",
+      "say": "the brand's deepest dark"
+    },
+    "glow": {
+      "gradient": [
+        "prism-color-header-light-1",
+        "prism-color-header-light-2",
+        "prism-color-header-light-3",
+        "prism-color-header-light-4"
+      ],
+      "say": "the brand's light gradient"
+    },
+    "mist": {
+      "gradient": [
+        "prism-color-header-mist-1",
+        "prism-color-header-mist-2",
+        "prism-color-header-mist-3",
+        "prism-color-header-mist-4"
+      ],
+      "say": "the brand's mist gradient"
+    },
+    "night": {
+      "gradient": [
+        "prism-color-header-deep-1",
+        "prism-color-header-deep-2",
+        "prism-color-header-deep-3",
+        "prism-color-header-deep-4"
+      ],
+      "say": "the brand's deep gradient"
+    },
+    "vivid": {
+      "gradient": [
+        "prism-color-header-vivid-1",
+        "prism-color-header-vivid-2",
+        "prism-color-header-vivid-3",
+        "prism-color-header-vivid-4"
+      ],
+      "say": "the brand's vivid gradient"
+    }
+  },
+  "backdrops": {
+    "_note": "A moving layer between the ground and the words, in the scene's colors, always quieter than the words.",
+    "none": "no backdrop: the ground alone",
+    "shapes": "two or three large flat shapes (a circle, a rounded square, a quarter circle) bleeding off the edges in the scene's second and third colors, drifting and turning slowly; never under a line of words at full strength",
+    "rings": "concentric rings in the scene's second color, centered off-frame, slowly expanding outward one after another",
+    "dots": "a fine dot grid in a quiet mix of the ink, moving slowly upward with a little parallax; a few dots light up in the second color",
+    "grid": "thin grid lines in a quiet mix of the ink, the camera gliding slowly across them",
+    "glow": "one or two large soft light pools in the scene's second color, slowly wandering behind the words",
+    "stripes": "broad diagonal bands in the scene's second and third colors, sliding slowly along their length",
+    "ribbons": "two long flowing curved ribbons in the scene's second and third colors, gently undulating across the frame",
+    "bars": "tall bars of varying height in quiet mixes of the scene's colors along the bottom edge, rising and falling slowly like a level meter",
+    "motif": "the brand's motif (below), drawn on, then swaying gently in place: its centre stays where it was drawn, roughly the middle of the frame across, and never travels off; follow its own rules"
+  },
+  "transitions": {
+    "_note": "How a scene arrives (`in=` on the scene). Each is two halves: the end of the previous scene and the start of this one meet on the same frame, so the cut can't be seen. {panel} is a brand color chosen apart from both grounds; {next} the arriving scene's ground; {half} the seconds of each half.",
+    "cut": {
+      "out": "nothing: a deliberate hard cut",
+      "in": "nothing: a deliberate hard cut, content already arriving"
+    },
+    "fade": {
+      "out": "over its last {half} s a full-frame layer in the next scene's ground ({next}) fades in over everything",
+      "in": "it opens on its bare ground, content arriving after {in} s"
+    },
+    "wipe": {
+      "out": "over its last {half} s a full-frame panel in {panel} sweeps in from the {from} edge (eased in) until it covers the frame",
+      "in": "it opens fully covered by that {panel} panel, which leaves toward the {to} edge over the first {half} s (eased out), revealing the scene"
+    },
+    "slide": {
+      "out": "over its last {half} s its whole stage slides out toward the {to} edge while the next scene's bare ground ({next}) slides in behind it from the {from} edge, so the last frame is that ground alone",
+      "in": "it opens on its bare ground, content arriving from the {from} side after {in} s"
+    },
+    "iris": {
+      "out": "over its last {half} s a circle in {panel} grows from the center of its main object until it covers the frame",
+      "in": "it opens covered in {panel}; a circle opens from the center over the first {half} s, revealing the scene"
+    },
+    "blinds": {
+      "out": "over its last {half} s six vertical bands in {panel} close in turn, left to right, until they cover the frame",
+      "in": "it opens covered by those six {panel} bands, which open in turn, left to right, over the first {half} s"
+    },
+    "zoom": {
+      "out": "over its last {half} s the camera pushes in fast (to about 160 %) while a full-frame layer in the next scene's ground ({next}) fades in",
+      "in": "it opens on its bare ground, content scaling down from about 115 % as it arrives after {in} s"
+    },
+    "morph": {
+      "out": "over its last {half} s its main object (what moved last) grows and changes shape until it fills the frame in the next scene's ground ({next})",
+      "in": "it opens on its bare ground, the frame the last scene ended on"
+    }
+  },
+  "roles": {
+    "_note": "What a block is. size: its default size class; type: the brand type role it is set in.",
+    "h1": {
+      "size": "xl",
+      "type": "title",
+      "say": "the headline"
+    },
+    "h2": {
+      "size": "l",
+      "type": "title",
+      "say": "the heading"
+    },
+    "eyebrow": {
+      "size": "xs",
+      "type": "eyebrow",
+      "dark_type": "eyebrow-on-dark",
+      "say": "the eyebrow, in the scene's main color"
+    },
+    "sub": {
+      "size": "s",
+      "type": "lede",
+      "say": "the subline"
+    },
+    "label": {
+      "size": "s",
+      "type": "heading-3",
+      "say": "the label"
+    },
+    "note": {
+      "size": "xs",
+      "type": "small",
+      "say": "the small note, quiet but legible"
+    },
+    "stat": {
+      "size": "xxl",
+      "type": "stat",
+      "say": "the big number, in the scene's main color"
+    },
+    "unit": {
+      "size": "l",
+      "type": "title",
+      "say": "the unit beside the number"
+    },
+    "quote": {
+      "size": "l",
+      "type": "quote",
+      "say": "the quote"
+    },
+    "cite": {
+      "size": "xs",
+      "type": "cite",
+      "dark_type": "small",
+      "say": "the attribution"
+    },
+    "list": {
+      "size": "s",
+      "type": "heading-3",
+      "say": "the list"
+    },
+    "body": {
+      "size": "s",
+      "type": "lede",
+      "say": "the line"
+    },
+    "icon": {
+      "size": "l",
+      "say": "the icon"
+    },
+    "logo": {
+      "say": "the brand logo"
+    },
+    "image": {
+      "say": "the picture"
+    },
+    "draw": {
+      "say": "a drawn object"
+    },
+    "chart": {
+      "say": "the chart"
+    },
+    "motif": {
+      "say": "the brand motif"
+    }
+  },
+  "classes": {
+    "_note": "Fixed vocabulary. kind: size, enter, emphasis (the accent word), hold, exit; one of each per block. Placeholders: {from} {stagger} {overshoot}.",
+    "xs": {
+      "kind": "size"
+    },
+    "s": {
+      "kind": "size"
+    },
+    "m": {
+      "kind": "size"
+    },
+    "l": {
+      "kind": "size"
+    },
+    "xl": {
+      "kind": "size"
+    },
+    "xxl": {
+      "kind": "size"
+    },
+    "fade": {
+      "kind": "enter",
+      "say": "fades in"
+    },
+    "rise": {
+      "kind": "enter",
+      "say": "rises about 40 px into place as it fades in, with a small overshoot"
+    },
+    "slide": {
+      "kind": "enter",
+      "say": "slides in from the left edge of the frame, easing out"
+    },
+    "words": {
+      "kind": "enter",
+      "say": "enters word by word from the right ({stagger} s apart)"
+    },
+    "mask": {
+      "kind": "enter",
+      "say": "rises line by line from behind an invisible edge (each line clipped at its own baseline), {stagger} s apart"
+    },
+    "type": {
+      "kind": "enter",
+      "say": "types out letter by letter, about 24 a second, with a caret"
+    },
+    "split": {
+      "kind": "enter",
+      "say": "assembles letter by letter, each letter flying in from a small random offset and rotation to its place"
+    },
+    "zoom": {
+      "kind": "enter",
+      "say": "scales down from about 140 % to its size as it fades in"
+    },
+    "blur": {
+      "kind": "enter",
+      "say": "comes into focus from a soft blur as it fades in"
+    },
+    "flip": {
+      "kind": "enter",
+      "say": "flips in around its horizontal axis like a card turning over"
+    },
+    "count": {
+      "kind": "enter",
+      "say": "counts from {from} to its value in whole steps, no faster than three changes a second, and lands with a settle"
+    },
+    "pop": {
+      "kind": "enter",
+      "say": "pops in from a dot with an overshoot of about {overshoot}"
+    },
+    "grow": {
+      "kind": "enter",
+      "say": "grows from a dot to full size with a gentle settle"
+    },
+    "stamp": {
+      "kind": "enter",
+      "say": "lands from large (about 180 %) like a stamp, with a short squash on impact"
+    },
+    "bounce": {
+      "kind": "enter",
+      "say": "drops in from above the frame and bounces twice before it settles"
+    },
+    "wipe": {
+      "kind": "enter",
+      "say": "is revealed by a wipe from left to right"
+    },
+    "drop": {
+      "kind": "enter",
+      "say": "drops into place from above and settles"
+    },
+    "build": {
+      "kind": "enter",
+      "say": "builds piece by piece, {stagger} s apart"
+    },
+    "draw": {
+      "kind": "enter",
+      "say": "draws itself on as a line, then fills"
+    },
+    "highlight": {
+      "kind": "emphasis",
+      "say": "after it lands, a marker band in the scene's second color sweeps behind the accent word"
+    },
+    "underline": {
+      "kind": "emphasis",
+      "say": "after it lands, a hand-drawn underline in the scene's second color draws on under the accent word"
+    },
+    "circle": {
+      "kind": "emphasis",
+      "say": "after it lands, a hand-drawn loop in the scene's second color circles the accent word"
+    },
+    "drift": {
+      "kind": "hold",
+      "say": "while held, drifts about 3 px a second"
+    },
+    "breathe": {
+      "kind": "hold",
+      "say": "while held, breathes in scale by about 2 % on a 3 s cycle"
+    },
+    "float": {
+      "kind": "hold",
+      "say": "while held, floats up and down a few px on a slow cycle"
+    },
+    "pan": {
+      "kind": "hold",
+      "say": "while held, pushes in slowly (3 % over the hold)"
+    },
+    "wobble": {
+      "kind": "hold",
+      "say": "while held, sways a degree either way on a slow cycle"
+    },
+    "pulse": {
+      "kind": "hold",
+      "say": "while held, pulses gently once a second (2 % scale)"
+    },
+    "out": {
+      "kind": "exit",
+      "say": "leaves the way it came, reversed and quicker"
+    },
+    "out-left": {
+      "kind": "exit",
+      "say": "leaves to the left, fading"
+    },
+    "out-up": {
+      "kind": "exit",
+      "say": "leaves upward, fading"
+    },
+    "out-down": {
+      "kind": "exit",
+      "say": "drops away downward, fading"
+    },
+    "out-zoom": {
+      "kind": "exit",
+      "say": "shrinks away to a dot"
+    },
+    "out-fade": {
+      "kind": "exit",
+      "say": "fades out"
+    },
+    "stay": {
+      "kind": "exit",
+      "say": "stays until the cut and rides the transition out"
+    }
+  },
+  "lists": {
+    "plain": "a stacked list, one line per item",
+    "chips": "rounded pills in the scene's second color (ink chosen for contrast), wrapping onto lines",
+    "cards": "cards on a quiet panel of the ground, one per item, each with its icon when it has one",
+    "steps": "a vertical timeline: a line draws down and each item lands on a numbered dot",
+    "checks": "each item gets a check mark that draws on as the item lands"
+  },
+  "frames": {
+    "none": "the picture as it is, cropped to its slot",
+    "card": "on a rounded card with a soft shadow",
+    "circle": "cropped to a circle",
+    "arch": "cropped to an arch (a rectangle with a round top)",
+    "browser": "inside a simple light browser window",
+    "phone": "inside a simple phone outline"
+  },
+  "sfx": [
+    "tick",
+    "click",
+    "pop",
+    "ding",
+    "chime",
+    "sparkle",
+    "whoosh",
+    "thud",
+    "boing"
+  ],
+  "music": {
+    "calm": "a calm, warm wordless score: a soft pad and an electric piano, a light pulse, rising into the end card; a soft whoosh on each transition",
+    "bright": "a bright, mid-tempo wordless score: marimba and a light kit, building into the end card; a whoosh on each transition",
+    "none": "silent: no score"
+  },
+  "techniques": {
+    "stat-story": {
+      "name": "Stat story",
+      "look": "Number-led brand data story: big numbers that count, charts that build, bold brand-colored grounds that change scene to scene, moving backdrops, every element arriving and leaving with intent",
+      "aspect": "story",
+      "length": [
+        15,
+        45
+      ],
+      "energy": "lively",
+      "transitions": [
+        "wipe",
+        "iris",
+        "slide",
+        "blinds",
+        "zoom"
+      ],
+      "layouts": {
+        "title": {
+          "dur": 3.5,
+          "bg": "glow",
+          "backdrop": "shapes",
+          "say": "Opening card: the title is already readable at frame 0 (the thumbnail)."
+        },
+        "stat": {
+          "dur": 4,
+          "bg": "main",
+          "backdrop": "rings",
+          "say": "One number carries the scene; it arrives first and everything else follows it."
+        },
+        "chart": {
+          "dur": 5,
+          "bg": "light",
+          "backdrop": "grid",
+          "say": "A chart builds in order of the data; the highlighted values land last."
+        },
+        "compare": {
+          "dur": 4,
+          "bg": "tint",
+          "backdrop": "dots",
+          "say": "Before and after side by side or stacked; the change is what moves."
+        },
+        "list": {
+          "dur": 4.5,
+          "bg": "mist",
+          "backdrop": "ribbons",
+          "say": "A short list, one item at a time."
+        },
+        "quote": {
+          "dur": 4.5,
+          "bg": "dark",
+          "backdrop": "glow",
+          "say": "A quote, set large, with its attribution."
+        },
+        "closing": {
+          "dur": 3.5,
+          "min": 3,
+          "bg": "night",
+          "backdrop": "glow",
+          "say": "End card: held at least 3 s, the logo lands on the score's last hit, nothing leaves and nothing moves after it settles but the backdrop."
+        }
+      },
+      "defaults": {
+        "h1": {
+          "enter": "mask",
+          "hold": "drift",
+          "exit": "out-up"
+        },
+        "h2": {
+          "enter": "words",
+          "exit": "out-left",
+          "hold": "drift"
+        },
+        "eyebrow": {
+          "enter": "slide",
+          "exit": "out-fade"
+        },
+        "sub": {
+          "enter": "rise",
+          "exit": "out-down"
+        },
+        "label": {
+          "enter": "words",
+          "exit": "out-left"
+        },
+        "note": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "stat": {
+          "enter": "count",
+          "hold": "breathe",
+          "exit": "out-zoom"
+        },
+        "unit": {
+          "enter": "rise",
+          "exit": "out-down"
+        },
+        "quote": {
+          "enter": "mask",
+          "exit": "out-up"
+        },
+        "cite": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "list": {
+          "enter": "build",
+          "exit": "out-left",
+          "hold": "float"
+        },
+        "body": {
+          "enter": "rise",
+          "exit": "out-down"
+        },
+        "icon": {
+          "enter": "pop",
+          "hold": "float",
+          "exit": "out-zoom"
+        },
+        "logo": {
+          "enter": "grow",
+          "exit": "stay"
+        },
+        "image": {
+          "enter": "zoom",
+          "hold": "pan",
+          "exit": "out-fade"
+        },
+        "draw": {
+          "enter": "build",
+          "exit": "out-zoom"
+        },
+        "chart": {
+          "enter": "build",
+          "exit": "out-fade"
+        },
+        "motif": {
+          "enter": "draw",
+          "exit": "out-fade"
+        }
+      },
+      "classes": [
+        "xs",
+        "s",
+        "m",
+        "l",
+        "xl",
+        "xxl",
+        "fade",
+        "rise",
+        "slide",
+        "words",
+        "mask",
+        "zoom",
+        "blur",
+        "flip",
+        "count",
+        "pop",
+        "grow",
+        "stamp",
+        "bounce",
+        "wipe",
+        "drop",
+        "build",
+        "draw",
+        "highlight",
+        "underline",
+        "circle",
+        "drift",
+        "breathe",
+        "float",
+        "pan",
+        "wobble",
+        "pulse",
+        "out",
+        "out-left",
+        "out-up",
+        "out-down",
+        "out-zoom",
+        "out-fade",
+        "stay"
+      ],
+      "rules": [
+        "One number per stat scene; the number is the biggest thing on screen.",
+        "Counts and charts reach their real values from the format file, never rounded or changed.",
+        "Every scene has its own ground and backdrop as given; neighbouring scenes never look alike."
+      ]
+    },
+    "kinetic": {
+      "name": "Kinetic type",
+      "look": "Type-led brand film: one idea per scene, lines that mask up, split and stamp in, grounds that flip between the brand's colors, the accent word landing hard and staying",
+      "aspect": "story",
+      "length": [
+        12,
+        40
+      ],
+      "energy": "bold",
+      "transitions": [
+        "slide",
+        "wipe",
+        "blinds",
+        "zoom",
+        "iris"
+      ],
+      "layouts": {
+        "title": {
+          "dur": 3,
+          "bg": "main",
+          "backdrop": "stripes",
+          "say": "Opening card: the title is already readable at frame 0 (the thumbnail)."
+        },
+        "statement": {
+          "dur": 3.5,
+          "bg": "light",
+          "backdrop": "shapes",
+          "say": "One statement fills the frame; words move, nothing else competes."
+        },
+        "list": {
+          "dur": 4,
+          "bg": "dark",
+          "backdrop": "dots",
+          "say": "A short list, one item at a time, each replacing or stacking on the last."
+        },
+        "quote": {
+          "dur": 4.5,
+          "bg": "vivid",
+          "backdrop": "glow",
+          "say": "A quote, set large, with its attribution."
+        },
+        "closing": {
+          "dur": 3.5,
+          "min": 3,
+          "bg": "night",
+          "backdrop": "ribbons",
+          "say": "End card: held at least 3 s, the logo lands on the score's last hit, nothing leaves and nothing moves after it settles but the backdrop."
+        }
+      },
+      "defaults": {
+        "h1": {
+          "enter": "split",
+          "emphasis": "highlight",
+          "hold": "drift",
+          "exit": "out-up"
+        },
+        "h2": {
+          "enter": "mask",
+          "emphasis": "underline",
+          "exit": "out-left",
+          "hold": "drift"
+        },
+        "eyebrow": {
+          "enter": "slide",
+          "exit": "out-fade"
+        },
+        "sub": {
+          "enter": "words",
+          "exit": "out-left"
+        },
+        "label": {
+          "enter": "words",
+          "exit": "out-left"
+        },
+        "note": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "stat": {
+          "enter": "stamp",
+          "hold": "pulse",
+          "exit": "out-zoom"
+        },
+        "unit": {
+          "enter": "slide",
+          "exit": "out-left"
+        },
+        "quote": {
+          "enter": "words",
+          "exit": "out-up"
+        },
+        "cite": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "list": {
+          "enter": "build",
+          "exit": "out-left",
+          "hold": "float"
+        },
+        "body": {
+          "enter": "words",
+          "exit": "out-left"
+        },
+        "icon": {
+          "enter": "bounce",
+          "hold": "wobble",
+          "exit": "out-zoom"
+        },
+        "logo": {
+          "enter": "grow",
+          "exit": "stay"
+        },
+        "image": {
+          "enter": "flip",
+          "hold": "pan",
+          "exit": "out-fade"
+        },
+        "draw": {
+          "enter": "pop",
+          "exit": "out-zoom"
+        },
+        "chart": {
+          "enter": "build",
+          "exit": "out-fade"
+        },
+        "motif": {
+          "enter": "draw",
+          "exit": "out-fade"
+        }
+      },
+      "classes": [
+        "xs",
+        "s",
+        "m",
+        "l",
+        "xl",
+        "xxl",
+        "fade",
+        "rise",
+        "slide",
+        "words",
+        "mask",
+        "type",
+        "split",
+        "zoom",
+        "blur",
+        "flip",
+        "pop",
+        "grow",
+        "stamp",
+        "bounce",
+        "wipe",
+        "build",
+        "draw",
+        "highlight",
+        "underline",
+        "circle",
+        "drift",
+        "breathe",
+        "float",
+        "wobble",
+        "pulse",
+        "pan",
+        "out",
+        "out-left",
+        "out-up",
+        "out-down",
+        "out-zoom",
+        "out-fade",
+        "stay"
+      ],
+      "rules": [
+        "Words enter from the same side across the whole film unless a class says otherwise.",
+        "Emphasis is motion and the accent word's color or mark, never bold or exclamation marks.",
+        "Every scene has its own ground and backdrop as given; neighbouring scenes never look alike."
+      ]
+    }
+  }
+}
