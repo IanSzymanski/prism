@@ -40,10 +40,13 @@ Speaker notes, plain sentences.
 | `steps` | `##` heading + numbered list `**Step** sentence` (3–5 items). Drawn as a workflow: one line with a dot per step. Use it for any process story (conversation → draft → review → record → follow-up) instead of feature cards. |
 | `quote` | A blockquote with `[Name, Role]{.cite}`, nothing else |
 | `media` | `##` heading (drawn with a plain line, never the brand's section rule) + one image + `###` subhead, paragraphs or a short list. Image on the left (`{.slide .media .flip}` for right), sized to its orientation; add `{.fade}` on the image to fade it toward the text. |
+| `media` with devices | Screenshots in core's device mockups: `![](images/app.png){device=laptop}` (`phone`, `tablet`, `laptop`; `tone="light"` for silver, `.landscape` for a turned phone or tablet). **Layers:** two device images, back first, then front (`{device=laptop}` then `{device=phone}`): the phone stands in front of the laptop's lower corner on the text side, and each stays its own picture in PowerPoint. Every image on a layered slide takes `device=`. |
 | `chart` | `##` heading + one chart block + optional 1–2 short paragraphs (takeaway beside the chart). bar, hbar, line, donut. |
 | `qr` | `##` heading + paragraphs or a short list beside a QR code: `{.slide .qr url="https://..." label="example.com/x"}`. Code right (`.left` for left, `.center` above centred text). `bg="black"` or `"transparent"` as in components.md; `image="images/qr.png"` uses an uploaded code instead. |
 | `closing` | `[Eyebrow]{.eyebrow}` + `##` + 1–2 paragraphs; last paragraph is the URL. Dark background. Always last. |
 | `content` | `##` heading + paragraphs and bullet or numbered lists. For sources, agendas, anything without a better layout. Each paragraph and item is its own line; type shrinks as the text grows. |
+
+**Overset** (media slides): `{.slide .media .overset-left}` or `.overset-right` makes the picture larger and runs it off that edge of the slide, with the text on the other side (`.overset` alone uses the picture's side: left, or right with `.flip`). A device or a layered pair has about a quarter of the back device past the edge; a photo bleeds to the edge at full height under the heading. The part past the edge is cut off in the file, so it looks the same in every view. Use it for one or two slides per deck, for a product screen that deserves the room.
 
 `{.slide .<layout> .no-rule}` swaps the heading's section rule for a plain line on any slide.
 

@@ -46,22 +46,29 @@ catch (e) { const m = /\d+: (5x7: .*)/.exec(String(e.stderr || "")); if (!m) thr
 async function prepareImages([printScale, ground, fadeOn]) {
   const imgs = [...document.images].filter(i => !i.closest(".prism-mast__bar, .prism-inlogo"));
   await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
-  const orient = i => { const r = i.naturalWidth / i.naturalHeight; return r > 1.15 ? "landscape" : r < 0.87 ? "portrait" : "square"; };
-  for (const i of imgs) {
+  const shape = r => r > 1.15 ? "landscape" : r < 0.87 ? "portrait" : "square";
+  const orient = i => shape(i.naturalWidth / i.naturalHeight);
+  // A screenshot in a device mockup takes the device's shape, not its own; the frame sizes it.
+  const photos = imgs.filter(i => !i.closest(".prism-device"));
+  for (const i of photos) {
     if (!i.naturalWidth) continue;
     i.classList.add("is-" + orient(i));
     const fig = i.closest("figure"); if (fig) fig.classList.add("is-" + orient(i));
   }
+  document.querySelectorAll(".prism-device").forEach(d => {
+    const o = shape(+d.dataset.ratio);
+    for (const el of [d.closest("figure"), d.closest(".media")]) if (el) el.classList.add("is-" + o);
+  });
   // Media rows keep the image's own shape unless it is extreme (wider than 2:1 or taller than 3:5).
   document.querySelectorAll(".media").forEach(m => {
-    const i = m.querySelector("img"); if (!i || !i.naturalWidth) return;
+    const i = m.querySelector("img"); if (!i || !i.naturalWidth || i.closest(".prism-device")) return;
     m.classList.add("is-" + orient(i));
     const r = i.naturalWidth / i.naturalHeight;
     if (r >= 0.6 && r <= 2) i.style.aspectRatio = `${i.naturalWidth} / ${i.naturalHeight}`;
   });
   // Galleries share one shape: the images' own average when they are alike, otherwise 4:5 or 3:2 by majority.
   document.querySelectorAll(".gallery").forEach(g => {
-    const list = [...g.querySelectorAll("img")].filter(i => i.naturalWidth);
+    const list = [...g.querySelectorAll("img")].filter(i => i.naturalWidth && !i.closest(".prism-device"));
     g.style.setProperty("--n", Math.min(Math.max(list.length, 1), 3));
     const ratios = list.map(i => i.naturalWidth / i.naturalHeight);
     if (!ratios.length) return;

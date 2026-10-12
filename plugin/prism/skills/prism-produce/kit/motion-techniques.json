@@ -1,8 +1,12 @@
 {
   "schema": 2,
   "_note": "Core motion vocabulary (brand-free). A technique is a motion format: its layouts, the classes it allows and its defaults. A brand may keep to some techniques (motion.techniques in its profile) and adds its motifs (motion.motifs). Every phrase here becomes direction Claude Motion follows.",
-  "hold": 3,
-  "_hold": "Seconds every scene holds after its last entrance lands, still moving, before anything leaves (Ian, Oct 12).",
+  "hold": {
+    "min": 3,
+    "read": 20,
+    "max": 12
+  },
+  "_hold": "How long every scene holds after its last entrance lands, still moving, before anything leaves: a second for every `read` characters on screen, at least `min` and at most `max` seconds (Ian, Oct 12: 3 s; then a spacer that grows with the scene's text). `read:` in the front matter or hold= on a scene changes it.",
   "aspects": {
     "story": {
       "width": 1080,
@@ -447,7 +451,9 @@
     "circle": "cropped to a circle",
     "arch": "cropped to an arch (a rectangle with a round top)",
     "browser": "inside a simple light browser window",
-    "phone": "inside a simple phone outline"
+    "phone": "inside Prism's phone mockup (a screenshot on its screen)",
+    "tablet": "inside Prism's tablet mockup (a screenshot on its screen)",
+    "laptop": "inside Prism's laptop mockup (a screenshot on its screen)"
   },
   "sfx": [
     "tick",
@@ -472,7 +478,7 @@
       "aspect": "story",
       "length": [
         15,
-        45
+        60
       ],
       "energy": "lively",
       "transitions": [
@@ -660,7 +666,7 @@
       "aspect": "story",
       "length": [
         12,
-        40
+        50
       ],
       "energy": "bold",
       "transitions": [

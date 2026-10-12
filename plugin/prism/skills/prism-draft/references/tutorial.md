@@ -71,6 +71,7 @@ Make your own: say "make a package" (or "save this as a package" after a piece).
 - Every layout crops a photo around its focal point (found automatically). If one misses, say "keep her face in frame".
 - Reusable shots (team, office, product) belong in the brand's design system photo library, so any piece can use them.
 - Send the largest file you have: anything that prints under 150 dpi moves to a smaller layout or stays out of print.
+- Product screenshots can go in a phone, tablet or laptop mockup in any format ("put the intake screen in a laptop"); in decks the device can run off the slide's edge, with a phone layered in front of a laptop.
 - Location and camera details are removed from every photo, so no exported file says where a picture was taken.
 
 ## Add a brand
@@ -98,7 +99,7 @@ When a brand's design system changes, the same skill updates it and shows only w
 - Logos: ask for the logo anywhere ("logo at the top right of the closing card", "logo next to the stats") and it lands in the same spot, at the same size, every time, in the right version for a dark or light background.
 - QR codes: give the address to scan ("add a QR code for the sign-up page") and it's drawn black on white, beside the text or centred above it (a black or clear background on request). Upload your own code (a tracked one, say) to use it instead. HTML emails link the address rather than show a code.
 <!-- claude-only -->
-- Animated films: ask for an animated film ("a 15-second animated story of the results") and Prism writes a direction script from the approved words (a technique such as a stat story or kinetic type, scene by scene), Claude makes the film with Claude Motion in the brand's colours, fonts, icons, motif and logo: each scene on its own brand ground with a moving backdrop, everything arriving and leaving, and transitions (wipes, irises, slides, blinds) instead of hard cuts. Prism checks every line and number in it, every transition seam and every scene's colours, and shows you stills. Review it on the film's own page (comments pin to a moment), and **Export** there saves the MP4. Films need Claude Motion (Team and Enterprise plans) and skip design mode.
+- Animated films: ask for an animated film ("a 15-second animated story of the results") and Prism writes a direction script from the approved words (a technique such as a stat story or kinetic type, scene by scene), Claude makes the film with Claude Motion in the brand's colours, fonts, icons, motif and logo: each scene on its own brand ground with a moving backdrop, everything arriving and leaving, and transitions (wipes, irises, slides, blinds) instead of hard cuts. Each scene holds long enough to read once everything has arrived (longer for more words). Prism checks every line and number in it, every transition seam and every scene's colours, and shows you stills. Review it on the film's own page (comments pin to a moment), and **Export** there saves the MP4. Films need Claude Motion (Team and Enterprise plans) and skip design mode.
 <!-- /claude-only -->
 - "Editable" Illustrator, Canva or InDesign files aren't offered: changes are made here and rebuilt.
 - Quick mode isn't proofed. Treat it as a draft until someone has checked its claims list.

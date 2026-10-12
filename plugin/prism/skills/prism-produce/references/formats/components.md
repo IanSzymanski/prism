@@ -166,6 +166,12 @@ Images come from content.md (`![Caption](images/file.jpg)`, or `![Caption](brand
 
 **Crops.** Every slot that crops (hero band, media row, gallery, slide photo, post or story photo, blog header, email avatar) keeps the image's focal point in frame: images.py finds it, library photos carry theirs. Write `{focus="x% y%"}` on an image only when this format needs a different crop (`{.fade focus="50% 20%"}` keeps the top of a tall photo).
 
+### Device mockups: a screenshot in a phone, tablet or laptop
+
+`![The intake screen.](images/intake.png){device=laptop}` puts a screenshot inside core's device frame instead of on a card. `device=` is `phone`, `tablet` or `laptop`; `tone="light"` gives a silver body (dark graphite by default); `.landscape` turns a phone or tablet on its side. It works anywhere an image does in sheets, brochures, 5x7 cards, posts, stories and carousels (as a figure, in a media row, in a gallery), in deck media slides (see deck.md for overset and layered devices) and in films (`frame=phone|tablet|laptop`, motion.md). The frame is vector in PDFs; the screenshot keeps its top in view unless `focus=` says otherwise. Use real product screens only (a screenshot from content.md), never a photo of a person. To make a standalone PNG: `run.sh devices render images/intake.png out/intake-laptop.png --device laptop`.
+
+Phones and tablets keep a device's size (about 1.9 in and 3.1 in wide on a sheet) rather than filling a column; a laptop runs the full width of its slot.
+
 ### Hero image (sheets)
 
 ```markdown
@@ -218,6 +224,7 @@ All images share one shape: their own average when they are within 1.5× of each
 | A photo that illustrates one section | media row in that section |
 | Two or three photos of equal weight | gallery |
 | A photo that must be seen large (a screen, a document) | figure |
+| A product screenshot | device mockup (`device=`), as a figure or in a media row |
 | Photo prints under 3 in (images.md) | gallery or leave it out of print; fine for social |
 
 A photo of a person must not sit directly under an `##` heading's section rule: give that heading `{.no-rule}`, or put a sentence of text between them.
