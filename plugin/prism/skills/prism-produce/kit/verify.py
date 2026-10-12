@@ -2,12 +2,14 @@
 """Confirms a deliverable was built by this kit in the brand fonts. Usage: verify.py [--brand ID] FILE_OR_FOLDER [...]
 PDF: kit stamp in the file properties, and only the brand's fonts (plus Phosphor icons) embedded. PPTX: kit stamp, and only the brand's Office fonts.
 Social, email or carousel folder: every PNG matches the fingerprint the build recorded.
-HTML email folder: the tagged HTML, plain text, images zip and every image match the build's fingerprints."""
+HTML email folder: the tagged HTML, plain text, images zip and every image match the build's fingerprints.
+Every kind: no photo in it carries GPS (location) data."""
 import hashlib, json, os, re, sys, zipfile
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from brandpath import brand_dir, default_brand
+from photometa import gps_in, gps_in_image
 
 KIT = os.path.dirname(os.path.abspath(__file__))
 args = sys.argv[1:]
@@ -26,6 +28,8 @@ def brand_fonts(bid):
 
 FAMILIES, DECK_FONTS = brand_fonts(BRAND)
 PDF_FONTS = tuple(FAMILIES.values()) + ("Phosphor",)
+GPS = "photo carries GPS location data (normalise it with run.sh images and rebuild)"
+IMAGES = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
 
 def pdf(path):
@@ -43,6 +47,7 @@ def pdf(path):
     if other: errs.append("non-brand fonts: " + ", ".join(other))
     if not any(f.startswith(FAMILIES["serif"]) for f in fonts) or not any(f.startswith(FAMILIES["sans"]) for f in fonts):
         errs.append(f"{FAMILIES['serif']} and {FAMILIES['sans']} are not both present")
+    if gps_in(s.encode("latin1")): errs.append(GPS)
     return errs
 
 
@@ -59,6 +64,8 @@ def pptx(path):
                 faces |= set(re.findall(r'typeface="([^"]+)"', z.read(n).decode("utf8", "ignore")))
         other = sorted(f for f in faces if f not in DECK_FONTS and not f.startswith("+"))
         if other: errs.append("non-brand fonts: " + ", ".join(other))
+        located = [n.rsplit("/", 1)[-1] for n in z.namelist() if n.startswith("ppt/media/") and gps_in_image(z.read(n))]
+        if located: errs.append(GPS + ": " + ", ".join(located))
     return errs
 
 
@@ -76,6 +83,9 @@ def folder(path):
         p = os.path.join(path, f)
         if not os.path.exists(p): errs.append(f"{f} is missing")
         elif hashlib.sha256(open(p, "rb").read()).hexdigest() != want: errs.append(f"{f} was changed after the build")
+    located = sorted(os.path.relpath(os.path.join(d, f), path) for d, _, fs in os.walk(path) for f in fs
+                     if f.lower().endswith(IMAGES) and gps_in_image(open(os.path.join(d, f), "rb").read()))
+    if located: errs.append(GPS + ": " + ", ".join(located))
     main = data.get("main", "email.html")
     if data.get("format") == "html-email" and not os.path.exists(os.path.join(path, main)):
         errs.append(f"{main} is missing")

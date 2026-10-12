@@ -71,6 +71,7 @@ Make your own: say "make a package" (or "save this as a package" after a piece).
 - Every layout crops a photo around its focal point (found automatically). If one misses, say "keep her face in frame".
 - Reusable shots (team, office, product) belong in the brand's design system photo library, so any piece can use them.
 - Send the largest file you have: anything that prints under 150 dpi moves to a smaller layout or stays out of print.
+- Location and camera details are removed from every photo, so no exported file says where a picture was taken.
 
 ## Add a brand
 
@@ -92,6 +93,7 @@ When a brand's design system changes, the same skill updates it and shows only w
 ## Good to know
 
 - Decks need the brand's Office fonts installed to present; the first deck comes with the font pack.
+- Print copies: ask for a "print version" of a sheet, brochure or 5x7 card and it comes on a plain white page as well (the glow stays), so office printers don't tint the paper.
 - HTML emails come with the HTML, an images zip, a plain-text version and light and dark previews; merge tags pass through untouched.
 - Logos: ask for the logo anywhere ("logo at the top right of the closing card", "logo next to the stats") and it lands in the same spot, at the same size, every time, in the right version for a dark or light background.
 - QR codes: give the address to scan ("add a QR code for the sign-up page") and it's drawn black on white, beside the text or centred above it (a black or clear background on request). Upload your own code (a tracked one, say) to use it instead. HTML emails link the address rather than show a code.

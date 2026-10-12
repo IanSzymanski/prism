@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Markdown -> sheet, brochure or 5x7 card PDF in the document's brand. Usage: node build-sheet.js sheet.md [out.pdf] [--html]
+// Markdown -> sheet, brochure or 5x7 card PDF in the document's brand. Usage: node build-sheet.js sheet.md [out.pdf] [--html] [--print]
 const { execFileSync } = require("child_process");
 const path = require("path"), fs = require("fs");
 const { chromium } = require("playwright");
@@ -9,6 +9,8 @@ const md = path.resolve(args.find(a => a.endsWith(".md")));
 const pdf = path.resolve(args.find(a => a.endsWith(".pdf")) || md.replace(/\.md$/, ".pdf"));
 const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.join(here, "prism-sheet.css"));
 const html = md.replace(/\.md$/, ".sheet.html");
+// --print: the same piece on a plain white page, so office printers don't tint the sheet; the glow and tinted blocks stay.
+const printCopy = args.includes("--print"), surface = printCopy ? "#FFFFFF" : B.color("prism-color-surface");
 // `layout: brochure` in the front matter builds a Letter trifold, `layout: 5x7` a two-sided 5 x 7 in card; both print at true size in panels.
 const layout = ((/^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(md, "utf8").replace(/\r\n/g, "\n")) || [, ""])[1].match(/^layout:\s*["']?([\w-]+)/m) || [])[1];
 const brochure = layout === "brochure", card = layout === "5x7", panels = brochure || card;
@@ -142,10 +144,12 @@ function stamp(file, ver) {
   await page.goto("file://" + html, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.emulateMedia({ media: "print" });
+  // Light surfaces only: a dark-themed block keeps its own.
+  if (printCopy) await page.addStyleTag({ content: `:root{--prism-color-surface:${surface}}` });
   const missingIcons = await require("./icons.js")(page, here, B);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
-  const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, B.color("prism-color-surface"), B.option("images.fade", false)]);
+  const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false)]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Logos inside blocks: the on-dark logo on dark grounds.
   warnings.push(...await page.evaluate(require("./inlogo.js").pick));
@@ -186,5 +190,5 @@ function stamp(file, ver) {
   stamp(pdf, ver);
   // Page count from the PDF itself, so no PDF tools are needed to check fit.
   const pages = count(fs.readFileSync(pdf));
-  console.log(`wrote ${pdf} (${pages} page${pages === 1 ? "" : "s"})`);
+  console.log(`wrote ${pdf} (${pages} page${pages === 1 ? "" : "s"}${printCopy ? ", print copy on white" : ""})`);
 })();

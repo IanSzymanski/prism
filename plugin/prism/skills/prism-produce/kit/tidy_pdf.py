@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """Joins Chromium's one-glyph-at-a-time text into whole runs, so copying, searching and screen readers get
 whole lines instead of one object per letter. The page looks exactly the same.
+Also drops location and camera data from every JPEG in the file (the pixels are untouched).
 With details (JSON: title, author, subject, keywords, lang, creator), also sets the document language and XMP metadata.
 Usage: tidy_pdf.py file.pdf [details-json]"""
 import json
+import os
 import sys
 import pikepdf
 from pikepdf import Operator, Array
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from photometa import strip_jpeg
 
 
 def widths(font):
@@ -38,9 +43,19 @@ def tidy(path, details=None):
         new = rebuild(page)
         if new is not None:
             page.obj.Contents = pdf.make_stream(pikepdf.unparse_content_stream(new))
+    strip_photos(pdf)
     if details:
         describe(pdf, details)
     pdf.save(path)
+
+
+def strip_photos(pdf):
+    """Chromium copies JPEGs into the PDF as they are, location and camera data included; drop that data, keep the pixels."""
+    for obj in pdf.objects:
+        if not isinstance(obj, pikepdf.Stream) or obj.get("/Subtype") != "/Image" or obj.get("/Filter") != "/DCTDecode": continue
+        raw = obj.read_raw_bytes()
+        clean = strip_jpeg(raw)
+        if clean is not raw: obj.write(clean, filter=pikepdf.Name.DCTDecode)
 
 
 def describe(pdf, d):

@@ -155,6 +155,7 @@ Read `../prism-produce/references/formats/5x7.md`. Front `.cover` when there is 
    .prism-kit/run.sh check <slug>/all-source.txt <slug>/formats/<format>.md
    .prism-kit/run.sh sheet <slug>/formats/<format>.md <slug>/out/$(.prism-kit/run.sh tag <slug>/formats/<format>.md).pdf   # prints the page count
    ```
+   Asked for a print version (a plain white page for office printers)? Add `--print` and write to `<tag>-print.pdf` as well.
    For social, email and carousel, the build line is instead:
    ```bash
    .prism-kit/run.sh social <slug>/formats/<format>.md <slug>/out/<format> && cat <slug>/out/<format>/*-captions.md
