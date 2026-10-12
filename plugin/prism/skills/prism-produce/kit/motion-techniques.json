@@ -152,7 +152,7 @@
     "stripes": "broad diagonal bands in the scene's second and third colors, sliding slowly along their length",
     "ribbons": "two long flowing curved ribbons in the scene's second and third colors, gently undulating across the frame",
     "bars": "tall bars of varying height in quiet mixes of the scene's colors along the bottom edge, rising and falling slowly like a level meter",
-    "motif": "the brand's motif (below), drawn on and then drifting slowly; follow its own rules"
+    "motif": "the brand's motif (below), drawn on, then swaying gently in place: its centre stays where it was drawn, roughly the middle of the frame across, and never travels off; follow its own rules"
   },
   "transitions": {
     "_note": "How a scene arrives (`in=` on the scene). Each is two halves: the end of the previous scene and the start of this one meet on the same frame, so the cut can't be seen. {panel} is a brand color chosen apart from both grounds; {next} the arriving scene's ground; {half} the seconds of each half.",

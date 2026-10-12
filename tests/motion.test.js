@@ -30,10 +30,10 @@ for (const s of film.scenes) {
 }
 ok(new Set(film.scenes.map(s => s.bg)).size === film.scenes.length, "every scene has its own ground");
 ok(film.scenes[0].into === null && film.scenes.slice(1).map(s => s.into).join() === "wipe,iris,slide,wave", "transitions as written, none into the first scene; the piece leaves its grape scene on the brand wave");
-ok(film.records.map(x => `${x.collection}/${x.doc_id}`).join() === "modules/icons.json,modules/motif-wave-stop.html,modules/motif-wave-dark.html", "icons, the stop wave (title and transition) and the dark-ground wave are prepared records");
+ok(film.records.map(x => `${x.collection}/${x.doc_id}`).join() === "modules/icons.json,modules/motif-wave-stop.html", "icons and the centred stop wave (backdrops and transition) are prepared records");
 const icons = JSON.parse(JSON.parse(fs.readFileSync(path.join(dir, "records", "modules", "icons.json.json"), "utf8")).text);
 ok(Object.keys(icons).join() === "file-text,flag,user-check" && Object.values(icons).every(d => /^M/.test(d)), "icon paths from the brand's set");
-const motifRec = JSON.parse(fs.readFileSync(path.join(dir, "records", "modules", "motif-wave-dark.html.json"), "utf8"));
+const motifRec = JSON.parse(fs.readFileSync(path.join(dir, "records", "modules", "motif-wave-stop.html.json"), "utf8"));
 ok(motifRec.kind === "html" && /^<svg/.test(motifRec.text), "an SVG motif goes in as markup");
 const upload = JSON.parse(/upload: (.*)/.exec(r.stdout)[1]);
 ok(upload.file_paths.length === film.assets.length, "upload line lists every asset");
@@ -95,7 +95,7 @@ if (plain.film) {
 }
 
 // 3. The other shipped brand has its own colors and motifs.
-const other = brief(FIX.replace("technique:", "brand: prism\ntechnique:").replace(" motif=wave-stop", "").replace("backdrop=motif", "backdrop=motif motif=spectrum"), "other");
+const other = brief(FIX.replace("technique:", "brand: prism\ntechnique:").replaceAll(" motif=wave-stop", "").replace("backdrop=motif", "backdrop=motif motif=spectrum"), "other");
 ok(other.r.status === 0, `second brand briefs: ${other.r.stderr}`);
 if (other.film) {
   ok(other.film.brand === "prism" && other.film.scenes[3].ground[0] !== film.scenes[3].ground[0], "second brand has its own grounds");
@@ -195,7 +195,7 @@ const writeStore = (mods, opts = {}) => {
   for (const [id, code] of Object.entries(mods)) put("modules", `scene-${id}.js`, { kind: "js", text: code });
   if (opts.retyped) put("modules", "retyped.json", { kind: "json", text: JSON.stringify(opts.retyped) });
 };
-const sceneCode = s => `kit.scene('${s.id}', { init(kit) { kit.stage.append(kit.h('<div class="ground g-${s.id}">' + ${s.lines.map(l => JSON.stringify(`<p style="left:96px">${l}</p>`)).join(" + ") || "''"} + '</div>')); this.v = [5, 4, 3, 2]; ${s.id === "change" ? "kit.json('icons.json'); kit.module('motif-wave-dark.html');" : s.id === "before" ? "kit.module('motif-wave-stop.html');" : ""} }, render(t) { this.x = 'scale(' + 1.04 + ')'; } });`;
+const sceneCode = s => `kit.scene('${s.id}', { init(kit) { kit.stage.append(kit.h('<div class="ground g-${s.id}">' + ${s.lines.map(l => JSON.stringify(`<p style="left:96px">${l}</p>`)).join(" + ") || "''"} + '</div>')); this.v = [5, 4, 3, 2]; ${s.id === "change" ? "kit.json('icons.json'); kit.module('motif-wave-stop.html');" : s.id === "before" ? "kit.module('motif-wave-stop.html');" : ""} }, render(t) { this.x = 'scale(' + 1.04 + ')'; } });`;
 const good = Object.fromEntries(film.scenes.map(s => [s.id, sceneCode(s)]));
 writeStore(good);
 r = motion("check", dir, store); ok(r.status === 0 && /^OK/m.test(r.stdout), `faithful film passes: ${r.stdout}`);
@@ -211,7 +211,7 @@ writeStore(good, { noGround: ["result"] });
 r = motion("check", dir, store); ok(r.status === 1 && /#result: its ground .* is nowhere/.test(r.stdout), "a scene off its brand ground fails");
 writeStore(good, { drop: ["icons.json"] });
 r = motion("check", dir, store); ok(r.status === 1 && /record modules\/icons\.json is not in the film/.test(r.stdout), "a missing record fails");
-writeStore({ ...good, change: good.change.replace("motif-wave-dark.html", "motif-wave-dark.svg") });
+writeStore({ ...good, change: good.change.replace("motif-wave-stop.html", "motif-wave-stop.svg"), before: good.before.replace("motif-wave-stop.html", "motif-wave-stop.svg") });
 r = motion("check", dir, store); ok(r.status === 1 && /no scene uses it by that name/.test(r.stdout), "a record asked for by the wrong name fails");
 writeStore(good, { title: "Video", stage: "rough" });
 r = motion("check", dir, store); ok(r.status === 1 && /title is "Video"/.test(r.stdout) && /not finished/.test(r.stdout), "title and stage checked");

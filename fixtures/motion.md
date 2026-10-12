@@ -32,7 +32,7 @@ Four smaller form cards to the right of the stack, in the scene's second color, 
 :::
 ::::
 
-:::: {.scene .list #change dur=6.5 name="What changed" in=iris bg=dark backdrop=motif}
+:::: {.scene .list #change dur=6.5 name="What changed" in=iris bg=dark backdrop=motif motif=wave-stop}
 ## What *changed* {.l .mask}
 
 ::: {.checks .build stagger=0.45}
