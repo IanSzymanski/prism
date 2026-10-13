@@ -15,12 +15,14 @@ It ships as a Claude plugin built from this repository. **This tree is 0.16.0-de
 | Social posts, stories, carousels, email headers | `run.sh social` | PNGs plus `captions.md`; stories are checked against the app's safe area |
 | Blog post | `run.sh blog` | Header PNG, chart PNGs, `post.md` and `post.html` |
 | HTML email | `run.sh email` | HTML, an images zip, plain text, light and dark previews |
-| Animated film | `run.sh motion brief` | A brief Claude Motion makes the film from; Prism checks and renders the film it made; Export on the film's page saves the MP4 |
+| Animated film | `run.sh motion brief` | A brief Claude Motion makes the film from; Prism checks and renders the film it made; Export on the film's page saves the MP4. Techniques: stat story, kinetic type and UI walkthrough (`run.sh motion gaps` lists what a walkthrough still needs from the person) |
 | Package | `run.sh packages` | A set of outputs from one piece (such as a case study package), delivered as one zip |
 
 Every block format the outputs share (stats, charts, flows, quotes, media rows, galleries, QR codes, logo positions, brand components, device mockups) is described in `plugin/prism/skills/prism-produce/references/formats/`, one card per output plus `components.md`.
 
 **Device mockups** (core): `![](images/app.png){device=phone|tablet|laptop}` puts a screenshot in a phone, tablet or laptop frame (`tone="light"` for silver, `.landscape` to turn a phone or tablet). Sheets, brochures, cards and posts draw the frame as vector; decks place framed PNGs and add **overset** media slides (`.overset-left`, `.overset-right`: the picture runs off that edge) and **layers** (a laptop with a phone in front, each its own picture); films take `frame=phone|tablet|laptop`. `run.sh devices render SHOT OUT.png --device laptop` makes one on its own.
+
+**UI walkthroughs** (`technique: walkthrough`): a product film rebuilt from the person's screenshots, which are layout guides (`{.screen}`) rather than pictures: an opening title, the app building in, numbered steps with a collapsing step card, actions (`.click`, `.fill`, `.choose`, `.focus`, `.open`, `.toast` and more) that run one after another, and an end card with a recap of the steps. Hand-offs follow the screens: the same screen keeps its chrome, a desktop-to-phone change reframes, and the brief carries the house rules for walkthrough videos (pacing, zoom, focus scrim, typing speed, nothing overset). `run.sh motion gaps` turns what's missing (screenshots, demo or real data, the call to action, assumed details) into interview questions; the needed ones stop the brief.
 
 **Motion holds** grow with the words on screen: after its last entrance lands, every scene holds a second for every 20 characters it shows (3 s at least, 12 s at most). `read:` in a film's front matter changes the rate; `hold=` on a scene sets one by hand.
 
@@ -80,6 +82,7 @@ bash .prism-kit/run.sh social fixtures/carousel.md out/carousel                 
 bash .prism-kit/run.sh blog fixtures/blog.md out/blog
 bash .prism-kit/run.sh email fixtures/html-email-newsletter.md out/newsletter
 bash .prism-kit/run.sh motion brief fixtures/motion.md --out out/motion           # then link, check and render the film
+bash .prism-kit/run.sh motion gaps fixtures/motion-walkthrough.md                 # a walkthrough's questions for the person
 bash .prism-kit/run.sh devices render shot.png out/shot-laptop.png --device laptop
 bash .prism-kit/run.sh verify out/brief.pdf                                       # deliver only on OK
 ```
@@ -120,7 +123,7 @@ node tests/qr.test.js                  # the QR block in every output
 node tests/logo.test.js                # logo positions on any block
 node tests/card5x7.test.js             # 5x7 cards: sizes, sides, overflow, packages and design mode
 node tests/kit-small.test.js           # file tags, state paths, unbroken terms, PDF details, photo metadata, print copies
-node tests/motion.test.js              # motion: the language, holds, the brief, the film check
+node tests/motion.test.js              # motion: the language, holds, the brief, the film check, walkthroughs and their gaps
 node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op

@@ -191,6 +191,18 @@
     "morph": {
       "out": "over its last {half} s its main object (what moved last) grows and changes shape until it fills the frame in the next scene's ground ({next})",
       "in": "it opens on its bare ground, the frame the last scene ended on"
+    },
+    "chrome": {
+      "out": "over its last {half} s, with the camera already back out at the whole screen, the page content (everything but the shared chrome: header, navigation, sidebar) fades and lifts about 24 px away, leaving the chrome alone on an empty page",
+      "in": "it opens on exactly the same chrome, pixel for pixel, over an empty page; its own page content rises in over the first {half} s, staggered top to bottom"
+    },
+    "zoom-through": {
+      "out": "over its last {half} s the camera pushes through its main object (to about 400 %), eased in, while the next scene's ground ({next}) rises behind it until it alone fills the frame",
+      "in": "it opens on its bare ground, the camera settling from about 115 % to 100 % over the first {half} s as its content starts to arrive"
+    },
+    "reframe": {
+      "out": "over its last {half} s the camera pulls back until the whole {screen_from} screen shows as a window on the ground ({next}), its content fades to the window's empty page, and the window starts to change shape toward the {screen_to} screen's proportions",
+      "in": "it opens on that empty window, halfway between the two shapes; over the first {half} s the window finishes changing into the {screen_to} screen's proportions and grows to its place on the stage while the new layout builds inside it"
     }
   },
   "roles": {
@@ -257,6 +269,11 @@
       "type": "lede",
       "say": "the line"
     },
+    "cta": {
+      "size": "m",
+      "type": "heading-3",
+      "say": "the call to action, on a pill in the scene's main color"
+    },
     "icon": {
       "size": "l",
       "say": "the icon"
@@ -275,10 +292,21 @@
     },
     "motif": {
       "say": "the brand motif"
+    },
+    "action": {
+      "say": "what happens in the UI"
+    },
+    "screen": {
+      "say": "the screenshot the UI is rebuilt from"
+    },
+    "card": {
+      "size": "s",
+      "type": "heading-3",
+      "say": "the step card"
     }
   },
   "classes": {
-    "_note": "Fixed vocabulary. kind: size, enter, emphasis (the accent word), hold, exit; one of each per block. Placeholders: {from} {stagger} {overshoot}.",
+    "_note": "Fixed vocabulary. kind: size, enter, emphasis (the accent word), hold, exit, action (what happens in a walkthrough's UI, one per block, in order); one of each per block. Placeholders: {from} {stagger} {overshoot} {text} {field} {zoom} {cps} {toast}.",
     "xs": {
       "kind": "size"
     },
@@ -436,6 +464,61 @@
     "stay": {
       "kind": "exit",
       "say": "stays until the cut and rides the transition out"
+    },
+    "click": {
+      "kind": "action",
+      "secs": 1.7,
+      "say": "the cursor travels to the control labelled \"{text}\" (about 1 s, eased, along a gentle curve), settles on it for 0.4 s, then clicks: the control presses in and a ripple spreads from the cursor"
+    },
+    "fill": {
+      "kind": "action",
+      "secs": 0.8,
+      "say": "the cursor clicks into the field labelled \"{field}\", which shows its focus ring; then \"{text}\" types into it one letter at a time at an even {cps} letters a second, the caret solid while it types and blinking once it stops"
+    },
+    "choose": {
+      "kind": "action",
+      "secs": 2.4,
+      "say": "the cursor clicks the \"{field}\" menu, which opens with a short drop; it settles on \"{text}\", which highlights, and clicks it; the menu closes with the choice in place"
+    },
+    "focus": {
+      "kind": "action",
+      "secs": 1.0,
+      "say": "the camera pushes in on \"{text}\" (about {zoom}×) over about 1 s, eased, keeping the frame inside the UI"
+    },
+    "back": {
+      "kind": "action",
+      "secs": 1.0,
+      "say": "the camera pulls back out to the whole screen over about 1 s, eased"
+    },
+    "scroll": {
+      "kind": "action",
+      "secs": 1.3,
+      "say": "the page scrolls smoothly (eased, about 1 s) until \"{text}\" is in view"
+    },
+    "open": {
+      "kind": "action",
+      "secs": 0.7,
+      "say": "the panel or dialog \"{text}\" scales in from the control that opened it, with a small overshoot; everything behind it dims under a soft scrim (about 50 %) and a light blur, so it is the only subject"
+    },
+    "close": {
+      "kind": "action",
+      "secs": 0.6,
+      "say": "the panel or dialog \"{text}\" scales back toward where it came from and the page behind comes back into focus"
+    },
+    "wait": {
+      "kind": "action",
+      "secs": 1.4,
+      "say": "\"{text}\" shows a small spinner that turns into a check after about 1 s"
+    },
+    "toast": {
+      "kind": "action",
+      "secs": 0.6,
+      "say": "a toast reading \"{text}\" slides in at the {toast} with a small overshoot, holds, and slides away before the scene ends"
+    },
+    "show": {
+      "kind": "action",
+      "secs": 0.9,
+      "say": "\"{text}\" appears in the UI the way the UI would show it: a row, card or badge rising in with a slight overshoot (rows and cards staggered)"
     }
   },
   "lists": {
@@ -837,6 +920,218 @@
         "Emphasis is motion and the accent word's color or mark, never bold or exclamation marks.",
         "Every scene has its own ground and backdrop as given; neighbouring scenes never look alike."
       ]
+    },
+    "walkthrough": {
+      "name": "UI walkthrough",
+      "look": "Product walkthrough: the real app rebuilt full-screen from its screenshots, a calm camera that pushes in on each action and pulls back out, a cursor that settles before it clicks, a step card in the corner that collapses to a chip, and everything that isn't the subject blurred back",
+      "aspect": "wide",
+      "length": [
+        30,
+        150
+      ],
+      "energy": "calm",
+      "ui": true,
+      "transitions": [
+        "chrome",
+        "reframe",
+        "zoom-through",
+        "fade"
+      ],
+      "layouts": {
+        "title": {
+          "dur": 4,
+          "bg": "glow",
+          "backdrop": "shapes",
+          "say": "Opening screen: the logo or product name animates in and holds (readable at frame 0, the thumbnail), then the camera zooms through into the app. It never persists into the next scene."
+        },
+        "app": {
+          "dur": 8,
+          "bg": "light",
+          "backdrop": "none",
+          "ui": true,
+          "say": "Meet the app: the UI builds in (header, then navigation, then content, staggered) with the whole screen in view, then the camera pushes in slowly. Never opens already zoomed in with content cut off at an edge."
+        },
+        "step": {
+          "dur": 10,
+          "bg": "light",
+          "backdrop": "none",
+          "ui": true,
+          "say": "One numbered step, one continuous scene: one feature, one task. The step card opens first; the actions follow once it has collapsed."
+        },
+        "closing": {
+          "dur": 7,
+          "min": 4,
+          "bg": "night",
+          "backdrop": "glow",
+          "say": "End card: the whole UI has faded out; the logo, one short line, a recap of the steps and the call to action, held at least 4 s; nothing leaves and nothing moves after it settles but the backdrop."
+        }
+      },
+      "defaults": {
+        "h1": {
+          "enter": "zoom",
+          "hold": "drift",
+          "exit": "stay"
+        },
+        "h2": {
+          "enter": "rise",
+          "exit": "out-fade"
+        },
+        "eyebrow": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "sub": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "label": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "note": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "body": {
+          "enter": "rise",
+          "exit": "out-fade"
+        },
+        "list": {
+          "enter": "build",
+          "exit": "out-fade"
+        },
+        "icon": {
+          "enter": "pop",
+          "exit": "out-fade"
+        },
+        "logo": {
+          "enter": "grow",
+          "exit": "stay"
+        },
+        "image": {
+          "enter": "fade",
+          "exit": "out-fade"
+        },
+        "motif": {
+          "enter": "draw",
+          "exit": "out-fade"
+        },
+        "action": {
+          "exit": "stay"
+        },
+        "cta": {
+          "enter": "pop",
+          "hold": "breathe",
+          "exit": "stay"
+        }
+      },
+      "classes": [
+        "xs",
+        "s",
+        "m",
+        "l",
+        "xl",
+        "xxl",
+        "fade",
+        "rise",
+        "zoom",
+        "blur",
+        "pop",
+        "grow",
+        "build",
+        "draw",
+        "mask",
+        "words",
+        "drift",
+        "breathe",
+        "float",
+        "pan",
+        "out",
+        "out-fade",
+        "out-up",
+        "stay",
+        "click",
+        "fill",
+        "choose",
+        "focus",
+        "back",
+        "scroll",
+        "open",
+        "close",
+        "wait",
+        "toast",
+        "show"
+      ],
+      "rules": [
+        "The step card sits bottom-left (above the safe band on tall stages): the step number in a disc, a small eyebrow (\"Step 2 of 5\"), the title, one sentence and progress dots. About 2 s after its text lands it collapses to a chip (number and title only) to free the screen; it opens again to introduce the next step.",
+        "Typing finishes before the click that sends it.",
+        "Before the end card the whole UI fades out; the end card recaps the steps by their titles."
+      ]
     }
+  },
+  "screens": {
+    "_note": "The device a walkthrough's UI is built for (screen= on a scene). ratio: width / height. The stage decides how it sits: full (fills the frame edge to edge), crop (fills the stage's height; the camera pans across it and never shows past its edges) or device (in core's device mockup, full height, centred).",
+    "desktop": {
+      "ratio": 1.6,
+      "width": 1440,
+      "device": "laptop",
+      "say": "the desktop layout, built at 1440 px wide"
+    },
+    "tablet": {
+      "ratio": 0.75,
+      "width": 834,
+      "device": "tablet",
+      "say": "the tablet layout, built at 834 px wide, portrait"
+    },
+    "phone": {
+      "ratio": 0.46,
+      "width": 390,
+      "device": "phone",
+      "say": "the phone layout, built at 390 px wide"
+    }
+  },
+  "fits": {
+    "full": "the UI fills the whole frame, edge to edge: never a small window on a background",
+    "crop": "the UI fills the stage's height and is wider than the stage: the camera frames the part where the action is and pans with it, eased, never showing past the UI's edges",
+    "device": "the UI sits in core's {device} mockup, as tall as the stage allows inside the safe area, centred; the camera pushes in on the device for each action"
+  },
+  "walkthrough": {
+    "_note": "The house rules every walkthrough film follows (Ian, Oct 13: the UI walkthrough video UX rules). Numbers here are what the plan times the film with.",
+    "beat": 1.6,
+    "cps": 33,
+    "zoom": [
+      1.4,
+      2
+    ],
+    "card": {
+      "open": 0.6,
+      "read": 2,
+      "collapse": 0.4,
+      "sizes": {
+        "h2": "s",
+        "sub": "xs"
+      }
+    },
+    "camera": 1.0,
+    "steps": [
+      2,
+      7
+    ],
+    "data": {
+      "demo": "the screenshots show demo data: rebuild their copy as it is",
+      "stand-in": "the screenshots show real people's data: every name, email, phone number, address and case detail in the rebuilt UI is an invented stand-in, and the film says it is illustrative"
+    },
+    "rules": [
+      "Full-screen UI: the app is rebuilt from its screenshots as live HTML (real text, crisp at 2× zoom, every control pressable) and fills the frame as its fit says; the screenshot itself is never shown as a picture.",
+      "Slow and clear beats short: camera moves take about 1 s, then the view holds 1.5 to 2 s before the next action; the cursor settles on a target before it clicks; when in doubt, slower.",
+      "Zoom in on what matters as it happens (about 1.4 to 2×), then pull back out; the camera never shows empty space past the UI's edges.",
+      "Only one thing moves while the viewer reads: no action starts while the step card is open, and the camera is still while text types.",
+      "Focus on the focus: whenever more than one object is in frame (a dialog over a page, two panels), everything that isn't the current subject sits under a soft scrim (about 50 %) and a light blur; when a second panel takes over, the first dims and blurs; everything comes back into focus at the hand-off.",
+      "Lively UI: cards rise with a slight overshoot, rows stagger in, buttons press and ripple, fields show a focus ring, spinners turn into checks, toasts slide in, dialogs scale in from where they open.",
+      "Nothing overset: every panel, card, menu, toast and pop-up stays fully inside the frame (and the aspect's safe area); check the right and bottom edges.",
+      "Readable at a glance: any text the viewer must read is large on screen after zooming (at least the stage's s size), on a solid surface.",
+      "The cursor is the brand's ink with a white edge and a soft shadow, large enough to follow on a phone; it never jumps, and while a view holds it idles with a slight drift, so nothing is ever frozen.",
+      "Each step's scene name is its title, so the film's timeline reads as chapters."
+    ]
   }
 }

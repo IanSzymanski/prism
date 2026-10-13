@@ -245,6 +245,84 @@ ok(/film: https:\/\/claude\.ai\/artifact\/EXAMPLE/.test(r.stdout) && JSON.parse(
 const cn = spawnSync("node", [path.join(KIT, "check-numbers.js"), path.join(ROOT, "fixtures", "social.md"), path.join(ROOT, "fixtures", "motion.md")], { encoding: "utf8" });
 ok(cn.status === 0, `numbers in the motion fixture come from the social fixture: ${cn.stdout}`);
 
+// 10. A UI walkthrough: the app rebuilt from screenshots, a step card, actions in sequence, hand-offs chosen by screen.
+const WT = fs.readFileSync(path.join(ROOT, "fixtures", "motion-walkthrough.md"), "utf8");
+// Variants are written next to the fixture so their screenshots resolve; each is removed after it briefs.
+const wtBrief = (text, name) => { const f = path.join(ROOT, "fixtures", `.wt-${name}.md`); fs.writeFileSync(f, text); const d = path.join(TMP, `wt-${name}`); const x = motion("brief", f, "--out", d); const g = motion("gaps", f); fs.rmSync(f); return { r: x, g, film: x.status === 0 ? JSON.parse(fs.readFileSync(path.join(d, "film.json"), "utf8")) : null, text: x.status === 0 ? fs.readFileSync(path.join(d, "brief.md"), "utf8") : "" }; };
+const wt = wtBrief(WT, "fixture");
+ok(wt.r.status === 0, `walkthrough fixture briefs: ${wt.r.stderr}`);
+const wf = wt.film, wtext = wt.text, wsec = id => wtext.split(`#${id} · `)[1].split("\n### ")[0];
+ok(wf.width === 1920 && wf.height === 1080 && wf.energy === "calm" && wf.data === "demo", "wide, calm, demo data");
+ok(wf.scenes.map(s => s.into).join() === ",zoom-through,chrome,chrome,chrome,reframe,fade", `hand-offs from what is on either side: ${wf.scenes.map(s => s.into)}`);
+ok(wf.scenes.filter(s => s.ui).map(s => `${s.screen}/${s.fit}`).join() === "desktop/full,desktop/full,desktop/full,desktop/full,phone/device", "desktop fills the wide stage; the phone sits in its mockup");
+ok(wf.scenes[2].guide === "images/harbor-notes.png" && wf.scenes[4].guide === "images/harbor-new-note.png", "a scene without a screenshot stays on the page before it");
+ok(wf.guides.length === 3 && wf.guides.every(g => fs.existsSync(g.file) && g.w && g.h), "every screenshot is listed with its size");
+ok(!wf.assets.some(a => /harbor/.test(a.name)), "screenshots are guides, never uploaded");
+ok(wf.scenes.filter(s => s.step).map(s => s.name).join("|") === "Start a note|Write it once|Share it with the team|Read it anywhere", "steps are named by their titles (chapters)");
+ok(wf.scenes[3].lines[0] === "Step 2 of 4" && /the eyebrow "Step 2 of 4"/.test(wsec("write")) && /4 progress dots with the first 2 filled/.test(wsec("write")), "Prism numbers the steps on the card");
+ok(["Start a note", "Write it once", "Share it with the team", "Read it anywhere"].every(t => wf.scenes[6].lines.includes(t)) && /The recap of the steps/.test(wsec("close")), "the end card recaps the steps by title");
+ok(wf.scenes[6].lines.includes("Start at harborpoint.example.com") && /call to action/.test(wsec("close")), "the call to action is a line on the end card");
+ok(wf.gaps.length === 1 && /Assumed, not confirmed: the sign-up address/.test(wf.gaps[0].ask) && /gap: Assumed/.test(wt.r.stderr), "an assumed detail is carried as a gap to flag");
+ok(/Read each screenshot with the Read tool/.test(wtext) && /Build the app once/.test(wtext) && /harbor-new-note\.png` \(1440×900, desktop\)/.test(wtext), "the brief asks for the app rebuilt once from its screenshots");
+ok(/soft scrim \(about 50 %\)/.test(wtext) && /Nothing overset/.test(wtext) && /cursor settles on a target/.test(wtext), "the house rules are in the brief");
+ok(/collapses over 0\.4 s to a chip/.test(wsec("start")) && /The card's title, size s/.test(wsec("start")), "the step card opens, collapses, and is set small");
+ok(/at an even 33 letters a second, the caret solid/.test(wsec("write")) && /Action \(\.choose\)/.test(wsec("write")), "typing is even and the actions are spelled out");
+const acts = [...wsec("write").matchAll(/Action \(\.\w+\): at ([\d.]+) s.*?done by ([\d.]+) s/g)].map(m => [Number(m[1]), Number(m[2])]);
+const collapse = Number(/at ([\d.]+) s it collapses/.exec(wsec("write"))[1]);
+ok(acts.length === 3 && acts[0][0] > collapse && acts.every((a, i) => i === 0 || a[0] >= acts[i - 1][1] + 1.5), `actions wait for the card and each other: ${JSON.stringify(acts)}`);
+ok(Math.abs(acts[2][1] - acts[2][0] - (0.8 + "Talked through the new schedule and next week's visit.".length / 33 + 1)) < 0.02, "typing time grows with the words");
+ok(/camera pulls back out to the whole screen; by/.test(wsec("write")) && !/camera pulls back out to the whole screen; by/.test(wsec("meet")), "a zoomed scene pulls back before its hand-off; one already back doesn't");
+ok(/\*\*Ends \(chrome into #write\)\*\*/.test(wtext) && /exactly the same chrome, pixel for pixel/.test(wsec("write")), "chrome hand-offs swap only the page");
+ok(/toward the phone screen's proportions/.test(wsec("share")) && /in the phone mockup/.test(wsec("phone")), "a new screen reframes");
+ok(/behind the app, seen only during transitions/.test(wsec("write")) && wf.scenes.filter(s => s.ui).every(s => s.bg === "light"), "app scenes share one ground behind the UI");
+// The story stage: a desktop app is cropped to it and followed by the camera; toasts go to the top.
+const tall = wtBrief(WT.replace("aspect: wide", "aspect: story"), "story");
+ok(tall.r.status === 0 && tall.film.scenes[2].fit === "crop" && tall.film.scenes[5].fit === "full" && /slides in at the top of the frame/.test(tall.text), `a story stage crops the desktop app and fills with the phone: ${tall.r.stderr.split("\n")[0]}`);
+
+// Interviewing for gaps: what only the person can answer stops the brief and is asked for.
+const needs = (label, edit, want) => { const x = wtBrief(edit(WT), label.replace(/\W+/g, "-")); ok(x.r.status === 1 && want.test(x.r.stderr) && x.g.status === 1 && /ASK \(needed\)/.test(x.g.stdout), `asks for ${label}: ${x.r.stderr.split("\n")[0]}`); };
+needs("a screenshot", t => t.replace("![Visit notes](images/harbor-notes.png){.screen}\n", ""), /ask the person: #meet: there is no screenshot/);
+needs("a missing screenshot file", t => t.replace("harbor-notes.png", "harbor-gone.png"), /harbor-gone\.png isn't there/);
+needs("what the data is", t => t.replace("data: demo\n", ""), /demo data, or real people's/);
+needs("the phone layout", t => t.replace("![Visit notes on a phone](images/harbor-phone.png){.screen}\n", ""), /changes from the desktop to the phone layout/);
+const nocta = wtBrief(WT.replace("[Start at harborpoint.example.com]{.cta}\n", ""), "nocta");
+ok(nocta.r.status === 0 && /gap: #close: the end card has no call to action/.test(nocta.r.stderr) && nocta.g.status === 0 && /^ASK: /m.test(nocta.g.stdout), "a missing call to action is asked, not blocking");
+const shape = wtBrief(WT.replace("#phone screen=phone", "#phone screen=desktop"), "shape");
+ok(shape.r.status === 0 && /harbor-phone\.png is phone-shaped but the scene shows the desktop layout/.test(shape.r.stderr), "a screenshot of the wrong shape is asked about");
+ok(motion("gaps", path.join(ROOT, "fixtures", "motion.md")).stdout.trim() === "no gaps", "a film that isn't a walkthrough has no gaps");
+
+// Refusals: actions and screens in the wrong place, hand-offs that can't work, the vocabulary.
+const wbad = (label, edit, want) => { const x = wtBrief(edit(WT), `bad-${label.replace(/\W+/g, "-")}`); ok(x.r.status === 1 && want.test(x.r.stderr), `walkthrough refuses ${label}: ${x.r.stderr.split("\n")[0]}`); };
+wbad("an action on the title card", t => t.replace("# Write a visit note in *four steps* {.xl}", "# Write a visit note in *four steps* {.xl}\n\n[New note]{.click}"), /an action belongs in a scene that shows the app/);
+wbad("a quote in a step", t => t.replace("[New note]{.click zoom=1.6 sfx=click}", "[New note]{.click zoom=1.6 sfx=click}\n\n> Notes in a minute"), /words on a step scene are the step card/);
+wbad("a step without a title", t => t.replace("## Start a note\n", ""), /needs its title for the step card/);
+wbad("a fill without its field", t => t.replace('{.fill field="Client" zoom=1.6}', "{.fill zoom=1.6}"), /\.fill names its field/);
+wbad("a zoom past 2×", t => t.replace("zoom=1.8", "zoom=3"), /zoom= is 1\.4 to 2/);
+wbad("an action class on a heading", t => t.replace("## Start a note", "## Start a note {.click}"), /\.click is an action: write it on its own line/);
+wbad("a chrome hand-off to another screen", t => t.replace("#phone screen=phone", "#phone screen=phone in=chrome"), /keeps the chrome of the scene before/);
+wbad("an unknown screen", t => t.replace("screen=phone", "screen=watch"), /screen=watch is not one of/);
+wbad("unknown data", t => t.replace("data: demo", "data: live"), /data is demo or stand-in/);
+wbad("stand-in data unlabelled", t => t.replace("data: demo", "data: stand-in").replace("figures: illustrative\n", "").replace("[Illustrative demo: Harbor Point and its data are fictional.]{.note}\n", "").replace(" · Illustrative demo", ""), /data: stand-in, but no line on screen says/);
+bad("a click in a stat story", t => t.replace("[days]{.unit}", "[days]{.click}"), /is not used in stat-story|belongs in a scene that shows the app/);
+
+// check: the app's words may live in ui.js; numbers in the app's own copy are noted, not failed.
+const wdir = path.join(TMP, "wt-check"), wstore = path.join(TMP, "wt-store");
+motion("brief", path.join(ROOT, "fixtures", "motion-walkthrough.md"), "--out", wdir);
+const wfilm = JSON.parse(fs.readFileSync(path.join(wdir, "film.json"), "utf8"));
+for (const c of ["film", "modules", "assets"]) fs.mkdirSync(path.join(wstore, c), { recursive: true });
+const wput = (c, id, data) => fs.writeFileSync(path.join(wstore, c, id + ".json"), JSON.stringify({ id, version: 1, data }));
+wput("film", "meta", { title: wfilm.title });
+wput("modules", "scenes.json", { kind: "json", text: JSON.stringify({ stage: "final", width: 1920, height: 1080, scenes: wfilm.scenes.map(s => ({ id: s.id, name: s.name, dur: s.dur })) }) });
+wput("modules", "base.css", { kind: "css", text: [...wfilm.assets.filter(a => a.mime.startsWith("font/")).map(a => `.x{font-family:"${a.name.replace(/\.[^.]+$/, "")}"}`), ...wfilm.scenes.map(s => `.g-${s.id}{background:linear-gradient(${s.ground.join(",")})}`)].join("\n") });
+wput("modules", "score.js", { kind: "js", text: "kit.score(function(S,T){});" });
+for (const a of wfilm.assets) wput("assets", a.name, { ref: "/_blob/" + "0".repeat(32), mime: a.mime });
+for (const x of wfilm.records) wput(x.collection, x.doc_id, JSON.parse(fs.readFileSync(path.join(wdir, "records", x.collection, x.doc_id + ".json"), "utf8")));
+const uiLines = wfilm.scenes.filter(s => s.ui).flatMap(s => s.lines);
+wput("modules", "ui.js", { kind: "js", text: `kit.ui = kit.h('<main>' + ${uiLines.map(l => JSON.stringify(`<span>${l}</span>`)).join(" + ")} + '<td>12 notes this week</td></main>');` });
+for (const s of wfilm.scenes) wput("modules", `scene-${s.id}.js`, { kind: "js", text: s.ui ? `kit.scene('${s.id}', { init(kit) { kit.stage.append(kit.ui); } });` : `kit.scene('${s.id}', { init(kit) { kit.assets.url('logo-on-dark.svg'); kit.stage.append(kit.h('<div class="ground g-${s.id}">' + ${s.lines.map(l => JSON.stringify(`<p>${l}</p>`)).join(" + ")} + '</div>')); } });` });
+r = motion("check", wdir, wstore);
+ok(r.status === 0 && /numbers in the app's own copy/.test(r.stdout) && /12 \("12 notes this week"\)/.test(r.stdout) && /flag on delivery, not confirmed/.test(r.stdout), `the app's words in ui.js pass; its numbers and gaps are noted: ${r.stdout}`);
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`motion: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

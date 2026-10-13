@@ -5,6 +5,7 @@ A motion output is made by Claude in the Motion artifact type (Team and Enterpri
 ## Make it
 
 1. **Format, check, vet** as for every output: the formatter writes `formats/<output id>.md` from the motion card, then `run.sh check` and `run.sh vet`.
+   **A walkthrough: interview for its gaps.** `.prism-kit/run.sh motion gaps formats/<output id>.md` lists what only the person can answer. Ask them all in one AskUserQuestion call (four at most; any overflow in another), `ASK (needed)` ones first: screenshots to upload (which page, which layout), whether the screenshots show demo data or real people's, the call to action and its address, each assumed detail. Each answer goes where it belongs: a screenshot joins `images/` and images.md (Read it, as for every image: real names, emails or case details in it mean `data: stand-in`) and the format file names it with `{.screen}`; a call to action or address is a content-lane edit; "not sure" stays in `assumed:`. Run `gaps` again until nothing is needed. Unattended, or when the person skips, the needed gaps stop this output (say which in one line) and the others go to delivery.
 2. **Brief:** `.prism-kit/run.sh motion brief formats/<output id>.md --out <dir>`. An error names the line: fix the format file (a layout or class question is a layout-lane edit) and run it again. It writes `<dir>/brief.md`, `<dir>/film.json` and prints an `upload:` line. A `film:` line means this output already has a film: go to "Revise it" instead.
 3. **Motion available?** List the Artifact types (the Artifact tool's list, `scope: "types"`) and find the one titled Motion. None: say in one line that films need the Motion artifact type (Team and Enterprise plans, switched on by an admin) and stop for this output; the other outputs carry on.
 4. **Create the film:** publish with the Motion `type_url`, `title` = the format file's `title`, `auto_open: "after_first_write"`, nothing else. Record it: `.prism-kit/run.sh motion link <dir> <the film's url>`.
@@ -23,7 +24,8 @@ A motion output is made by Claude in the Motion artifact type (Team and Enterpri
 9. **Deliver:** open the film (the Artifact tool's `open`) and send the contact sheet. One line each:
    - the film: the finished piece; **Export** on its page saves the MP4 (it starts muted; the speaker button plays the score);
    - `formats/<output id>.md`: the editable source;
-   - it is private: others can open the link once it is shared from the page's Share menu.
+   - it is private: others can open the link once it is shared from the page's Share menu;
+   - a walkthrough: every gap still open (`film.json` `gaps`, such as an assumed address), under "Needs your call".
    Record the export: `.prism-kit/run.sh state <slug> export <output id> <dir>/film.json` (it holds the film's url).
 
 ## Revise it

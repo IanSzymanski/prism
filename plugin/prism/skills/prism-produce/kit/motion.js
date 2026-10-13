@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Motion: a motion format file -> the brief Claude Motion makes the film from, then checks of the film it made.
 // Usage: motion.js techniques [--brand <id>]
+//        motion.js gaps formats/motion.md                       (a walkthrough's questions for the person; exit 1 while one is needed)
 //        motion.js brief formats/motion.md --out <dir>        (writes brief.md, film.json and records/; prints the uploads)
 //        motion.js link <dir> <film url>                         (records the film this output was made into)
 //        motion.js check <dir> <store dir>                    (the film's records, as ArtifactData saved them, against film.json)
@@ -9,15 +10,18 @@ const fs = require("fs"), path = require("path");
 
 const KIT = __dirname;
 const T = JSON.parse(fs.readFileSync(path.join(KIT, "motion-techniques.json"), "utf8"));
-const ROLES_BY_CLASS = ["eyebrow", "sub", "label", "note", "stat", "unit", "cite", "body"];
+const ROLES_BY_CLASS = ["eyebrow", "sub", "label", "note", "stat", "unit", "cite", "cta", "body"];
 const LIST_STYLES = Object.keys(T.lists);
-const BLOCK_ATTRS = ["at", "from", "stagger", "sfx", "n", "frame", "name"];
-const SCENE_ATTRS = ["dur", "name", "bg", "backdrop", "in", "motif", "hold"];
+const BLOCK_ATTRS = ["at", "from", "stagger", "sfx", "n", "frame", "name", "field", "zoom"];
+const SCENE_ATTRS = ["dur", "name", "bg", "backdrop", "in", "motif", "hold", "screen"];
 const MIME = { ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif", ".svg": "image/svg+xml",
   ".ttf": "font/ttf", ".otf": "font/otf", ".woff": "font/woff", ".woff2": "font/woff2" };
 const keys = o => Object.keys(o).filter(k => !k.startsWith("_"));
 const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
 const r2 = n => Math.round(n * 100) / 100;
+// What happens in a walkthrough's UI: one action per block, in order.
+const ACTIONS = Object.keys(T.classes).filter(c => (T.classes[c] || {}).kind === "action");
+const W = T.walkthrough;
 
 // --- parsing ---------------------------------------------------------------------------------------------------------
 
@@ -101,8 +105,10 @@ function parse(text) {
     if (div && div.kind === "list") { errors.push(`line ${at(i)}: a list block holds only - items`); continue; }
     if ((m = /^(#{1,2})\s+(.*?)\s*(?:\{([^}]*)\})?\s*$/.exec(l))) { push({ role: m[1] === "#" ? "h1" : "h2", ...words(m[2]), a: attrs(m[3]), line: at(i) }); continue; }
     if ((m = /^!\[([^\]]*)\]\(([^)\s]+)\)\s*(?:\{([^}]*)\})?\s*$/.exec(l))) {
-      const logo = /^(brand:logo|prism:logo(-on-dark)?)$/.test(m[2]);
-      push({ role: logo ? "logo" : "image", text: m[1], src: m[2], a: attrs(m[3]), line: at(i) }); continue;
+      const logo = /^(brand:logo|prism:logo(-on-dark)?)$/.test(m[2]), a = attrs(m[3]);
+      // A walkthrough's screenshot is a layout guide: the UI is rebuilt from it, never shown as a picture.
+      if (!logo && a.classes.includes("screen")) { push({ role: "screen", text: m[1], src: m[2], a: { ...a, classes: a.classes.filter(c => c !== "screen") }, line: at(i) }); continue; }
+      push({ role: logo ? "logo" : "image", text: m[1], src: m[2], a, line: at(i) }); continue;
     }
     if ((m = /^>\s?(.*)$/.exec(l))) {
       const sm = /^\[(.*)\]\{([^}]*)\}\s*$/.exec(m[1]);
@@ -115,6 +121,7 @@ function parse(text) {
       const a = attrs(m[2]);
       if (a.classes.includes("icon")) { push({ role: "icon", icon: (a.classes.find(c => /^ph-/.test(c)) || "").slice(3) || null, ...words(m[1]), a: { ...a, classes: a.classes.filter(c => c !== "icon" && !/^ph-/.test(c)) }, line: at(i) }); continue; }
       if (a.classes.includes("motif")) { push({ role: "motif", text: "", a: { ...a, classes: a.classes.filter(c => c !== "motif") }, line: at(i) }); continue; }
+      if (a.classes.some(c => ACTIONS.includes(c))) { push({ role: "action", ...words(m[1]), a, line: at(i) }); continue; }
       const role = a.classes.find(c => ROLES_BY_CLASS.includes(c)) || "body";
       push({ role, ...words(m[1]), a, line: at(i) }); continue;
     }
@@ -151,7 +158,7 @@ const transitionOf = (R, name) => (R.transitions.add[name] || T.transitions[name
 
 // The classes a block carries, by kind, and the ones that aren't vocabulary.
 function classesOf(b) {
-  const out = { size: [], enter: [], emphasis: [], hold: [], exit: [], unknown: [] };
+  const out = { size: [], enter: [], emphasis: [], hold: [], exit: [], action: [], unknown: [] };
   for (const c of b.a.classes) {
     if (ROLES_BY_CLASS.includes(c) || c === "draw" && b.role === "draw" || c === "chart") continue;
     const k = T.classes[c];
@@ -172,6 +179,8 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
   if (fm.music && !T.music[fm.music]) errors.push(`front matter: music is one of ${keys(T.music).join(", ")}, not "${fm.music}"`);
   if (fm.read !== undefined && !(Number(fm.read) >= 5 && Number(fm.read) <= 60)) errors.push(`front matter: read is the characters a second a viewer reads (5 to 60; ${T.hold.read} by default), not "${fm.read}"`);
   if (fm.ground) errors.push("front matter: ground is set per scene now, with bg= on each scene");
+  if (fm.data && !tech.ui) errors.push("front matter: data: is for walkthrough films (the data their screenshots show)");
+  if (fm.data && tech.ui && (!W.data[fm.data] || fm.data.startsWith("_"))) errors.push(`front matter: data is ${keys(W.data).join(" or ")}, not "${fm.data}"`);
   if (fm.piece && !/^[a-z][a-z0-9-]{0,40}$/.test(fm.piece)) errors.push(`front matter: piece is a lower-case name like case-study, not "${fm.piece}"`);
   const pieceSay = R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand's films";
   if (!scenes.length) errors.push("no scenes: write at least a title scene and a closing scene");
@@ -197,6 +206,17 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
     if (wantsMotif && !motifs.length) errors.push(`${where}: this brand has no motif (motion.motifs in its profile)`);
     const mid = s.attrs.motif || s.blocks.map(b => b.role === "motif" && b.a.attrs.name).find(Boolean);
     if (mid && motifs.length && !motifs.some(x => x.id === mid)) errors.push(`${where}: motif ${mid} is not one of ${motifs.map(x => x.id).join(", ")}`);
+    // A walkthrough: screens, screenshots and actions belong to the scenes that show the app.
+    if (s.attrs.screen !== undefined && (!lay.ui || !T.screens[s.attrs.screen] || s.attrs.screen.startsWith("_"))) errors.push(lay.ui ? `${where}: screen=${s.attrs.screen} is not one of ${keys(T.screens).join(", ")}` : `${where}: screen= is for scenes that show the app (${keys(tech.layouts).filter(k => tech.layouts[k].ui).join(", ") || "walkthrough films"})`);
+    if (lay.ui) {
+      const guides = s.blocks.filter(b => b.role === "screen");
+      if (guides.length > 1) errors.push(`${where}: one screenshot per scene; a scene that changes page is two scenes`);
+      const h2 = s.blocks.filter(b => b.role === "h2"), sub = s.blocks.filter(b => b.role === "sub");
+      if (s.layout === "step" && !h2.length) errors.push(`${where}: a step needs its title for the step card (## Title)`);
+      if (h2.length > 1 || sub.length > 1) errors.push(`${where}: the step card is one ## title and one .sub sentence`);
+      for (const b of s.blocks) if (!["h2", "sub", "action", "screen"].includes(b.role)) errors.push(`${where}, block at line ${b.line}: words on a ${s.layout} scene are the step card (## title, one .sub sentence) and what happens in the app ([label]{.click} and the other actions); a ${b.role} goes on the title or end card`);
+      if (s.layout === "step" && !s.blocks.some(b => b.role === "action")) warnings.push(`#${s.id || n + 1}: a step shows its task happening: add what the viewer sees ([label]{.click}, [words]{.fill field="…"})`);
+    } else for (const b of s.blocks) if (b.role === "screen" || b.role === "action") errors.push(`${where}, block at line ${b.line}: ${b.role === "screen" ? "a screenshot" : "an action"} belongs in a scene that shows the app${tech.ui ? ` (${keys(tech.layouts).filter(k => tech.layouts[k].ui).join(", ")})` : ": walkthrough films only"}`);
     if (s.attrs.hold !== undefined && !(Number(s.attrs.hold) >= 1 && Number(s.attrs.hold) <= 30)) errors.push(`${where}: hold= is the seconds the scene holds once everything has landed, 1 to 30`);
     if (s.dur === null) s.dur = lay.dur;
     if (!(s.dur >= 1)) errors.push(`${where}: dur must be a number of seconds, 1 or more`);
@@ -210,7 +230,7 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
       if (off.length) errors.push(`${bw}: .${off.join(" .")} is not used in ${fm.technique}`);
       const denied = b.a.classes.filter(c => R.deny.classes.includes(c));
       if (denied.length) errors.push(`${bw}: ${pieceSay} never use .${denied.join(" .")}`);
-      for (const kind of ["size", "enter", "emphasis", "hold", "exit"]) if (k[kind].length > 1) errors.push(`${bw}: one ${kind} class per block, not .${k[kind].join(" .")}`);
+      for (const kind of ["size", "enter", "emphasis", "hold", "exit", "action"]) if (k[kind].length > 1) errors.push(`${bw}: one ${kind} class per block, not .${k[kind].join(" .")}`);
       if (k.emphasis.length && !b.accent) errors.push(`${bw}: .${k.emphasis[0]} marks the accent word; star one word (*word*)`);
       if (k.enter.includes("count") && (b.a.attrs.from === undefined || isNaN(Number(b.a.attrs.from)))) errors.push(`${bw}: .count needs from=<number>`);
       if (b.a.attrs.at !== undefined && !(Number(b.a.attrs.at) >= 0 && Number(b.a.attrs.at) < (s.dur || Infinity))) errors.push(`${bw}: at=${b.a.attrs.at} is outside the scene's ${s.dur} s`);
@@ -221,15 +241,87 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
       if (extra.length) errors.push(`${bw}: unknown attribute ${extra.join(", ")}`);
       if (b.role === "draw" && !b.say) errors.push(`${bw}: a ::: draw block describes the object in words`);
       if (b.role === "icon" && !b.icon) errors.push(`${bw}: an icon block names its icon: []{.icon .ph-calendar}`);
+      if (k.action.length && b.role !== "action") errors.push(`${bw}: .${k.action[0]} is an action: write it on its own line, [label]{.${k.action[0]}}`);
+      const act = k.action[0];
+      if (act && !b.text && act !== "back") errors.push(`${bw}: .${act} names what it acts on: [New referral]{.${act}}`);
+      if (["fill", "choose"].includes(act) && !b.a.attrs.field) errors.push(`${bw}: .${act} names its field: [Jordan Lee]{.${act} field="Client name"}`);
+      if (b.a.attrs.field && !["fill", "choose"].includes(act)) errors.push(`${bw}: field= is for .fill and .choose`);
+      if (b.a.attrs.zoom !== undefined && (b.role !== "action" || act === "back")) errors.push(`${bw}: zoom= is for an action the camera pushes in on`);
+      else if (b.a.attrs.zoom !== undefined && !(Number(b.a.attrs.zoom) >= W.zoom[0] && Number(b.a.attrs.zoom) <= W.zoom[1])) errors.push(`${bw}: zoom= is ${W.zoom[0]} to ${W.zoom[1]} (×), not ${b.a.attrs.zoom}`);
+      if (act === "focus" && b.a.attrs.zoom === undefined) b.a.attrs.zoom = String(W.zoom[0] + 0.2);
     }
   });
   if (scenes.length && scenes[scenes.length - 1].layout !== "closing") errors.push("the last scene is the closing end card (.closing)");
   if (scenes.length && scenes[0].layout !== "title") warnings.push("the first scene is usually .title: frame 0 is the film's thumbnail");
+  if (tech.ui) {
+    const steps = scenes.filter(s => s.layout === "step").length;
+    if (!steps) errors.push("a walkthrough has at least one .step scene");
+    else if (steps < W.steps[0] || steps > W.steps[1]) warnings.push(`${steps} steps; a walkthrough is easiest to follow with ${W.steps[0]} to ${W.steps[1]} (split a longer one into two films)`);
+    if (scenes[1] && scenes[1].layout !== "app") warnings.push("a walkthrough meets the app (.app) before its first step: the whole screen, built in, before the camera pushes in");
+  }
   if (total > 300) errors.push(`the film runs ${total} s; Motion films are 300 s at most`);
   else if (total < tech.length[0] || total > tech.length[1]) warnings.push(`the film runs ${total} s; a ${fm.technique} film is usually ${tech.length[0]}–${tech.length[1]} s`);
   const said = s => s.blocks.some(b => /illustrative|fictional/i.test([b.text, ...(b.items || []).map(x => x.text)].join(" ")));
   if (/illustrative/i.test(fm.figures || "") && !scenes.some(said)) errors.push("figures: illustrative, but no line on screen says the piece is illustrative or fictional");
+  else if (fm.data === "stand-in" && !scenes.some(said)) errors.push("data: stand-in, but no line on screen says the data is illustrative or fictional");
   return { errors, warnings, total, aspect };
+}
+
+// --- walkthrough: screens and gaps ------------------------------------------------------------------------------------
+
+// The screen each scene that shows the app stands on: its screenshot (its own, or the last one before it), the layout
+// it shows (screen=, else the screenshot's shape, else the scene before, else the stage's own), and how it sits on the stage.
+function screensOf(doc, mdPath, aspect) {
+  const tech = T.techniques[doc.fm.technique] || {}, A = T.aspects[aspect] || T.aspects[tech.aspect] || T.aspects.wide, stage = A.width / A.height;
+  const shapeOf = (w, h) => w / h > 1.15 ? "desktop" : w / h > 0.62 ? "tablet" : "phone";
+  const byStage = stage >= 1 ? "desktop" : "phone";
+  let guide = null, screen = null;
+  return doc.scenes.map(s => {
+    const lay = (tech.layouts || {})[s.layout];
+    if (!lay || !lay.ui) return null;
+    const own = s.blocks.find(b => b.role === "screen"), prev = screen;
+    if (own) {
+      const file = path.resolve(path.dirname(mdPath), own.src), exists = fs.existsSync(file);
+      guide = { name: own.text || path.basename(own.src, path.extname(own.src)), src: own.src, file, exists, ...(exists ? imageSize(file) : {}) };
+    }
+    const shape = guide && guide.w ? shapeOf(guide.w, guide.h) : null;
+    screen = T.screens[s.attrs.screen] ? s.attrs.screen : (own && shape) || prev || shape || byStage;
+    const S = T.screens[screen], q = Math.log(S.ratio / stage);
+    return { guide, own: !!own, shape, screen, prev, fit: Math.abs(q) < 0.35 ? "full" : q > 0 ? "crop" : "device", device: S.device };
+  });
+}
+
+// What a walkthrough still needs from the person, as questions to ask before the film is made. block: the film can't be
+// made without the answer (no screenshot to rebuild a screen from, unknown data); the rest are flagged on delivery if unasked.
+const ADDRESS = /\b(?:https?:\/\/\S+|(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|io|ai|app|dev|co|us|gov|edu)(?:\/[^\s"]*)?)/gi;
+function gaps(doc, mdPath, aspect) {
+  const tech = T.techniques[doc.fm.technique];
+  if (!tech || !tech.ui) return [];
+  const out = [], ask = (scene, q, block) => out.push({ scene, ask: q, block: !!block });
+  const scr = screensOf(doc, mdPath, aspect);
+  doc.scenes.forEach((s, n) => {
+    const x = scr[n]; if (!x) return;
+    const id = `#${s.id}`;
+    if (!x.guide) ask(s.id, `${id}: there is no screenshot to rebuild the app from. Ask for one of the screen this ${s.layout === "app" ? "film opens on" : "step starts on"} (the whole window, PNG or JPG, ${T.screens[x.screen].width} px wide or more), then add it: ![Page name](images/<file>.png){.screen}`, true);
+    else if (x.own && !x.guide.exists) ask(s.id, `${id}: the screenshot ${x.guide.src} isn't there: ask for it`, true);
+    else if (x.guide.exists) {
+      if (x.own && x.shape && x.shape !== x.screen) ask(s.id, `${id}: the screenshot ${x.guide.src} is ${x.shape}-shaped but the scene shows the ${x.screen} layout: is there a ${x.screen} screenshot?`, false);
+      if (!x.own && x.prev && x.screen !== x.prev) ask(s.id, `${id} changes from the ${x.prev} to the ${x.screen} layout: ask for a screenshot of the ${x.screen} layout to rebuild it from`, true);
+      const want = T.screens[x.shape || x.screen].width;
+      if (x.own && x.guide.w && x.guide.w < want * 0.7) ask(s.id, `${id}: the screenshot ${x.guide.src} is only ${x.guide.w} px wide, too small to read its labels: ask for a larger one (${want} px wide or more)`, false);
+    }
+  });
+  if (scr.some(x => x && x.guide) && !doc.fm.data) ask(null, "Is the data in the screenshots demo data, or real people's? data: demo rebuilds it as it is; data: stand-in replaces every name and detail with invented ones and labels the film illustrative", true);
+  const close = doc.scenes[doc.scenes.length - 1];
+  if (close && close.layout === "closing" && !close.blocks.some(b => b.role === "cta")) ask(close.id, `#${close.id}: the end card has no call to action. Ask what viewers should do next (and its address), then add [Start at …]{.cta}`, false);
+  for (const a of String(doc.fm.assumed || "").split(/\s*;\s*/).filter(Boolean)) ask(null, `Assumed, not confirmed: ${a}. Confirm it, or flag it on delivery`, false);
+  // An address on screen that content.md doesn't have was assumed.
+  const content = [path.join(path.dirname(mdPath), "..", "content.md"), path.join(path.dirname(mdPath), "content.md")].find(f => fs.existsSync(f));
+  if (content) {
+    const c = fs.readFileSync(content, "utf8").toLowerCase();
+    for (const s of doc.scenes) for (const l of sceneLines(s)) for (const u of l.match(ADDRESS) || []) if (!c.includes(u.toLowerCase())) ask(s.id, `#${s.id}: the address ${u} isn't in content.md: confirm it`, false);
+  }
+  return out;
 }
 
 // --- color -------------------------------------------------------------------------------------------------------------
@@ -311,9 +403,9 @@ const sayHold = h => h.read ? `at least ${h.min} s, a second for every ${h.read}
 
 // Every line a scene puts on screen, in order: text blocks and list items, quoted words in draw blocks, chart labels.
 function sceneLines(s) {
-  const lines = [];
+  const lines = [...(s.extraLines || [])];
   for (const b of s.blocks) {
-    if (["logo", "image", "draw", "chart", "motif"].includes(b.role)) continue;
+    if (["logo", "image", "draw", "chart", "motif", "screen"].includes(b.role)) continue;
     if (b.role === "list") lines.push(...b.items.map(x => x.text)); else if (b.text) lines.push(b.text);
   }
   for (const b of s.blocks) if (b.role === "draw") for (const q of b.say.matchAll(/"([^"]+)"/g)) lines.push(q[1]);
@@ -326,29 +418,42 @@ function plan(B, doc, v, R = NO_RULES) {
   const { fm, scenes } = doc, tech = T.techniques[fm.technique], energy = T.energy[fm.energy || tech.energy];
   const motifs = motifsFor(B);
   const warnings = [];
+  // A walkthrough: the screen each app scene stands on, and the steps' numbers.
+  const ui = !!tech.ui, scr = ui ? screensOf(doc, doc.path || ".", v.aspect) : [];
+  const steps = scenes.filter(s => s.layout === "step").length;
+  let stepNo = 0;
   let prevBg = null, prevBd = null, tc = 0;
   const bgs = [], out_prev = n => bgs[n - 1];
   const out = scenes.map((s, n) => {
     const lay = tech.layouts[s.layout];
     // A default ground or backdrop never repeats the scene before it; one set by hand stays.
+    // Scenes that show the app keep one ground and no backdrop: the UI covers them, and the chrome matches across cuts.
     let bg = s.attrs.bg || lay.bg;
-    if (!s.attrs.bg && bg === prevBg) bg = ROTATE.find(x => x !== prevBg && x !== bg);
+    if (!s.attrs.bg && bg === prevBg && !lay.ui) bg = ROTATE.find(x => x !== prevBg && x !== bg);
     let backdrop = s.attrs.backdrop || lay.backdrop;
     // A default backdrop the piece never uses, or one that repeats the scene before, steps to the piece's preferred ones.
-    if (!s.attrs.backdrop && (backdrop === prevBd || R.deny.backdrops.includes(backdrop) || (backdrop === "motif" && !motifs.length))) {
+    if (!s.attrs.backdrop && !lay.ui && (backdrop === prevBd || R.deny.backdrops.includes(backdrop) || (backdrop === "motif" && !motifs.length))) {
       const bds = (R.backdrops.prefer || keys(T.backdrops)).filter(x => x !== "none" && !R.deny.backdrops.includes(x) && (x !== "motif" || motifs.length));
       backdrop = bds.find(x => x !== prevBd) || bds[0];
     }
-    if (s.attrs.bg && bg === prevBg) warnings.push(`#${s.id} has the same ground as the scene before it (${bg})`);
+    if (s.attrs.bg && bg === prevBg && !lay.ui) warnings.push(`#${s.id} has the same ground as the scene before it (${bg})`);
     bgs.push(bg); prevBg = bg; prevBd = backdrop;
     const ground = groundOf(B, bg, R), colors = sceneColors(B, ground, R);
     // The piece may fix how a scene leaves a given ground (a brand transition out of its main color).
     const forced = n > 0 ? R.transitions.after[out_prev(n)] : null;
     if (forced && s.attrs.in && s.attrs.in !== forced) warnings.push(`!#${s.id}: ${R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand"} leave a ${out_prev(n)} scene with ${forced}, not ${s.attrs.in}`);
-    const into = n === 0 ? null : (forced || s.attrs.in || tech.transitions[tc++ % tech.transitions.length]);
-    return { s, lay, bg, backdrop, ground, colors, into, motif: s.attrs.motif || (motifs.find(m => m.on === (colors.dark ? "dark" : "light") || m.on === "any") || motifs[0] || {}).id || null };
+    // A walkthrough picks each hand-off from what is on either side: the same screen keeps its chrome, a new screen
+    // reframes, the title zooms through into the app, and the UI fades out before the end card.
+    const x = scr[n] || null, px = n ? scr[n - 1] || null : null;
+    const auto = !ui ? tech.transitions[tc++ % tech.transitions.length] : x && px ? (x.screen === px.screen ? "chrome" : "reframe") : x ? "zoom-through" : "fade";
+    const into = n === 0 ? null : (forced || s.attrs.in || auto);
+    if (into === "chrome" && !(x && px && x.screen === px.screen)) warnings.push(`!#${s.id}: in=chrome keeps the chrome of the scene before, so both show the app on the same screen${x && px ? ` (${px.screen} → ${x.screen}: use reframe)` : ""}`);
+    if (into === "reframe" && !(x && px)) warnings.push(`!#${s.id}: in=reframe changes the app's screen, so both scenes show the app`);
+    else if (into === "reframe" && x.screen === px.screen) warnings.push(`#${s.id}: in=reframe, but both scenes show the ${x.screen} layout (chrome keeps it)`);
+    if (x && px && x.screen !== px.screen && ["chrome", "cut"].includes(into)) warnings.push(`!#${s.id}: the app changes from ${px.screen} to ${x.screen}: arrive with reframe`);
+    return { s, lay, bg, backdrop, ground, colors, into, ui: !!lay.ui, screen: x, prevScreen: px, step: s.layout === "step" ? ++stepNo : null, steps, motif: s.attrs.motif || (motifs.find(m => m.on === (colors.dark ? "dark" : "light") || m.on === "any") || motifs[0] || {}).id || null };
   });
-  for (let i = 1; i < out.length; i++) if (out[i].into !== "cut" && out[i].into === out[i - 1].into) warnings.push(`#${out[i].s.id} arrives the same way as the scene before it (${out[i].into})`);
+  if (!ui) for (let i = 1; i < out.length; i++) if (out[i].into !== "cut" && out[i].into === out[i - 1].into) warnings.push(`#${out[i].s.id} arrives the same way as the scene before it (${out[i].into})`);
   // Each scene: its blocks' times, then its length. After the last entrance lands the scene holds, still moving, before
   // anything leaves: long enough to read its words (holdFor), or hold= on the scene; dur= in the format file is a minimum.
   const rule = holdRule(fm);
@@ -358,13 +463,27 @@ function plan(B, doc, v, R = NO_RULES) {
     const own = p.into ? transitionOf(R, p.into) || {} : {};
     const [from, to] = own.from && own.to ? [own.from, own.to] : EDGES[n % EDGES.length];
     p.inT = p.into && p.into !== "cut" ? { name: p.into, panel: panelFor(B, out[n - 1].ground, p.ground, R), from, to, half: energy.half, in: r2(energy.half * 0.7),
+      screen_from: p.prevScreen ? p.prevScreen.screen : "", screen_to: p.screen ? p.screen.screen : "",
       next: p.ground.gradient ? `its gradient, starting ${p.ground.stops[0]}` : p.ground.stops[0] } : null;
     // When the content may arrive.
-    const enterAt = n === 0 ? -1.4 : p.inT ? (["wipe", "iris", "blinds"].includes(p.inT.name) || own.motif ? r2(energy.half * 0.7) : 0.15) : 0.1;
+    const enterAt = n === 0 ? -1.4 : p.inT ? (["wipe", "iris", "blinds", "zoom-through", "reframe"].includes(p.inT.name) || own.motif ? r2(energy.half * 0.7) : 0.15) : 0.1;
     const nextHalf = next && next.into !== "cut" ? energy.half : 0;
     const last = n === out.length - 1;
     let k = 0;
-    p.blocks = s.blocks.map(b => {
+    // A scene that shows the app: the step card opens first and collapses; then each action follows the one before
+    // once it has landed and held (the beat), so only one thing moves at a time.
+    const base = p.ui ? r2(Math.max(0, enterAt) + (s.layout === "app" ? 2.4 : 0)) : 0;
+    let cursor = null;
+    p.buildAt = r2(Math.max(0, enterAt));
+    if (p.ui) {
+      const card = s.blocks.filter(b => b.role === "h2" || b.role === "sub");
+      if (card.length) {
+        const cardLanded = r2(base + W.card.open + (card.length > 1 ? 0.3 : 0));
+        p.card = { at: base, landed: cardLanded, collapse: r2(cardLanded + W.card.read), chip: r2(cardLanded + W.card.read + W.card.collapse) };
+        cursor = r2(p.card.chip + 0.3);
+      } else cursor = r2(base + (s.layout === "app" ? W.camera + W.beat : 0.4));
+    }
+    p.blocks = s.blocks.filter(b => b.role !== "screen").map(b => {
       const cl = classesOf(b), def = (tech.defaults[b.role] || {});
       const enter = cl.enter[0] || def.enter || "fade";
       const hold = cl.hold[0] || def.hold || null;
@@ -372,8 +491,16 @@ function plan(B, doc, v, R = NO_RULES) {
       if (emphasis && !cl.emphasis[0] && R.deny.classes.includes(emphasis)) emphasis = R.deny.classes.includes("highlight") ? null : "highlight";
       let exit = cl.exit[0] || def.exit || "out";
       if (last) exit = null;
-      const at = b.a.attrs.at !== undefined ? Number(b.a.attrs.at) : r2(enterAt + (k++) * (energy.stagger * 3.5));
-      const size = cl.size[0] || (T.roles[b.role] || {}).size || null;
+      const size = cl.size[0] || (p.ui && W.card.sizes[b.role]) || (T.roles[b.role] || {}).size || null;
+      if (p.ui && b.role === "action") {
+        const action = cl.action[0], zoom = b.a.attrs.zoom !== undefined ? Number(b.a.attrs.zoom) : null;
+        const at = b.a.attrs.at !== undefined ? Number(b.a.attrs.at) : cursor;
+        const took = T.classes[action].secs + (action === "fill" ? String(b.text).length / W.cps : 0) + (zoom && action !== "focus" ? W.camera : 0);
+        const bp = { b, action, zoom, enter: null, hold: null, emphasis: null, exit: last ? null : "stay", at: r2(at), size: null, landed: r2(at + took) };
+        cursor = r2(bp.landed + W.beat);
+        return bp;
+      }
+      const at = b.a.attrs.at !== undefined ? Number(b.a.attrs.at) : p.ui ? r2(base + (b.role === "sub" ? 0.3 : 0)) : r2(enterAt + (k++) * (energy.stagger * 3.5));
       const bp = { b, enter, hold, emphasis, exit, at, size };
       bp.landed = r2(entranceEnd(bp, energy));
       return bp;
@@ -382,10 +509,16 @@ function plan(B, doc, v, R = NO_RULES) {
     const leaving = p.blocks.filter(x => x.exit && x.exit !== "stay").sort((a, b) => b.at - a.at);
     const exitSpan = leaving.length ? 0.35 + (leaving.length - 1) * 0.07 + 0.05 : 0;
     p.chars = sceneLines(s).join(" ").replace(/[*_]/g, "").length;
-    const hold = p.hold = s.attrs.hold !== undefined ? Number(s.attrs.hold) : holdFor(p.chars, rule);
-    const need = Math.ceil((p.landed + hold + exitSpan + nextHalf) * 10) / 10;
+    // In a scene that shows the app the reading happens along the way (the card's read, a beat after every action), so
+    // it holds the shortest hold after its last action; then the camera pulls back out to the whole screen.
+    const hold = p.hold = s.attrs.hold !== undefined ? Number(s.attrs.hold) : p.ui ? rule.min : holdFor(p.chars, rule);
+    // The camera ends the scene back out at the whole screen: a pull-back unless the last camera move already was one.
+    const zoomed = p.blocks.filter(x => x.action && (x.zoom || x.action === "back")).map(x => x.action !== "back").pop();
+    const back = p.ui && !last && zoomed ? W.camera : 0;
+    const need = Math.ceil((p.landed + hold + back + exitSpan + nextHalf) * 10) / 10;
     if (need > s.dur) { p.grew = { from: s.dur, to: need }; s.dur = need; }
     p.holdFrom = p.landed; p.holdTo = r2(p.landed + hold);
+    if (back) p.backBy = r2(p.holdTo + back);
     p.goneBy = last ? null : r2(s.dur - nextHalf - 0.05);
     // Exits run in reverse order of arrival and finish before the next scene's transition starts.
     leaving.forEach((x, i) => { x.leaveAt = r2(p.goneBy - 0.35 - (leaving.length - 1 - i) * 0.07); });
@@ -405,6 +538,22 @@ function brief(mdPath, outDir) {
   const v = validate(doc, allowed, motifs, R);
   const fail = errs => { for (const e of errs) console.error(`[motion] ${e}`); console.error(`[motion] ${errs.length} problem(s): fix ${mdPath} and run again`); process.exit(1); };
   if (v.errors.length) fail(v.errors);
+  // A walkthrough: what only the person can answer stops the brief; the rest is flagged on delivery.
+  doc.path = mdPath;
+  const G = gaps(doc, mdPath, v.aspect), blocking = G.filter(g => g.block);
+  if (blocking.length) fail(blocking.map(g => `ask the person: ${g.ask}`));
+  for (const g of G) console.warn(`[motion] gap: ${g.ask}`);
+  if (T.techniques[doc.fm.technique].ui) {
+    // Prism's own lines: each step's eyebrow, and the end card's recap of the steps by their titles.
+    const stepScenes = doc.scenes.filter(s => s.layout === "step");
+    stepScenes.forEach((s, i) => { s.extraLines = [`Step ${i + 1} of ${stepScenes.length}`]; });
+    const close = doc.scenes[doc.scenes.length - 1];
+    if (close && close.layout === "closing" && stepScenes.length && !close.blocks.some(b => b.role === "list")) {
+      const recap = { role: "list", style: "steps", recap: true, items: stepScenes.map(s => ({ text: s.blocks.find(b => b.role === "h2").text, accent: null, icon: null })), a: attrs(""), line: close.line };
+      const after = close.blocks.reduce((k, b, i) => ["h1", "h2", "sub", "body"].includes(b.role) ? i + 1 : k, 0);
+      close.blocks.splice(after, 0, recap);
+    }
+  }
   // Icons come from the brand's own set.
   const iconSet = JSON.parse(fs.readFileSync(B.icons.paths, "utf8"));
   const wantIcons = [...new Set(doc.scenes.flatMap(s => s.blocks.flatMap(b => b.role === "icon" ? [b.icon] : b.role === "list" ? b.items.map(x => x.icon).filter(Boolean) : [])))];
@@ -416,6 +565,7 @@ function brief(mdPath, outDir) {
   if (broken.length) fail(broken);
   if (R.known.length && !R.found) v.warnings.push(`this brand has motion rules for ${R.known.join(", ")}; name the piece (piece: ${R.known[0]}) to use them`);
   for (const p of P.scenes) if (p.grew) P.warnings.push(`#${p.s.id} runs ${p.grew.to} s, not ${p.grew.from}: its entrances land at ${p.landed} s, then it holds ${p.hold} s before leaving`);
+  for (const p of P.scenes) if (p.step && p.s.dur > 20) P.warnings.push(`#${p.s.id} runs ${p.s.dur} s: a step over 20 s is easier to follow as two steps`);
   if (P.total > 300) fail([`the film runs ${P.total} s with its holds; Motion films are 300 s at most`]);
   const len = T.techniques[doc.fm.technique].length;
   if (P.total < len[0] || P.total > len[1]) P.warnings.push(`the film runs ${P.total} s; a ${doc.fm.technique} film is usually ${len[0]}–${len[1]} s`);
@@ -484,7 +634,8 @@ function brief(mdPath, outDir) {
     background: P.scenes[0].ground.stops[0], energy: fm.energy || tech.energy, music: fm.music || "calm", length: P.total, hold: P.hold,
     assets: [...assets.values()], records: records.map(r => ({ collection: r.collection, doc_id: r.doc_id })), faces: Object.fromEntries(Object.entries(faces).map(([k, f]) => [k, { face: f.face, weight: f.weight }])),
     scenes: P.scenes.map(p => {
-      const s = p.s, name = (s.name || s.id.replace(/-/g, " ").replace(/^./, c => c.toUpperCase())).slice(0, 48);
+      const title = p.step ? (p.s.blocks.find(b => b.role === "h2") || {}).text : null;
+      const s = p.s, name = (s.name || title || s.id.replace(/-/g, " ").replace(/^./, c => c.toUpperCase())).slice(0, 48);
       const lines = sceneLines(s);
       const counts = [], countLines = [];
       for (const bp of p.blocks) if (bp.enter === "count") {
@@ -494,8 +645,14 @@ function brief(mdPath, outDir) {
       }
       const head = (s.blocks.find(b => b.role === "h1" || b.role === "h2") || {}).text || lines.slice(0, 3).join(" ");
       const desc = (s.notes[0] || `${cap(s.layout)}: ${head}`).split(/(?<=\.)\s/)[0].slice(0, 160);
-      return { id: s.id, name, dur: s.dur, start: p.start, layout: s.layout, desc, bg: p.bg, ground: p.ground.stops, colors: p.colors, backdrop: p.backdrop, into: p.into, hold: [p.holdFrom, p.holdTo], chars: p.chars, lines, counts, countLines };
+      const app = p.ui ? { ui: true, screen: p.screen.screen, fit: p.screen.fit, guide: p.screen.guide ? p.screen.guide.src : null, step: p.step } : {};
+      return { id: s.id, name, dur: s.dur, start: p.start, layout: s.layout, desc, bg: p.bg, ground: p.ground.stops, colors: p.colors, backdrop: p.backdrop, into: p.into, hold: [p.holdFrom, p.holdTo], chars: p.chars, lines, counts, countLines, ...app };
     }) };
+  if (tech.ui) {
+    film.data = fm.data || null;
+    film.guides = [...new Map(P.scenes.filter(p => p.ui && p.screen.guide).map(p => [p.screen.guide.src, { src: p.screen.guide.src, file: p.screen.guide.file, w: p.screen.guide.w, h: p.screen.guide.h }])).values()];
+    film.gaps = G.map(g => ({ scene: g.scene, ask: g.ask }));
+  }
   try { film.url = JSON.parse(fs.readFileSync(path.join(outDir, "film.json"), "utf8")).url; } catch { /* a first brief */ }
   if (film.url) console.log(`film: ${film.url} (revise this film; never make a second one for this output)`);
   fs.writeFileSync(path.join(outDir, "film.json"), JSON.stringify(film, null, 1) + "\n");
@@ -578,6 +735,21 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push(`- **Nothing is ever still.** The backdrop moves for the whole scene; held blocks keep their hold move. Energy: ${E.say.toLowerCase()} (stagger ${E.stagger} s, overshoot ${E.overshoot}).`);
   for (const r of tech.rules) L.push(`- ${r}`);
   if (B.res.digest) L.push(`- The brand's visual rules apply (from its digest): ${digestVisual(B.res.digest)}`);
+  if (tech.ui) {
+    L.push("", "## The walkthrough", "");
+    for (const r of W.rules) L.push(`- ${r}`);
+    if (film.data) L.push(`- Data: ${W.data[film.data]}.`);
+    L.push("", "## The app", "");
+    L.push("- **Build the app once**, in a module `ui.js` that every scene showing the app uses: its chrome (header, navigation, sidebar) and each page below. The chrome is the same code in every scene, so it matches pixel for pixel across a chrome hand-off; scenes swap only the page content and drive the camera, the cursor and the actions.");
+    L.push("- **Read each screenshot with the Read tool before building its page**, and rebuild it as live HTML: the same layout, spacing, type sizes, colors, icons and copy (labels, buttons, table rows), in the app's own look rather than the brand's. A screenshot is a layout guide only: it is never placed in the film as a picture and never uploaded.");
+    for (const g of film.guides) {
+      const by = P.scenes.filter(p => p.ui && p.screen.guide && p.screen.guide.src === g.src);
+      L.push(`- \`${g.file}\` (${g.w}×${g.h}, ${by[0].screen.screen}): "${by[0].screen.guide.name}", the page for ${by.map(p => `#${p.s.id}`).join(", ")}.`);
+    }
+    for (const [sc, fit] of [...new Set(P.scenes.filter(p => p.ui).map(p => `${p.screen.screen}|${p.screen.fit}`))].map(k => k.split("|"))) L.push(`- On this ${A.width}×${A.height} stage the ${T.screens[sc].say.replace(/^the /, "")}: ${fill(T.fits[fit], { device: T.screens[sc].device })}.`);
+    L.push("- **The camera** is one transform (scale and translate) on the app, eased, clamped so the frame never shows past the UI's edges; the cursor moves with the app. The step card and the end card sit outside the camera: they stay put and the same size while it moves.");
+    L.push(`- **The step card** is bottom-left, inside the safe area, on a solid panel of the brand's light surface with a soft shadow, in the brand's faces: the step number in a disc in the brand's main color, the eyebrow, the title, the sentence and the progress dots.`);
+  }
   if (R.found) {
     L.push("", `## This brand's ${(R.name || R.piece).toLowerCase()} films`, "");
     for (const r of R.rules) L.push(`- ${r}`);
@@ -594,15 +766,23 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
     L.push(`### ${n + 1}. #${s.id} · "${f.name}" · ${s.dur} s (starts at ${f.start} s)`, "");
     L.push(`- scenes.json: \`{"id":"${s.id}","name":"${f.name}","dur":${s.dur},"desc":${JSON.stringify(f.desc)}}\``);
     L.push(`- Layout ${s.layout}: ${p.lay.say}`);
-    const groundSay = g.css ? `${g.say || T.grounds[p.bg].say}: exactly \`background: ${g.css}\`` : `${T.grounds[p.bg].say}, ${g.gradient ? `a gradient ${g.stops.join(" → ")} from top left to bottom right` : g.stops[0]}`;
+    if (p.ui) {
+      const x = p.screen, g = x.guide;
+      L.push(`- **Screen**: ${T.screens[x.screen].say}, ${x.fit === "full" ? "full screen" : x.fit === "crop" ? "cropped to the stage, the camera panning with the action" : `in the ${x.device} mockup`}; the page "${g.name}" (\`${g.src}\`)${x.own ? "" : ", the same page the scene before ended on"}.`);
+      if (s.layout === "app") L.push(`- **Builds in** from ${p.buildAt} s to ${r2(p.buildAt + 2.4)} s: the header, then the navigation, then the content, staggered, with the whole screen in view; the camera then pushes in slowly toward where step 1 happens.`);
+      if (p.card) L.push(`- **${p.step ? "Step card" : "Intro card"}**: ${p.step ? `the number ${p.step} in its disc, the eyebrow "Step ${p.step} of ${p.steps}", ` : ""}the title and sentence below${p.step ? `, and ${p.steps} progress dots with the first ${p.step} filled` : ""}. It opens at ${p.card.at} s (rises with a slight overshoot) and has landed by ${p.card.landed} s; at ${p.card.collapse} s it collapses over ${W.card.collapse} s to a chip (${p.step ? "the number and " : ""}the title only), which stays until it fades out with the page content. No action starts while it is open.`);
+    }
+    const groundSay = (p.ui ? "behind the app, seen only during transitions: " : "") + (g.css ? `${g.say || T.grounds[p.bg].say}: exactly \`background: ${g.css}\`` : `${T.grounds[p.bg].say}, ${g.gradient ? `a gradient ${g.stops.join(" → ")} from top left to bottom right` : g.stops[0]}`);
     L.push(`- **Ground (.g-${s.id})**: ${groundSay}. Ink ${c.ink}; main ${c.main}; second ${c.second}; third ${c.third}.`);
     L.push(`- **Backdrop**: ${p.backdrop === "motif" && motifAssets[p.motif] ? `the brand motif \`${motifAssets[p.motif].name}\`: ${T.backdrops.motif}` : (R.backdrops.say[p.backdrop] || T.backdrops[p.backdrop])}.`);
     if (p.inT) L.push(`- **Arrives (${p.inT.name})**: ${fill(transitionOf(R, p.inT.name).in, p.inT)}${p.inT.motif && motifAssets[p.inT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.inT.motif].name}\`)` : ""}.`);
     else if (n > 0) L.push(`- **Arrives (cut)**: a deliberate hard cut.`);
     else L.push(`- **Opens the film**: the first blocks are already in place at frame 0 (their entrances start before 0), so the thumbnail reads.`);
+    p.toastAt = A.height > A.width ? "top of the frame, inside the safe area" : "bottom right";
     for (const bp of p.blocks) L.push(`- ${blockLine(bp, p, E, motifAssets, highlight)}`);
     for (const note of s.notes) L.push(`- Direction: ${note.replace(/\s+/g, " ")}`);
     L.push(`- Holds from ${p.holdFrom} s to ${p.holdTo} s (${p.hold} s${p.s.attrs.hold !== undefined ? ", set by hand" : `, for ${p.chars} characters`}): everything has landed; the backdrop and the hold moves keep going${p.goneBy === null ? " to the end" : ""}.`);
+    if (p.backBy) L.push(`- At ${p.holdTo} s the camera pulls back out to the whole screen; by ${p.backBy} s it is there, so the chrome matches the next scene.`);
     if (p.goneBy !== null) L.push(`- By ${p.goneBy} s every block that leaves has left.`);
     if (p.outT) L.push(`- **Ends (${p.outT.name} into #${P.scenes[n + 1].s.id})**: ${fill(transitionOf(R, p.outT.name).out, p.outT)}${p.outT.motif && motifAssets[p.outT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.outT.motif].name}\`)` : ""}.`);
     else if (p.outInto === "cut") L.push(`- **Ends**: a deliberate hard cut into #${P.scenes[n + 1].s.id}.`);
@@ -618,8 +798,14 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push("");
   return L.join("\n");
 }
+const CARD = { h2: "the card's title", sub: "the card's sentence" };
 function blockLine(bp, p, E, motifAssets, highlight) {
   const { b } = bp, def = T.roles[b.role] || {};
+  if (b.role === "action") {
+    const t = fill(T.classes[bp.action].say, { text: b.text, field: b.a.attrs.field || "", zoom: bp.zoom || "", cps: W.cps, toast: p.toastAt || "bottom right" });
+    const cam = bp.zoom && bp.action !== "focus" ? `the camera first pushes in on it (about ${bp.zoom}×, about 1 s) and stays in; then ` : "";
+    return `Action (.${bp.action}): at ${bp.at} s ${cam}${t}; done by ${bp.landed} s${b.a.attrs.sfx ? ` (sound: ${b.a.attrs.sfx})` : ""}.`;
+  }
   const say = c => {
     const t = fill(T.classes[c].say, { from: b.a.attrs.from, stagger: b.a.attrs.stagger || E.stagger, overshoot: E.overshoot });
     return c === "highlight" && highlight ? t.replace("in the scene's second color", `in ${highlight}, at full strength`) : t;
@@ -640,9 +826,9 @@ function blockLine(bp, p, E, motifAssets, highlight) {
   if (b.role === "icon") return `Icon \`${b.icon}\` from the brand set${size}, in the scene's main color${b.text ? `, labelled "${b.text}"` : ""}${how}`;
   if (b.role === "draw") return `Draw${b.a.attrs.n ? ` (${b.a.attrs.n} in all)` : ""}: ${b.say.replace(/\s+/g, " ").replace(/\.$/, "")}${/"/.test(b.say) ? ". Words in quotes are on-screen lines, verbatim" : ""}; in the scene's colors${how}`;
   if (b.role === "chart") return `A chart, built from this data (values exact; labels and caption verbatim), bars in the scene's main, second and third colors:\n\n\`\`\`\n${b.text.trim()}\n\`\`\`\n\n  Then${how.slice(1)}`;
-  if (b.role === "list") return `A list${size}, ${T.lists[b.style]}; items, verbatim, ${(b.a.attrs.stagger || E.stagger * 3)} s apart:${b.items.map(x => ` "${x.text}"${x.icon ? ` (icon \`${x.icon}\`)` : ""}`).join(";")}${how}`;
+  if (b.role === "list") return `${b.recap ? "The recap of the steps (Prism adds it from the step titles, numbered in order): a list" : "A list"}${size}, ${T.lists[b.style]}; items, verbatim, ${b.a.attrs.stagger || r2(E.stagger * 3)} s apart:${b.items.map(x => ` "${x.text}"${x.icon ? ` (icon \`${x.icon}\`)` : ""}`).join(";")}${how}`;
   const accent = b.accent ? ` Accent word: "${b.accent}".` : "";
-  return `${cap(def.say)}${size}: "${b.text}"${how}${accent}`;
+  return `${cap(p.ui && CARD[b.role] || def.say)}${size}: "${b.text}"${how}${accent}`;
 }
 
 // --- check: the film Motion made, against film.json --------------------------------------------------------------------
@@ -706,11 +892,14 @@ function check(dir, storeDir) {
   const pageEdits = [];
   const allowedNums = new Set(film.scenes.flatMap(s => s.lines.join(" ").match(NUM) || []).map(n => String(parseFloat(n.replace(/,/g, "")))));
   const base = (st.modules["base.css"] || {}).text || "";
+  const uiNums = new Set();
   for (const s of film.scenes) {
     const mod = st.modules[`scene-${s.id}.js`];
     if (!mod) { out.push(`#${s.id}: no scene module (scene-${s.id}.js)`); continue; }
     if (/rough:\s*true/.test(mod.text)) out.push(`#${s.id}: still rough`);
-    const shown = screenText(mod.text).map(norm), all = norm(shown.join(" "));
+    // A scene that shows the app may keep its words in the shared ui.js (or shared.js) too.
+    const code = s.ui ? [mod.text, ...["ui.js", "shared.js"].map(n => (st.modules[n] || {}).text || "")].join("\n") : mod.text;
+    const shown = screenText(code).map(norm), all = norm(shown.join(" "));
     for (const line of s.lines) {
       const n = norm(line);
       // A counting number is set at run time; its final value only has to be in the code.
@@ -723,7 +912,10 @@ function check(dir, storeDir) {
     // Numbers in on-screen words that the format file never states.
     for (const t of shown) for (const nm of t.match(NUM) || []) {
       const v = String(parseFloat(nm.replace(/,/g, "")));
-      if (!allowedNums.has(v) && !isCountStep(v, s) && !retyped.some(x => String(x.v || "").includes(nm))) out.push(`#${s.id}: number ${nm} on screen ("${t.slice(0, 50)}") is not in the format file`);
+      if (allowedNums.has(v) || isCountStep(v, s) || retyped.some(x => String(x.v || "").includes(nm))) continue;
+      // The app's own copy, rebuilt from its screenshot, carries numbers the format file doesn't: looked at by eye.
+      if (s.ui) uiNums.add(`#${s.id}: ${nm} ("${t.slice(0, 50)}")`);
+      else out.push(`#${s.id}: number ${nm} on screen ("${t.slice(0, 50)}") is not in the format file`);
     }
     // The scene's ground is the brief's: its colors are in base.css (or the scene), under its own class.
     if (s.ground) {
@@ -756,6 +948,8 @@ function check(dir, storeDir) {
     const where = Object.entries(st.modules).filter(([, m]) => (m.text || "").toLowerCase().includes(c)).map(([n]) => n);
     if (where.length) out.push(`${c} is a color this piece never uses, but ${where.join(", ")} uses it`);
   }
+  if (uiNums.size) warn.push(`numbers in the app's own copy (from its screenshots; check them on the contact sheet): ${[...uiNums].slice(0, 12).join("; ")}`);
+  if ((film.gaps || []).length) warn.push(`flag on delivery, not confirmed: ${film.gaps.map(g => g.ask).join(" | ")}`);
   for (const w of warn) console.log(`  note: ${w}`);
   if (pageEdits.length) { console.log(`PAGE EDITS: ${pageEdits.length} line(s) retyped on the film page (vet them; ask before carrying them into content.md):`); for (const e of pageEdits) console.log(`  ${e}`); }
   if (!out.length) { console.log(`OK: the film matches ${path.join(dir, "film.json")} (${film.scenes.length} scenes, ${film.length} s, every line verbatim)`); return 0; }
@@ -831,7 +1025,7 @@ async function render(dir, storeDir, playerDir, outDir, assetsDir) {
     const later = await frame(+(tm0 + 0.5).toFixed(2));
     if (await diff(settle, later) < 0.0004) problems.push(`#${s.id} is frozen around ${r2(tm0)} s: nothing moves for half a second while it holds`);
     // The ground the brief gave, where the edge shows it (flat grounds; a gradient is looked at by eye).
-    if (s.ground && s.ground.length === 1) {
+    if (s.ground && s.ground.length === 1 && !s.ui) {
       const px = await edges(settle), want = s.ground[0], d = c => Math.hypot(c[0] - hex(want)[0], c[1] - hex(want)[1], c[2] - hex(want)[2]);
       if (px.filter(c => d(c) < 30).length < 3) problems.push(`#${s.id}: the ground at the edges isn't ${want} (${s.bg})`);
     }
@@ -875,7 +1069,7 @@ async function render(dir, storeDir, playerDir, outDir, assetsDir) {
   return 1;
 }
 
-module.exports = { parse, validate, plan, attrs, screenText, techniquesFor, motifsFor, sceneColors, groundOf, contrast, holdFor, holdRule, sceneLines, T };
+module.exports = { parse, validate, plan, gaps, screensOf, attrs, screenText, techniquesFor, motifsFor, sceneColors, groundOf, contrast, holdFor, holdRule, sceneLines, T };
 if (require.main !== module) return;
 
 const [cmd, ...args] = process.argv.slice(2);
@@ -890,7 +1084,14 @@ if (cmd === "techniques") {
   const f = path.join(path.resolve(pos[0]), "film.json"), j = JSON.parse(fs.readFileSync(f, "utf8"));
   if (j.url && j.url !== pos[1]) console.log(`[motion] was ${j.url}`);
   j.url = pos[1]; fs.writeFileSync(f, JSON.stringify(j, null, 1) + "\n"); console.log(`film: ${j.url}`);
+} else if (cmd === "gaps" && pos[0]) {
+  // A walkthrough's open questions, to ask the person before the film is made; 1 while one still stops the brief.
+  const f = path.resolve(pos[0]), doc = parse(fs.readFileSync(f, "utf8")), tech = T.techniques[doc.fm.technique] || {};
+  const G = gaps(doc, f, doc.fm.aspect || tech.aspect);
+  for (const g of G) console.log(`${g.block ? "ASK (needed)" : "ASK"}: ${g.ask}`);
+  if (!G.length) console.log("no gaps");
+  process.exit(G.some(g => g.block) ? 1 : 0);
 } else if (cmd === "brief" && pos[0] && opt("--out")) brief(path.resolve(pos[0]), path.resolve(opt("--out")));
 else if (cmd === "check" && pos[1]) process.exit(check(path.resolve(pos[0]), path.resolve(pos[1])));
 else if (cmd === "render" && pos[2]) render(path.resolve(pos[0]), path.resolve(pos[1]), path.resolve(pos[2]), opt("--out") && path.resolve(opt("--out")), opt("--assets") && path.resolve(opt("--assets"))).then(c => process.exit(c), e => { console.error(`[motion] ${e.message}`); process.exit(1); });
-else { console.error("usage: motion.js techniques [--brand id] | brief formats/motion.md --out DIR | link DIR URL | check DIR STORE | render DIR STORE PLAYER [--out DIR] [--assets DIR]"); process.exit(2); }
+else { console.error("usage: motion.js techniques [--brand id] | gaps formats/motion.md | brief formats/motion.md --out DIR | link DIR URL | check DIR STORE | render DIR STORE PLAYER [--out DIR] [--assets DIR]"); process.exit(2); }

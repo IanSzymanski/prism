@@ -8,6 +8,7 @@ Each **technique** is a motion format with its own layouts, classes and defaults
 |---|---|
 | `stat-story` | Number-led: counts, charts that build, before and after. Layouts `title`, `stat`, `chart`, `compare`, `list`, `quote`, `closing` |
 | `kinetic` | Type-led: one idea per scene, lines that mask up, split and stamp in. Layouts `title`, `statement`, `list`, `quote`, `closing` |
+| `walkthrough` | A product walkthrough: the app rebuilt full-screen from its screenshots, a step card, a cursor and a camera that pushes in on each action. Layouts `title`, `app`, `step`, `closing`. 16:9 and calm by default. See "UI walkthroughs" below |
 
 ## Front matter
 
@@ -21,6 +22,8 @@ energy: lively                          # calm | lively | bold (the technique's 
 music: calm                             # calm (default) | bright | none
 figures: illustrative                   # copy it from content.md when it says so
 read: 20                                # characters a second a viewer reads (20 by default); sets every scene's hold
+data: demo                              # walkthrough only: demo | stand-in (the data its screenshots show)
+assumed: the sign-up address            # walkthrough only: details nobody confirmed, separated by ; (flagged on delivery)
 ---
 ```
 
@@ -87,9 +90,92 @@ One of each kind per block. Every block already has the technique's default entr
 - **Timing:** `at=` seconds into the scene; blocks without it follow in order.
 - **Sound:** `sfx=tick|click|pop|ding|chime|sparkle|whoosh|thud|boing` on the block's entrance. `music:` in the front matter sets the score; every transition gets a whoosh.
 
+## UI walkthroughs (`technique: walkthrough`)
+
+A walkthrough shows someone using the product: the opening screen, the app meeting the viewer, a few numbered steps (one task each) and an end card. Its scenes follow the house rules for walkthrough videos, which the brief spells out for Motion: full-screen UI, slow pacing, the camera pushing in on what matters and pulling back out, focus on one subject at a time, nothing overset, smooth typing, transitions instead of cuts.
+
+```markdown
+:::: {.scene .title #open}
+[Product walkthrough · Illustrative demo]{.eyebrow}
+
+# Write a visit note in *four steps* {.xl}
+::::
+
+:::: {.scene .app #meet}
+![Visit notes](images/notes.png){.screen}
+
+## Meet Harbor Point
+
+[Every visit note your team writes, in one list.]{.sub}
+::::
+
+:::: {.scene .step #write}
+![New visit note](images/new-note.png){.screen}
+
+## Write it once
+
+[Pick the client and the visit, then type what happened.]{.sub}
+
+[Sam Ortiz]{.fill field="Client" zoom=1.6}
+
+[Home visit]{.choose field="Visit type"}
+
+[Save and share]{.click sfx=click}
+
+[Note shared with your team]{.toast}
+::::
+
+:::: {.scene .step #phone screen=phone}
+![Visit notes on a phone](images/phone.png){.screen}
+
+## Read it anywhere
+
+[The same note, on the phone, for the next visit.]{.sub}
+
+[Sam Ortiz]{.focus zoom=1.8}
+::::
+
+:::: {.scene .closing #close}
+## Visit notes, written once and shared.
+
+[Start at harborpoint.example.com]{.cta}
+
+![Brand](prism:logo){.grow}
+::::
+```
+
+**Layouts.** `.title` is the opening screen (about 4 s; it zooms through into the app and never persists). `.app` meets the app: the UI builds in (header, navigation, content, staggered) with the whole screen in view, then the camera pushes in. `.step` is one numbered step, one continuous scene. `.closing` is the end card: one short line, the call to action and the logo; Prism adds the recap of the steps from their titles.
+
+**Screenshots are layout guides.** `![Page name](images/screen.png){.screen}` in an `.app` or `.step` scene is the screenshot Motion rebuilds that page from, as live HTML: the same layout, copy and colors, crisp at any zoom, every control pressable. It is never shown as a picture. One per scene; a scene without one stays on the page the scene before ended on. Screenshots come from content.md's images, like any picture, and the whole window is best (1440 px wide or more for desktop).
+
+**The step card** is the scene's `## title` and one `.sub` sentence. Prism adds the number, the eyebrow ("Step 2 of 4") and the progress dots, sets it bottom-left inside the safe area, and collapses it to a chip about 2 s after it lands. The words on an `.app` or `.step` scene are only the card and the actions: anything else goes on the title or end card.
+
+**Actions** are what the viewer sees happen, one per line, in order. Each waits for the step card to collapse and for the action before it to land and hold (about 1.6 s), so only one thing moves at a time; `at=` sets one by hand.
+
+| Action | Markdown | What Motion shows |
+|---|---|---|
+| Click | `[New note]{.click}` | The cursor travels to the control with that label, settles, clicks: the button presses and ripples |
+| Type | `[Sam Ortiz]{.fill field="Client"}` | The field shows its focus ring; the words type in at an even 33 letters a second, the caret solid while typing |
+| Choose | `[Home visit]{.choose field="Visit type"}` | The menu opens, the choice highlights and is clicked |
+| Focus | `[Visit notes]{.focus zoom=1.5}` | The camera pushes in on it |
+| Back | `[]{.back}` | The camera pulls back to the whole screen |
+| Scroll | `[Intake history]{.scroll}` | The page scrolls until it is in view |
+| Open, close | `[Assign a reviewer]{.open}`, `[Assign a reviewer]{.close}` | A dialog or panel scales in from where it opens; everything behind it dims and blurs |
+| Wait | `[Save and share]{.wait}` | A spinner on it turns into a check |
+| Toast | `[Note shared]{.toast}` | A toast slides in (bottom right; at the top on tall stages) |
+| Show | `[New row]{.show}` | Something appears the way the UI shows it: a row, card or badge rising in |
+
+`zoom=1.4`–`2` on an action pushes the camera in on it first; it stays in until a `.back` or the end of the scene, when the camera pulls back to the whole screen so the chrome matches the next scene. The labels in actions are on-screen words like any other: they must match the UI, so they come from the screenshots.
+
+**Screens and aspect ratios.** `screen=desktop|tablet|phone` on a scene is the layout the app shows (else the screenshot's shape, else the scene before's, else the stage's own). How it sits depends on the stage: a desktop app fills a wide stage edge to edge; on a story stage it fills the height and the camera pans with the action; a phone app on a wide stage sits in core's phone mockup. Hand-offs are picked from what is on either side: the same screen keeps its chrome (`chrome`: only the page content changes), a new screen reframes (`reframe`: the window pulls back and changes shape into the new proportions), the title zooms through into the app (`zoom-through`), and the UI fades out before the end card (`fade`). A chrome hand-off across two screens, or a cut, is refused. Another aspect of the same walkthrough (a story cut of a wide film) is a second format file with the same scene ids and `aspect: story`.
+
+**Data and assumptions.** `data: demo` rebuilds the screenshots' copy as it is. `data: stand-in` (the screenshots show real people's data) replaces every name and detail with invented ones, and a line on screen must say the film is illustrative. `assumed:` lists details nobody confirmed (a URL, a price); they are carried to delivery and flagged.
+
+**Gaps.** `run.sh motion gaps formats/motion.md` lists what only the person can answer, as questions: a scene with no screenshot to rebuild, a screenshot that's missing or too small, a screen change with no screenshot of the new layout, a screenshot of the wrong shape, unknown data, an end card with no call to action, an address on screen that content.md doesn't have, each assumed detail. `ASK (needed)` stops the brief until it is answered; the rest are asked when there's a chance, and flagged on delivery when not.
+
 ## Rules
 
-- 10–30 s for stat-story, 8–30 s for kinetic; 300 s is the hard limit. About 3–5 s a scene; one idea per scene.
+- 10–30 s for stat-story, 8–30 s for kinetic, 30–150 s for a walkthrough (two to seven steps, each under 20 s); 300 s is the hard limit. About 3–5 s a scene (9–20 s a walkthrough step); one idea per scene.
 - Neighbouring scenes never look alike: vary the ground, the backdrop and how they arrive (the build warns when two in a row match).
 - Numbers, names and quotes come from content.md exactly; a count lands on the real value.
 - `figures: illustrative`: a line in the film says so (the closing note is the usual place).
