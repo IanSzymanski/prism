@@ -64,6 +64,8 @@ Ask only for what the request doesn't already say, in one AskUserQuestion call. 
 
 Ask in a second call only what is still unclear and matters: **figures**, real (from sources) or illustrative (fictional example), and the **piece type** when it isn't obvious (case study, one-pager, brief, announcement, guide, blog post). For a blog post also establish its blog type (educational, insights, features, spontaneous, impact, changelog) and author, and ask whether they have a header photo to upload (faded into a brand gradient) or, for features, a product screenshot. Without one the header is a brand gradient. A changelog is its own series: ask for its release line ("Release 2.4 · September 2026"). Record them in content.md front matter as `blog-type`, `author`, `role`, `tags`.
 
+For a **walkthrough film** (a motion output that shows the product in use: "a walkthrough video", "show how to add a referral") the film can't be made without what only the person has, so ask for it now rather than after approval: the **steps** (the task each one shows, two to seven, in order, and what is clicked, typed or chosen in it), the **screenshots** (the whole window of every page the steps pass through, and of the phone or tablet layout when the film switches to it; they are rebuilt as live UI, so they need to be sharp, 1440 px wide or more for desktop), whether the screenshots show **demo data or real people's** (real data is replaced with invented stand-ins and the film is labelled illustrative), and the **call to action** with its address. A screenshot is a layout guide, not a photo: skip the hero, people and caption questions for it. Anything still missing is asked again before the film is made (`run.sh motion gaps`, `references/film.md` in prism-produce), and anything assumed (an address nobody confirmed) is flagged on delivery.
+
 When images are uploaded, ask about them in the next AskUserQuestion call (four questions at most; any overflow in another call):
 
 - **Hero**: "Which image should lead the piece?" Options: the landscape images that print at 6.5 in or wider, by a short description, plus "No hero image". Skip when there is no candidate.
@@ -83,7 +85,7 @@ When the person asks to be interviewed first ("interview me", "ask me everything
 
 1. **Audience**, **Length**, **Outputs**, **Images** (as above).
 2. **Figures** (real or illustrative), **Piece type**, **Brand** (only when more than one brand is listed by `.prism-kit/run.sh brands`, drafts included, recorded as `brand:` in content.md front matter), and **Material**: "What should it be built from?" Options: "I'll paste or upload it now", "It's already in this chat". The writer never invents facts, so a piece needs source material; without any, say so and wait for it.
-3. Only for a blog post: blog type, author, header photo or screenshot, and for a changelog its release line.
+3. Only for a blog post: blog type, author, header photo or screenshot, and for a changelog its release line. Only for a walkthrough film: its steps, its screenshots, demo or real data, and the call to action (as above).
 
 Then wait for anything promised "now" (material, images). When images arrive, ask the image questions (hero, use, people and permission, captions) in one more call. Record interview.md as usual, then continue at step 3 with no further questions.
 
