@@ -33,3 +33,15 @@ If the `caseamplify-manifest` skill is available, it is the authority on termino
 - `.shadow` is for one standout image per piece (usually the hero). `.fade` is the default treatment for hero and media-row photos; galleries and small figures stay crisp.
 - Placeholder images are labelled as placeholders in their captions until replaced.
 - Every image that carries meaning has a caption or sits next to text that describes it.
+
+## One sheets
+
+The approved Case Amplify one-sheet look (Oct 2026). Use it for a one-pager unless the piece asks for something else:
+
+- Title area: `hero: x-small` with a photo beside the title and opening paragraph (`mast-image:`, `mast-image-alt:`; `mast-split: 1fr 1fr`). The photo fades toward the title over the wash; leave `mast-fade` on.
+- Keep the audience phrase in the title on one line with non-breaking spaces: `*people\ you\ serve*`.
+- Icons in grape (`.accent`).
+- Process steps as `{.flow .plain}`: no grape rules above the steps.
+- Close with a slim left-aligned card, `{.cta-card .x-small}`, holding a small rounded QR code, `{.qr .small .rounded url="https://caseamplify.com"}`.
+- No footer contact line (`colophon: off`): the closing card already carries the address.
+- Last, once everything fits on one page: `fill: page` to space the sections evenly down it.

@@ -15,9 +15,9 @@ const dsRoot = d => fs.existsSync(path.join(d, "project")) ? path.join(d, "proje
 const walk = d => fs.statSync(d).isDirectory() ? fs.readdirSync(d, { withFileTypes: true }).flatMap(e => walk(path.join(d, e.name))) : [d];
 
 if (a.includes("--need")) {
-  // Every brand:<id> image in the given Markdown files (format files, content.md), then the ones not fetched yet.
+  // Every brand:<id> image in the given Markdown files (format files, content.md; a sheet's mast-image too), then the ones not fetched yet.
   const files = a.slice(a.indexOf("--need") + 1).filter(f => !f.startsWith("--")).flatMap(f => fs.existsSync(f) ? walk(f) : []).filter(f => f.endsWith(".md"));
-  const used = new Set(files.flatMap(f => [...fs.readFileSync(f, "utf8").matchAll(/\]\(brand:([\w-]+)/g)].map(m => m[1])));
+  const used = new Set(files.flatMap(f => [...fs.readFileSync(f, "utf8").matchAll(/(?:\]\(|^mast-image:\s*["']?)brand:([\w-]+)/gm)].map(m => m[1])));
   const unknown = [...used].filter(u => !res.library[u]);
   if (unknown.length) { console.error(`[library] ${id} has no library image ${unknown.map(u => `"${u}"`).join(", ")} (run.sh library ${id})`); process.exit(1); }
   const need = [...used].filter(u => !res.library[u].path);

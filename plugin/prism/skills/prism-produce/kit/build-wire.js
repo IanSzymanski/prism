@@ -120,7 +120,7 @@ function wireOne(md, B) {
     return esc(s)
     .replace(/!\[([^\]]*)\]\(([^)]+)\)(\{[^}]*\})?/g, (m, alt, f) => `<span data-image="${keep(f)}" class="wimg wimg-i">Image: ${alt || f.split("/").pop()}</span>`)
     .replace(/\[([^\]]+)\]\(([^)]+)\)\{[^}]*\.button[^}]*\}/g, (m, t, u) => `<span data-button="" class="wbtn">${t}</span>${url(keep(u))}`)
-    .replace(/\[\]\{\.icon \.ph-([a-z0-9-]+)[^}]*\}/g, (m, n) => iconSvg(B, n))
+    .replace(/\[\]\{\.icon\b[^}]*?\.ph-([a-z0-9-]+)[^}]*\}/g, (m, n) => iconSvg(B, n))
     .replace(/\[\^[^\]]+\]/g, "")
     .replace(/\[([^\]]*)\]\{\.[^}]*\}/g, "$1")
     .replace(/\[([^\]]+)\]\(([^)]+)\)(\{[^}]*\})?/g, (m, t, u) => `<a href="${keep(u)}" class="wlink">${t}</a>${url(keep(u))}`)
@@ -215,7 +215,7 @@ function wireOne(md, B) {
       const kind = cls === "hero-image" ? "hero image" : cls === "cta-card" ? (classes.includes(".plain") ? "closing (content only)" : classes.includes(".bleed-band") ? "closing band, foot of the side" : classes.includes(".centered") ? "closing card, centred" : "closing card") : cls;
       if (["stats", "features", "checks", "flow", "cards"].includes(cls)) {
         const items = listItems(inner), cols = cls === "checks" ? 1 : cls === "cards" ? 2 : cls === "features" ? (meta.layout === "email" ? 1 : classes.includes(".three") ? 3 : 2) : Math.min(items.length, 5);
-        return wrap(`${kind} ×${items.length}`, `<div class="wrow" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr))">${items.map((t, i) =>
+        return wrap(`${kind} ×${items.length}${cls === "flow" && classes.includes(".plain") ? ", no rules" : ""}`, `<div class="wrow" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr))">${items.map((t, i) =>
           `<div data-item="${id}.${i}" class="wi"><p class="wx">${inline(t)}</p></div>`).join("")}</div>`);
       }
       if (cls === "cols") return wrap("two columns", `<div class="wrow" style="grid-template-columns: repeat(2, minmax(0, 1fr))">${paras(inner).map((t, i) =>
@@ -232,11 +232,12 @@ function wireOne(md, B) {
         const code = `<div style="width: 120px; flex-shrink: 0"><div class="wimg" style="height: 120px; font-size: 11px; word-break: break-all">QR: ${esc(url)}</div></div>`;
         const txt = `<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">${paras(inner).map(t => `<p class="wx">${inline(t.replace(/^#+\s*/, ""))}</p>`).join("")}</div>`;
         const bg = (/bg="(\w+)"/.exec(first) || [])[1];
-        return wrap(`qr code, ${center ? "centred" : left ? "left" : "right"}${bg ? `, ${bg} ground` : ""}`, `<div style="display: flex; gap: 18px; align-items: center${center ? "; flex-direction: column; text-align: center" : ""}">${center || left ? code + txt : txt + code}</div>`); }
+        return wrap(`qr code, ${center ? "centred" : left ? "left" : "right"}${bg ? `, ${bg} ground` : ""}${classes.includes(".rounded") ? ", rounded" : ""}`, `<div style="display: flex; gap: 18px; align-items: center${center ? "; flex-direction: column; text-align: center" : ""}">${center || left ? code + txt : txt + code}</div>`); }
       if (cls === "ornament" && !inner.trim()) return wrap("brand divider", W_.divider ? W_.divider({}, B) : `<div class="wdiv"></div>`);
       // callout, closing card, band and anything else: its text in order.
-      // The closing card in lo-fi: the brand's card, centred and narrower for .centered, no ground for .plain (content only).
-      const lofi = cls !== "cta-card" || classes.includes(".plain") ? "" : `${W_.closing ? W_.closing({}, B) : "wcta"}${classes.includes(".centered") ? " wcentered" : ""}${classes.includes(".bleed-band") ? " wband" : ""}`;
+      // The closing card in lo-fi: the brand's card, centred and narrower for .centered, no ground for .plain (content only);
+      // wsmall and wxsmall name the size, for a brand that lays its smaller cards out differently.
+      const lofi = cls !== "cta-card" || classes.includes(".plain") ? "" : `${W_.closing ? W_.closing({}, B) : "wcta"}${classes.includes(".centered") ? " wcentered" : ""}${classes.includes(".bleed-band") ? " wband" : ""}${classes.includes(".x-small") ? " wxsmall" : classes.includes(".small") ? " wsmall" : ""}`;
       return wrap(kind, chunks(inner).map(t => /^#{2,4}\s/.test(t) && !t.includes("\n") ? `<p class="wx wstrong">${inline(t.replace(/^#+\s*/, "").replace(/\s*\{[^}]*\}\s*$/, ""))}</p>`
         : render(t, "x").replace(/data-(block|item)="[^"]*"/g, 'data-part=""')).join(""), lofi);
     }
@@ -264,12 +265,15 @@ function wireOne(md, B) {
   // Frames sit in a wrapping row (a brochure reads as its two printed sides, posts as a grid); sheets and blogs flow in one column.
   const framed = shown.some(b => frameOf(b.md.split("\n")[0]));
   const isEmail = meta.layout === "email";
+  // A sheet's title-area photo (mast-image) sits beside the title, eyebrow and subtitle, as printed; it is drawn, not read back.
+  const mastImage = h => !meta["mast-image"] || framed || meta.layout ? h : `<div style="display: grid; grid-template-columns: ${esc(meta["mast-split"] || "1fr 1fr")}; gap: 20px; align-items: center">` +
+    `<div style="display: flex; flex-direction: column; gap: 18px; min-width: 0">${h}</div><div data-wire-tag="">${imgBox(meta["mast-image-alt"], meta["mast-image"], 180)}</div></div>`;
   const full = framed ? " wfull" : "";
   const head = (stamp ? `<div data-wire-tag="" class="${full.trim()}"><span class="wstamp">${esc(stamp)}</span></div>` : "") + (isEmail
     ? `<div data-block="meta.inbox" class="wb wnote">${tag("inbox: subject and preheader")}` + ["subject", "preheader"].filter(k => meta[k]).map(k =>
       `<div data-item="meta.${k}"><p class="wx${k === "subject" ? " wstrong" : ""}"${k === "preheader" ? ' style="font-size: 14px"' : ""}>${inline(meta[k])}</p></div>`).join("") + `</div>`
-    : [["title", "t"], ["eyebrow", "e"], ["subtitle", "s"]].filter(([k]) => meta[k]).map(([k, c]) =>
-      `<div data-block="meta.${k}" class="wp${full}"><p class="wmeta-${c}">${inline(meta[k])}</p></div>`).join(""));
+    : mastImage([["title", "t"], ["eyebrow", "e"], ["subtitle", "s"]].filter(([k]) => meta[k]).map(([k, c]) =>
+      `<div data-block="meta.${k}" class="wp${full}"><p class="wmeta-${c}">${inline(meta[k])}</p></div>`).join("")));
   const inner = head + shown.map(b => render(b.md, b.id)).join("\n");
   const W = isEmail ? 744 : !framed ? 816 : meta.layout === "brochure" ? 1200 : shown.some(b => /\.slide\b|\.email\b/.test(b.md.split("\n")[0])) ? 960 : 1140;
   const page = h => `<div data-wire-root="" class="wr ${framed ? "wr-frames" : "wr-flow"}" style="width: ${W}px; height: ${h}">\n${inner}\n</div>`;

@@ -73,7 +73,7 @@ One or two sentences.
 :::
 ```
 
-`flow` shows 2–5 numbered steps side by side: use it for any process or workflow instead of feature cards. `band` is a tinted strip for one key idea and can hold a flow. Sheets and brochures; decks use the `steps` layout for the same thing.
+`flow` shows 2–5 numbered steps side by side: use it for any process or workflow instead of feature cards. `band` is a tinted strip for one key idea and can hold a flow. Sheets and brochures; decks use the `steps` layout for the same thing. `{.flow .plain}` drops the rule above each step (sheets).
 
 ## QR code
 
@@ -95,6 +95,8 @@ A scannable code for the address content.md gives with `QR code:` (see content-s
 | Code alone | the block with no text inside |
 
 - **Style:** unbranded: black on white, with no brand colours or logo, so it scans everywhere. `bg="black"` (white modules) or `bg="transparent"` (no ground) changes the ground. Black, and transparent on a dark ground, print light on dark: phone cameras read them, some older scanner apps don't, so keep the default unless the design calls for it. The code keeps its own ground and blank margin on any surface, so it works inside the closing card.
+- **Corners:** `.rounded` rounds the code's ground at the brand's button radius; the blank margin stays, so it still scans. Sheets.
+- **In the closing card** the code takes the card's padding, with no margin of its own.
 - **Size:** `.small` (0.85 in), default (1.15 in), `.large` (1.6 in). A long address makes a denser code; the build warns when its modules print under 0.4 mm. Shorten the address or use `.large`.
 - **Nothing under the code:** no address, link or label below it; the text beside it says what scanning does. `.top` aligns the text to the top instead of the middle.
 - **Uploaded code:** when the person uploaded a QR code (a tracked or designed one; images.md Role `qr: <address>`), use it: `image="images/qr-summit.png"`. It replaces the generated code and is printed as it is, without `bg`. Keep `url` beside it so email can link the address.
@@ -181,6 +183,10 @@ Phones and tablets keep a device's size (about 1.9 in and 3.1 in wide on a sheet
 ```
 
 The first block of the body, directly after the front matter. Landscape only, and only one per piece. Crops to a wide band (3.1 in tall; 2.4 in with `hero: small`, 1.8 in with `hero: x-small`) and fades into the page. Leave the caption empty unless the image needs a label (placeholder, photo credit, fictional); then keep it to that label.
+
+### Title-area photo (sheets)
+
+`mast-image:` in the front matter puts a photo beside the title and opening paragraph, inside the title area, instead of a hero band below it. Cropped to 16:9 with the hero radius; it fades toward the title when the brand fades photos (`mast-fade: false` turns that off). See sheet.md for the keys. Landscape photos only; one per piece, never with a hero image.
 
 ### Media row: one image beside text
 

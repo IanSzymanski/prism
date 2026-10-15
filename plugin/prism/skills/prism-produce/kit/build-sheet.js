@@ -22,6 +22,20 @@ const cardSize = `${(cardLand ? 7 : 5) + cardBleed}in ${(cardLand ? 5 : 7) + car
 const front = f => { const m = fs.existsSync(f) && /^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n")), o = {};
   for (const l of (m ? m[1] : "").split("\n")) { const k = /^([\w-]+):\s*(.*?)\s*(#.*)?$/.exec(l); if (k && k[2]) o[k[1]] = k[2].replace(/^["']|["']$/g, ""); } return o; };
 const fm = { ...front(path.join(path.dirname(md), "..", "content.md")), ...front(md) };
+// Sheet modifiers from the format file's front matter (sheets only): a photo in the title area, filling the page, no footer line.
+const own = front(md), off = v => /^(false|no|off)$/i.test(String(v || "").trim());
+const sheetVars = [];
+if (!panels) {
+  if (own["mast-image"]) {
+    const file = B.src(own["mast-image"], path.dirname(md)), split = own["mast-split"], focus = B.focus(file, own["mast-focus"]);
+    sheetVars.push("prism-mast-src=" + (/^[a-z]+:/i.test(file) ? file : "file://" + file), "prism-mast-alt=" + String(own["mast-image-alt"] || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"));
+    if (!off(own["mast-fade"])) sheetVars.push("prism-mast-fade=true");
+    if (focus) sheetVars.push("prism-mast-focus=" + focus.replace(/[^\d.%\s]/g, ""));
+    if (split) { if (/^[\w.%\s()/,+-]+$/.test(split)) sheetVars.push("prism-mast-split=" + split); else console.warn(`[sheet] mast-split "${split}" is not a column split (try 1fr 1fr); ignored`); }
+  }
+  if (own.fill) { if (own.fill === "page") sheetVars.push("prism-fill-page=true"); else console.warn(`[sheet] fill: ${own.fill} is not an option (fill: page); ignored`); }
+  if (off(own.colophon)) sheetVars.push("prism-no-colophon=true");
+}
 const plainText = s => String(s || "").replace(/[*_`]|\\(?=\s)/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").trim();
 const info = {
   title: plainText(fm.pagetitle || fm.title), author: plainText(fm.author || B.name), subject: plainText(fm.subtitle),
@@ -37,7 +51,7 @@ try { execFileSync("pandoc", [md, "-s", "--template", path.join(here, card ? "pr
   // The brand's presentation layers come last, so they style core's structure.
   ...[B.layer("sheet"), panels ? B.layer("brochure") : null, card ? B.layer("5x7") : null].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
   "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "--wrap=none",
-  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, ...(card ? ["-V", "card-size=" + cardSize] : []), "--resource-path", path.dirname(md), "-o", html], { env: B.env(), stdio: ["ignore", "inherit", "pipe"] }); }
+  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, ...(card ? ["-V", "card-size=" + cardSize] : []), ...sheetVars.flatMap(v => ["-V", v]), "--resource-path", path.dirname(md), "-o", html], { env: B.env(), stdio: ["ignore", "inherit", "pipe"] }); }
 // A filter's own message (a 5x7 card with three sides) is the whole story; pandoc's stack trace is not.
 catch (e) { const m = /\d+: (5x7: .*)/.exec(String(e.stderr || "")); if (!m) throw e; console.error("[sheet] " + m[1]); process.exit(1); }
 
@@ -102,7 +116,8 @@ async function prepareImages([printScale, ground, fadeOn]) {
     if (fadeOn && i.classList.contains("fade")) {
       // Same smoothstep ramp as .prism-fade on the site, pointing toward the text in a media row.
       // A landscape card's cover photo sits left of the words, so it fades to the right.
-      const media = i.closest(".media"), dir = media ? (media.classList.contains("flip") ? "left" : "right") : i.closest(".c57.landscape .cover") ? "right" : "bottom";
+      // A title-area photo sits right of the title, so it fades to the left.
+      const media = i.closest(".media"), dir = i.closest(".prism-mast__media") ? "left" : media ? (media.classList.contains("flip") ? "left" : "right") : i.closest(".c57.landscape .cover") ? "right" : "bottom";
       const g = dir === "bottom" ? c.createLinearGradient(0, 0, 0, H) : dir === "right" ? c.createLinearGradient(0, 0, W, 0) : c.createLinearGradient(W, 0, 0, 0);
       const start = dir === "bottom" ? 0.58 : 0.5;
       g.addColorStop(0, "#000"); g.addColorStop(start, "#000");
@@ -113,7 +128,9 @@ async function prepareImages([printScale, ground, fadeOn]) {
     const hasShadow = i.classList.contains("shadow"), T = hasShadow ? 14 : 0, X = hasShadow ? 32 : 0, B = hasShadow ? 52 : 0;
     const f = document.createElement("canvas"); f.width = Math.round((W + 2 * X) * S); f.height = Math.round((H + T + B) * S);
     const d = f.getContext("2d");
-    d.fillStyle = bg(i.parentElement); d.fillRect(0, 0, f.width, f.height);
+    // A faded title-area photo over a gradient wash stays transparent (PNG): a flat ground would show as a block on the wash.
+    const mast = i.closest(".prism-mast"), onWash = fadeOn && i.classList.contains("fade") && i.closest(".prism-mast__media") && getComputedStyle(mast).backgroundImage !== "none";
+    if (!onWash) { d.fillStyle = bg(i.parentElement); d.fillRect(0, 0, f.width, f.height); }
     if (hasShadow) {
       // Two stacked shadows, a tight one under a wide one: the site's .prism-shadow values.
       for (const [y, blur, alpha] of [[18, 30, 0.13], [2, 4, 0.09]]) {
@@ -123,7 +140,7 @@ async function prepareImages([printScale, ground, fadeOn]) {
     }
     d.drawImage(a, X * S, T * S);
     // A card's faded cover goes in as PNG: JPEG leaves the fade's tail a few levels off the paper.
-    i.src = fadeOn && i.classList.contains("fade") && i.closest(".c57 .cover") ? f.toDataURL("image/png") : f.toDataURL("image/jpeg", 0.9);
+    i.src = onWash || (fadeOn && i.classList.contains("fade") && i.closest(".c57 .cover")) ? f.toDataURL("image/png") : f.toDataURL("image/jpeg", 0.9);
     Object.assign(i.style, { width: `calc(100% + ${2 * X}px)`, height: "auto", maxWidth: "none", margin: `${-T}px ${-X}px ${-B}px`, borderRadius: "0", objectFit: "fill", aspectRatio: "auto" });
     await i.decode();
   }
@@ -185,6 +202,22 @@ function stamp(file, ver) {
     }));
     return out;
   }, card));
+  // `fill: page`: a sheet that fits one page shares its spare height evenly above each section and the closing card.
+  // The printable height is Letter less the bottom margin, over the 90% print scale, less a rounding allowance.
+  if (!panels) warnings.push(...await page.evaluate(() => {
+    if (!document.body.classList.contains("fill-page")) return [];
+    const target = (11 - 0.85 - 0.03) * 96 / 0.9, gaps = [...document.querySelectorAll("main.prism-sheet > h2, main.prism-sheet > .cta-card")];
+    // The content's own height (the page's scroll height is never less than the window).
+    const height = () => Math.max(...[...document.body.children].map(e => e.getBoundingClientRect().bottom + parseFloat(getComputedStyle(e).marginBottom || 0))) + window.scrollY;
+    if (height() > target + 1) return ["fill: page left as it is: the sheet runs past one page"];
+    if (!gaps.length) return ["fill: page has nothing to space out (no ## sections or closing card)"];
+    // Two passes: a margin that collapses into the block above adds a little less than asked the first time.
+    for (let k = 0; k < 2; k++) {
+      const spare = target - height(); if (spare < 1) break;
+      for (const g of gaps) g.style.marginTop = `${parseFloat(getComputedStyle(g).marginTop) + spare / gaps.length}px`;
+    }
+    return [];
+  }));
   for (const w of warnings) console.warn("[sheet] " + w);
   // Sheets print at 90% (every size in prism-sheet.css was tuned at that scale); brochures print at true size.
   const print = () => page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: panels ? 1 : 0.9 });

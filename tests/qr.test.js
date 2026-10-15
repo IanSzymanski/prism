@@ -50,7 +50,10 @@ ok(h.status !== 0 && /not found/.test(h.stderr), "a missing upload stops the bui
 // 3. Core CSS: three layouts and sizes, an unbranded code with its own ground.
 const css = fs.readFileSync(path.join(KIT, "prism-sheet.css"), "utf8"), qcss = css.split("/* QR code")[1].split("\n\n")[0];
 ok(/\.qr\.left\{/.test(qcss) && /\.qr\.center\{/.test(qcss) && /\.qr\.small\{/.test(qcss) && /\.qr\.large\{/.test(qcss), "core has left, centre, small and large");
-ok(/prism-qr__ground\{fill:white\}/.test(qcss) && /prism-qr__modules\{fill:black\}/.test(qcss) && !/--prism-color|--brand-|--prism-radius/.test(qcss) && !/qr__label/.test(css), "the code is unbranded: black on white, no brand colours or corners");
+// Corners only on request: .rounded is the one rule that may take a brand radius.
+const plainQcss = qcss.split("\n").filter(l => !/^\/\* \.rounded|^\.qr\.rounded /.test(l)).join("\n");
+ok(/prism-qr__ground\{fill:white\}/.test(qcss) && /prism-qr__modules\{fill:black\}/.test(qcss) && !/--prism-color|--brand-|--prism-radius/.test(plainQcss) && !/qr__label/.test(css), "the code is unbranded: black on white, no brand colours or corners");
+ok(/^\.qr\.rounded [^{]*\{border-radius:var\(--prism-radius-button\)/m.test(qcss), "{.qr .rounded} asks for the brand's button radius");
 ok(/\.qr\.bg-black \.prism-qr__ground\{fill:black\}/.test(qcss) && /\.qr\.bg-transparent \.prism-qr__ground\{fill:none\}/.test(qcss), "black and transparent grounds (white is the default)");
 ok(typeof qr.check === "function" && /qr\.js"\)\.check/.test(fs.readFileSync(path.join(KIT, "build-sheet.js"), "utf8")) && /qr\.js"\)\.check/.test(fs.readFileSync(path.join(KIT, "build-social.js"), "utf8")), "sheets and social posts check each code's size and contrast");
 
