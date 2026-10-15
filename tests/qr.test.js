@@ -20,15 +20,15 @@ ok(/aria-label="QR code: https:\/\/example.com\/demo"/.test(qr.svg("https://exam
 ok(qr.encode("https://example.com/events/2026/fall-summit?utm_source=print&utm_medium=sheet").n > c.n, "a longer address makes a denser code");
 ok(/&amp;/.test(qr.svg("https://example.com/?a=1&b=2")) && !/&b=/.test(qr.svg("https://example.com/?a=1&b=2")), "addresses are escaped in the markup");
 
-// 2. The sheet filter: code and text column, the layout classes kept, the label, errors for a missing address or upload.
+// 2. The sheet filter: code and text column, the layout classes kept, no label, errors for a missing address or upload.
 const pandoc = (md, file = "in.md") => { const f = path.join(TMP, file); fs.writeFileSync(f, md);
   return run("pandoc", [f, "-t", "html", "--lua-filter", path.join(KIT, "prism-sheet.lua")]); };
 let h = pandoc('::: {.qr url="https://example.com/a" label="example.com/a"}\n### Save your seat\n\nScan to register.\n:::\n');
 ok(h.status === 0 && /<div class="qr" data-url="https:\/\/example.com\/a">/.test(h.stdout), `a qr block keeps its class and address: ${h.stderr}`);
-ok(/<figure class="qr__code"><svg class="prism-qr"/.test(h.stdout) && /<figcaption class="qr__label">example.com\/a<\/figcaption>/.test(h.stdout), "the code is inline SVG with its label under it");
+ok(/<figure class="qr__code"><svg class="prism-qr"[\s\S]*?<\/svg><\/figure>/.test(h.stdout) && !/qr__label|figcaption|example.com\/a<\//.test(h.stdout), "the code is inline SVG with nothing under it, even when a label is given");
 ok(/<(div|section)[^>]*class="qr__text">\s*<h3/.test(h.stdout), "the text goes in its own column");
 h = pandoc('::: {.qr .left .small url="https://example.com/b"}\nText.\n:::\n\n::: {.qr .center .large url="https://example.com/c"}\n:::\n');
-ok(/class="qr left small"/.test(h.stdout) && /class="qr center large"/.test(h.stdout) && !/qr__label/.test(h.stdout), "left, centre and sizes keep their classes; no label unless asked");
+ok(/class="qr left small"/.test(h.stdout) && /class="qr center large"/.test(h.stdout) && !/qr__label/.test(h.stdout), "left, centre and sizes keep their classes");
 ok(/data-url="https:\/\/example.com\/c">\s*<figure class="qr__code">[\s\S]*?<\/figure>\s*<\/div>/.test(h.stdout), "a code with no text has no text column");
 h = pandoc('::: {.qr bg="black" url="https://example.com/k"}\n:::\n\n::: {.qr bg="white" url="https://example.com/w"}\n:::\n\n::: {.qr bg="transparent" url="https://example.com/t"}\n:::\n');
 ok(/class="qr bg-black"/.test(h.stdout) && /class="qr bg-white"/.test(h.stdout) && /class="qr bg-transparent"/.test(h.stdout) && !/ bg="/.test(h.stdout), "bg becomes a class");
@@ -50,7 +50,7 @@ ok(h.status !== 0 && /not found/.test(h.stderr), "a missing upload stops the bui
 // 3. Core CSS: three layouts and sizes, an unbranded code with its own ground.
 const css = fs.readFileSync(path.join(KIT, "prism-sheet.css"), "utf8"), qcss = css.split("/* QR code")[1].split("\n\n")[0];
 ok(/\.qr\.left\{/.test(qcss) && /\.qr\.center\{/.test(qcss) && /\.qr\.small\{/.test(qcss) && /\.qr\.large\{/.test(qcss), "core has left, centre, small and large");
-ok(/prism-qr__ground\{fill:white\}/.test(qcss) && /prism-qr__modules\{fill:black\}/.test(qcss) && !/--prism-color|--brand-|--prism-radius/.test(qcss.split(".qr__label")[0]), "the code is unbranded: black on white, no brand colours or corners");
+ok(/prism-qr__ground\{fill:white\}/.test(qcss) && /prism-qr__modules\{fill:black\}/.test(qcss) && !/--prism-color|--brand-|--prism-radius/.test(qcss) && !/qr__label/.test(css), "the code is unbranded: black on white, no brand colours or corners");
 ok(/\.qr\.bg-black \.prism-qr__ground\{fill:black\}/.test(qcss) && /\.qr\.bg-transparent \.prism-qr__ground\{fill:none\}/.test(qcss), "black and transparent grounds (white is the default)");
 ok(typeof qr.check === "function" && /qr\.js"\)\.check/.test(fs.readFileSync(path.join(KIT, "build-sheet.js"), "utf8")) && /qr\.js"\)\.check/.test(fs.readFileSync(path.join(KIT, "build-social.js"), "utf8")), "sheets and social posts check each code's size and contrast");
 

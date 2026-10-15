@@ -54,6 +54,13 @@
    "fallback": "prism-color-accent"
   },
   {
+   "role": "prism-color-icon",
+   "kind": "color",
+   "required": false,
+   "description": "Icons on light grounds.",
+   "fallback": "prism-color-text-strong"
+  },
+  {
    "role": "prism-color-eyebrow-on-dark",
    "kind": "color",
    "required": false,
