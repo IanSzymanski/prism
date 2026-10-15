@@ -89,7 +89,7 @@ local kit = PANDOC_SCRIPT_FILE:match("^(.*/)") or "./"
 
 local function attr_esc(s) return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub('"', "&quot;")) end
 
--- ::: {.qr url="..."} becomes the code (vector SVG from qr.js, with an optional label under it) and a text column.
+-- ::: {.qr url="..."} becomes the code (vector SVG from qr.js) and a text column. No label or address under the code.
 -- image="images/qr.png" uses an uploaded code instead of generating one (a tracked or designed code), shown as it is.
 -- Black on white by default.
 local function qr(el)
@@ -110,11 +110,9 @@ local function qr(el)
     if bg ~= "white" and bg ~= "black" and bg ~= "transparent" then error('prism-sheet.lua: qr bg is white, black or transparent, not "' .. bg .. '"') end
     el.classes:insert("bg-" .. bg)
   end
-  local label = el.attributes.label
   el.attributes.url, el.attributes.label, el.attributes.image, el.attributes.bg = nil, nil, nil, nil
   el.attributes["data-url"] = url or image
-  local code = '<figure class="qr__code">' .. svg
-    .. (label and ('<figcaption class="qr__label">' .. label:gsub("&", "&amp;"):gsub("<", "&lt;") .. "</figcaption>") or "") .. "</figure>"
+  local code = '<figure class="qr__code">' .. svg .. "</figure>"
   local out = pandoc.List({ pandoc.RawBlock("html", code) })
   if #el.content > 0 then out:insert(pandoc.Div(el.content, { class = "qr__text" })) end
   el.content = out

@@ -175,8 +175,8 @@ figure:has(.prism-device),p:has(> .prism-device){width:auto;margin-inline:0}
 p:has(+ .media),p:has(+ .gallery),p:has(+ figure),p:has(+ .hero-image){break-after:avoid}
 figcaption{font:var(--prism-type-caption);letter-spacing:var(--prism-type-caption-ls);color:var(--prism-color-text-muted);margin-top:8pt}
 
-/* Icons: []{.icon .ph-shield-check}, in the brand's Phosphor weight. Tinted by text colour; add .accent for the accent. */
-.icon{font-size:1.2em;vertical-align:-.15em;color:var(--prism-color-text-strong)}
+/* Icons: []{.icon .ph-shield-check}, in the brand's Phosphor weight and icon colour; add .accent for the accent. */
+.icon{font-size:1.2em;vertical-align:-.15em;color:var(--prism-color-icon)}
 .icon.accent{color:var(--prism-color-accent)}
 .callout > h3 .icon,.callout > h4 .icon{font-size:13pt;vertical-align:0}
 .features li .icon{display:block;font-size:20pt;margin-bottom:7pt}
@@ -256,11 +256,8 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .qr.bg-transparent .prism-qr__ground{fill:none}
 /* Transparent on a dark card: the modules take the card's light text colour, so the code still reads. */
 .cta-card:not(.plain) .qr.bg-transparent .prism-qr__modules{fill:currentColor}
-.qr__label{margin:4pt 0 0;text-align:center;font:var(--prism-type-caption);letter-spacing:var(--prism-type-caption-ls);color:var(--prism-color-text-muted);white-space:nowrap}
 .qr__text > :first-child{margin-top:0}
 .qr__text > :last-child{margin-bottom:0}
-/* On a dark card the label sits on the card, so it takes the card's own text colour. */
-.cta-card:not(.plain) .qr__label{color:inherit}
 
 /* Logo inside any block: logo="top-left|top|top-right|bottom-left|bottom|bottom-right" (prism-sheet.lua). One size and one
    gap everywhere. The build shows the on-dark logo on a dark ground (inlogo.js) and none when the brand has no on-dark logo. */

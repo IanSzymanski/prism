@@ -12,7 +12,7 @@ const out = path.resolve(process.argv[3] || md.replace(/\.md$/, ".pptx"));
 
 // Brand values from the profile, as PowerPoint hex (no #). Solid colours only, as in prism-sheet.css.
 const B = require("./brand.js")(md), hx = (n, t) => B.color(n, t).replace(/^#/, "");
-const C = { paper: hx("prism-color-surface"), ink: hx("prism-color-text-strong"), body: hx("prism-color-text"), muted: hx("prism-color-text-muted"), line: hx("prism-color-rule-soft"),
+const C = { paper: hx("prism-color-surface"), ink: hx("prism-color-text-strong"), icon: hx("prism-color-icon"), body: hx("prism-color-text"), muted: hx("prism-color-text-muted"), line: hx("prism-color-rule-soft"),
   accent: hx("prism-color-accent"), eyebrowOnDark: hx("prism-color-eyebrow-on-dark"), accentOnDark: hx("prism-color-accent", "dark"), onDark: hx("prism-color-text", "dark"), muteBar: hx("prism-color-text-faint"),
   grid: hx("prism-color-chart-grid"), axis: hx("prism-color-rule"), inkOnDark: hx("prism-color-text-strong", "dark") };
 // chart-1, then as many of chart-2 to -5 as the brand defines; a chart needing more says so instead of reusing a colour.
@@ -333,7 +333,7 @@ const paras = blocks => blocks.filter(b => b.t === "Para" && !(b.c.length === 1 
 
 // Black on white as in sheets, and the bg options.
 const QR_COLORS = { white: { ground: "#fff", ink: "#000" }, black: { ground: "#000", ink: "#fff" }, transparent: { ground: null, ink: "#000" } };
-// QR slide: the code beside the text (right by default, .left), or above it (.center), with an optional label under the code.
+// QR slide: the code beside the text (right by default, .left), or above it (.center); nothing under the code.
 async function qrSlide(slide, blocks, [, cls, kv]) {
   const at = Object.fromEntries(kv), url = at.url;
   if (!url && !at.image) throw new Error(`slide ${SLIDE_N} (qr): the slide needs the address its code opens (url="https://...") or an uploaded code (image="images/qr.png")`);
@@ -346,8 +346,7 @@ async function qrSlide(slide, blocks, [, cls, kv]) {
   const center = cls.includes("center"), left = cls.includes("left"), s = center ? 2.8 : 3.4;
   const x = center ? (SW - s) / 2 : left ? MX : SW - MX - s, y = center ? 1.9 : 2.05;
   slide.addImage({ path: code, x, y, w: s, h: s, altText: "QR code" + (url ? ": " + url : "") });
-  if (at.label) slide.addText(at.label, T({ x: x - 0.75, y: y + s + 0.08, w: s + 1.5, h: 0.3, fontFace: F.mono, fontSize: 12, color: C.muted, align: "center" }));
-  if (center) textBlocks(slide, blocks, { x: 2.2, y: y + s + (at.label ? 0.5 : 0.3), w: SW - 4.4, h: SH - 0.75 - (y + s + (at.label ? 0.5 : 0.3)), align: "center" }, 18);
+  if (center) textBlocks(slide, blocks, { x: 2.2, y: y + s + 0.3, w: SW - 4.4, h: SH - 0.75 - (y + s + 0.3), align: "center" }, 18);
   else textBlocks(slide, blocks, { x: left ? MX + s + 0.6 : MX, y: 2.05, w: CW - s - 0.6, h: s, valign: "middle" }, 20);
 }
 
@@ -480,7 +479,7 @@ async function chartSlide(slide, blocks) {
           const inl = itemInlines(it), x = MX + i * (w + gap);
           const { head, rest } = splitStrong(inl);
           slide.addShape("roundRect", { x, y: 2.1, w, h: 3.7, rectRadius: 0.12, fill: { color: C.paper }, line: { color: C.line, width: 0.75 } });
-          const ic = iconOf(inl) && await iconImage(iconOf(inl), C.ink);
+          const ic = iconOf(inl) && await iconImage(iconOf(inl), C.icon);
           if (ic) slide.addImage({ path: ic, x: x + 0.4, y: 2.5, w: 0.55, h: 0.55 });
           // Title and body share one text box so a wrapped title pushes the body down.
           slide.addText([{ text: head, options: { fontFace: F.serif, fontSize: 21, bold: true, color: C.ink, breakLine: true, paraSpaceAfter: 8 } }, ...trimRuns(runs(rest))],
