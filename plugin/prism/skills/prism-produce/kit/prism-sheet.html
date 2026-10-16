@@ -8,14 +8,18 @@ $for(css)$
 $endfor$
 <style>@page{@bottom-left{content:"$brand-name$ · $pagetitle$"}}</style>
 </head>
-<body$if(hero)$ class="hero-$hero$"$endif$>
-<header class="prism-mast">
+<body class="$if(hero)$hero-$hero$$endif$$if(prism-fill-page)$ fill-page$endif$">
+<header class="prism-mast$if(prism-mast-src)$ has-image$endif$">
   <div class="prism-mast__bar">
     <img class="prism-mast__logo" src="$if(logo)$$logo$$else$$prism-logo$$endif$" alt="$brand-name$">
 $if(doctype)$
     <span class="prism-mast__type">$doctype$</span>
 $endif$
   </div>
+$if(prism-mast-src)$
+  <div class="prism-mast__grid"$if(prism-mast-split)$ style="--mast-split:$prism-mast-split$"$endif$>
+  <div class="prism-mast__text">
+$endif$
 $if(eyebrow)$
   <p class="eyebrow">$eyebrow$</p>
 $endif$
@@ -28,15 +32,23 @@ $if(author)$
 $elseif(date)$
   <p class="prism-meta">$date$</p>
 $endif$
+$if(prism-mast-src)$
+  </div>
+  <figure class="prism-mast__media"><img class="$if(prism-mast-fade)$fade$endif$" src="$prism-mast-src$" alt="$prism-mast-alt$"$if(prism-mast-focus)$ data-focus="$prism-mast-focus$"$endif$></figure>
+  </div>
+$endif$
 </header>
 <main class="prism-sheet">
 $body$
 </main>
+$if(prism-no-colophon)$
+$else$
 <footer class="prism-colophon">
   <span>$if(contact)$$contact$$else$$brand-contact$$endif$</span>
 $if(legal)$
   <span>$legal$</span>
 $endif$
 </footer>
+$endif$
 </body>
 </html>
