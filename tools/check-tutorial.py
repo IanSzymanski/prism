@@ -11,7 +11,7 @@ What it checks:
 - the guided walkthrough (prism-draft/references/walkthrough.md, /prism-tutorial with no topic) covers every stage, names every
   output format, has its own reviewed stamp, and every sample it runs (the kit's, and each brand's own) is complete.
 A new format or skill without an entry in PHRASES below fails until it is added here and in the tutorial."""
-import json, os, re, sys
+import json, os, re, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # PRISM_PLUGIN points at another copy of the plugin (the tests check a changed copy).
@@ -43,6 +43,32 @@ def sample_problems(d, label, cards):
     out += [f"{label} sample: \"{k}\" in try is missing" for k in ["proof", "design", "revise"] if k not in (s.get("try") or {})]
     out += [f"{label} sample: more offers {m.get('format')}, which is not an output format" for m in s.get("more", []) if m.get("format") not in cards]
     if (s.get("answers") or {}).get("figures") != "illustrative": out.append(f"{label} sample: answers.figures must be illustrative (the sample is fictional)")
+    if s.get("fixed"): out += fixed_problems(d, label, s["fixed"], cards)
+    return out
+
+
+def fixed_problems(d, label, fx, cards):
+    """Fixed files make every run the same: they exist, the proof's comments match the draft's flags, the approved words carry
+    none, and every fixed layout is a real format whose numbers are all in the approved words."""
+    out, p = [], lambda f: os.path.join(d, f)
+    keys = ["content", "claims", "proof", "approved", "approved_claims"]
+    out += [f"{label} sample: fixed.{k} is missing" for k in keys if not fx.get(k) or not os.path.exists(p(fx[k]))]
+    out += [f"{label} sample: fixed layout {f} is missing" for f, x in (fx.get("formats") or {}).items() if not os.path.exists(p(x))]
+    if out: return out
+    draft, approved = open(p(fx["content"]), encoding="utf8").read(), open(p(fx["approved"]), encoding="utf8").read()
+    comments = json.load(open(p(fx["proof"]), encoding="utf8")).get("comments", [])
+    flags = re.findall(r"<!--\s*CHECK:\s*(.*?)\s*-->", draft, re.S)
+    if len(flags) != len(comments): out.append(f"{label} sample: the draft has {len(flags)} CHECK flags but the proof has {len(comments)} comments")
+    body = re.sub(r"<!--.*?-->", "", draft, flags=re.S)
+    for c in comments:
+        if c.get("anchor", "") not in body: out.append(f"{label} sample: proof comment anchor \"{c.get('anchor')}\" is not in the draft")
+        if not c.get("text", "").startswith("Check:") or c["text"][len("Check: "):] not in flags: out.append(f"{label} sample: proof comment \"{c.get('anchor')}\" is not one of the draft's CHECK flags, word for word")
+    if "CHECK" in approved or not re.search(r"^status:\s*approved", approved, re.M): out.append(f"{label} sample: the approved words must be status: approved with no CHECK flags")
+    if "VERIFY" in open(p(fx["approved_claims"]), encoding="utf8").read(): out.append(f"{label} sample: the approved claims still have a VERIFY row")
+    for f, x in (fx.get("formats") or {}).items():
+        if f not in cards: out.append(f"{label} sample: fixed layout {f} is not an output format"); continue
+        r = subprocess.run(["node", os.path.join(KIT, "check-numbers.js"), p(fx["approved"]), p(x)], capture_output=True, text=True)
+        if r.returncode: out.append(f"{label} sample: fixed layout {f} has numbers that aren't in the approved words: {r.stdout.strip()[:200]}")
     return out
 
 

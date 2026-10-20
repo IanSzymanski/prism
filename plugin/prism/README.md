@@ -2,7 +2,7 @@
 
 Raw material in, on-brand files out, with a human proof in between. The words are approved once, in `content.md`, and every output is laid out from them. Brands live in the kit (`run.sh brands` lists them); a piece names one with `brand:`, and without one it uses the default brand. Packages (`run.sh packages`) are set bundles of outputs from one piece, such as a case study package, delivered as one zip.
 
-New to Prism? Run `/prism-tutorial` for a guided walkthrough: it makes a fictional sample case study in the default brand, from the prompt and notes through the interview, the proof in Claude Docs, design mode in Claude Design and the export, then turns the same approved words into a deck, a carousel or an animated film, explaining each stage and pausing so you can try it. `/prism-tutorial rundown` gives the overview instead, and a topic (such as `/prism-tutorial design mode`) just that part.
+New to Prism? Run `/prism-tutorial` for a guided walkthrough: it makes a fictional sample case study in the default brand, from the prompt and notes through the interview, the proof in Claude Docs, design mode in Claude Design and the export, then turns the same approved words into a deck, a carousel or an animated film, explaining each stage and pausing so you can try it. The sample's draft, flags, proof doc and design boards are fixed, so every run shows the same thing. `/prism-tutorial rundown` gives the overview instead, and a topic (such as `/prism-tutorial design mode`) just that part.
 
 ## How to use it
 

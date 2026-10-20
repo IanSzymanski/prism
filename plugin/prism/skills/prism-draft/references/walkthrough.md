@@ -9,6 +9,7 @@ Everything in it is real work, done the way the prism-draft and prism-produce sk
 
 - **The brand.** Use the default brand (`.prism-kit/run.sh brands` marks it) unless the person named another in their request (`/prism-tutorial in the <brand> brand`). Don't ask.
 - **The sample.** `.prism-kit/run.sh tutorial <brand> --out <workspace>` sets up the sample piece: the brand's own sample when it has one (a prompt, fictional source notes with numbers and a results table, the interview answers, and what to try at each stage), otherwise the kit's neutral one. It prints the project folder, the prompt, the answers (`answer ...`), the tries (`try ...`) and the other formats to show at the end (`more ...`). A second run keeps a piece already set up, so the person can stop and pick up again later (`state <slug> show` says where the canvas stopped).
+- **The same every time.** A sample with fixed files (`fixed:` in the `run.sh tutorial` output) gives every run the same draft, the same reviewer flags, the same proof doc and the same design boards: the writer, reviewer and formatters don't run for it. `--out` puts the fixed draft in place as content.md and claims.md, `--approve` puts the fixed approved words in place, and `--format <name>` the fixed layout for a format. Never rewrite, reorder or reword any of it, and never run the agents over it. Only the person's own edits change it, and those go through the usual lanes (a changed word is patched into the fixed layouts, never regenerated). A format without a fixed layout, and a film, is made the usual way: say in one line that it is made fresh, so it can differ between runs. A sample without fixed files runs the agents as usual.
 - **Every figure in the sample is illustrative.** The piece is `figures: illustrative`, so every output labels it as fictional. Say so once at the start.
 - **Pacing.** Each stage ends with one AskUserQuestion call, header "Tutorial", question "<what just happened, in a few words>. Ready for <next stage>?", with these options:
   1. "Continue to <next stage> (Recommended)"
@@ -37,7 +38,7 @@ Pause (next: the interview).
 
 ## Stage 2: The interview
 
-Do: follow prism-draft step 2 with the sample's answers. Ask the one AskUserQuestion call a real piece would get (audience, length, outputs, images), with each sample answer as the first option marked "(from the sample)" and "Skip for now" on every question. Use what they pick; a skipped question takes the default, exactly as in a real piece. Write `interview.md` as usual.
+Do: follow prism-draft step 2 with the sample's answers. Ask the one AskUserQuestion call a real piece would get (audience, length, outputs, images), with each sample answer as the first option marked "(from the sample)" and "Skip for now" on every question. Use what they pick; a skipped question takes the default, exactly as in a real piece. Write `interview.md` as usual. With fixed files the draft stays the fixed one whatever they answer: when an answer differs from the sample's, say in one line what it would change in a real piece (a shorter draft, another output) and that the tutorial keeps its sample so every run matches.
 
 Say:
 
@@ -48,7 +49,7 @@ Pause (next: the draft).
 
 ## Stage 3: Draft and review
 
-Do: follow prism-draft step 3: the prism-writer agent writes `content.md` and `claims.md` from the notes, the prism-reviewer agent flags what needs a look.
+Do: with fixed files, the draft is already in the project: `content.md` and `claims.md` from `run.sh tutorial --out`, its reviewer flags the `<!-- CHECK -->` comments in content.md (the same three, in the order of the proof's `comments`). Don't run the writer or the reviewer; say in one line that the tutorial shows the draft they produce for these notes, so it is the same every time. Without fixed files, follow prism-draft step 3: the prism-writer agent writes `content.md` and `claims.md` from the notes, the prism-reviewer agent flags what needs a look.
 
 Say:
 
@@ -61,7 +62,7 @@ Pause (next: the proof in Claude Docs).
 
 ## Stage 4: The proof in Claude Docs
 
-Do: follow prism-draft step 4, "Proof in a Claude Doc": the doc titled "<piece title> · proof" with its Content and Claims tabs, every flag a "Check:" comment, opened for the person. Don't approve on their behalf.
+Do: follow prism-draft step 4, "Proof in a Claude Doc": the doc titled "<piece title> · proof" with its Content and Claims tabs, every flag a "Check:" comment, opened for the person. Don't approve on their behalf. With fixed files, make the doc exactly the same every time: its title is `title` in the proof file (`fixed.proof` in `run.sh tutorial --json`); the Content tab is content.md's body, without front matter or CHECK flags, word for word; the Claims tab is claims.md as written; and the comments are the proof file's `comments`, in that order, each on its `anchor` with its `text` exactly. Number the flags in chat in the same order.
 
 Say:
 
@@ -70,11 +71,13 @@ Say:
 - **Sharing:** invite people with Share at the top of the doc (Prism can't share for you). They can edit the words and comment with you, and they don't need Prism. You are the one who approves.
 - When the words are right, say **"approve"**.
 
-Pause, with option 1 reading "Approve the draft (Recommended)". When they approve, follow "On approve" in prism-draft step 4: read the doc back, vet the edits, and report what changed and what was fixed. For a flag still open, ask once whether to fix it or keep it as is. Then say in one line that content.md is now the only source and the doc stays as the record.
+Pause, with option 1 reading "Approve the draft (Recommended)". When they approve, follow "On approve" in prism-draft step 4: read the doc back, vet the edits, and report what changed and what was fixed. For a flag still open, ask once whether to fix it or keep it as is; with fixed files the first option is "Cut the flagged sentences (Recommended)", the fix each comment suggests. Then say in one line that content.md is now the only source and the doc stays as the record.
+
+With fixed files: when the doc read back is the fixed draft with the flagged sentences cut (the person changed nothing else, or only resolved the comments), install the fixed approved words with `run.sh tutorial <brand> --out <workspace> --approve` instead of writing content.md from the export, so the next stages match every run. When they edited more, approve from the doc as usual and note in log.md what differs from the fixed approved words; stage 5 patches it in.
 
 ## Stage 5: Design mode in Claude Design
 
-Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays out the approved words as a two-page case study (`formats/sheet.md`), then the canvas opens with its board.
+Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays out the approved words as a two-page case study (`formats/sheet.md`), then the canvas opens with its board. With fixed files the formatter doesn't run: `run.sh tutorial <brand> --out <workspace> --format sheet` puts the fixed layout in place, so the board is the same every time (the wire command builds it identically from the same file). When the approved words differ from the fixed ones (stage 4), run prism-formatter in patch mode on that file with just those changes, then the number check, before the canvas opens.
 
 Say:
 
@@ -100,7 +103,7 @@ Pause (next: the same words in other formats).
 
 ## Stage 7: The same words, other formats
 
-Do: ask one AskUserQuestion call, multi-select, "Which other formats should the same approved words become?", one option per `more` line the sample printed, with its prompt as the description; the first three options, a PowerPoint deck, a carousel and an animated film, marked "(Recommended)". Four options at most, so keep the deck, carousel and film and offer one of the rest; "Other" covers the remaining ones (social posts and stories, an HTML email, a blog post, a brochure, a 5x7 card, an email header, a one sheet). Then follow prism-produce "New export later" for each one picked: one prism-formatter per format in create mode, in parallel, from the same content.md.
+Do: ask one AskUserQuestion call, multi-select, "Which other formats should the same approved words become?", one option per `more` line the sample printed, with its prompt as the description; the first three options, a PowerPoint deck, a carousel and an animated film, marked "(Recommended)". Four options at most, so keep the deck, carousel and film and offer one of the rest; "Other" covers the remaining ones (social posts and stories, an HTML email, a blog post, a brochure, a 5x7 card, an email header, a one sheet). Then follow prism-produce "New export later" for each one picked: one prism-formatter per format in create mode, in parallel, from the same content.md. With fixed files, a format with a fixed layout (`fixed layout` on its `more` line: the deck and the carousel) takes it from `run.sh tutorial <brand> --out <workspace> --format <name>` instead of a formatter (patched, as in stage 5, when the words differ), so its board and file are the same every run; the rest are made by the formatter and said to be made fresh.
 
 - The deck, carousel and any other static format get their board added to the same canvas beside the sheet (`references/wireframe.md`, "A format added later"). Since the piece is already exported, each one is built, checked, verified and delivered straight away (section 4, Design session step 8), and its board is stamped.
 - An animated film never opens on the canvas: follow prism-produce `references/film.md` (the direction script, the film in Claude Motion, `motion check`, stills); the film's own page is where it's reviewed, and **Export** there saves the MP4.
