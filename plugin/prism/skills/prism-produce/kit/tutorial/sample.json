@@ -1,0 +1,28 @@
+{
+ "_note": "The walkthrough's fallback sample, for a brand without its own (brands/<id>/tutorial/sample.json). Fictional organization, people and figures.",
+ "slug": "tutorial-harbor-point",
+ "title": "How Harbor Point got its afternoons back",
+ "prompt": "Draft this into a two-page case study sheet for operations leaders. The organization, people and figures are illustrative. End on a demo invite.",
+ "answers": {
+  "audience": "Operations leaders",
+  "length": "Two pages",
+  "outputs": "sheet (two-page case study)",
+  "images": "No images: use the brand library or the test image",
+  "figures": "illustrative",
+  "piece_type": "case study"
+ },
+ "source": ["notes.md"],
+ "try": {
+  "proof": "Change the headline to \"How Harbor Point won back its afternoons\", then answer one of the Check comments.",
+  "design": "Drag the results chart above the field technician's quote, and retype the first stat's label.",
+  "revise": "Say \"the 41% should be 38%\" and watch it change in every output."
+ },
+ "more": [
+  { "format": "deck", "prompt": "Also make a PowerPoint deck from the same words, for a board meeting." },
+  { "format": "carousel", "prompt": "Also make a LinkedIn carousel of the results." },
+  { "format": "motion", "prompt": "Also make a 15-second animated film of the results for Instagram stories." },
+  { "format": "social", "prompt": "Also make two social posts and a story with captions." },
+  { "format": "html-email", "prompt": "Also make an HTML email announcing the case study to partners." },
+  { "format": "blog", "prompt": "Also make a blog post with a header image." }
+ ]
+}
