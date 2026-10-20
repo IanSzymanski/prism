@@ -16,6 +16,7 @@ Everything in it is real work, done the way the prism-draft and prism-produce sk
   3. "Skip ahead to the other formats": go to stage 7. The proof stop still holds: before approval, ask for "approve" first (stage 4); the sheet is then built without design mode ("just build it").
   4. "End the tutorial": go to "Wrapping up".
 - **Show what the AI sees.** The person sees every input at the moment Prism reads it, so they can check each step against it: the full sample message (the prompt and the whole of the notes) in stage 1, the answers in stage 2, and in stage 3 each flag and claim beside the line of the notes it came from. Never summarize an input in place of showing it; a summary goes after it.
+- **Sharing, kept simple.** Mention sharing wherever a stage has something to share: who can be invited, that they can edit and review with you, and that you are the one who approves. Never go into how Prism handles shared work behind the scenes (no named modes, comment commands or extra pages); if the person asks, point them to `/prism-tutorial work together`.
 - **Keep each explanation short:** three headed lists (Why it's here, What you can do, Sharing), two to four lines each, in your own words. The person is watching work happen; don't make them read a manual. Every stage keeps its own rules: the proof stop still holds, design mode still builds nothing before "done", and so on.
 - **When a tool isn't there**, say what the stage does in the full product, show its file stand-in, and carry on: no Claude Docs tools means the proof is done with content.md and claims.md (prism-draft step 4, without the doc); no Artifact tool means no design canvas, so build straight away ("just build it"); no Claude Motion means the film stops at its brief (`references/film.md` in prism-produce) and the person is told films need Claude Motion (Team and Enterprise plans).
 
@@ -66,7 +67,7 @@ Say:
 
 - **Why it's here:** this is the one place the words are approved. Nothing is designed before it, because a layout built on wrong words is wasted work, and every format later inherits exactly what is approved here. Approval is refused while a "Check:" comment is open, unless the person says "keep it as is".
 - **What you can do:** type straight into the Content tab like any document; reply to a "Check:" comment or resolve it; read the Claims tab to see where every number came from; or describe changes in chat ("make the opening shorter") and they are applied to the doc. The sample's `try proof` line is a good first edit.
-- **Sharing:** Share at the top of the doc adds a teammate as Editor (Prism can't share for you). Say "work on this with @<name>" and co-op mode starts (prism-produce `references/coop.md`): they edit or leave comments starting **@claude**, your Prism applies and answers them, and only you approve. Teammates don't need Prism.
+- **Sharing:** invite people with Share at the top of the doc (Prism can't share for you). They can edit the words and comment with you, and they don't need Prism. You are the one who approves.
 - When the words are right, say **"approve"**.
 
 Pause, with option 1 reading "Approve the draft (Recommended)". When they approve, follow "On approve" in prism-draft step 4: read the doc back, vet the edits, and report what changed and what was fixed. For a flag still open, ask once whether to fix it or keep it as is. Then say in one line that content.md is now the only source and the doc stays as the record.
@@ -79,7 +80,7 @@ Say:
 
 - **Why it's here:** layout decisions (what goes first, what stays, which block is a chart and which a quote) are easiest to make by looking and dragging. The canvas is a plain wireframe, the real words in the real order with the brand's components sketched in grey, so the conversation stays about structure. Its styling is never exported: the files are always built by the kit in the brand's own styles.
 - **What you can do:** retype any text or a link's address (in its blue chip); drag a block (or a whole slide or post) into a new order; delete what should go; or ask in chat ("make the results a chart", "use a calendar icon on the second card", "move the quote to page one"). Photos can be added at any point. Every change is read back into the Markdown, vetted and reported. The sample's `try design` line is a good first move.
-- **Sharing:** Share on the canvas adds teammates as Editors; in co-op mode their **@claude** comments are applied the same way, and only you say "done".
+- **Sharing:** invite people with Share on the canvas. They can rearrange, edit and review the layout with you. You are the one who says "done".
 - Nothing is built until **"done"**. Say it when the layout is right.
 
 Pause, with option 1 reading "Say \"done\" and export (Recommended)". A canvas edit or chat request runs the "Design session" loop in prism-produce section 4 before asking again.
@@ -93,7 +94,7 @@ Say:
 - **Why it's here:** every file is checked before it reaches anyone: `run.sh check` finds any number that isn't in the approved words, the preview catches layout faults, and `verify` confirms the file was built by the kit with the brand's fonts. A file that fails is never delivered.
 - **What you get:** the two-page PDF, named `<slug>-sheet-v<n>.pdf` so rounds never mix; the preview; and a line on what the formatter had to cut. Ask for a "print version" and a plain white copy comes beside it.
 - **What changes now:** the canvas matches the file, and from here every change (on the canvas or in chat) is exported again straight away, without another "done". Wording and numbers go into content.md and every output; layout touches only one output. The sample's `try revise` line shows this best once stage 7 has made more than one output.
-- **Sharing:** the PDF is the deliverable to send. In co-op mode every export also goes on an Exports page teammates can open.
+- **Sharing:** the PDF is the finished file to send. People you invited to the doc or canvas can keep reviewing with you; any change they ask for is exported again once you agree to it.
 
 Pause (next: the same words in other formats).
 
@@ -110,6 +111,7 @@ Say, per format, one or two lines:
 - **Carousel:** PNG panels and a caption file for posting; the cover comes first and the closing panel last.
 - **Animated film:** the same results as a short film in the brand's colours, fonts and logo, each scene held long enough to read. Comments on its page pin to a moment; Export saves the MP4.
 - **Any other format:** what the plugin README's outputs table says it is.
+- **Sharing:** the new boards sit on the same canvas, so anyone already invited can review them with you; a film's page can be shared the same way for comments. You approve every change.
 
 Then make the point of the whole tutorial, in two lines: nothing was rewritten. Every output was laid out from the one approved content.md, and every number in each of them passed the same check against it.
 
@@ -124,6 +126,6 @@ Say:
 - What was made, as a short table: each output, its file, and where it lives (the proof doc, the canvas, the film page, the files sent).
 - **Packages** do all of this at once: "draft this into a case study package" makes a set of outputs from one proof (`.prism-kit/run.sh packages` lists them).
 - **Quick mode** skips the interview and the proof for one fast file ("quick one-pager from these notes"); its claims are listed to check afterwards.
-- The sample piece is fictional and can be deleted; its proof doc and canvas are private until shared.
+- The sample piece is fictional and can be deleted; its proof doc, canvas and film page are private until you share them. Anyone you invite can edit and review with you, and you are always the one who approves.
 - `/prism-tutorial <topic>` gives the rundown of one part (for example `/prism-tutorial packages`), and `/prism-tutorial rundown` the whole overview.
 - End with one next step that fits: "Paste your own notes and say 'draft this into a case study'."

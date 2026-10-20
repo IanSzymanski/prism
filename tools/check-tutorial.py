@@ -29,6 +29,7 @@ PHRASES = {
 CARDS_NOT_FORMATS = {"components"}
 # The walkthrough's stages, in words it must use: the proof, design mode, the export and the other formats.
 STAGES = ["Claude Docs", "Claude Design", "export", "other formats", "Why it's here", "What you can do", "Sharing"]
+COOP_TERMS = ["co-op", "coop.md", "@claude", "Exports page"]
 SAMPLE_KEYS = ["slug", "title", "prompt", "answers", "source", "try", "more"]
 
 
@@ -81,6 +82,8 @@ def problems(version=None):
     if "walkthrough.md" not in open(os.path.join(PLUGIN, "commands", "prism-tutorial.md"), encoding="utf8").read(): out.append("/prism-tutorial does not run the walkthrough (walkthrough.md)")
     if "run.sh tutorial" not in w: out.append("the walkthrough must set the sample up with `run.sh tutorial`")
     # The person sees the input the AI reads, so the flags and claims can be checked against it.
+    # Sharing stays simple in the walkthrough: invite, edit and review together, you approve; no co-op mechanics.
+    out += [f"the walkthrough mentions \"{x}\": keep sharing to inviting people, editing and reviewing together, and who approves" for x in COOP_TERMS if x.lower() in w.lower()]
     if "--prompt" not in w: out.append("the walkthrough must show the full sample message with `run.sh tutorial <brand> --prompt`")
     out += [f"the walkthrough never says \"{p}\"" for p in STAGES if p.lower() not in w.lower()]
     for c in cards:

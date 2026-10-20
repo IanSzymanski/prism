@@ -79,6 +79,9 @@ try:
     d = copy(); open(walk(d), "w").write(open(walk(d)).read().replace("--prompt", "--summary"))
     r = run(ver, d); check("a walkthrough that doesn't show the full sample message fails", r.returncode == 1 and "--prompt" in r.stdout, r.stdout)
 
+    d = copy(); open(walk(d), "w").write(open(walk(d)).read() + "\nIn co-op mode, comments starting @claude are applied.\n")
+    r = run(ver, d); check("co-op specifics in the walkthrough fail", r.returncode == 1 and "co-op" in r.stdout and "@claude" in r.stdout, r.stdout)
+
     # run.sh tutorial: the default brand's sample by default, set up once and then kept.
     KIT = os.path.join(PLUGIN, "skills", "prism-produce", "kit")
     tut_js = lambda *a: subprocess.run(["node", os.path.join(KIT, "tutorial.js"), *a], capture_output=True, text=True)
