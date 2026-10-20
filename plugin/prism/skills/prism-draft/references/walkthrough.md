@@ -15,19 +15,21 @@ Everything in it is real work, done the way the prism-draft and prism-produce sk
   2. "Let me try something first": they try the stage's `try` line, or anything else the stage allows. Do it the normal way, read back as usual, then ask the same question again.
   3. "Skip ahead to the other formats": go to stage 7. The proof stop still holds: before approval, ask for "approve" first (stage 4); the sheet is then built without design mode ("just build it").
   4. "End the tutorial": go to "Wrapping up".
+- **Show what the AI sees.** The person sees every input at the moment Prism reads it, so they can check each step against it: the full sample message (the prompt and the whole of the notes) in stage 1, the answers in stage 2, and in stage 3 each flag and claim beside the line of the notes it came from. Never summarize an input in place of showing it; a summary goes after it.
 - **Keep each explanation short:** three headed lists (Why it's here, What you can do, Sharing), two to four lines each, in your own words. The person is watching work happen; don't make them read a manual. Every stage keeps its own rules: the proof stop still holds, design mode still builds nothing before "done", and so on.
 - **When a tool isn't there**, say what the stage does in the full product, show its file stand-in, and carry on: no Claude Docs tools means the proof is done with content.md and claims.md (prism-draft step 4, without the doc); no Artifact tool means no design canvas, so build straight away ("just build it"); no Claude Motion means the film stops at its brief (`references/film.md` in prism-produce) and the person is told films need Claude Motion (Team and Enterprise plans).
 
 ## Stage 1: Welcome and the sample prompt
 
-Do: copy the kit to `.prism-kit` if it is not there (prism-draft step 1), run `.prism-kit/run.sh tutorial <brand> --out <workspace>`, and read the sample notes it copied into `source/`.
+Do: copy the kit to `.prism-kit` if it is not there (prism-draft step 1), run `.prism-kit/run.sh tutorial <brand> --out <workspace>`, then `.prism-kit/run.sh tutorial <brand> --prompt`, which prints the sample message exactly as a person would send it: the prompt, then the full notes. Send the notes file in the project's `source/` with SendUserFile too, so it can be opened beside the later stages.
 
 Say:
 
 - One line on what Prism is: raw material in, proofed and on-brand files out, with a person approving the words in between.
 - The route, as a short numbered list: prompt and material, interview, draft and review, proof in Claude Docs, design mode in Claude Design, export, then other formats from the same words.
 - The brand it will use (and that `/prism-tutorial in the <brand> brand` uses another), and that everything in the sample is fictional.
-- **The sample prompt**, quoted exactly from the `prompt:` line, and a three-line summary of the notes: what the organization is, the before and after numbers, the quotes. Point out the lines in the notes that should not survive as written (an unsourced boast, a claim nobody checked, a figure nobody has): the reviewer is about to catch them.
+- **The sample prompt, in full:** the whole `--prompt` output, word for word, in one quoted block headed "This is the message Prism receives". Nothing left out or shortened: the prompt line and every line of the notes, tables included. This is exactly what the writer and the reviewer will read in stage 3.
+- After it, a three-line summary of the notes (what the organization is, the before and after numbers, the quotes), then the lines in the notes that should not survive as written (an unsourced boast, a claim nobody checked, a figure nobody has), each quoted exactly as it appears above: the reviewer is about to catch them, and the person can check it did.
 - What they'd do on their own: paste or attach notes, a transcript, a document or photos, and type a prompt like this one. Audio isn't accepted; a transcript is.
 
 Pause (next: the interview).
@@ -50,8 +52,9 @@ Do: follow prism-draft step 3: the prism-writer agent writes `content.md` and `c
 Say:
 
 - **Why it's here:** the words are written once, with no layout, so every format later is laid out from the same approved text and no number can drift between them.
-- **What you get:** `content.md` (the words: an at-a-glance block, the challenge, what they did, results with the monthly table for a chart, the quotes, the close) and `claims.md` (every number, quote and claim with the line of the notes it came from).
-- **The reviewer** flagged what the notes shouldn't carry as written. Name the flags it raised in a line each (for example the unsourced boast, an unapproved compliance claim, the turnover figure nobody has). It flags; it never rewrites the copy.
+- **What you get:** `content.md` (the words: an at-a-glance block, the challenge, what they did, results with the monthly table for a chart, the quotes, the close) and `claims.md` (every number, quote and claim with the line of the notes it came from). Send both with SendUserFile.
+- **Where each claim came from:** a short table of the main claims (each headline number and both quotes): the claim as drafted, then the line of the notes it came from, quoted exactly as stage 1 showed it. The person can trace every number back to the input.
+- **The reviewer** flagged what the notes shouldn't carry as written. For each flag, one line: the flagged sentence in the draft, the notes line it came from (quoted), and the reason (for example the unsourced boast, an unapproved compliance claim, the turnover figure nobody has). It flags; it never rewrites the copy. A notes line that was left out of the draft on purpose (the writer never invents or keeps an unsupported claim) is named too, so the person sees what was dropped and why.
 
 Pause (next: the proof in Claude Docs).
 

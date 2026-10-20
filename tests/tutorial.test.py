@@ -76,6 +76,9 @@ try:
     json.dump({"slug": "x", "title": "x", "prompt": "x", "answers": {"figures": "real"}, "source": [], "try": {}, "more": []}, open(os.path.join(b, "sample.json"), "w"))
     r = run(ver, d); check("a brand's own sample is checked too", r.returncode == 1 and "brand acme's sample" in r.stdout and "illustrative" in r.stdout, r.stdout)
 
+    d = copy(); open(walk(d), "w").write(open(walk(d)).read().replace("--prompt", "--summary"))
+    r = run(ver, d); check("a walkthrough that doesn't show the full sample message fails", r.returncode == 1 and "--prompt" in r.stdout, r.stdout)
+
     # run.sh tutorial: the default brand's sample by default, set up once and then kept.
     KIT = os.path.join(PLUGIN, "skills", "prism-produce", "kit")
     tut_js = lambda *a: subprocess.run(["node", os.path.join(KIT, "tutorial.js"), *a], capture_output=True, text=True)
@@ -86,6 +89,8 @@ try:
     open(os.path.join(j["project"], "content.md"), "w").write("mine")
     j2 = json.loads(tut_js("--out", ws, "--json").stdout)
     check("a second run keeps the piece as it is", not j2["created"] and open(os.path.join(j["project"], "content.md")).read() == "mine", j2)
+    r = tut_js("--prompt"); j = json.loads(tut_js("--json").stdout)
+    check("--prompt shows the prompt and every source file in full", r.returncode == 0 and r.stdout.startswith(j["prompt"]) and all(open(f).read().strip() in r.stdout for f in j["source"]), r.stdout[:300])
     r = tut_js("no-such-brand"); check("an unknown brand stops", r.returncode == 2 and "no brand" in r.stderr, r.stderr)
 
     major, minor = ver.split("-")[0].split(".")[:2]

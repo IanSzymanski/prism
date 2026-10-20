@@ -3,6 +3,7 @@
 // kit's neutral one (tutorial/sample.json). Prints the sample prompt, its interview answers and what to try at each stage.
 // Usage: tutorial.js [<brand>] [--json]
 //        tutorial.js [<brand>] --out <workspace>   (sets up <workspace>/<slug>/ with source/, formats/, out/ and the sample notes)
+//        tutorial.js [<brand>] --prompt            (the sample message exactly as a person would send it: the prompt, then every source file in full)
 const fs = require("fs"), path = require("path");
 const { defaultBrand, brandList } = require("./resolve.js");
 const args = process.argv.slice(2), opt = k => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : null; };
@@ -27,6 +28,8 @@ if (ws) {
   }
 }
 
+// The person sees exactly what the writer and reviewer will read, so the flags and claims later can be checked against it.
+if (args.includes("--prompt")) { console.log([s.prompt, ...out.source.map(f => fs.readFileSync(f, "utf8").trimEnd())].join("\n\n")); process.exit(0); }
 if (args.includes("--json")) { console.log(JSON.stringify(out, null, 1)); process.exit(0); }
 console.log(`brand: ${id} (${name})${id === defaultBrand() ? ", the default" : ""} · sample: ${out.sample === "brand" ? "the brand's own" : "the kit's neutral one"}`);
 if (out.project) console.log(`project: ${out.project}${out.created ? " (set up, sample notes in source/)" : " (already set up, left as it is)"}`);

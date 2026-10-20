@@ -105,7 +105,7 @@ The other `run.sh` commands:
 | `packages` | List, use, check, claim-check and zip packages |
 | `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in |
 | `onboard` | Add or update a brand (`start`, `map`, `report`, `bundle`, `update`) |
-| `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--json`) |
+| `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--prompt` prints the full sample message the person is shown, `--json`) |
 | `devices` | Device mockups: `list`, `render`, `svg`, `html` |
 | `setup` | Install a part's tools up front |
 

@@ -80,6 +80,8 @@ def problems(version=None):
     w = open(WALKTHROUGH, encoding="utf8").read()
     if "walkthrough.md" not in open(os.path.join(PLUGIN, "commands", "prism-tutorial.md"), encoding="utf8").read(): out.append("/prism-tutorial does not run the walkthrough (walkthrough.md)")
     if "run.sh tutorial" not in w: out.append("the walkthrough must set the sample up with `run.sh tutorial`")
+    # The person sees the input the AI reads, so the flags and claims can be checked against it.
+    if "--prompt" not in w: out.append("the walkthrough must show the full sample message with `run.sh tutorial <brand> --prompt`")
     out += [f"the walkthrough never says \"{p}\"" for p in STAGES if p.lower() not in w.lower()]
     for c in cards:
         out += [f"format:{c}: the walkthrough never says \"{p}\"" for p in PHRASES.get(f"format:{c}", []) if p.lower() not in w.lower()]
