@@ -5,14 +5,15 @@ description: >
   text, photos): "draft this", "turn this into a case study / blog post / one sheet / flyer / brochure / 5x7 card / postcard / deck / posts",
   "make something from these notes", "interview me first", "ask me everything up front". Also handles proofing: "approve the draft", "looks good",
   "here are my edits", or an edited content.md uploaded before anything has been produced. Also answers "how do I use Prism",
-  "tutorial", "what can you do" with the rundown in references/tutorial.md.
+  "what can you do" with the rundown in references/tutorial.md, and runs the guided walkthrough on a sample piece
+  ("tutorial", "walk me through it", "show me how it works") from references/walkthrough.md.
 metadata:
   version: "0.16.0-dev"
 ---
 
 # Draft: raw material to an approved content.md
 
-Asked how to use Prism ("how does this work", "tutorial", "what can you do"): give the rundown in `references/tutorial.md` and stop; don't start a piece until they bring material.
+Asked how to use Prism ("how does this work", "what can you do"): give the rundown in `references/tutorial.md` and stop; don't start a piece until they bring material. Asked to be shown ("tutorial", "walk me through it", "show me how it works", `/prism-tutorial` with no topic): run the guided walkthrough in `references/walkthrough.md`, which makes a sample piece through every stage with this skill and prism-produce.
 
 If the user wants a finished document right away with no proofing first ("quick", "fast", "just make it"), use the prism-quick skill instead.
 

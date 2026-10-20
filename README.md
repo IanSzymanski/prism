@@ -39,7 +39,7 @@ Also:
 - **Design mode:** a plain wireframe of each output on a Claude Design canvas; drag, delete and edit there, say "done", and the changes go back into the Markdown and rebuild.
 - **Co-op mode:** the owner invites teammates to the proof doc and canvas; their `@claude` requests are applied by the owner's Prism; only the owner approves and exports (`plugin/prism/skills/prism-produce/references/coop.md`).
 - **Brands:** `prism-onboard` (or `/prism-onboard`) maps a design system onto Prism's roles, shows it on a swatch sheet and packs a bundle for the next release.
-- **Tutorial:** `/prism-tutorial` (or a topic, `/prism-tutorial design mode`).
+- **Tutorial:** `/prism-tutorial` is a guided walkthrough on a sample piece in the default brand (another with `/prism-tutorial in the <brand> brand`): the sample prompt and notes, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, then the same words as a deck, a carousel or an animated film, with why each stage is there, what can be done in it and how it is shared, and a pause after each one (`prism-draft/references/walkthrough.md`). `/prism-tutorial rundown` gives the overview, and a topic (`/prism-tutorial design mode`) just that part.
 
 ## Layout
 
@@ -52,6 +52,7 @@ Also:
 | `kit/brands/<id>/` | One brand: `profile.json`, a pinned `snapshot/` of its design system, `layers/*.css`, `ornaments.js`, `digest.md`, Office fonts, brand-owned files |
 | `kit/motion-techniques.json` | The motion vocabulary: techniques, layouts, classes, transitions, backdrops, frames and the hold rule |
 | `kit/packages.json` | Core packages (brands add their own in their design system) |
+| `kit/tutorial/` | The walkthrough's neutral sample piece (`sample.json`, fictional notes); a brand's own sample is `kit/brands/<id>/tutorial/` |
 | `kit/devices.js` | Phone, tablet and laptop mockups |
 | `fixtures/` | One sample per output type, used for every regression build |
 | `guide/` | The user guide, built as a sheet |
@@ -104,6 +105,7 @@ The other `run.sh` commands:
 | `packages` | List, use, check, claim-check and zip packages |
 | `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in |
 | `onboard` | Add or update a brand (`start`, `map`, `report`, `bundle`, `update`) |
+| `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--json`) |
 | `devices` | Device mockups: `list`, `render`, `svg`, `html` |
 | `setup` | Install a part's tools up front |
 
@@ -128,7 +130,7 @@ node tests/motion.test.js              # motion: the language, holds, the brief,
 node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op
-python3 tests/tutorial.test.py         # the tutorial still describes every command, format and skill
+python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete
 python3 tests/readme.test.py           # this README still names every run.sh command and test suite
 python3 tests/core-brand-free.test.py  # no brand is named in core; defaults come from the profiles
 ```

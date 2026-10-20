@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """The tutorial stays in step with the plugin: tools/check-tutorial.py passes on the real plugin and catches each kind of drift
-(a new command, format card or skill, the brand list, a new release) on a changed copy.
+(a new command, format card or skill, the brand list, a new release) on a changed copy; the guided walkthrough and its samples
+(run.sh tutorial) stay complete.
 Usage: python3 tests/tutorial.test.py"""
 import json, os, shutil, subprocess, sys, tempfile
 
@@ -52,9 +53,45 @@ try:
     d = copy(); open(tut(d), "w").write(open(tut(d)).read().replace("carousel", "slideshow"))
     r = run(ver, d); check("a format the tutorial stops naming fails", r.returncode == 1 and "format:carousel" in r.stdout, r.stdout)
 
+    walk = lambda d: os.path.join(d, "skills", "prism-draft", "references", "walkthrough.md")
+    d = copy(); os.remove(walk(d))
+    r = run(ver, d); check("a missing walkthrough fails", r.returncode == 1 and "walkthrough" in r.stdout and "missing" in r.stdout, r.stdout)
+
+    d = copy(); open(walk(d), "w").write(open(walk(d)).read().replace("Claude Design", "the canvas tool"))
+    r = run(ver, d); check("a walkthrough that skips a stage fails", r.returncode == 1 and "Claude Design" in r.stdout, r.stdout)
+
+    d = copy(); open(walk(d), "w").write(open(walk(d)).read().replace("carousel", "slideshow"))
+    r = run(ver, d); check("a format the walkthrough stops naming fails", r.returncode == 1 and "format:carousel: the walkthrough" in r.stdout, r.stdout)
+
+    d = copy(); c = os.path.join(d, "commands", "prism-tutorial.md"); open(c, "w").write(open(c).read().replace("walkthrough.md", "tutorial.md"))
+    r = run(ver, d); check("/prism-tutorial must run the walkthrough", r.returncode == 1 and "does not run the walkthrough" in r.stdout, r.stdout)
+
+    d = copy(); sj = os.path.join(d, "skills", "prism-produce", "kit", "tutorial", "sample.json")
+    s = json.load(open(sj)); s["more"].append({"format": "poster", "prompt": "x"}); s["source"].append("gone.md"); json.dump(s, open(sj, "w"))
+    r = run(ver, d)
+    check("a sample offering a format that doesn't exist fails", r.returncode == 1 and "more offers poster" in r.stdout, r.stdout)
+    check("a sample missing a source file fails", "gone.md is missing" in r.stdout, r.stdout)
+
+    d = copy(); b = os.path.join(d, "skills", "prism-produce", "kit", "brands", "acme", "tutorial"); os.makedirs(b)
+    json.dump({"slug": "x", "title": "x", "prompt": "x", "answers": {"figures": "real"}, "source": [], "try": {}, "more": []}, open(os.path.join(b, "sample.json"), "w"))
+    r = run(ver, d); check("a brand's own sample is checked too", r.returncode == 1 and "brand acme's sample" in r.stdout and "illustrative" in r.stdout, r.stdout)
+
+    # run.sh tutorial: the default brand's sample by default, set up once and then kept.
+    KIT = os.path.join(PLUGIN, "skills", "prism-produce", "kit")
+    tut_js = lambda *a: subprocess.run(["node", os.path.join(KIT, "tutorial.js"), *a], capture_output=True, text=True)
+    r = tut_js("--json"); j = json.loads(r.stdout) if r.returncode == 0 else {}
+    check("run.sh tutorial uses the default brand", j.get("brand") and subprocess.run(["node", os.path.join(KIT, "brands.js")], capture_output=True, text=True).stdout.find(f"{j.get('brand')} (default)") >= 0, r.stdout + r.stderr)
+    ws = os.path.join(tmp, "ws"); r = tut_js("--out", ws, "--json"); j = json.loads(r.stdout)
+    check("run.sh tutorial --out sets the sample piece up", j["created"] and all(os.path.isdir(os.path.join(j["project"], x)) for x in ["source", "formats", "out"]) and os.listdir(os.path.join(j["project"], "source")), r.stdout)
+    open(os.path.join(j["project"], "content.md"), "w").write("mine")
+    j2 = json.loads(tut_js("--out", ws, "--json").stdout)
+    check("a second run keeps the piece as it is", not j2["created"] and open(os.path.join(j["project"], "content.md")).read() == "mine", j2)
+    r = tut_js("no-such-brand"); check("an unknown brand stops", r.returncode == 2 and "no brand" in r.stderr, r.stderr)
+
     major, minor = ver.split("-")[0].split(".")[:2]
     r = run(f"{major}.{int(minor) + 1}.0-dev")
-    check("a new release needs a fresh review", r.returncode == 1 and "last reviewed for" in r.stdout, r.stdout)
+    check("a new release needs a fresh review", r.returncode == 1 and "tutorial was last reviewed for" in r.stdout, r.stdout)
+    check("a new release needs a fresh look at the walkthrough too", "walkthrough was last reviewed for" in r.stdout, r.stdout)
     r = run(f"{major}.{minor}.9")
     check("a patch release of the same minor passes", r.returncode == 0, r.stdout)
 finally:
