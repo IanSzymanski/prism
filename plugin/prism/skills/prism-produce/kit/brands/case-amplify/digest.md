@@ -40,6 +40,8 @@ The build does these on its own for every Case Amplify sheet (profile `options.s
 
 - No byline (author and date) under the title, and no footer line (contact and legal) under the last page. An illustrative piece says so in its eyebrow and closing card instead.
 - The closing card's QR code sits beside all of its copy.
+
+Close every sheet with the full closing card, `::: cta-card` (not `.small` or `.x-small`), holding a rounded QR code, `{.qr .rounded url="https://caseamplify.com"}`, as an empty block after the copy: the larger card fills the last page. Step down to `.small`, then `.x-small` (with `{.qr .small .rounded ...}`), only when a page won't fit without it ("Fitting a one-pager" in the sheet card).
 - A title or heading that would end on one word keeps its last two words together; a paragraph that would is reported (`[sheet] orphan`).
 - Format variety is checked (`[sheet] variety`): use several formats per page (stats, cards, steps, a quote, a chart or table, columns, a callout). Cards come as 1x2, 1x3, 1x4 or 2x2, and any layout of cards counts as the same format, so don't fill a page with cards.
 
@@ -51,5 +53,5 @@ The approved Case Amplify one-sheet look (Oct 2026). Use it for a one-pager unle
 - Keep the audience phrase in the title on one line with non-breaking spaces: `*people\ you\ serve*`.
 - Icons in grape (`.accent`).
 - Process steps as `{.flow .plain}`: no grape rules above the steps. A "What they did" section (the steps an organization took, in order) is `::: steps` instead: a stacked numbered list of short steps, all on one page.
-- Close with a slim left-aligned card, `{.cta-card .x-small}`, holding a small rounded QR code, `{.qr .small .rounded url="https://caseamplify.com"}` as an empty block after the copy: the build sets the code beside all of the card's copy (eyebrow, heading and text).
+- Close with the full closing card and its QR code, as on every sheet; on a one-pager that won't fit, step down to `{.cta-card .small}`, then the slim `{.cta-card .x-small}` with `{.qr .small .rounded url="https://caseamplify.com"}`.
 - Last, once everything fits on one page: `fill: page` to space the sections evenly down it.

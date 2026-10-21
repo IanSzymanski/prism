@@ -71,7 +71,7 @@ May: 1.5
 - **A slow start.** One pilot team first, a note buddy on every team, and two hours of training.
 :::
 
-::::: {.cta-card .x-small}
+::::: cta-card
 [Case Amplify]{.eyebrow}
 
 ## See it with *your* team
@@ -80,6 +80,6 @@ Book a demo at [caseamplify.com](https://caseamplify.com).
 
 [Cedar Hollow Family Services is a fictional agency. Every person, quote and figure in this case study is illustrative.]{.note}
 
-::: {.qr .small .rounded url="https://caseamplify.com"}
+::: {.qr .rounded url="https://caseamplify.com"}
 :::
 :::::
