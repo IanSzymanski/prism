@@ -1,6 +1,6 @@
 # Prism: handoff for continued development
 
-State as of 12 October 2026, version **0.16.0-dev**. Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. **No interim releases: the next and only version cut is v1.** Until then the tree stays `0.x-dev`. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
+State as of 21 October 2026, version **1.0.0**, the first release (tag `v1.0.0`, with the plugin zip on the GitHub release). Before that, Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. v1 was the only release cut; work after it continues from 1.0.0. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
 
 ## Backlog
 
@@ -14,7 +14,7 @@ The backlog lives in the pinned **Prism Backlog** artifact: https://claude.ai/ar
 
 ## Standing rules (from Ian)
 
-- **Releases: only v1 is cut.** No interim releases (no 0.14.0, 0.15.0 or 0.16.0); work continues as `0.x-dev` until v1. `tools/build.py` still takes the version string, and the tutorial stamp follows its major.minor.
+- **Releases:** v1.0.0 is the first (Oct 21). A release is the Release workflow (`.github/workflows/release.yml`, run by hand with a version): it runs the tutorial check, builds the zip with `tools/build.py`, tags `v<version>` and attaches `prism-<version>.zip` to the GitHub release. Stamp the version first (`tools/build.py <version>` updates the skills, plugin.json and kit/VERSION; the tutorial and walkthrough stamps follow its major.minor) and merge it.
 
 - **Build:** edit `plugin/prism/`, then run `python3 tools/build.py <VERSION>`. It checks the tutorial, bumps the version everywhere and zips the plugin into `dist/`. The ChatGPT edition is no longer built.
 - **Core names no brand.** Nothing outside `kit/brands/<id>/` (skills, agents, format cards, commands, kit code, READMEs, tools/build.py) names a brand or uses its words. Each profile lists its identifying words in `identity.terms`; `tests/core-brand-free.test.py` fails on any of them in core, and on a brand id hardcoded in kit code. Brand-specific defaults live in the profile: `"default": true` (the brand a piece uses when it names none), `content.audience`, `content.contact`, `content.email_sender`; `run.sh brands` lists them, and skills read them from there. Examples in format cards use the fictional Harbor Point and example.com.
