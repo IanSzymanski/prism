@@ -11,18 +11,61 @@
   "figures": "illustrative",
   "piece_type": "case study"
  },
- "source": ["notes.md"],
+ "source": [
+  "notes.md"
+ ],
  "try": {
-  "proof": "Change the headline to \"How Harbor Point won back its afternoons\", then answer one of the Check comments.",
-  "design": "Drag the results chart above the field technician's quote, and retype the first stat's label.",
-  "revise": "Say \"the 41% should be 38%\" and watch it change in every output."
+  "start": [
+   "Read the notes and spot what shouldn't go out as written"
+  ],
+  "interview": [
+   "Skip a question: every one is optional"
+  ],
+  "draft": [
+   "Find where a number in the draft came from in claims.md"
+  ],
+  "proof": [
+   "Change the headline to \"How Harbor Point won back its afternoons\"",
+   "Reply to one of the Check comments"
+  ],
+  "design": [
+   "Drag the field technician's quote above the results chart",
+   "Retype the first stat's label"
+  ],
+  "export": [
+   "Ask for a print version on white"
+  ],
+  "formats": [
+   "Ask for another format, such as social posts"
+  ],
+  "revise": [
+   "Say \"the 41% should be 38%\" and watch it change in every output"
+  ]
  },
  "more": [
-  { "format": "deck", "prompt": "Also make a PowerPoint deck from the same words, for a board meeting." },
-  { "format": "carousel", "prompt": "Also make a LinkedIn carousel of the results." },
-  { "format": "motion", "prompt": "Also make a 15-second animated film of the results for Instagram stories." },
-  { "format": "social", "prompt": "Also make two social posts and a story with captions." },
-  { "format": "html-email", "prompt": "Also make an HTML email announcing the case study to partners." },
-  { "format": "blog", "prompt": "Also make a blog post with a header image." }
+  {
+   "format": "deck",
+   "prompt": "Also make a PowerPoint deck from the same words, for a board meeting."
+  },
+  {
+   "format": "carousel",
+   "prompt": "Also make a LinkedIn carousel of the results."
+  },
+  {
+   "format": "motion",
+   "prompt": "Also make a 15-second animated film of the results for Instagram stories."
+  },
+  {
+   "format": "social",
+   "prompt": "Also make two social posts and a story with captions."
+  },
+  {
+   "format": "html-email",
+   "prompt": "Also make an HTML email announcing the case study to partners."
+  },
+  {
+   "format": "blog",
+   "prompt": "Also make a blog post with a header image."
+  }
  ]
 }

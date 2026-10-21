@@ -49,8 +49,21 @@ ok(!/prism-colophon/.test(all.html), "colophon: off drops the closing line");
 ok(!/runs past one page|nothing to space/.test(all.r.stderr), `fill: page spaces a one-pager without a warning: ${all.r.stderr.slice(-300)}`);
 
 // 3. None of them: the sheet is built as before.
-const none = build(sheet("none", "", BODY));
-ok(none.r.status === 0 && !/has-image|prism-mast__grid|fill-page/.test(none.html) && /<footer class="prism-colophon">/.test(none.html), "a sheet without modifiers has no title photo, no fill and keeps its closing line");
+const none = build(sheet("none", "brand: prism\nauthor: Someone\n", BODY));
+ok(none.r.status === 0 && !/has-image|prism-mast__grid|fill-page/.test(none.html) && /<footer class="prism-colophon">/.test(none.html) && /prism-meta/.test(none.html), "a sheet without modifiers, in a brand without sheet options, has no title photo or fill and keeps its byline and closing line");
+
+// 3b. The brand's own sheet options (options.sheet): no byline, no closing line, the orphan and variety checks.
+const ca = build(sheet("ca", "author: Someone\ndate: May 2026\n", BODY));
+ok(ca.r.status === 0 && !/prism-meta/.test(ca.html) && !/prism-colophon/.test(ca.html), `the default brand's sheets drop the byline and the closing line: ${ca.r.stderr.slice(-200)}`);
+const on = build(sheet("on", "colophon: on\n", BODY));
+ok(/<footer class="prism-colophon">/.test(on.html), "colophon: on keeps the closing line in a brand that drops it");
+const CARDS = n => `## Section ${n}\n\n::: features\n- []{.icon .ph-check} **One** A card.\n- []{.icon .ph-check} **Two** A card.\n:::\n\n`;
+const same = build(sheet("same", "", [1, 2, 3].map(CARDS).join("")));
+ok(/\[sheet\] variety: 3 sections use cards/.test(same.r.stderr) && /both lead with cards back to back/.test(same.r.stderr), `three card sections in a row are reported: ${same.r.stderr.slice(-300)}`);
+ok(!/variety/.test(ca.r.stderr), "a varied sheet passes the variety check");
+const orph = build(sheet("orph", "title: Word word word word word word word word word word word word word word word word word word word lonely\n", "## Text\n\nShort.\n"));
+ok(/title orphan fixed/.test(orph.r.stderr) || !/title orphan/.test(orph.r.stderr), `a title that would end on one word is fixed in place: ${orph.r.stderr.slice(-300)}`);
+ok(/\.features\.four ul\{grid-template-columns:repeat\(4,1fr\)/.test(css) && /\.steps ol\{[^}]*break-inside:avoid/.test(css), "core has 1x4 cards and stacked steps kept on one page");
 
 // 4. Options and limits: no fade, a bad split, fill on a sheet that runs over, an unknown fill.
 const nofade = build(sheet("nofade", "mast-image: prism:placeholder\nmast-fade: false\nmast-split: \"1fr; color red\"\nfill: everything\n", BODY));

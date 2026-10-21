@@ -90,6 +90,8 @@ For each format file:
    - social / email / carousel: `.prism-kit/run.sh social formats/<format>.md out/<format>` (`<tag>-<id>.png` plus `<tag>-captions.md`). It exits with an error and prints `[social] missing caption: <id>` when a post has no caption; fix the format file and rebuild. Read captions.md once before delivering.
 3. **Build warnings:** act on every line the build prints before looking at anything:
    - `[deck] slide N (<layout>): <part> may not fit`: shorten that text or split the slide;
+   - `[sheet] orphan: ...`: reword that sentence or join its last two words with `\ ` (a `title orphan fixed` or `heading orphan fixed` line is done already: say nothing);
+   - `[sheet] variety: ...`: show that section's information in another format (components.md, "Variety"); cards in another layout don't count;
    - `[sheet] brochure page N, panel N: content runs ... past the panel bottom` or `[sheet] 5x7 front: content runs ... past the bottom edge`: cut words, then an image;
    - `[social] story <id>: ... outside the safe area` or `runs into the logo`: shorten that text. For stories, build with `--guides` and look at `_guides/` in the visual check.
 4. **Visual check:** `.prism-kit/run.sh preview out/<tag>-preview.png <built files>` and look at the image. Fix in the format file and rebuild, at most two rounds:

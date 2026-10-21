@@ -13,11 +13,13 @@ Everything in it is real work, done the way the prism-draft and prism-produce sk
 - **Every figure in the sample is illustrative.** The piece is `figures: illustrative`, so every output labels it as fictional. Say so once at the start.
 - **Pacing.** Each stage ends with one AskUserQuestion call, header "Tutorial", question "<what just happened, in a few words>. Ready for <next stage>?", with these options:
   1. "Continue to <next stage> (Recommended)"
-  2. "Let me try something first": they try the stage's `try` line, or anything else the stage allows. Do it the normal way, read back as usual, then ask the same question again.
+  2. "Let me try something first": pause. Reply with the standard message and nothing else: one line ("Go ahead: try anything this stage allows, then tell me when you're ready to move on."), then the stage's suggestions from the sample's `try` list for that stage (`try <stage>:` lines), as two or three bullets. Make no tool calls for it: don't re-read the doc, the canvas or their comments, and don't recap or re-answer anything from earlier stages. Then wait for the person. When they do something, handle it the normal way for that stage, read back as usual, and ask the same question again.
   3. "Skip ahead to the other formats": go to stage 7. The proof stop still holds: before approval, ask for "approve" first (stage 4); the sheet is then built without design mode ("just build it").
   4. "End the tutorial": go to "Wrapping up".
 - **Show what the AI sees.** The person sees every input at the moment Prism reads it, so they can check each step against it: the full sample message (the prompt and the whole of the notes) in stage 1, the answers in stage 2, and in stage 3 each flag and claim beside the line of the notes it came from. Never summarize an input in place of showing it; a summary goes after it.
 - **Sharing, kept simple.** Mention sharing wherever a stage has something to share: who can be invited, that they can edit and review with you, and that you are the one who approves. Never go into how Prism handles shared work behind the scenes (no named modes, comment commands or extra pages); if the person asks, point them to `/prism-tutorial work together`.
+- **Earlier stages stay closed.** Once the words are approved, the proof doc is the record: its comment threads are settled, so never answer, re-check or report on them again, and never repeat an earlier read-back. Each stage's messages are about that stage only.
+- **Leave the brand machinery out.** The tutorial is about making a piece, so never mention how the brand is set up: no design-system changes since the release, new components, drafts, onboarding or brand updates, even when `resolve` or a build prints them (note them in log.md only).
 - **Keep each explanation short:** three headed lists (Why it's here, What you can do, Sharing), two to four lines each, in your own words. The person is watching work happen; don't make them read a manual. Every stage keeps its own rules: the proof stop still holds, design mode still builds nothing before "done", and so on.
 - **When a tool isn't there**, say what the stage does in the full product, show its file stand-in, and carry on: no Claude Docs tools means the proof is done with content.md and claims.md (prism-draft step 4, without the doc); no Artifact tool means no design canvas, so build straight away ("just build it"); no Claude Motion means the film stops at its brief (`references/film.md` in prism-produce) and the person is told films need Claude Motion (Team and Enterprise plans).
 
@@ -68,7 +70,7 @@ Do: follow prism-draft step 4, "Proof in a Claude Doc": the doc titled "<piece t
 Say:
 
 - **Why it's here:** this is the one place the words are approved. Nothing is designed before it, because a layout built on wrong words is wasted work, and every format later inherits exactly what is approved here. Approval is refused while a "Check:" comment is open, unless the person says "keep it as is".
-- **What you can do:** type straight into the Content tab like any document; reply to a "Check:" comment or resolve it; read the Claims tab to see where every number came from; or describe changes in chat ("make the opening shorter") and they are applied to the doc. The sample's `try proof` line is a good first edit.
+- **What you can do:** type straight into the Content tab like any document; reply to a "Check:" comment or resolve it; read the Claims tab to see where every number came from; or describe changes in chat ("make the opening shorter") and they are applied to the doc. The sample's `try proof` suggestions are good first edits.
 - **Sharing:** invite people with Share at the top of the doc (Prism can't share for you). They can edit the words and comment with you, and they don't need Prism. You are the one who approves.
 - When the words are right, say **"approve"**.
 
@@ -83,7 +85,7 @@ Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays 
 Say:
 
 - **Why it's here:** layout decisions (what goes first, what stays, which block is a chart and which a quote) are easiest to make by looking and dragging. The canvas is a plain wireframe, the real words in the real order with the brand's components sketched in grey, so the conversation stays about structure. Its styling is never exported: the files are always built by the kit in the brand's own styles.
-- **What you can do:** retype any text or a link's address (in its blue chip); drag a block (or a whole slide or post) into a new order; delete what should go; or ask in chat ("make the results a chart", "use a calendar icon on the second card", "move the quote to page one"). Photos can be added at any point. Every change is read back into the Markdown, vetted and reported. The sample's `try design` line is a good first move.
+- **What you can do:** retype any text or a link's address (in its blue chip); drag a block (or a whole slide or post) into a new order; delete what should go; or ask in chat ("make the results a chart", "use a calendar icon on the second card", "move the quote to page one"). Photos can be added at any point. Every change is read back into the Markdown, vetted and reported. The sample's `try design` suggestions are good first moves.
 - **Sharing:** invite people with Share on the canvas. They can rearrange, edit and review the layout with you. You are the one who says "done".
 - Nothing is built until **"done"**. Say it when the layout is right.
 
@@ -97,7 +99,7 @@ Say:
 
 - **Why it's here:** every file is checked before it reaches anyone: `run.sh check` finds any number that isn't in the approved words, the preview catches layout faults, and `verify` confirms the file was built by the kit with the brand's fonts. A file that fails is never delivered.
 - **What you get:** the two-page PDF, named `<slug>-sheet-v<n>.pdf` so rounds never mix; the preview; and a line on what the formatter had to cut. Ask for a "print version" and a plain white copy comes beside it.
-- **What changes now:** the canvas matches the file, and from here every change (on the canvas or in chat) is exported again straight away, without another "done". Wording and numbers go into content.md and every output; layout touches only one output. The sample's `try revise` line shows this best once stage 7 has made more than one output.
+- **What changes now:** the canvas matches the file, and from here every change (on the canvas or in chat) is exported again straight away, without another "done". Wording and numbers go into content.md and every output; layout touches only one output. The sample's `try revise` suggestion shows this best once stage 7 has made more than one output.
 - **Sharing:** the PDF is the finished file to send. People you invited to the doc or canvas can keep reviewing with you; any change they ask for is exported again once you agree to it.
 
 Pause (next: the same words in other formats).
@@ -119,7 +121,7 @@ Say, per format, one or two lines:
 
 Then make the point of the whole tutorial, in two lines: nothing was rewritten. Every output was laid out from the one approved content.md, and every number in each of them passed the same check against it.
 
-Then show a revision: offer the sample's `try revise` line. If they take it, follow the content lane (prism-produce section 4): content.md, the reviewer for the changed number, patched into every format file without regenerating them, re-exported, read back with each output that changed. Then contrast it with a layout change ("make the deck's results slide a stat slide"), which touches only that output.
+Then show a revision: offer the sample's `try revise` suggestion. If they take it, follow the content lane (prism-produce section 4): content.md, the reviewer for the changed number, patched into every format file without regenerating them, re-exported, read back with each output that changed. Then contrast it with a layout change ("make the deck's results slide a stat slide"), which touches only that output.
 
 Pause, with option 1 reading "Finish the tutorial (Recommended)" and option 3 reading "Try another format".
 

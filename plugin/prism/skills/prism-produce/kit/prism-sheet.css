@@ -220,6 +220,8 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
   list-style:none;padding:0;margin:8pt 0 18pt;display:grid;grid-template-columns:1fr 1fr;gap:10pt;
 }
 .features.three ul{grid-template-columns:repeat(3,1fr)}
+.features.four ul{grid-template-columns:repeat(4,1fr);gap:10pt}
+.features.four li{padding:12pt 12pt 11pt}
 .features li{
   margin:0;padding:12pt 14pt;border:var(--line);border-radius:var(--prism-radius-card);
   font-size:9pt;line-height:1.5;break-inside:avoid;
@@ -344,6 +346,14 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .keep{break-inside:avoid}
 .small{font-size:8.5pt;line-height:1.5}
 .center{text-align:center}
+
+/* Steps: a stacked numbered list, one short step a line, kept on one page: ::: steps around a numbered list. */
+.steps ol{list-style:none;padding:0;margin:0 0 var(--space);counter-reset:step;break-inside:avoid}
+.steps li{position:relative;margin:0;padding:7pt 0 7pt 30pt;border-top:var(--line);counter-increment:step;font-size:9.5pt;line-height:1.45}
+.steps li:last-child{border-bottom:var(--line)}
+.steps li::before{content:counter(step,decimal-leading-zero);position:absolute;left:0;top:7pt;font:500 8pt/1.75 var(--prism-font-mono);letter-spacing:.1em;color:var(--prism-color-accent)}
+.steps li::marker{content:none}
+.steps li > p{margin:0}
 
 /* Band: a tinted strip for one key idea. Flow: two to five numbered steps side by side, for a process or workflow. */
 .band{background:var(--prism-color-band);border-radius:var(--prism-radius-hero);padding:14pt 18pt 10pt;margin:6pt 0 var(--space);break-inside:avoid}

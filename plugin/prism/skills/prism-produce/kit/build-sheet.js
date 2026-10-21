@@ -35,6 +35,9 @@ if (!panels) {
   }
   if (own.fill) { if (own.fill === "page") sheetVars.push("prism-fill-page=true"); else console.warn(`[sheet] fill: ${own.fill} is not an option (fill: page); ignored`); }
   if (off(own.colophon)) sheetVars.push("prism-no-colophon=true");
+  // The brand's own sheet defaults (profile options.sheet): no byline under the title, no closing line under the last page.
+  if (B.option("sheet.byline", true) === false) sheetVars.push("prism-no-byline=true");
+  if (B.option("sheet.colophon", true) === false && !off(own.colophon) && !/^(on|true|yes)$/i.test(own.colophon || "")) sheetVars.push("prism-no-colophon=true");
 }
 const plainText = s => String(s || "").replace(/[*_`]|\\(?=\s)/g, "").replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").trim();
 const info = {
@@ -172,6 +175,8 @@ function stamp(file, ver) {
   // Light surfaces only: a dark-themed block keeps its own.
   if (printCopy) await page.addStyleTag({ content: `:root{--prism-color-surface:${surface}}` });
   const missingIcons = await require("./icons.js")(page, here, B);
+  // options.sheet.cta_qr: "beside-copy" puts a closing card's code beside all of its copy (eyebrow, heading and text), not just its last line.
+  if (!panels && B.option("sheet.cta_qr", "") === "beside-copy") await page.evaluate(require("./sheet-checks.js").qrBesideCopy);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
   const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false)]);
@@ -218,6 +223,10 @@ function stamp(file, ver) {
     }
     return [];
   }));
+  // options.sheet.checks: one-word last lines (the title first), and the same format used again and again.
+  const checks = B.option("sheet.checks", []);
+  if (!panels && checks.includes("orphans")) warnings.push(...await page.evaluate(require("./sheet-checks.js").orphans));
+  if (!panels && checks.includes("variety")) warnings.push(...await page.evaluate(require("./sheet-checks.js").variety));
   for (const w of warnings) console.warn("[sheet] " + w);
   // Sheets print at 90% (every size in prism-sheet.css was tuned at that scale); brochures print at true size.
   const print = () => page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: panels ? 1 : 0.9 });

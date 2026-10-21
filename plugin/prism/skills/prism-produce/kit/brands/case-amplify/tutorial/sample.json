@@ -7,7 +7,7 @@
   "audience": "Human services program leaders (directors and supervisors)",
   "length": "Two pages",
   "outputs": "sheet (two-page case study)",
-  "images": "No images: use the brand library or the test image",
+  "images": "The sample's Cedar Hollow logo, as the hero image (fictional organization, sample logo)",
   "figures": "illustrative",
   "piece_type": "case study"
  },
@@ -15,9 +15,40 @@
   "notes.md"
  ],
  "try": {
-  "proof": "Change the headline to \"How Cedar Hollow won back its afternoons\", then answer one of the Check comments.",
-  "design": "Drag the caseworker quote above the results chart, and retype the first stat's label.",
-  "revise": "Say \"the 41% should be 38%\" and watch it change in every output."
+  "start": [
+   "Read the notes and spot what shouldn't go out as written",
+   "Look at how the numbers are written in different ways"
+  ],
+  "interview": [
+   "Pick a different audience to see what it would change",
+   "Skip a question: every one is optional"
+  ],
+  "draft": [
+   "Compare a line of the notes with the same line in the draft",
+   "Find where a number in the draft came from in claims.md"
+  ],
+  "proof": [
+   "Change the headline to \"How Cedar Hollow won back its afternoons\"",
+   "Reply to one of the Check comments",
+   "Open the Claims tab and find where 41% came from"
+  ],
+  "design": [
+   "Drag the caseworker quote above the results chart",
+   "Retype the first stat's label",
+   "Ask for a different icon on one of the problem cards"
+  ],
+  "export": [
+   "Ask for a print version on white",
+   "Say \"make the closing card say Book a demo today\"",
+   "Open the PDF and check every number against the notes"
+  ],
+  "formats": [
+   "Ask for another format, such as social posts",
+   "Make a layout change to one output only, such as the deck's results slide"
+  ],
+  "revise": [
+   "Say \"the 41% should be 38%\" and watch it change in every output"
+  ]
  },
  "more": [
   {
@@ -125,6 +156,8 @@
     "draft": "## The *results*",
     "what": "mixed headings (caps, ##, dashes) made one style"
    }
-  ]
+  ],
+  "images": "images",
+  "images_md": "draft/images.md"
  }
 }
