@@ -6,7 +6,7 @@ description: >
   testimonial block", "make a package", "save this as a package", "change the case study package", "new component in the design system", "add photos to the brand library", or after a build says "design system changed since this release". Drafts a brand profile from the brand's design system, shows it on the swatch
   sheet for review, and packs the finished brand as a bundle for the next Prism release.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Onboard: a design system to a Prism brand

@@ -26,5 +26,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # A version's own notes (.github/release-notes/<version>.md) go above the standing install notes.
+          notes=.github/release-notes.md
+          if [ -f ".github/release-notes/${{ inputs.version }}.md" ]; then cat ".github/release-notes/${{ inputs.version }}.md" .github/release-notes.md > /tmp/notes.md; notes=/tmp/notes.md; fi
           gh release create "v${{ inputs.version }}" "dist/prism-${{ inputs.version }}.zip" \
-            --target "${{ github.sha }}" --title "Prism ${{ inputs.version }}" --notes-file .github/release-notes.md
+            --target "${{ github.sha }}" --title "Prism ${{ inputs.version }}" --notes-file "$notes"

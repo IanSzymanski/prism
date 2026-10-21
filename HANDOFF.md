@@ -1,6 +1,6 @@
 # Prism: handoff for continued development
 
-State as of 21 October 2026, version **1.0.0**, the first release (tag `v1.0.0`, with the plugin zip on the GitHub release). Before that, Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. v1 was the only release cut; work after it continues from 1.0.0. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
+State as of 21 October 2026, version **1.1.0** (tag `v1.1.0`; 1.0.0 was the first release), each with the plugin zip on its GitHub release. Before that, Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. v1 was the only release cut; work after it continues from 1.0.0. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
 
 ## Backlog
 
