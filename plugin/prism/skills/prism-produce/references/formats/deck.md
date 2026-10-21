@@ -50,6 +50,10 @@ Speaker notes, plain sentences.
 
 `{.slide .<layout> .no-rule}` swaps the heading's section rule for a plain line on any slide.
 
+**Dark and purple slides:** `{.slide .<layout> .dark}` sets any content slide (stats, features, steps, chart, media, qr, content, quote) on the brand's dark ground, and `{.slide .<layout> .purple}` on its full purple ground (the brand's own purple gradient, else its accent colour). Text, lines, icons, cards and charts take the on-dark colours; on purple, emphasis (`*word*`) and highlighted bars take the eyebrow-on-dark colour, since the accent would vanish. The heading gets a plain line, never the brand rule. Use one or two per deck, for a key stat, a quote or a turning point; never two in a row, and never the title or closing slide (those have their own grounds). Line and donut charts keep the brand's series colours, so put them on light slides.
+
+**The footer** is the footer text (front matter `footer`, else the brand name) and the slide number. A brand can set its own (profile `options.deck.footer`, e.g. `{"number": "left", "logo": "bottom-right"}`): the number first on the left, the footer text after it, and the brand's logo bottom-right on every slide but the title (the on-dark logo on dark, purple and closing slides), closing slide included. A slide's own `logo="bottom-right"` takes that spot instead of a second logo.
+
 `logo="top-left|top|top-right|bottom-left|bottom|bottom-right"` on any slide but the title puts the brand's logo in the margin band above the heading or in the footer line (the footer text and slide number step aside). The closing slide takes the on-dark logo.
 
 The build estimates whether each heading, card, step and text box fits and prints `[deck] slide N (<layout>): ... may not fit` when it doesn't. Shorten the text named; don't rely on PowerPoint shrinking it.

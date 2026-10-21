@@ -20,6 +20,17 @@ const SERIES = [];
 for (let i = 1; i <= 5 && B.has(`prism-color-chart-${i}`); i++) SERIES.push(hx(`prism-color-chart-${i}`));
 const needSeries = n => { if (n > SERIES.length) { console.error(`[deck] a chart has ${n} series and ${B.name} defines ${SERIES.length} chart colours (prism-color-chart-1 to -${SERIES.length}); cut the series or map more chart colours`); process.exit(1); } };
 // Placement rules for the brand's ornaments (profile generator rules), e.g. skip the title rule on media slides.
+// `.dark` and `.purple` slides: the on-dark roles for one slide (text, lines, emphasis, icons, card fills, chart colours).
+const BASE = { ...C }, has = n => B.has(n);
+const ON_DARK = { ink: C.inkOnDark, body: C.onDark, muted: hx("prism-color-text-muted", "dark"), line: has("prism-color-rule-on-dark") ? hx("prism-color-rule-on-dark") : hx("prism-color-rule", "dark"),
+  accent: C.accentOnDark, icon: C.eyebrowOnDark, paper: hx("prism-color-dark-surface"), muteBar: hx("prism-color-text-faint", "dark"),
+  grid: has("prism-color-rule-on-dark") ? hx("prism-color-rule-on-dark") : hx("prism-color-rule", "dark"), axis: hx("prism-color-text-muted", "dark") };
+let THEME = null;
+// On purple the accent would vanish, so emphasis, icons and highlighted bars take the eyebrow-on-dark colour.
+function setTheme(t) {
+  THEME = t;
+  Object.assign(C, BASE, t ? ON_DARK : {}, t === "purple" ? { accent: C.eyebrowOnDark, accentOnDark: C.eyebrowOnDark } : {});
+}
 const ORN_RULES = (B.res.roles["prism-generator-rule"] || { value: { rules: [] } }).value.rules || [];
 // Office copies of the brand fonts, named by the profile. Install them to edit or view decks in PowerPoint.
 if (!B.office || !B.office.fonts) { console.error(`[deck] brand ${B.id} names no Office fonts (profile "office.fonts")`); process.exit(1); }
@@ -37,8 +48,8 @@ function runs(inl, st = {}, dark = false, display = false) {
   for (const n of inl || []) {
     if (n.t === "Str") out.push({ text: n.c, options: { ...st } });
     else if (n.t === "Space" || n.t === "SoftBreak") out.push({ text: " ", options: { ...st } });
-    else if (n.t === "Emph") out.push(...runs(n.c, display ? { ...st, color: dark ? C.accentOnDark : C.accent } : { ...st, italic: true }, dark, display));
-    else if (n.t === "Strong") out.push(...runs(n.c, { ...st, bold: true, color: st.color || (dark ? "FFFFFF" : C.ink) }, dark, display));
+    else if (n.t === "Emph") out.push(...runs(n.c, display ? { ...st, color: dark && !THEME ? C.accentOnDark : C.accent } : { ...st, italic: true }, dark, display));
+    else if (n.t === "Strong") out.push(...runs(n.c, { ...st, bold: true, color: st.color || (dark || THEME ? "FFFFFF" : C.ink) }, dark, display));
     else if (n.t === "Link") out.push(...runs(n.c[1], st, dark, display));
     else if (n.t === "Quoted") out.push({ text: "“", options: st }, ...runs(n.c[1], st, dark, display), { text: "”", options: st });
     else if (n.t === "Span" && !n.c[0][1].some(c => c.startsWith("ph-"))) out.push(...runs(n.c[1], st, dark, display));
@@ -133,9 +144,10 @@ async function iconImage(name, hex) {
 const GROUNDS = B.ornaments.deckGrounds ? B.ornaments.deckGrounds({}, B) : { title: B.color("prism-color-surface"), dark: B.color("prism-color-dark-surface") };
 const WASH_CSS = GROUNDS.title, DARK_CSS = GROUNDS.dark;
 const DARK_TITLE_CSS = GROUNDS.titleDark || DARK_CSS;
-const WASH = path.join(shared, `wash-${key(WASH_CSS)}.png`), DARK = path.join(shared, `dark-${key(DARK_CSS)}.png`), DARK_TITLE = path.join(shared, `dark-title-${key(DARK_TITLE_CSS)}.png`);
+const PURPLE_CSS = GROUNDS.purple || B.color("prism-color-accent");
+const WASH = path.join(shared, `wash-${key(WASH_CSS)}.png`), DARK = path.join(shared, `dark-${key(DARK_CSS)}.png`), DARK_TITLE = path.join(shared, `dark-title-${key(DARK_TITLE_CSS)}.png`), PURPLE = path.join(shared, `purple-${key(PURPLE_CSS)}.png`);
 async function backgrounds() {
-  if ([WASH, DARK, DARK_TITLE].every(f => fs.existsSync(f))) return;
+  if ([WASH, DARK, DARK_TITLE, PURPLE].every(f => fs.existsSync(f))) return;
   const p = await (await browser()).newPage({ viewport: { width: 1920, height: 1080 } });
   const shot = async (css, name) => {
     await p.setContent(`<body style="margin:0"><div style="width:1920px;height:1080px;background:${css}"></div></body>`);
@@ -144,6 +156,7 @@ async function backgrounds() {
   await shot(WASH_CSS, WASH);
   await shot(DARK_CSS, DARK);
   if (DARK_TITLE !== DARK) await shot(DARK_TITLE_CSS, DARK_TITLE);
+  await shot(PURPLE_CSS, PURPLE);
   await p.close();
 }
 
@@ -274,7 +287,7 @@ async function photoImage(img, wIn, hIn, fade, radiusIn = 0) {
   if (R) layers.push({ input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><path fill="#${C.paper}" fill-rule="evenodd" d="M0 0H${W}V${H}H0Z M${R} 0H${W - R}A${R} ${R} 0 0 1 ${W} ${R}V${H - R}A${R} ${R} 0 0 1 ${W - R} ${H}H${R}A${R} ${R} 0 0 1 0 ${H - R}V${R}A${R} ${R} 0 0 1 ${R} 0Z"/></svg>`) });
   // Cover crop centred on the focal point; without one, sharp's own centred cover crop.
   const focus = B.focus(img.src, img.focus), base = sharp(img.src);
-  const out = path.join(cache, `photo-${path.basename(img.src).replace(/\W+/g, "-")}-${W}x${H}-${fade || "none"}${focus ? "-" + focus.match(/\d+/g).join("-") : ""}.jpg`);
+  const out = path.join(cache, `photo-${path.basename(img.src).replace(/\W+/g, "-")}-${W}x${H}-${fade || "none"}-${C.paper}${focus ? "-" + focus.match(/\d+/g).join("-") : ""}.jpg`);
   if (focus) base.extract(require("./focus.js").crop(meta0.width, meta0.height, W, H, focus));
   await base.resize(W, H, { fit: "cover" }).composite(layers).flatten({ background: "#" + C.paper }).jpeg({ quality: 88 }).toFile(out);
   return out;
@@ -304,7 +317,7 @@ function heading(slide, blocks, rule = true) {
   if (!h) return;
   slide.addText(runs(h.c[2], {}, false, true), T({ x: MX, y: 0.55, w: CW, h: 0.75, fontFace: F.serif, fontSize: 30, bold: true, color: C.ink, valign: "bottom" }));
   checkFit("heading", plain(h.c[2]), CW, 0.75, 30, 1.2, true);
-  const R = rule && RULES[SLIDE_N];
+  const R = rule && !THEME && RULES[SLIDE_N];
   if (R) slide.addImage({ path: R.path, x: MX, y: 1.38, w: CW, h: R.h });
   else slide.addShape("line", { x: MX, y: 1.55, w: CW, h: 0, line: { color: C.line, width: 0.75 } });
 }
@@ -323,11 +336,30 @@ async function slideLogo(slide, at, dark) {
   slide.addImage({ path: file, x, y, w, h, altText: B.name });
   SLIDE_LOGO = { at, w };
 }
-function footer(slide, n) {
+// The brand's footer (options.deck.footer: {"number": "left", "logo": "bottom-right"}): the slide number first, then the footer
+// text, and its logo in the corner on every slide but the title. Without it: footer text left, number right, no logo.
+const FOOT = B.option("deck.footer", null);
+async function footer(slide, n, dark = false) {
+  const text = meta.footer ? plain(meta.footer) : B.name, num = String(n).padStart(2, "0"), st = { y: 6.95, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted };
+  if (FOOT) {
+    const corner = FOOT.logo || "bottom-right", own = SLIDE_LOGO && SLIDE_LOGO.at === corner;
+    let right = own ? SLIDE_LOGO.w + 0.25 : 0;
+    const role = dark || THEME ? "prism-asset-logo-on-dark" : "prism-asset-logo";
+    if (!own && B.has(role) && LOGO_AT.includes(corner) && corner.startsWith("bottom")) {
+      const h = 0.3, file = await B.raster(B.asset(role), 600), m = await sharp(file).metadata(), w = h * m.width / m.height;
+      slide.addImage({ path: file, x: corner.endsWith("left") ? MX : corner.endsWith("right") ? SW - MX - w : (SW - w) / 2, y: 6.92, w, h, altText: B.name });
+      right = w + 0.25;
+    }
+    const left = FOOT.number === "right" ? null : num;
+    if (left) slide.addText(num, T({ ...st, x: MX, w: 0.5 }));
+    slide.addText(text, T({ ...st, x: MX + (left ? 0.55 : 0), w: SW - 2 * MX - (left ? 0.55 : 0) - right - 0.2, charSpacing: 1 }));
+    if (!left) slide.addText(num, T({ ...st, x: SW - MX - 1 - right, w: 1, align: "right" }));
+    return;
+  }
   const L = SLIDE_LOGO && SLIDE_LOGO.at.startsWith("bottom") ? SLIDE_LOGO : null, shift = L ? L.w + 0.25 : 0;
   const left = L && L.at === "bottom-left" ? shift : 0, right = L && L.at === "bottom-right" ? shift : 0;
-  slide.addText(meta.footer ? plain(meta.footer) : B.name, T({ x: MX + left, y: 6.95, w: 8 - left, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted, charSpacing: 1 }));
-  slide.addText(String(n).padStart(2, "0"), T({ x: SW - MX - 1 - right, y: 6.95, w: 1, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted, align: "right" }));
+  slide.addText(text, T({ ...st, x: MX + left, w: 8 - left, charSpacing: 1 }));
+  slide.addText(num, T({ ...st, x: SW - MX - 1 - right, w: 1, align: "right" }));
 }
 const paras = blocks => blocks.filter(b => b.t === "Para" && !(b.c.length === 1 && b.c[0].t === "Span"));
 
@@ -422,10 +454,12 @@ async function chartSlide(slide, blocks) {
     const blocks = div.c[1].filter(b => !(b.t === "Div" && b.c[0][1].includes("notes")));
     const notes = div.c[1].find(b => b.t === "Div" && b.c[0][1].includes("notes"));
     const slide = pres.addSlide();
-    slide.background = { color: C.paper };
+    const cls = div.c[0][1], theme = kind !== "title" && kind !== "closing" ? (cls.includes("purple") ? "purple" : cls.includes("dark") ? "dark" : null) : null;
+    setTheme(theme);
+    slide.background = theme ? { path: theme === "purple" ? PURPLE : DARK } : { color: C.paper };
     const logoAt = (div.c[0][2].find(([k]) => k === "logo") || [])[1];
     if (logoAt && kind === "title") console.warn(`[deck] slide ${n}: the title slide carries its own logo; logo="${logoAt}" left out`);
-    await slideLogo(slide, kind === "title" ? null : logoAt, kind === "closing");
+    await slideLogo(slide, kind === "title" ? null : logoAt, kind === "closing" || !!theme);
 
     if (kind === "title") {
       const hero = meta.image ? await photoImage({ src: B.src(plain(meta.image), path.dirname(md)) }, 6.2, SH, "left") : null;
@@ -450,6 +484,7 @@ async function chartSlide(slide, blocks) {
       const h = blocks.find(b => b.t === "Header");
       if (h) slide.addText(runs(h.c[2], { color: "FFFFFF" }, true, true), T({ x: 2, y: 2.7, w: SW - 4, h: 1.5, fontFace: F.serif, fontSize: 44, bold: true, color: "FFFFFF", align: "center", valign: "middle" }));
       body.forEach((b, i) => slide.addText(runs(b.c, {}, true), T({ x: 2.5, y: 4.4 + i * 0.95, w: SW - 5, h: 0.9, fontSize: i === body.length - 1 ? 18 : 20, color: i === body.length - 1 ? "FFFFFF" : C.onDark, align: "center", lineSpacingMultiple: 1.2 })));
+      if (FOOT) { setTheme("dark"); await footer(slide, n, true); }
     } else if (kind === "quote") {
       const q = blocks.find(b => b.t === "BlockQuote");
       const ps = q.c.filter(b => b.t === "Para");
@@ -457,7 +492,7 @@ async function chartSlide(slide, blocks) {
       const text = ps.filter(b => b !== cite);
       slide.addText(text.flatMap(b => runs(b.c, {}, false, true)), T({ x: 1.6, y: 2.1, w: SW - 3.2, h: 2.4, fontFace: F.serif, fontSize: 40, color: C.ink, align: "center", valign: "middle", lineSpacingMultiple: 1.1 }));
       if (cite) slide.addText(plain(cite.c).toUpperCase(), T({ x: 1.6, y: 4.75, w: SW - 3.2, h: 0.35, fontFace: F.mono, fontSize: 12, charSpacing: 3, align: "center" }));
-      footer(slide, n);
+      await footer(slide, n);
     } else {
       heading(slide, blocks, !(SKIP_MEDIA && kind === "media") && !div.c[0][1].includes("no-rule"));
       const list = blocks.find(b => b.t === "BulletList" || b.t === "OrderedList");
@@ -478,7 +513,7 @@ async function chartSlide(slide, blocks) {
         for (const [i, it] of items.entries()) {
           const inl = itemInlines(it), x = MX + i * (w + gap);
           const { head, rest } = splitStrong(inl);
-          slide.addShape("roundRect", { x, y: 2.1, w, h: 3.7, rectRadius: 0.12, fill: { color: C.paper }, line: { color: C.line, width: 0.75 } });
+          slide.addShape("roundRect", { x, y: 2.1, w, h: 3.7, rectRadius: 0.12, fill: THEME ? { color: "FFFFFF", transparency: 92 } : { color: C.paper }, line: { color: C.line, width: 0.75 } });
           const ic = iconOf(inl) && await iconImage(iconOf(inl), C.icon);
           if (ic) slide.addImage({ path: ic, x: x + 0.4, y: 2.5, w: 0.55, h: 0.55 });
           // Title and body share one text box so a wrapped title pushes the body down.
@@ -513,8 +548,9 @@ async function chartSlide(slide, blocks) {
       } else {
         textBlocks(slide, blocks, { x: MX, y: 2.0, w: CW, h: 4.6 });
       }
-      footer(slide, n);
+      await footer(slide, n);
     }
+    setTheme(null);
     if (notes) slide.addNotes(notes.c[1].map(b => plain(b.c || [])).join("\n\n"));
   }
   if (BROWSER) await BROWSER.close();

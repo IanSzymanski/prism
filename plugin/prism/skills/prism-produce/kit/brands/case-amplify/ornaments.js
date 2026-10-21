@@ -54,6 +54,9 @@ module.exports = {
       dark: `radial-gradient(55% 110% at 100% 100%,${rgbA("own-color-dark-glow", ".85")} 0%,${rgbA("own-color-dark-glow", "0")} 100%),
     radial-gradient(55% 110% at 0% 100%,${rgbA("own-color-dark-glow-2", ".85")} 0%,${rgbA("own-color-dark-glow-2", "0")} 100%),
     linear-gradient(180deg,${B.color("prism-color-dark-deep")} 0%,${B.color("prism-color-dark-surface")} 45%,${B.color("own-color-dark-high")} 100%)`,
+      // The full purple slide: the vivid header gradient, with its brightest tone glowing from the bottom right.
+      purple: `radial-gradient(60% 90% at 100% 100%,${rgbA("prism-color-header-vivid-4", ".8")} 0%,${rgbA("prism-color-header-vivid-4", "0")} 100%),
+    linear-gradient(135deg,${B.color("prism-color-header-vivid-1")} 0%,${B.color("prism-color-header-vivid-2")} 45%,${B.color("prism-color-header-vivid-3")} 100%)`,
     };
   },
 
