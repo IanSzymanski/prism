@@ -111,6 +111,7 @@ For each format file:
 ## 3. Deliver
 
 - **A package goes out as one zip.** Once every output is verified, `.prism-kit/run.sh packages zip <slug>` writes `out/<slug>-<package>-v<version>.zip`: a folder per output with its files (captions files, the email's HTML, text, images and images zip, the blog's post and header), the deck's font pack when one was made (make it first, below), and `CONTENTS.txt`. Deliver that zip and the preview contact sheets, not the files one by one; every later export is a new zip at the new version. When the set was a one-off (`from: this piece` in package.json) or the person changed a package, offer once to save it as a package for everyone (the prism-onboard skill, "A package"). The rest of this section (each file's job, revisions) applies to the files inside it.
+- Send only the files this round built, each once. Never send content.md, claims.md, images.md, the source notes or the format files: when a proof doc exists, the words live there (content lane, step 1).
 - Send the built files with SendUserFile: PDF, PPTX, PNGs (all images for social/email/carousel), each captions file, and the preview contact sheets. HTML email: the `.html`, the images zip, the `.txt` and the preview. If a folder from the user's computer is connected, also write content.md, the format files and out/ there.
 - Asked for Illustrator, Canva, InDesign, .ai, .indd or "editable" files: Prism does not send files for editing elsewhere. Say in one line that layout and wording changes are made here and rebuilt, then ask what should change.
 <!-- claude-only -->
@@ -130,7 +131,7 @@ Classify each requested change before touching files. Tell the user the lane in 
 
 **Content lane** (wording, facts, numbers, quotes, adding or removing a point):
 
-1. Edit content.md (or take the uploaded one, keeping `content.v<n>.md`). Bump `version` and add one line per change to the `changes:` list in its front matter (`"v<n> · <what changed>"`), layout changes included. Log the diff.
+1. Edit content.md (or take the uploaded one, keeping `content.v<n>.md`). When the piece has a proof doc (its link is in log.md), make the same change in the doc's Content tab, and in its Claims tab when a claim changed, so the doc always shows the current words; never send content.md or claims.md as files instead. Bump `version` and add one line per change to the `changes:` list in its front matter (`"v<n> · <what changed>"`), layout changes included. Log the diff.
 2. If numbers, quotes or claims changed, run **prism-reviewer** on the changed sections and update claims.md. Show new flags; for anything beyond a typo, get the user's OK before continuing (the proof stop applies to changes too).
 3. Patch every existing format file: run **prism-formatter** in mode `patch` per format (parallel when several), passing the change. Never regenerate from scratch; that would discard layout the user already approved.
 4. Number check, rebuild all affected formats, preview, deliver.
