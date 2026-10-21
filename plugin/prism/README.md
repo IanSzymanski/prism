@@ -45,7 +45,7 @@ New to Prism? Run `/prism-tutorial` for a guided walkthrough: it makes a fiction
 - Skills: `prism-draft` (intake, writing, review, the proof), `prism-produce` (formatting, design mode, builds, revisions, films, packages, co-op), `prism-quick` (one output in one pass), `prism-onboard` (add or update a brand).
 - Commands: `/prism-interview`, `/prism-onboard`, `/prism-tutorial`.
 - Agents: `prism-writer`, `prism-reviewer`, `prism-formatter`.
-- `skills/prism-produce/kit`: the build kit (`run.sh` is its one entry point), core stylesheets and layouts, the motion vocabulary, packages, device mockups, and one folder per brand under `brands/` (its design system snapshot: fonts, logos, imagery, tokens, and its profile). Phosphor icons (MIT) and a QR code generator (MIT) are vendored.
+- `skills/prism-produce/kit`: the build kit (`run.sh` is its one entry point), core stylesheets and layouts, the motion vocabulary, packages, device mockups, and one folder per brand under `brands/` (its design system snapshot: fonts, logos, imagery, tokens, and its profile). Phosphor icons (MIT), Lucide icons (ISC, for films in brands that ask for them) and a QR code generator (MIT) are vendored.
 - `skills/prism-produce/references/formats`: the Markdown syntax each output accepts, plus `components.md` for blocks they share.
 
 Builds need pandoc, Node and Chromium. The first build of each output type checks only what that type needs (a sheet never waits for deck tools) and installs anything missing from the package registries, with a time limit on every step. Deck icons, backgrounds and rules are made once and cached with the kit.

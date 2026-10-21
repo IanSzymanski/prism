@@ -31,6 +31,20 @@ assumed: the sign-up address            # walkthrough only: details nobody confi
 
 A brand can keep its own motion rules for a kind of film, in its profile (`motion.pieces.<piece>`): backdrops, classes and colors it never uses, its own grounds (a gradient drawn from a brand asset), colors per ground, a backdrop's look, a brand transition drawn from its motif (forced out of a ground, if the brand says so) and plain rules (for example, durations in days shown as a calendar). Name the kind with `piece:`; `run.sh motion brief` applies them, refuses a class or backdrop they rule out, and warns when the brand has rules but no `piece:` is named. Read the brief's "This brand's … films" section and lay the film out to suit it. A kind the brand has no rules for uses core's vocabulary as it is.
 
+## The brand's film settings
+
+A brand can also set how all its films look and sound, in its profile (`motion.film`), and `run.sh motion brief` applies them to every film in the brand:
+
+- `music`: the film's music when the front matter names none (`none` makes films silent; `music:` in the front matter still wins).
+- `deny_motifs`: motifs its films never use. They are left out of backdrops, dividers and the brand's motif transitions, and a scene that names one is refused.
+- `gradients`: the only gradient grounds its films use, each as CSS (`{"night": {"css": "...", "say": "..."}}`, keyed by ground name). The brief prints each one's CSS for Motion to use exactly; a scene on any other gradient (`bg=`) is refused.
+- `icons: "lucide"`: icons are drawn from the vendored Lucide set (stroke icons, `kit/vendor/lucide`). A format file still writes `.ph-<name>`: Phosphor names map to Lucide through `vendor/lucide/from-phosphor.json`, and a Lucide name works as it is.
+- `tone` and `feel`: house rules at the top of the brief.
+- `words`: `max_per_scene` (the brief warns over it: write fewer words) and `scale` (type sizes are multiplied by it, and visuals are drawn large).
+- `walkthrough`: `cards: false` (no title or closing scene: the film opens and ends on the app, and each step's `##` line is an annotation instead of a step card, one line, no `.sub`), `ui: "full-frame"` (the app covers the frame, never a device or window on a ground), `ui_in_out: true` (the UI builds in at the start and animates out at the end) and `annotations` (`fill`, a role or hex; `text`; `lines`; `tether`).
+
+Read the brief's "<brand> films" section and write the film to suit it: fewer, larger words, and no scene the brand leaves out.
+
 ## Scenes
 
 A film is a list of scenes, like a deck is a list of slides. Use `::::` for the scene so `:::` blocks nest inside.

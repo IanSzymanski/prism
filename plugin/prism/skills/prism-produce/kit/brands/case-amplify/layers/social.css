@@ -27,3 +27,27 @@
 /* No heading rule on a story with a photo (the brand's placement rules). */
 .post.story:is(.photo-top,.photo-full,.photo-card) h2::after{content:none}
 .post.story:is(.photo-top,.photo-full,.photo-card) h2{display:block}
+
+/* Purple ground: the brand's vivid header gradient with a glow from the bottom right; dark text roles (build-social.js). */
+.post.dark.purple,.carousel .post.dark.purple{background:
+  radial-gradient(70% 60% at 100% 100%,rgb(from var(--prism-color-header-vivid-4) r g b / .8) 0%,rgb(from var(--prism-color-header-vivid-4) r g b / 0) 100%),
+  linear-gradient(135deg,var(--prism-color-header-vivid-1) 0%,var(--prism-color-header-vivid-2) 45%,var(--prism-color-header-vivid-3) 100%)}
+.post.dark.purple h2 em,.post.dark.purple h1 em,.post.dark.purple blockquote em{color:var(--prism-color-eyebrow-on-dark)}
+.post.dark.purple .num,.post.dark.purple .stats li strong{color:var(--prism-color-surface)}
+
+/* Big type, one idea a post: a heading and at most one short sentence. */
+.post h2{font-size:40pt;line-height:1.05}
+.post p{font-size:18pt;line-height:1.4}
+.post .stats li{font-size:17pt}
+.post .checks li,.post ul li,.post ol li{font-size:18pt}
+.post .features li{font-size:14pt}
+.post .features li strong{font-size:18pt}
+.post.dark blockquote{font-size:36pt}
+.carousel h1{font-size:42pt;line-height:1.02}
+.carousel h2{font-size:36pt;line-height:1.05}
+.carousel .num{font-size:15pt}
+.carousel .checks li,.carousel .steps li{font-size:18pt}
+.post.story h2{font-size:38pt}
+.post.story p{font-size:16pt}
+/* No mono on dark or purple: point numbers and step counters take the sans face there. */
+.post.dark .num,.carousel .post.dark .steps li::before{font-family:var(--prism-font-sans);font-weight:600}

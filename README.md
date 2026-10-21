@@ -128,6 +128,8 @@ node tests/card5x7.test.js             # 5x7 cards: sizes, sides, overflow, pack
 node tests/kit-small.test.js           # file tags, state paths, unbroken terms, PDF details, photo metadata, print copies
 node tests/motion.test.js              # motion: the language, holds, the brief, the film check, walkthroughs and their gaps
 node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
+node tests/deck-variants.test.js       # decks: dark and purple slides, the brand footer (number left, logo right)
+node tests/social-checks.test.js       # posts and carousels: counters, the thread, purple, the word, layout, color and photo checks
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op
 python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete

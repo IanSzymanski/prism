@@ -34,9 +34,9 @@ If the `caseamplify-manifest` skill is available, it is the authority on termino
 - Placeholder images are labelled as placeholders in their captions until replaced.
 - Every image that carries meaning has a caption or sits next to text that describes it.
 
-## Every sheet
+## Every printable (sheets, brochures, 5x7 cards)
 
-The build does these on its own for every Case Amplify sheet (profile `options.sheet`), so don't write them into a format file:
+The build does these on its own (profile `options.sheet`), so don't write them into a format file. Brochures and cards have no byline or footer line to drop; the rest applies to them too, except that variety is checked only on sheets and a brochure's inside spread:
 
 - No byline (author and date) under the title, and no footer line (contact and legal) under the last page. An illustrative piece says so in its eyebrow and closing card instead.
 - The closing card's QR code sits beside all of its copy.
@@ -55,3 +55,26 @@ The approved Case Amplify one-sheet look (Oct 2026). Use it for a one-pager unle
 - Process steps as `{.flow .plain}`: no grape rules above the steps. A "What they did" section (the steps an organization took, in order) is `::: steps` instead: a stacked numbered list of short steps, all on one page.
 - Close with the full closing card and its QR code, as on every sheet; on a one-pager that won't fit, step down to `{.cta-card .small}`, then the slim `{.cta-card .x-small}` with `{.qr .small .rounded url="https://caseamplify.com"}`.
 - Last, once everything fits on one page: `fill: page` to space the sections evenly down it.
+
+## Decks
+
+- The build puts the slide number on the left of the footer and the logo in the bottom-right corner of every slide but the title (on-dark on dark slides). Don't add `logo=` for it.
+- Vary the grounds: one or two `.dark` slides and one `.purple` slide (the full purple ground) per deck, for a key stat, a quote or a turning point; never two in a row, never the title or closing slide. Keep line and donut charts on light slides.
+- The same rules as printables otherwise: no orphan words in headings, and several layouts across the deck (stats, cards, steps, a chart, a quote), not cards on every slide.
+
+## Posts and carousels
+
+- One idea per post or panel: a heading and at most one short sentence (the build warns over 30 words, 35 on a story). The type is large; let it be.
+- No wave line along the bottom and no page counter (the build leaves both out); "Swipe →" on the cover stays.
+- Vary them: no two panels in a row with the same layout, at least one `.dark` or `.purple` panel in a carousel of five or more, no three posts in a row on the same ground, no photo used twice and no three photo posts in a row. The build reports each (`[social] layout|color|photo|words`).
+
+## Films
+
+The brief carries these from the profile (`motion.film`); a format file never overrides them:
+
+- No music, and no wave anywhere (backdrops, transitions, dividers).
+- Gradient grounds are only the approved ones (glow, mist, night, vivid), written out as CSS in the brief; solid grounds are fine.
+- Professional empathy with light playfulness: warm and calm, with small moments of play in the motion, never jokes.
+- Lucide icons (write `.ph-` names as usual; the brief maps them).
+- Fewer, larger words: 12 at most on screen per scene; large visuals that fill the frame. Free flowing: continuous motion from scene to scene.
+- Walkthroughs: no title or end card (`.title`, `.closing` are refused); the app fills the whole frame (no window over a background), animates in at the start and out at the end; each step's `##` becomes a tethered annotation: a purple pill with one line of white text, joined to what it points at by a purple tether.

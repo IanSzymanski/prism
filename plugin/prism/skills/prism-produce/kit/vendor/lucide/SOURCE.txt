@@ -1,0 +1,1 @@
+lucide-static 0.460.0 (npm), icons/*.svg as name -> inner SVG markup for viewBox 0 0 24 24, stroke icons. ISC license: LICENSE.

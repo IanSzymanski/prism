@@ -175,8 +175,8 @@ function stamp(file, ver) {
   // Light surfaces only: a dark-themed block keeps its own.
   if (printCopy) await page.addStyleTag({ content: `:root{--prism-color-surface:${surface}}` });
   const missingIcons = await require("./icons.js")(page, here, B);
-  // options.sheet.cta_qr: "beside-copy" puts a closing card's code beside all of its copy (eyebrow, heading and text), not just its last line.
-  if (!panels && B.option("sheet.cta_qr", "") === "beside-copy") await page.evaluate(require("./sheet-checks.js").qrBesideCopy);
+  // options.sheet.cta_qr: "beside-copy" (sheets, brochures and cards) puts a closing card's code beside all of its copy (eyebrow, heading and text), not just its last line.
+  if (B.option("sheet.cta_qr", "") === "beside-copy") await page.evaluate(require("./sheet-checks.js").qrBesideCopy);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
   const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false)]);
@@ -223,10 +223,11 @@ function stamp(file, ver) {
     }
     return [];
   }));
-  // options.sheet.checks: one-word last lines (the title first), and the same format used again and again.
+  // options.sheet.checks: one-word last lines (the title first; sheets, brochures and cards), and the same format used again
+  // and again (sheets and brochures: a card has room for too few blocks to vary).
   const checks = B.option("sheet.checks", []);
-  if (!panels && checks.includes("orphans")) warnings.push(...await page.evaluate(require("./sheet-checks.js").orphans));
-  if (!panels && checks.includes("variety")) warnings.push(...await page.evaluate(require("./sheet-checks.js").variety));
+  if (checks.includes("orphans")) warnings.push(...await page.evaluate(require("./sheet-checks.js").orphans));
+  if (!card && checks.includes("variety")) warnings.push(...await page.evaluate(require("./sheet-checks.js").variety));
   for (const w of warnings) console.warn("[sheet] " + w);
   // Sheets print at 90% (every size in prism-sheet.css was tuned at that scale); brochures print at true size.
   const print = () => page.pdf({ path: pdf, preferCSSPageSize: true, printBackground: true, scale: panels ? 1 : 0.9 });

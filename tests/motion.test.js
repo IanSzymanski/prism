@@ -4,7 +4,13 @@ const fs = require("fs"), os = require("os"), path = require("path"), { spawnSyn
 const ROOT = path.join(__dirname, ".."), KIT = path.join(ROOT, "plugin", "prism", "skills", "prism-produce", "kit");
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), "prism-motion-"));
 let pass = 0, fail = 0; const ok = (c, m) => { if (c) pass++; else { fail++; console.log("FAIL", m); } };
-const motion = (...a) => spawnSync("node", [path.join(KIT, "motion.js"), ...a], { encoding: "utf8" });
+// Core's film behavior (music, motifs, the wave transition, Phosphor icons) is tested on a draft copy of the default brand
+// without its own film settings (profile motion.film); those settings have their own section at the end.
+const CORE_DRAFTS = path.join(TMP, "core-drafts"), DEF0 = require(path.join(KIT, "resolve.js")).defaultBrand();
+fs.cpSync(path.join(KIT, "brands", DEF0), path.join(CORE_DRAFTS, DEF0), { recursive: true });
+{ const pf = path.join(CORE_DRAFTS, DEF0, "profile.json"), pr = JSON.parse(fs.readFileSync(pf, "utf8")); delete pr.motion.film; fs.writeFileSync(pf, JSON.stringify(pr, null, 1)); }
+process.env.PRISM_DRAFTS = CORE_DRAFTS;
+const motion = (...a) => spawnSync("node", [path.join(KIT, "motion.js"), ...a], { encoding: "utf8", env: { ...process.env, PRISM_DRAFTS: CORE_DRAFTS } });
 const M = require(path.join(KIT, "motion.js"));
 const FIX = fs.readFileSync(path.join(ROOT, "fixtures", "motion.md"), "utf8");
 const brief = (text, name) => { const f = path.join(TMP, `${name}.md`); fs.writeFileSync(f, text); const d = path.join(TMP, name); const r = motion("brief", f, "--out", d); return { r, d, film: r.status === 0 ? JSON.parse(fs.readFileSync(path.join(d, "film.json"), "utf8")) : null, text: r.status === 0 ? fs.readFileSync(path.join(d, "brief.md"), "utf8") : "" }; };
@@ -322,6 +328,54 @@ wput("modules", "ui.js", { kind: "js", text: `kit.ui = kit.h('<main>' + ${uiLine
 for (const s of wfilm.scenes) wput("modules", `scene-${s.id}.js`, { kind: "js", text: s.ui ? `kit.scene('${s.id}', { init(kit) { kit.stage.append(kit.ui); } });` : `kit.scene('${s.id}', { init(kit) { kit.assets.url('logo-on-dark.svg'); kit.stage.append(kit.h('<div class="ground g-${s.id}">' + ${s.lines.map(l => JSON.stringify(`<p>${l}</p>`)).join(" + ")} + '</div>')); } });` });
 r = motion("check", wdir, wstore);
 ok(r.status === 0 && /numbers in the app's own copy/.test(r.stdout) && /12 \("12 notes this week"\)/.test(r.stdout) && /flag on delivery, not confirmed/.test(r.stdout), `the app's words in ui.js pass; its numbers and gaps are noted: ${r.stdout}`);
+
+// The brand's film settings (profile motion.film), on a draft copy of the default brand: no music, no wave motif, only its
+// approved gradients, Lucide icons, its tone and feel, fewer larger words, and walkthroughs with no cards, a full-frame
+// UI that animates in and out, and annotations in place of the step card.
+const DEF = require(path.join(KIT, "resolve.js")).defaultBrand(), DRAFTS = path.join(TMP, "drafts");
+fs.cpSync(path.join(KIT, "brands", DEF), path.join(DRAFTS, DEF), { recursive: true });
+const prof = JSON.parse(fs.readFileSync(path.join(DRAFTS, DEF, "profile.json"), "utf8"));
+const motifIds = (prof.motion.motifs || []).map(m => m.id);
+const approved = { glow: { css: "linear-gradient(135deg, #FFFFF8 0%, #EBDDF6 100%)", say: "the light gradient" }, night: { css: "linear-gradient(170deg, #140829 0%, #381D81 100%)", say: "the night gradient" } };
+prof.motion.film = { music: "none", deny_motifs: motifIds, gradients: approved, icons: "lucide", tone: "Professional empathy with light playfulness.",
+  words: { max_per_scene: 12, scale: 1.25 }, feel: "Free flowing.", walkthrough: { cards: false, ui: "full-frame", annotations: { fill: "prism-color-accent", text: "#FFFFFF", lines: 1, tether: true }, ui_in_out: true } };
+fs.writeFileSync(path.join(DRAFTS, DEF, "profile.json"), JSON.stringify(prof, null, 1));
+const fmotion = (...a) => spawnSync("node", [path.join(KIT, "motion.js"), ...a], { encoding: "utf8", env: { ...process.env, PRISM_DRAFTS: DRAFTS } });
+// The shipped default brand's own film settings refuse the fixture's wave motif and keep films silent.
+const shipped = spawnSync("node", [path.join(KIT, "motion.js"), "brief", path.join(ROOT, "fixtures", "motion.md"), "--out", path.join(TMP, "shipped")], { encoding: "utf8", env: { ...process.env, PRISM_DRAFTS: "/nonexistent" } });
+ok(shipped.status === 1 && /never use the wave-stop motif/.test(shipped.stderr), `the default brand's film settings refuse the wave motif: ${shipped.stderr.slice(-300)}`);
+const fbrief = (txt, name) => { const f = path.join(TMP, `${name}.md`); fs.writeFileSync(f, txt); const d = path.join(TMP, name); const x = fmotion("brief", f, "--out", d);
+  return { r: x, film: x.status === 0 ? JSON.parse(fs.readFileSync(path.join(d, "film.json"), "utf8")) : null, text: x.status === 0 ? fs.readFileSync(path.join(d, "brief.md"), "utf8") : "", d }; };
+const NOWAVE = FIX.replace("music: calm\n", "").replaceAll(" backdrop=motif motif=wave-stop", " backdrop=dots").replace("bg=tint backdrop=dots", "bg=tint backdrop=rings").replace("bg=main backdrop=rings", "bg=main backdrop=grid");
+const fb = fbrief(NOWAVE, "film-settings");
+ok(fb.r.status === 0, `a film briefs under the brand's film settings: ${fb.r.stderr.slice(-600)}`);
+if (fb.film) {
+  ok(fb.film.music === "none" && !/whoosh at/.test(fb.text) && /No music/.test(fb.text), "no music by default, and no whooshes");
+  ok(!fb.film.records.some(x => /^motif-/.test(x.doc_id)) && !fb.film.scenes.some(x => x.into === "wave") && new RegExp(`No ${motifIds.join(", ")} motif anywhere`).test(fb.text), "no motif records, no motif transition, and the brief says so");
+  ok(/Gradient grounds: only these, exactly/.test(fb.text) && fb.text.includes(`background: ${approved.glow.css};`) && fb.text.includes(`background: ${approved.night.css};`), "the approved gradients are printed as CSS");
+  ok(fb.film.scenes[0].ground.join() === "#FFFFF8,#EBDDF6" && fb.text.includes(`exactly \`background: ${approved.glow.css}\``), "a gradient ground is the approved gradient, exactly");
+  const lu = JSON.parse(JSON.parse(fs.readFileSync(path.join(fb.d, "records", "modules", "icons.json.json"), "utf8")).text);
+  ok(Object.keys(lu).sort().join() === "file-text,flag,user-check" && Object.values(lu).every(m => /^</.test(m)) && /viewBox="0 0 24 24" fill="none" stroke="currentColor"/.test(fb.text), "icons are Lucide markup, drawn as stroke icons");
+  ok(/\*\*Tone:\*\* Professional empathy/.test(fb.text) && /\*\*Feel:\*\* Free flowing/.test(fb.text), "tone and feel are house rules");
+  ok(/already 1\.25× core's/.test(fb.text) && /\| xl \| 188 \|/.test(fb.text), "type sizes are scaled up");
+  ok(/words on screen \(the brand keeps a scene to 12\)/.test(fb.r.stderr), "a scene over the brand's words is reported");
+}
+ok(fbrief(FIX.replace("music: calm\n", ""), "film-wave").r.status === 1 && /never use the wave-stop motif/.test(fbrief(FIX.replace("music: calm\n", ""), "film-wave2").r.stderr), "a format file that asks for a motif the brand's films never use is refused");
+ok(/bg=vivid is a gradient this brand's films never use/.test(fbrief(NOWAVE.replace("bg=main", "bg=vivid"), "film-grad").r.stderr), "a gradient that isn't approved is refused");
+ok(fbrief(NOWAVE.replace("music: calm\n", "").replace("figures: illustrative", "figures: illustrative\nmusic: calm"), "film-music").film.music === "calm", "music in the front matter still wins");
+// A walkthrough with no cards: it opens and ends on the app, with annotations, the UI covering the frame.
+fs.cpSync(path.join(ROOT, "fixtures", "images"), path.join(TMP, "images"), { recursive: true });
+const NOCARD = WT.replace("brand: prism\n", "").replace("figures: illustrative\n", "").replace(/assumed: .*\n/, "").replace("piece: walkthrough\n", "")
+  .replace(/:::: \{\.scene \.title[\s\S]*?\n::::\n\n/, "").replace(/\n:::: \{\.scene \.closing[\s\S]*?\n::::\n?/, "\n").replace(/\[[^\]]*\]\{\.sub\}\n\n/g, "");
+const wb = fbrief(NOCARD, "film-walk");
+ok(wb.r.status === 0, `a walkthrough with no opening or closing card briefs: ${wb.r.stderr.slice(-600)}`);
+if (wb.film) {
+  ok(wb.film.scenes[0].layout === "app" && wb.film.scenes[wb.film.scenes.length - 1].layout === "step" && !/recap of the steps/.test(wb.text) && /No opening or closing card/.test(wb.text), "it opens and ends on the app");
+  ok(/\*\*Annotation\*\*: "Start a note", tethered to "New note"/.test(wb.text) && /solid pill in #[0-9A-F]{6} with one line of #FFFFFF text/i.test(wb.text) && !/Step card/.test(wb.text) && !wb.film.scenes.some(x => x.lines.some(l => /^Step \d/.test(l))), "annotations take the step card's place");
+  ok(/The app is the whole picture/.test(wb.text) && /covering the whole frame/.test(wb.text) && !/mockup/.test(wb.text.split("## Scenes")[1]), "the UI covers the frame, never a device over a ground");
+  ok(/The UI animates in and out/.test(wb.text) && /over the last 1\.2 s the UI animates out/.test(wb.text), "the UI animates in and out");
+}
+ok(/no opening or closing card/.test(fbrief(WT.replace("brand: prism\n", ""), "film-walk-cards").r.stderr), "a title or end card is refused when the brand's walkthroughs have none");
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`motion: ${pass} passed, ${fail} failed`);
