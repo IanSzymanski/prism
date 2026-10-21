@@ -76,6 +76,22 @@ try:
     json.dump({"slug": "x", "title": "x", "prompt": "x", "answers": {"figures": "real"}, "source": [], "try": {}, "more": []}, open(os.path.join(b, "sample.json"), "w"))
     r = run(ver, d); check("a brand's own sample is checked too", r.returncode == 1 and "brand acme's sample" in r.stdout and "illustrative" in r.stdout, r.stdout)
 
+    d = copy(); open(walk(d), "w").write(open(walk(d)).read().replace("--prompt", "--summary"))
+    r = run(ver, d); check("a walkthrough that doesn't show the full sample message fails", r.returncode == 1 and "--prompt" in r.stdout, r.stdout)
+
+    d = copy(); open(walk(d), "w").write(open(walk(d)).read() + "\nIn co-op mode, comments starting @claude are applied.\n")
+    r = run(ver, d); check("co-op specifics in the walkthrough fail", r.returncode == 1 and "co-op" in r.stdout and "@claude" in r.stdout, r.stdout)
+
+    # Fixed files: the default brand's sample carries them, and drift between them fails.
+    brand_tut = lambda d: next(os.path.join(d, "skills", "prism-produce", "kit", "brands", b, "tutorial") for b in sorted(os.listdir(os.path.join(d, "skills", "prism-produce", "kit", "brands"))) if os.path.exists(os.path.join(d, "skills", "prism-produce", "kit", "brands", b, "tutorial", "sample.json")) and json.load(open(os.path.join(d, "skills", "prism-produce", "kit", "brands", b, "tutorial", "sample.json"))).get("fixed"))
+    d = copy(); t = brand_tut(d); fx = json.load(open(os.path.join(t, "sample.json")))["fixed"]
+    pf = os.path.join(t, fx["proof"]); pj = json.load(open(pf)); pj["comments"][0]["text"] = "Check: something the reviewer never said."; json.dump(pj, open(pf, "w"))
+    r = run(ver, d); check("a proof comment that isn't the draft's flag fails", r.returncode == 1 and "word for word" in r.stdout, r.stdout)
+    d = copy(); t = brand_tut(d); sf = os.path.join(t, fx["formats"]["sheet"]); open(sf, "a").write("\nA stray 73% figure.\n")
+    r = run(ver, d); check("a fixed layout with a number not in the approved words fails", r.returncode == 1 and "fixed layout sheet has numbers" in r.stdout, r.stdout)
+    d = copy(); t = brand_tut(d); af = os.path.join(t, fx["approved"]); open(af, "a").write("\nStill here. <!-- CHECK: x -->\n")
+    r = run(ver, d); check("approved words with a flag left fail", r.returncode == 1 and "no CHECK flags" in r.stdout, r.stdout)
+
     # run.sh tutorial: the default brand's sample by default, set up once and then kept.
     KIT = os.path.join(PLUGIN, "skills", "prism-produce", "kit")
     tut_js = lambda *a: subprocess.run(["node", os.path.join(KIT, "tutorial.js"), *a], capture_output=True, text=True)
@@ -86,6 +102,33 @@ try:
     open(os.path.join(j["project"], "content.md"), "w").write("mine")
     j2 = json.loads(tut_js("--out", ws, "--json").stdout)
     check("a second run keeps the piece as it is", not j2["created"] and open(os.path.join(j["project"], "content.md")).read() == "mine", j2)
+    r = tut_js("--prompt"); j = json.loads(tut_js("--json").stdout)
+    check("--prompt shows the prompt and every source file in full", r.returncode == 0 and r.stdout.startswith(j["prompt"]) and all(open(f).read().strip() in r.stdout for f in j["source"]), r.stdout[:300])
+    fws = os.path.join(tmp, "fws"); j = json.loads(tut_js("--out", fws, "--json").stdout)
+    if j.get("fixed"):
+        p = j["project"]
+        check("--out puts the fixed draft in place", "CHECK:" in open(os.path.join(p, "content.md")).read() and os.path.exists(os.path.join(p, "claims.md")), os.listdir(p))
+        r = tut_js("--out", fws, "--approve")
+        check("--approve puts the fixed approved words in place and keeps the draft", r.returncode == 0 and "status: approved" in open(os.path.join(p, "content.md")).read() and os.path.exists(os.path.join(p, "content.v1.md")), r.stdout + r.stderr)
+        for f in j["fixed"]["formats"]:
+            r = tut_js("--out", fws, "--format", f)
+            check(f"--format {f} puts the fixed layout in place, numbers matching", r.returncode == 0 and subprocess.run(["node", os.path.join(KIT, "check-numbers.js"), os.path.join(p, "content.md"), os.path.join(p, "formats", f + ".md")], capture_output=True).returncode == 0, r.stdout + r.stderr)
+        r = tut_js("--out", fws, "--format", "no-such-format"); check("a format with no fixed layout says so", r.returncode == 3, r.stderr)
+        a = open(os.path.join(p, "formats", j["fixed"]["formats"][0] + ".md")).read(); tut_js("--out", fws, "--format", j["fixed"]["formats"][0])
+        check("the fixed layout is the same every run", a == open(os.path.join(p, "formats", j["fixed"]["formats"][0] + ".md")).read())
+        # The fixed sheet builds to what the sample expects: two pages, the steps together (a first run once came out at four).
+        exp = (j["fixed"].get("expect") or {}).get("sheet")
+        check("the fixed sheet has an expectation", bool(exp), j["fixed"])
+        if exp:
+            tut_js("--out", fws, "--format", "sheet"); pdf = os.path.join(p, "out", "sheet.pdf")
+            r = subprocess.run(["bash", os.path.join(KIT, "run.sh"), "sheet", os.path.join(p, "formats", "sheet.md"), pdf], capture_output=True, text=True)
+            try:
+                import pymupdf
+                pages = [pg.get_text() for pg in pymupdf.open(pdf)] if r.returncode == 0 else []
+                check(f"the fixed sheet builds to {exp['pages']} pages", len(pages) == exp["pages"], r.stdout[-300:] + r.stderr[-300:])
+                check("the fixed sheet keeps its steps on one page", any(all(w in t for w in exp["same_page"]) for t in pages), [[w for w in exp["same_page"] if w in t] for t in pages])
+            except ImportError: check("PyMuPDF is installed (pip install pymupdf)", False)
+    else: check("the default brand's sample has fixed files", False, "no fixed: in its sample.json")
     r = tut_js("no-such-brand"); check("an unknown brand stops", r.returncode == 2 and "no brand" in r.stderr, r.stderr)
 
     major, minor = ver.split("-")[0].split(".")[:2]

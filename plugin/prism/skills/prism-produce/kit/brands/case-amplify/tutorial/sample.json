@@ -11,18 +11,63 @@
   "figures": "illustrative",
   "piece_type": "case study"
  },
- "source": ["notes.md"],
+ "source": [
+  "notes.md"
+ ],
  "try": {
   "proof": "Change the headline to \"How Cedar Hollow won back its afternoons\", then answer one of the Check comments.",
-  "design": "Drag the results chart above the caseworker quote, and retype the first stat's label.",
+  "design": "Drag the caseworker quote above the results chart, and retype the first stat's label.",
   "revise": "Say \"the 41% should be 38%\" and watch it change in every output."
  },
  "more": [
-  { "format": "deck", "prompt": "Also make a PowerPoint deck from the same words, for a board meeting." },
-  { "format": "carousel", "prompt": "Also make a LinkedIn carousel of the results." },
-  { "format": "motion", "prompt": "Also make a 15-second animated film of the results for Instagram stories." },
-  { "format": "social", "prompt": "Also make two social posts and a story with captions." },
-  { "format": "html-email", "prompt": "Also make an HTML email announcing the case study to partners." },
-  { "format": "blog", "prompt": "Also make a blog post with a header image." }
- ]
+  {
+   "format": "deck",
+   "prompt": "Also make a PowerPoint deck from the same words, for a board meeting."
+  },
+  {
+   "format": "carousel",
+   "prompt": "Also make a LinkedIn carousel of the results."
+  },
+  {
+   "format": "motion",
+   "prompt": "Also make a 15-second animated film of the results for Instagram stories."
+  },
+  {
+   "format": "social",
+   "prompt": "Also make two social posts and a story with captions."
+  },
+  {
+   "format": "html-email",
+   "prompt": "Also make an HTML email announcing the case study to partners."
+  },
+  {
+   "format": "blog",
+   "prompt": "Also make a blog post with a header image."
+  }
+ ],
+ "fixed": {
+  "_note": "A fixed draft, proof and layouts, so every run shows the same doc, flags and boards. The writer, reviewer and formatters don't run for these.",
+  "content": "draft/content.md",
+  "claims": "draft/claims.md",
+  "proof": "draft/proof.json",
+  "approved": "draft/approved.md",
+  "approved_claims": "draft/approved-claims.md",
+  "formats": {
+   "sheet": "draft/formats/sheet.md",
+   "deck": "draft/formats/deck.md",
+   "carousel": "draft/formats/carousel.md"
+  },
+  "expect": {
+   "_note": "What the fixed sheet must build to; the tutorial test builds it and checks.",
+   "sheet": {
+    "pages": 2,
+    "same_page": [
+     "Pilot",
+     "Dictate",
+     "Review",
+     "Supervise"
+    ]
+   }
+  }
+ }
 }

@@ -52,7 +52,7 @@ Also:
 | `kit/brands/<id>/` | One brand: `profile.json`, a pinned `snapshot/` of its design system, `layers/*.css`, `ornaments.js`, `digest.md`, Office fonts, brand-owned files |
 | `kit/motion-techniques.json` | The motion vocabulary: techniques, layouts, classes, transitions, backdrops, frames and the hold rule |
 | `kit/packages.json` | Core packages (brands add their own in their design system) |
-| `kit/tutorial/` | The walkthrough's neutral sample piece (`sample.json`, fictional notes); a brand's own sample is `kit/brands/<id>/tutorial/` |
+| `kit/tutorial/` | The walkthrough's neutral sample piece (`sample.json`, fictional notes); a brand's own sample is `kit/brands/<id>/tutorial/`, with fixed files (draft, proof comments, approved words, layouts) so every run shows the same doc, flags and boards |
 | `kit/devices.js` | Phone, tablet and laptop mockups |
 | `fixtures/` | One sample per output type, used for every regression build |
 | `guide/` | The user guide, built as a sheet |
@@ -105,7 +105,7 @@ The other `run.sh` commands:
 | `packages` | List, use, check, claim-check and zip packages |
 | `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in |
 | `onboard` | Add or update a brand (`start`, `map`, `report`, `bundle`, `update`) |
-| `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--json`) |
+| `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--prompt` prints the full sample message the person is shown, `--approve` and `--format <name>` put a sample's fixed approved words and layouts in place, `--json`) |
 | `devices` | Device mockups: `list`, `render`, `svg`, `html` |
 | `setup` | Install a part's tools up front |
 
