@@ -77,7 +77,7 @@ May: 1.5
 
 ## See it with *your* team
 
-Book a 20-minute demo at [caseamplify.com](https://caseamplify.com).
+Book a demo at [caseamplify.com](https://caseamplify.com).
 
 ::: {.qr .small .rounded url="https://caseamplify.com"}
 :::

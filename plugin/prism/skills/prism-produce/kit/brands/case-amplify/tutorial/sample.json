@@ -116,6 +116,11 @@
     "what": "shorthand and exclamation marks"
    },
    {
+    "notes": "march - 2.0 hrs a day, 71 %",
+    "draft": "| March | 2.0 | 71% |",
+    "what": "loose monthly figures made into one table (for the chart)"
+   },
+   {
     "notes": "Results (after 4 months, May, same time study)",
     "draft": "## The *results*",
     "what": "mixed headings (caps, ##, dashes) made one style"

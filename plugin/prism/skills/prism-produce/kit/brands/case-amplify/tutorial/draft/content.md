@@ -76,6 +76,6 @@ A supervisor said turnover is down too. <!-- CHECK: An outcome claim from one re
 
 ## See it with *your* team
 
-Book a 20-minute demo at [caseamplify.com](https://caseamplify.com).
+Book a demo at [caseamplify.com](https://caseamplify.com).
 
-QR code: [Book a 20-minute demo](https://caseamplify.com)
+QR code: [Book a demo](https://caseamplify.com)

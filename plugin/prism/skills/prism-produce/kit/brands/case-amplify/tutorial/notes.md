@@ -29,12 +29,12 @@ What they did -
 
 Results (after 4 months, May, same time study)
 
-Month | hrs/day on notes | notes done within 24 hrs
-January (before) | 2.6 | 46%
-Feb | 2.4 | 58%
-March | 2.0 | 71 %
-April | 1.7 | 82%
-May | 1.5 | 88%
+by month (hrs/day on notes, then % done within 24 hrs):
+jan (before) 2.6 hrs, 46%
+feb 2.4 / 58%
+march - 2.0 hrs a day, 71 %
+april 1.7, 82%
+may 1.5hrs 88%
 
 - time on case notes down 41% (2.6 hrs to 1.5 hrs a day per caseworker)
 - notes done w/in 24 hours 46% → 88%
@@ -48,5 +48,3 @@ Quotes (fictional people, ok to use for the sample)
 Dana Ruiz, caseworker: "I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine."
 
 Marcus Bell — program supervisor: "Fridays used to be for chasing late notes. Now I spend them coaching."
-
-close / CTA: book a 20 minute demo at caseamplify.com
