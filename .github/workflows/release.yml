@@ -1,0 +1,30 @@
+# Cuts a release: checks the tutorial, builds the plugin zip and attaches it to a GitHub release tagged v<version>.
+# Run it by hand (Actions > Release > Run workflow) after the version is stamped and merged (tools/build.py <version>).
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, as stamped in plugin/prism/skills/prism-produce/kit/VERSION (e.g. 1.0.0)"
+        required: true
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the version is stamped
+        run: |
+          stamped="$(cat plugin/prism/skills/prism-produce/kit/VERSION)"
+          [ "$stamped" = "${{ inputs.version }}" ] || { echo "kit/VERSION says $stamped, not ${{ inputs.version }}: run tools/build.py ${{ inputs.version }} and merge first"; exit 1; }
+      - name: Build the plugin zip
+        run: python3 tools/build.py "${{ inputs.version }}"
+      - name: Nothing changed while building
+        run: git diff --exit-code
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ inputs.version }}" "dist/prism-${{ inputs.version }}.zip" \
+            --target "${{ github.sha }}" --title "Prism ${{ inputs.version }}" --notes-file .github/release-notes.md
