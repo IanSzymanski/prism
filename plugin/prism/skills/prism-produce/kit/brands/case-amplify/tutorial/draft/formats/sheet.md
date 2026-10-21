@@ -6,9 +6,10 @@ eyebrow: Family services · Illustrative example
 subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with every note still reviewed and approved by the caseworker who wrote it.
 author: Case Amplify
 date: October 2026
-contact: caseamplify.com
-legal: Fictional organization, people and figures
-hero: small
+hero: x-small
+mast-image: images/cedar-hollow-hero.jpg
+mast-image-alt: Cedar Hollow Family Services logo (fictional organization, sample logo)
+mast-fade: false
 ---
 
 ## At a *glance*
@@ -24,23 +25,21 @@ Cedar Hollow Family Services is a mid-sized family services agency covering thre
 ## The *problem*
 
 ::: {.features .three}
-- []{.icon .ph-clock .accent} **2.6 hours a day** Caseworkers spent about 2.6 hours a day writing case notes, by the agency's own time study in January.
-- []{.icon .ph-calendar-x .accent} **46% on time** Only 46% of visit notes were finished within 24 hours of the visit.
-- []{.icon .ph-files .accent} **9-day backlog** The notes backlog averaged 9 days at the end of each month, at its worst before audits.
+- []{.icon .ph-clock .accent} **2.6 hours a day** Spent writing case notes, by the January time study.
+- []{.icon .ph-calendar-x .accent} **46% on time** Visit notes finished within 24 hours.
+- []{.icon .ph-files .accent} **9-day backlog** At the end of each month, worst before audits.
 :::
 
 ## What they *did*
 
 Cedar Hollow rolled out Case Amplify over four months, starting in February.
 
-::: {.flow .plain}
-- **Pilot** One team of 8 caseworkers in month 1, two more teams in month 2, everyone by month 3.
-- **Dictate** After a visit, the caseworker dictates on their phone and CARA drafts the note in the agency's own template.
-- **Review** The caseworker corrects anything it got wrong or left out, and approves it. Nothing is saved until they do.
-- **Supervise** Supervisors see a review queue of approved notes instead of a list of missing ones.
+::: steps
+1. **Pilot.** One team of 8 caseworkers first, everyone by month 3.
+2. **Dictate.** After a visit, the caseworker dictates; CARA drafts the note.
+3. **Review.** The caseworker corrects and approves it. Nothing is saved until they do.
+4. **Supervise.** Supervisors review a queue of approved notes.
 :::
-
-Each team had two hours of training and a "note buddy" for the first month. No new staff were hired during the rollout.
 
 ## The *results*
 
@@ -66,19 +65,21 @@ May: 1.5
 
 ## What made it *work*
 
-::: {.features .three}
-- []{.icon .ph-user-check .accent} **People decide** CARA drafts; the caseworker reviews, corrects and approves every note.
-- []{.icon .ph-clipboard-text .accent} **Their template** Drafts follow the agency's own note template, so supervisors review what they already know.
-- []{.icon .ph-users .accent} **A slow start** One pilot team first, a note buddy on every team, and two hours of training.
+::: checks
+- **People decide.** CARA drafts; the caseworker reviews, corrects and approves every note.
+- **Their template.** Drafts follow the agency's own note template, so supervisors review what they already know.
+- **A slow start.** One pilot team first, a note buddy on every team, and two hours of training.
 :::
 
-::::: {.cta-card .x-small}
+::::: cta-card
 [Case Amplify]{.eyebrow}
 
 ## See it with *your* team
 
 Book a demo at [caseamplify.com](https://caseamplify.com).
 
-::: {.qr .small .rounded url="https://caseamplify.com"}
+[Cedar Hollow Family Services is a fictional agency. Every person, quote and figure in this case study is illustrative.]{.note}
+
+::: {.qr .rounded url="https://caseamplify.com"}
 :::
 :::::

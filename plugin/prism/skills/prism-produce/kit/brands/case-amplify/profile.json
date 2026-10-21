@@ -221,7 +221,7 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "3e518690dd2794bc889b394dfa799c12796f5e54f3203c5ed6d7fae555bd2c90",
+  "sha256": "31d8cd6052bd2e5b634af272679414feb0fa00d037d98a17dcbf29740358b606",
   "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },
@@ -306,7 +306,7 @@
  "own": {
   "layers/blog.css": "ed559f594516c27b4559098610b9c60cfaf505b516ad2378b8ebc34d0e324ce9",
   "layers/brochure.css": "d1348972a7b8d0fc95d1fda7d71b2d60e84997775417d099da3fb2dc44e7e6cc",
-  "layers/sheet.css": "680ee30e029f14fc1b83c1f16b8c5a1b3bf40d7e5eed968fe334ff7ea1fa98f3",
+  "layers/sheet.css": "a0e7334ad43181267a43b7c8188e5c9d56c13a779af1d6bfd89c022c971834c1",
   "layers/social.css": "7c3726c34fed97d0c7ac3209de87ade1ff235be6b2001c8888731e41e1ab8223",
   "ornaments.js": "4cc2515a7da52e533b120222598a762c96aef17b0610049e20c273ef92aa8c37",
   "own/placeholder-dark.png": "b85932febb19d3cdafdeb6325f8067f3e521476de0b14a1df0d930a0a7b2d23f",
@@ -328,6 +328,16 @@
   "email": {
    "stat_rule": true,
    "quote_bar": true
+  },
+  "sheet": {
+   "_note": "Case Amplify sheets: no byline under the title, no closing line under the last page, the closing card's QR beside all its copy, and the orphan and format-variety checks.",
+   "byline": false,
+   "colophon": false,
+   "cta_qr": "beside-copy",
+   "checks": [
+    "orphans",
+    "variety"
+   ]
   }
  },
  "ornaments_module": "ornaments.js",

@@ -143,4 +143,6 @@ python3 tests/core-brand-free.test.py  # no brand is named in core; defaults com
 
 A brand is a Claude Design System plus a Prism profile. The profile maps core roles to the design system's own names and ships with a pinned snapshot, so builds never need access to the design system. Each profile's `url` is its live design system.
 
+A brand sets its own sheet defaults in its profile's `options.sheet`: `byline: false` (no author and date under the title), `colophon: false` (no closing line; `colophon: on` in a format file brings it back), `cta_qr: "beside-copy"` (a closing card's QR beside all of its copy) and `checks: ["orphans", "variety"]` (`sheet-checks.js`: titles and headings never end on one word, paragraphs that do are reported, and sections that keep using the same format are reported). Case Amplify turns all of them on.
+
 After changing any file in a brand folder, run `node tools/pin-profile.js <brand>`, then the resolve and brands tests. Prism's own artwork is generated: `python3 tools/brand-art/prism.py <design system project dir> <out dir>` (the brand's `snapshot/` works as the project dir).

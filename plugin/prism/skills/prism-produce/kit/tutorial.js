@@ -30,6 +30,9 @@ if (ws) {
     for (const f of s.source) fs.copyFileSync(path.join(dir, f), path.join(proj, "source", path.basename(f)));
     // The fixed draft stands in for the writer and reviewer, so the proof shows the same words and flags every time.
     if (fx) { fs.copyFileSync(abs(fx.content), path.join(proj, "content.md")); fs.copyFileSync(abs(fx.claims), path.join(proj, "claims.md")); }
+    // The sample's own graphics (a fictional logo for the hero slot), with their focal points, where the formats look for them.
+    if (fx && fx.images) for (const d of ["images", path.join("formats", "images")]) fs.cpSync(abs(fx.images), path.join(proj, d), { recursive: true });
+    if (fx && fx.images_md) fs.copyFileSync(abs(fx.images_md), path.join(proj, "images.md"));
     fs.writeFileSync(path.join(proj, "log.md"), `# ${s.title}\n\n- ${new Date().toISOString().slice(0, 10)} · tutorial sample (${out.sample === "brand" ? "the brand's own" : "the kit's"}), brand ${id}\n- brief: ${s.prompt}\n`);
     out.created = true;
   }
@@ -53,6 +56,6 @@ console.log(`brand: ${id} (${name})${id === defaultBrand() ? ", the default" : "
 if (out.project) console.log(`project: ${out.project}${out.created ? " (set up, sample notes in source/)" : " (already set up, left as it is)"}`);
 console.log(`title: ${s.title}\nprompt: ${s.prompt}\nsource: ${out.source.join(", ")}`);
 for (const [k, v] of Object.entries(s.answers)) console.log(`answer ${k}: ${v}`);
-for (const [k, v] of Object.entries(s.try || {})) console.log(`try ${k}: ${v}`);
+for (const [k, v] of Object.entries(s.try || {})) for (const t of [].concat(v)) console.log(`try ${k}: ${t}`);
 for (const m of s.more || []) console.log(`more ${m.format}: ${m.prompt}${fx && (fx.formats || {})[m.format] ? " (fixed layout)" : ""}`);
 console.log(fx ? `fixed: draft, proof comments (${out.fixed.proof}), approved words, layouts for ${out.fixed.formats.join(", ")}` : "fixed: none (the writer, reviewer and formatters run as usual)");

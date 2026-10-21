@@ -15,6 +15,8 @@ date: October 2026
 
 Cedar Hollow Family Services is a fictional agency. Every person, quote and figure in this case study is illustrative.
 
+![Cedar Hollow Family Services logo (fictional organization, sample logo)](images/cedar-hollow-hero.jpg)
+
 ## At a *glance*
 
 - **41%** less time on case notes, from 2.6 to 1.5 hours a day per caseworker

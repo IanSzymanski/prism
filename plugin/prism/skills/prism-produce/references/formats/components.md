@@ -25,7 +25,32 @@ Two to four items. The bold part is the figure, the rest is its label (under ~10
 :::
 ```
 
-Two columns by default; `{.features .three}` for three. Each item: icon, bold title, one sentence. Keep counts even in two columns (2 or 4).
+Each item: icon, bold title, one sentence. Layouts by count:
+
+| Layout | Items | Markup |
+|---|---|---|
+| 1x2 | 2 | `::: features` |
+| 2x2 | 4, a sentence or more each | `::: features` |
+| 1x3 | 3 | `{.features .three}` |
+| 1x4 | 4, short each | `{.features .four}` |
+
+Cards in any layout are one format: switching from 1x3 to 2x2 is not variety. Use cards for two sections at most, and show the rest another way.
+
+## Steps
+
+```markdown
+::: steps
+1. **Pilot.** One team first.
+2. **Dictate.** The caseworker dictates after a visit.
+3. **Review.** The caseworker corrects and approves the draft.
+:::
+```
+
+A stacked numbered list, one short step a line (a bold label and one sentence), kept together on one page. Use it for what an organization did, in order; `flow` is for a short process shown side by side.
+
+## Variety
+
+A page shows its information in several formats (stats, cards, steps or a list, a quote, a chart or table, columns, a callout), not the same one again and again. Two sections in a row don't lead with the same format. A brand can turn on the build's check (`options.sheet.checks: ["variety"]`), which prints `[sheet] variety: ...` lines.
 
 ## Callout
 

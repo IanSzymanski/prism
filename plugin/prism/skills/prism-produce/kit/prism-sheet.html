@@ -27,7 +27,8 @@ $endif$
 $if(subtitle)$
   <p class="prism-lede">$subtitle$</p>
 $endif$
-$if(author)$
+$if(prism-no-byline)$
+$elseif(author)$
   <p class="prism-meta">$for(author)$$author$$sep$ · $endfor$$if(date)$ · $date$$endif$</p>
 $elseif(date)$
   <p class="prism-meta">$date$</p>

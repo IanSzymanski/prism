@@ -28,8 +28,10 @@ PHRASES = {
 }
 CARDS_NOT_FORMATS = {"components"}
 # The walkthrough's stages, in words it must use: the proof, design mode, the export and the other formats.
-STAGES = ["Claude Docs", "Claude Design", "export", "other formats", "Why it's here", "What you can do", "Sharing"]
+STAGES = ["Claude Docs", "Claude Design", "export", "other formats", "Why it's here", "What you can do", "Sharing",
+          "Make no tool calls for it", "Earlier stages stay closed", "Leave the brand machinery out"]
 COOP_TERMS = ["co-op", "coop.md", "@claude", "Exports page"]
+TRY_STAGES = ["start", "interview", "draft", "proof", "design", "export", "formats", "revise"]
 SAMPLE_KEYS = ["slug", "title", "prompt", "answers", "source", "try", "more"]
 
 
@@ -40,7 +42,7 @@ def sample_problems(d, label, cards):
     except Exception as e: return [f"{label} sample: {f} can't be read ({e})"]
     out += [f"{label} sample: no \"{k}\" in sample.json" for k in SAMPLE_KEYS if not s.get(k)]
     out += [f"{label} sample: source file {x} is missing" for x in s.get("source", []) if not os.path.exists(os.path.join(d, x))]
-    out += [f"{label} sample: \"{k}\" in try is missing" for k in ["proof", "design", "revise"] if k not in (s.get("try") or {})]
+    out += [f"{label} sample: \"{k}\" in try is missing (suggestions for \"Let me try something first\" at that stage)" for k in TRY_STAGES if not (s.get("try") or {}).get(k)]
     out += [f"{label} sample: more offers {m.get('format')}, which is not an output format" for m in s.get("more", []) if m.get("format") not in cards]
     if (s.get("answers") or {}).get("figures") != "illustrative": out.append(f"{label} sample: answers.figures must be illustrative (the sample is fictional)")
     if s.get("fixed"): out += fixed_problems(d, label, s["fixed"], cards)
