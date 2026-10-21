@@ -8,15 +8,15 @@
  "comments": [
   {
    "anchor": "approves routine notes automatically",
-   "text": "Check: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves."
+   "text": "Check: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the same notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves."
   },
   {
    "anchor": "best tool the agency has",
-   "text": "Check: An unsupported superlative from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them."
+   "text": "Check: An unsupported superlative, passed on second-hand from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them."
   },
   {
-   "anchor": "think turnover is down too",
-   "text": "Check: An outcome claim with no figure and no source; the notes say there are no turnover figures yet. Suggest: cut it until there are figures."
+   "anchor": "said turnover is down too",
+   "text": "Check: An outcome claim from one remark, with no figure and no source behind it. Suggest: cut it until there are turnover figures."
   }
  ]
 }

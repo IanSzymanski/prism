@@ -31,7 +31,7 @@ Say:
 - The route, as a short numbered list: prompt and material, interview, draft and review, proof in Claude Docs, design mode in Claude Design, export, then other formats from the same words.
 - The brand it will use (and that `/prism-tutorial in the <brand> brand` uses another), and that everything in the sample is fictional.
 - **The sample prompt, in full:** the whole `--prompt` output, word for word, in one quoted block headed "This is the message Prism receives". Nothing left out or shortened: the prompt line and every line of the notes, tables included. This is exactly what the writer and the reviewer will read in stage 3.
-- After it, a three-line summary of the notes (what the organization is, the before and after numbers, the quotes), then the lines in the notes that should not survive as written (an unsourced boast, a claim nobody checked, a figure nobody has), each quoted exactly as it appears above: the reviewer is about to catch them, and the person can check it did.
+- After it, a three-line summary of the notes (what the organization is, the before and after numbers, the quotes), and one line saying they are rough on purpose, like real call notes: typos, mixed formatting and shorthand, and a few claims that shouldn't go out as written. Don't point those out: invite the person to spot them, then see in stage 3 what the writer cleaned up and what the reviewer flagged.
 - What they'd do on their own: paste or attach notes, a transcript, a document or photos, and type a prompt like this one. Audio isn't accepted; a transcript is.
 
 Pause (next: the interview).
@@ -55,6 +55,7 @@ Say:
 
 - **Why it's here:** the words are written once, with no layout, so every format later is laid out from the same approved text and no number can drift between them.
 - **What you get:** `content.md` (the words: an at-a-glance block, the challenge, what they did, results with the monthly table for a chart, the quotes, the close) and `claims.md` (every number, quote and claim with the line of the notes it came from). Send both with SendUserFile.
+- **What the writer cleaned up:** with fixed files, the sample's `fixed.cleanup` pairs as a short table (the notes as written, quoted exactly; the draft; what kind of fix), from `run.sh tutorial --json`. Say the writer fixes slips like these without asking, but never changes a number, a name, a quote or a claim on its own.
 - **Where each claim came from:** a short table of the main claims (each headline number and both quotes): the claim as drafted, then the line of the notes it came from, quoted exactly as stage 1 showed it. The person can trace every number back to the input.
 - **The reviewer** flagged what the notes shouldn't carry as written. For each flag, one line: the flagged sentence in the draft, the notes line it came from (quoted), and the reason (for example the unsourced boast, a claim that the AI approves notes on its own, the turnover figure nobody has). It flags; it never rewrites the copy. A notes line that was left out of the draft on purpose (the writer never invents or keeps an unsupported claim) is named too, so the person sees what was dropped and why.
 

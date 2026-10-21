@@ -89,6 +89,8 @@ try:
     r = run(ver, d); check("a proof comment that isn't the draft's flag fails", r.returncode == 1 and "word for word" in r.stdout, r.stdout)
     d = copy(); t = brand_tut(d); sf = os.path.join(t, fx["formats"]["sheet"]); open(sf, "a").write("\nA stray 73% figure.\n")
     r = run(ver, d); check("a fixed layout with a number not in the approved words fails", r.returncode == 1 and "fixed layout sheet has numbers" in r.stdout, r.stdout)
+    d = copy(); t = brand_tut(d); sj2 = os.path.join(t, "sample.json"); s2 = json.load(open(sj2)); s2["fixed"]["cleanup"].append({"notes": "a typo nobody wrote", "draft": "x"}); json.dump(s2, open(sj2, "w"))
+    r = run(ver, d); check("a cleanup pair not in the notes fails", r.returncode == 1 and "a typo nobody wrote" in r.stdout, r.stdout)
     d = copy(); t = brand_tut(d); af = os.path.join(t, fx["approved"]); open(af, "a").write("\nStill here. <!-- CHECK: x -->\n")
     r = run(ver, d); check("approved words with a flag left fail", r.returncode == 1 and "no CHECK flags" in r.stdout, r.stdout)
 
@@ -107,6 +109,7 @@ try:
     fws = os.path.join(tmp, "fws"); j = json.loads(tut_js("--out", fws, "--json").stdout)
     if j.get("fixed"):
         p = j["project"]
+        check("the walkthrough's cleanup pairs come through --json", len(j["fixed"].get("cleanup", [])) > 0, j["fixed"])
         check("--out puts the fixed draft in place", "CHECK:" in open(os.path.join(p, "content.md")).read() and os.path.exists(os.path.join(p, "claims.md")), os.listdir(p))
         r = tut_js("--out", fws, "--approve")
         check("--approve puts the fixed approved words in place and keeps the draft", r.returncode == 0 and "status: approved" in open(os.path.join(p, "content.md")).read() and os.path.exists(os.path.join(p, "content.v1.md")), r.stdout + r.stderr)
