@@ -20,12 +20,16 @@ A fictional family services agency, four months, no new staff.
 Only 46% of visit notes were finished within 24 hours, and the backlog hit 9 days.
 ::::
 
-:::: {.post .panel burst="0.3" note="03 / 06"}
+:::: {.post .panel .purple burst="0.3" note="03 / 06"}
 [02]{.num}
 
 ## CARA drafts. *People decide.*
 
-The caseworker dictates after a visit, corrects the draft and approves it. Nothing is saved until they do.
+::: steps
+1. **Dictate** after the visit
+2. **Review** and correct the draft
+3. **Approve** it: nothing is saved until they do
+:::
 ::::
 
 :::: {.post .panel burst="0.7" note="04 / 06"}

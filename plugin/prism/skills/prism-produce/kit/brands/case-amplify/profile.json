@@ -307,7 +307,7 @@
   "layers/blog.css": "ed559f594516c27b4559098610b9c60cfaf505b516ad2378b8ebc34d0e324ce9",
   "layers/brochure.css": "d1348972a7b8d0fc95d1fda7d71b2d60e84997775417d099da3fb2dc44e7e6cc",
   "layers/sheet.css": "a0e7334ad43181267a43b7c8188e5c9d56c13a779af1d6bfd89c022c971834c1",
-  "layers/social.css": "b6f5ce6ab41b04b2e1bc97961fa123ab9a0dbfe315e4d465616a1072268ce659",
+  "layers/social.css": "24498eb485f2fa456d3a8d7cd48dd901a49ee4e23cae33ec84ca9de78836a1aa",
   "ornaments.js": "295f8de2b704d499f93be20d89c1c918eb8eb3cb8883b15fa6269296ae7840c7",
   "own/placeholder-dark.png": "b85932febb19d3cdafdeb6325f8067f3e521476de0b14a1df0d930a0a7b2d23f",
   "own/placeholder-light.png": "f9f3493882dc5f51b8695bc446c62178cc83274e44af8795e4414baf8756e8c0"
@@ -344,6 +344,17 @@
     "number": "left",
     "logo": "bottom-right"
    }
+  },
+  "social": {
+   "_note": "Case Amplify posts and carousels: no wave thread, no page counter, and the word, layout, color and photo variety checks.",
+   "thread": false,
+   "counter": false,
+   "checks": [
+    "words",
+    "layout",
+    "color",
+    "photo"
+   ]
   }
  },
  "ornaments_module": "ornaments.js",

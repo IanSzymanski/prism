@@ -29,7 +29,7 @@ function storyCheck(post) {
   // Where the logo (::before) and note (::after) sit, so text can't run into them either.
   const marks = ["::before", "::after"].map(ps => {
     const p = getComputedStyle(post, ps);
-    if (p.content === "none" || p.display === "none") return null;
+    if (p.content === "none" || p.display === "none" || (ps === "::after" && !post.dataset.note)) return null;
     const h = parseFloat(p.height) || 30, y = p.top !== "auto" ? box.top + parseFloat(p.top) : box.bottom - parseFloat(p.bottom) - h;
     const w = parseFloat(p.width) || 120, x = p.left !== "auto" ? box.left + parseFloat(p.left) : box.right - parseFloat(p.right) - w;
     return { ps, x, y, w, h };
@@ -65,7 +65,14 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   const page = await browser.newPage({ viewport: { width: 8000, height: 1500 }, deviceScaleFactor: 1 });
   await page.goto("file://" + html, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
-  if (await page.$(".carousel")) {
+  // options.social: the checks (words, layout, color, photo) read the posts before anything changes them.
+  const SC = require("./social-checks.js"), checks = B.option("social.checks", []);
+  const summary = await page.evaluate(SC.summary);
+  // options.social.counter: false drops the "02 / 07" counters; a purple post takes the dark text roles.
+  if (B.option("social.counter", true) === false) await page.evaluate(SC.dropCounters);
+  await page.evaluate(SC.purpleAsDark);
+  // options.social.thread: false leaves out the brand's thread line along the foot of a carousel.
+  if (await page.$(".carousel") && B.option("social.thread", true) !== false) {
     if (B.ornaments.thread) {
       const svgs = (await page.evaluate(carouselGeometry)).map(g => B.ornaments.thread(g, B));
       await page.evaluate(svgs => document.querySelectorAll(".carousel").forEach((c, i) => svgs[i] && c.insertAdjacentHTML("beforeend", svgs[i])), svgs);
@@ -134,4 +141,5 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   for (const id of missing) console.error(`[social] missing caption: ${id}. Put a ::: caption block inside the post's :::: fence.`);
   if (missing.length) process.exitCode = 1;
   for (const u of unsafe) console.warn(`[social] story ${u}`);
+  for (const w of SC.check(summary, checks)) console.warn("[social] " + w);
 })();

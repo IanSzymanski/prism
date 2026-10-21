@@ -34,11 +34,14 @@ Post copy for LinkedIn or Instagram, in paragraphs.
 | `.story` | 1080×1920 | Instagram and Facebook Stories, any full-screen vertical (see Stories below) |
 | `.hero` | modifier | Makes a single stat huge |
 | `.dark` | modifier | Site CTA colours; for quotes and closers. No mono text on it. |
+| `.purple` | modifier | The brand's purple ground (its own gradient, else the accent), with the dark post's text colours. A third ground beside light and dark. |
 
 - `#id` names the PNG. `note="..."` prints bottom-right (use for "Illustrative example").
 - Each post needs a `::: caption` with the post copy, **inside** the post's `::::` fence (before the closing `::::`). It is not drawn on the image. The build fails with `[social] missing caption` when one is missing.
 - Keep on-image text short: eyebrow, heading or stat, one sentence. The caption carries the rest.
 - Quotes go on `.dark` posts; the heading's section rule never appears next to a person.
+- **One idea per post, big type:** a heading and at most one short sentence (or one stat and its label). The words belong in the caption.
+- **Vary a set:** mix grounds (light, dark, purple), layouts (a stat, a quote, a heading and line, a list) and photos (each photo once, not every post a photo). A brand can turn on the build's checks (`options.social.checks`: `words`, `layout`, `color`, `photo`), which print `[social] <check>: ...` lines; act on each like any build warning.
 - Photos: a `.split` post puts `![](images/file.jpg){.photo}` on the right half with a fade (as in email.md); use the hero or a supporting image from images.md. Never a client or minor without confirmed consent.
 - Typical set from one piece: a hero stat (square), a quote (square dark), a chart (wide), a features card (portrait).
 
@@ -73,4 +76,4 @@ The app's own interface covers the edges of a story, so every piece of text, the
 - Keep it short: eyebrow, heading (under ~8 words) and one or two sentences. `.photo-full` takes a heading and eyebrow only.
 - The build checks every story and prints `[social] story <id>: "<text>" is outside the safe area` or `runs into the logo`. Shorten the text; never shrink it.
 - `run.sh social formats/social.md out/social --guides` also writes `out/social/_guides/<id>.png` with the covered areas shaded red. Use those for the visual check; send only the plain PNGs.
-- A set of stories reads in order: number them with `note="1 / 4"`.
+- A set of stories reads in order: number them with `note="1 / 4"` (a brand with `options.social.counter: false` drops counters like this from every post, story and panel; other notes stay).
