@@ -340,7 +340,8 @@ async function slideLogo(slide, at, dark) {
 // text, and its logo in the corner on every slide but the title. Without it: footer text left, number right, no logo.
 const FOOT = B.option("deck.footer", null);
 async function footer(slide, n, dark = false) {
-  const text = meta.footer ? plain(meta.footer) : B.name, num = String(n).padStart(2, "0"), st = { y: 6.95, h: 0.25, fontFace: F.mono, fontSize: 9, color: C.muted };
+  // On dark and purple grounds the footer is in the sans face: small mono type doesn't hold up on dark.
+  const text = meta.footer ? plain(meta.footer) : B.name, num = String(n).padStart(2, "0"), st = { y: 6.95, h: 0.25, fontFace: FOOT && (dark || THEME) ? F.sans : F.mono, fontSize: 9, color: C.muted };
   if (FOOT) {
     const corner = FOOT.logo || "bottom-right", own = SLIDE_LOGO && SLIDE_LOGO.at === corner;
     let right = own ? SLIDE_LOGO.w + 0.25 : 0;

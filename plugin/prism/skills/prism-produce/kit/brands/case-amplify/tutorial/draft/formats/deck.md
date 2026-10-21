@@ -11,7 +11,7 @@ Cedar Hollow Family Services is a fictional agency. Every person, quote and figu
 :::
 ::::
 
-:::: {.slide .stats}
+:::: {.slide .stats .dark}
 ## At a *glance*
 
 - **41%** less time on case notes
@@ -71,7 +71,7 @@ Home visits per caseworker rose from 7.2 to 8.6 a week.
 :::
 ::::
 
-:::: {.slide .quote}
+:::: {.slide .quote .purple}
 > I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine.
 >
 > [Dana Ruiz, caseworker (fictional)]{.cite}

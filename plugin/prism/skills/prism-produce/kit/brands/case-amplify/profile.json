@@ -221,7 +221,7 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "31d8cd6052bd2e5b634af272679414feb0fa00d037d98a17dcbf29740358b606",
+  "sha256": "29b8729b01582c138ca4b7474846b0addcc1051ad44622a6a3619fa8309c0e6d",
   "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },
@@ -513,6 +513,51 @@
      "Accent words are never underlined; a highlight band behind an accent word is the light gradient's deepest color.",
      "Magenta and the dark blue accent are never used."
     ]
+   }
+  },
+  "film": {
+   "_note": "Case Amplify films (Ian, Oct 21): silent, no wave, only these gradients, Lucide icons, few large words, free flowing; walkthroughs open and close on the app itself, full frame, with tethered annotations.",
+   "music": "none",
+   "deny_motifs": [
+    "wave",
+    "wave-dark",
+    "wave-stop"
+   ],
+   "gradients": {
+    "glow": {
+     "css": "linear-gradient(160deg, #FFFFF8 0%, #F6EDF7 45%, #EBDDF6 75%, #E3D0F3 100%)",
+     "say": "the brand's light gradient: warm white easing to soft lilac"
+    },
+    "mist": {
+     "css": "linear-gradient(160deg, #F4ECF8 0%, #E5D4F4 45%, #D6BDEF 75%, #CDB0EC 100%)",
+     "say": "the brand's mist gradient: pale lilac deepening to lavender"
+    },
+    "night": {
+     "css": "radial-gradient(95% 55% at 100% 100%, #6A1BAE 0%, rgba(106,27,174,0) 72%), linear-gradient(170deg, #140829 0%, #1B0B36 38%, #2B1560 78%, #381D81 100%)",
+     "say": "the brand's dark card: near-black violet easing to indigo, with a grape glow from the bottom right"
+    },
+    "vivid": {
+     "css": "radial-gradient(60% 90% at 100% 100%, rgba(154,63,214,.8) 0%, rgba(154,63,214,0) 100%), linear-gradient(135deg, #2E1066 0%, #561A9E 45%, #7A26BF 100%)",
+     "say": "the brand's full purple: deep violet to grape, with a bright glow from the bottom right"
+    }
+   },
+   "icons": "lucide",
+   "tone": "Professional empathy with light playfulness: warm, calm and respectful of the people in the work, with small moments of play in the motion (a gentle bounce, a soft overshoot), never jokes or cartoon effects.",
+   "words": {
+    "max_per_scene": 12,
+    "scale": 1.25
+   },
+   "feel": "Free flowing: continuous motion that carries from one scene into the next, soft eases and overlapping moves, no hard stops and no still frames of the whole screen.",
+   "walkthrough": {
+    "cards": false,
+    "ui": "full-frame",
+    "annotations": {
+     "fill": "prism-color-accent",
+     "text": "#FFFFFF",
+     "lines": 1,
+     "tether": true
+    },
+    "ui_in_out": true
    }
   }
  }

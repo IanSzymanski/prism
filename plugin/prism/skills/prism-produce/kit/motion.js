@@ -139,19 +139,31 @@ function techniquesFor(B) {
   const own = B ? ((readProfile(B).motion || {}).techniques || null) : null;
   return keys(T.techniques).filter(k => !own || own.includes(k));
 }
-// The brand's motifs (profile motion.motifs): its own drawn marks, with the words that say how to use them.
+// The brand's film settings (profile motion.film): its default music, motifs it never uses, its only gradients, its icon set,
+// tone, feel, words per scene, and how its walkthroughs look. Absent, films are made as core describes.
+function filmOf(B) {
+  const f = ((B && readProfile(B).motion) || {}).film || {};
+  return { music: f.music || null, deny_motifs: f.deny_motifs || [], gradients: f.gradients || null, icons: f.icons || null, tone: f.tone || null,
+    feel: f.feel || null, words: f.words || null, walkthrough: { cards: true, ui: null, annotations: null, ui_in_out: false, ...(f.walkthrough || {}) } };
+}
+// The brand's motifs (profile motion.motifs): its own drawn marks, with the words that say how to use them. Motifs its films
+// never use (motion.film.deny_motifs) are left out.
 function motifsFor(B) {
-  return ((B && readProfile(B).motion) || {}).motifs || [];
+  const deny = filmOf(B).deny_motifs;
+  return (((B && readProfile(B).motion) || {}).motifs || []).filter(m => !deny.includes(m.id));
 }
 
 // The brand's rules for one kind of piece (profile motion.pieces.<piece>): what it never uses, its grounds, backdrops,
 // transitions and the colors of its marks. A piece the brand has no rules for gets core's vocabulary as it is.
 function pieceRules(B, piece) {
   const all = ((B && readProfile(B).motion) || {}).pieces || {}, r = (piece && all[piece]) || {};
-  const tr = r.transitions || {};
+  const film = filmOf(B), tr = r.transitions || {};
+  // A brand transition drawn from a motif the brand's films never use goes, and so does any rule that leads into it.
+  const add = Object.fromEntries(Object.entries(tr.add || {}).filter(([, t]) => !film.deny_motifs.includes(t.motif)));
+  const after = Object.fromEntries(Object.entries(tr.after || {}).filter(([, t]) => add[t] || T.transitions[t]));
   return { piece: piece || null, known: keys(all), found: !!(piece && all[piece]), name: r.name || null,
     deny: { backdrops: [], classes: [], roles: [], ...(r.deny || {}) }, emphasis: r.emphasis || {}, grounds: r.grounds || {},
-    backdrops: { prefer: null, say: {}, ...(r.backdrops || {}) }, transitions: { add: tr.add || {}, after: tr.after || {} }, rules: r.rules || [] };
+    backdrops: { prefer: null, say: {}, ...(r.backdrops || {}) }, transitions: { add, after }, rules: r.rules || [], film };
 }
 const NO_RULES = pieceRules(null, null);
 const transitionOf = (R, name) => (R.transitions.add[name] || T.transitions[name]);
@@ -183,6 +195,8 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
   if (fm.data && tech.ui && (!W.data[fm.data] || fm.data.startsWith("_"))) errors.push(`front matter: data is ${keys(W.data).join(" or ")}, not "${fm.data}"`);
   if (fm.piece && !/^[a-z][a-z0-9-]{0,40}$/.test(fm.piece)) errors.push(`front matter: piece is a lower-case name like case-study, not "${fm.piece}"`);
   const pieceSay = R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand's films";
+  // A brand whose walkthroughs have no cards (motion.film.walkthrough.cards: false) opens and ends on the app itself.
+  const noCards = !!tech.ui && R.film && R.film.walkthrough.cards === false;
   if (!scenes.length) errors.push("no scenes: write at least a title scene and a closing scene");
   const ids = new Set();
   let total = 0;
@@ -194,6 +208,7 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
     ids.add(s.id);
     const lay = tech.layouts[s.layout];
     if (!lay) { errors.push(`${where}: layout .${s.layout || "?"} is not a ${fm.technique} layout (${keys(tech.layouts).join(", ")})`); return; }
+    if (noCards && !lay.ui) { errors.push(`${where}: this brand's walkthroughs have no opening or closing card: they open and end on the app (.app, .step), so leave out the .${s.layout} scene`); return; }
     if (s.extra.length) errors.push(`${where}: unknown scene class .${s.extra.join(" .")} (a transition is in=, not a class)`);
     const extraAttrs = Object.keys(s.attrs).filter(k => !SCENE_ATTRS.includes(k));
     if (extraAttrs.length) errors.push(`${where}: unknown scene attribute ${extraAttrs.join(", ")} (${SCENE_ATTRS.join(", ")})`);
@@ -203,16 +218,19 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
     if (s.attrs.backdrop && R.deny.backdrops.includes(s.attrs.backdrop)) errors.push(`${where}: ${pieceSay} never use backdrop=${s.attrs.backdrop}`);
     if (n === 0 && s.attrs.in && s.attrs.in !== "cut") errors.push(`${where}: the first scene has nothing to arrive from (in=): frame 0 is the thumbnail`);
     const wantsMotif = s.attrs.backdrop === "motif" || s.blocks.some(b => b.role === "motif");
-    if (wantsMotif && !motifs.length) errors.push(`${where}: this brand has no motif (motion.motifs in its profile)`);
     const mid = s.attrs.motif || s.blocks.map(b => b.role === "motif" && b.a.attrs.name).find(Boolean);
-    if (mid && motifs.length && !motifs.some(x => x.id === mid)) errors.push(`${where}: motif ${mid} is not one of ${motifs.map(x => x.id).join(", ")}`);
+    if (wantsMotif && !motifs.length && !(mid && R.film && R.film.deny_motifs.includes(mid))) errors.push(`${where}: this brand has no motif its films use (motion.motifs in its profile, less motion.film.deny_motifs)`);
+    const never = R.film ? R.film.deny_motifs : [];
+    if (mid && never.includes(mid)) errors.push(`${where}: this brand's films never use the ${mid} motif`);
+    else if (mid && motifs.length && !motifs.some(x => x.id === mid)) errors.push(`${where}: motif ${mid} is not one of ${motifs.map(x => x.id).join(", ")}`);
     // A walkthrough: screens, screenshots and actions belong to the scenes that show the app.
     if (s.attrs.screen !== undefined && (!lay.ui || !T.screens[s.attrs.screen] || s.attrs.screen.startsWith("_"))) errors.push(lay.ui ? `${where}: screen=${s.attrs.screen} is not one of ${keys(T.screens).join(", ")}` : `${where}: screen= is for scenes that show the app (${keys(tech.layouts).filter(k => tech.layouts[k].ui).join(", ") || "walkthrough films"})`);
     if (lay.ui) {
       const guides = s.blocks.filter(b => b.role === "screen");
       if (guides.length > 1) errors.push(`${where}: one screenshot per scene; a scene that changes page is two scenes`);
       const h2 = s.blocks.filter(b => b.role === "h2"), sub = s.blocks.filter(b => b.role === "sub");
-      if (s.layout === "step" && !h2.length) errors.push(`${where}: a step needs its title for the step card (## Title)`);
+      if (s.layout === "step" && !h2.length) errors.push(noCards ? `${where}: a step needs its annotation (## One short line)` : `${where}: a step needs its title for the step card (## Title)`);
+      if (noCards && sub.length) errors.push(`${where}: this brand's annotations are one line of text: the ## line only, no .sub sentence`);
       if (h2.length > 1 || sub.length > 1) errors.push(`${where}: the step card is one ## title and one .sub sentence`);
       for (const b of s.blocks) if (!["h2", "sub", "action", "screen"].includes(b.role)) errors.push(`${where}, block at line ${b.line}: words on a ${s.layout} scene are the step card (## title, one .sub sentence) and what happens in the app ([label]{.click} and the other actions); a ${b.role} goes on the title or end card`);
       if (s.layout === "step" && !s.blocks.some(b => b.role === "action")) warnings.push(`#${s.id || n + 1}: a step shows its task happening: add what the viewer sees ([label]{.click}, [words]{.fill field="…"})`);
@@ -251,13 +269,14 @@ function validate(doc, allowed, motifs = [], R = NO_RULES) {
       if (act === "focus" && b.a.attrs.zoom === undefined) b.a.attrs.zoom = String(W.zoom[0] + 0.2);
     }
   });
-  if (scenes.length && scenes[scenes.length - 1].layout !== "closing") errors.push("the last scene is the closing end card (.closing)");
-  if (scenes.length && scenes[0].layout !== "title") warnings.push("the first scene is usually .title: frame 0 is the film's thumbnail");
+  if (!noCards && scenes.length && scenes[scenes.length - 1].layout !== "closing") errors.push("the last scene is the closing end card (.closing)");
+  if (!noCards && scenes.length && scenes[0].layout !== "title") warnings.push("the first scene is usually .title: frame 0 is the film's thumbnail");
   if (tech.ui) {
     const steps = scenes.filter(s => s.layout === "step").length;
     if (!steps) errors.push("a walkthrough has at least one .step scene");
     else if (steps < W.steps[0] || steps > W.steps[1]) warnings.push(`${steps} steps; a walkthrough is easiest to follow with ${W.steps[0]} to ${W.steps[1]} (split a longer one into two films)`);
-    if (scenes[1] && scenes[1].layout !== "app") warnings.push("a walkthrough meets the app (.app) before its first step: the whole screen, built in, before the camera pushes in");
+    const meet = noCards ? scenes[0] : scenes[1];
+    if (meet && meet.layout !== "app") warnings.push("a walkthrough meets the app (.app) before its first step: the whole screen, built in, before the camera pushes in");
   }
   if (total > 300) errors.push(`the film runs ${total} s; Motion films are 300 s at most`);
   else if (total < tech.length[0] || total > tech.length[1]) warnings.push(`the film runs ${total} s; a ${fm.technique} film is usually ${tech.length[0]}–${tech.length[1]} s`);
@@ -350,7 +369,12 @@ function sceneColors(B, ground, R = NO_RULES) {
   for (const [k, n] of Object.entries(own)) if (role(n)) out[k] = role(n);
   return out;
 }
+// The hexes in a CSS background, in order: a gradient's stops, for contrast and seams.
+const cssStops = css => (String(css).match(/#[0-9a-f]{6}\b|#[0-9a-f]{3}\b|rgba?\([^)]*\)/gi) || []).map(c => c.startsWith("#") ? c.toUpperCase() : "#" + c.replace(/rgba?\(|\)/g, "").split(/[\s,/]+/).slice(0, 3).map(n => Math.round(Number(n)).toString(16).padStart(2, "0")).join("").toUpperCase());
 function groundOf(B, name, R = NO_RULES) {
+  // A brand that approves its gradients (motion.film.gradients) has its scenes stand on one of those, exactly, when the ground is a gradient.
+  const ok = R.film && R.film.gradients, mine = ok && ok[name];
+  if (mine && mine.css) { const stops = mine.stops || [...new Set(cssStops(mine.css))]; return { name, stops, gradient: true, css: mine.css, say: mine.say || null, approved: true }; }
   const own = R.grounds[name] || {};
   if (own.css && own.stops) return { name, stops: own.stops, gradient: true, css: own.css, say: own.say || null };
   const g = T.grounds[name];
@@ -413,6 +437,17 @@ function sceneLines(s) {
   return lines;
 }
 
+// The words a scene shows (its text blocks and list items, not the app's own labels an action names).
+function wordsOnScreen(s) {
+  let n = 0;
+  for (const b of s.blocks) {
+    if (["logo", "image", "draw", "chart", "motif", "screen", "action"].includes(b.role)) continue;
+    const t = b.role === "list" ? b.items.map(x => x.text).join(" ") : b.text || "";
+    n += String(t).replace(/[*_]/g, "").split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
+  }
+  return n;
+}
+
 // Every decision the brief states, made once: grounds, colors, transitions, block timings and moves.
 function plan(B, doc, v, R = NO_RULES) {
   const { fm, scenes } = doc, tech = T.techniques[fm.technique], energy = T.energy[fm.energy || tech.energy];
@@ -420,6 +455,9 @@ function plan(B, doc, v, R = NO_RULES) {
   const warnings = [];
   // A walkthrough: the screen each app scene stands on, and the steps' numbers.
   const ui = !!tech.ui, scr = ui ? screensOf(doc, doc.path || ".", v.aspect) : [];
+  const WF = R.film.walkthrough, noCards = ui && WF.cards === false;
+  // A brand whose app fills the frame never shows it in a device mockup over a ground: the UI covers the frame instead.
+  if (ui && WF.ui === "full-frame") for (const x of scr) if (x && x.fit === "device") x.fit = "cover";
   const steps = scenes.filter(s => s.layout === "step").length;
   let stepNo = 0;
   let prevBg = null, prevBd = null, tc = 0;
@@ -439,6 +477,7 @@ function plan(B, doc, v, R = NO_RULES) {
     if (s.attrs.bg && bg === prevBg && !lay.ui) warnings.push(`#${s.id} has the same ground as the scene before it (${bg})`);
     bgs.push(bg); prevBg = bg; prevBd = backdrop;
     const ground = groundOf(B, bg, R), colors = sceneColors(B, ground, R);
+    if (R.film.gradients && ground.gradient && !ground.approved) warnings.push(`!#${s.id}: bg=${bg} is a gradient this brand's films never use; its gradient grounds are ${keys(R.film.gradients).join(", ")} (or a solid ground)`);
     // The piece may fix how a scene leaves a given ground (a brand transition out of its main color).
     const forced = n > 0 ? R.transitions.after[out_prev(n)] : null;
     if (forced && s.attrs.in && s.attrs.in !== forced) warnings.push(`!#${s.id}: ${R.name ? `this brand's ${R.name.toLowerCase()} films` : "this brand"} leave a ${out_prev(n)} scene with ${forced}, not ${s.attrs.in}`);
@@ -477,7 +516,12 @@ function plan(B, doc, v, R = NO_RULES) {
     p.buildAt = r2(Math.max(0, enterAt));
     if (p.ui) {
       const card = s.blocks.filter(b => b.role === "h2" || b.role === "sub");
-      if (card.length) {
+      if (card.length && noCards) {
+        // No step card: the line is an annotation, tethered to what the first action acts on; it stays while the step plays.
+        const first = s.blocks.find(b => b.role === "action");
+        p.note = { at: base, landed: r2(base + 0.6), text: card[0].text, target: first ? first.text : null };
+        cursor = r2(p.note.landed + 0.4);
+      } else if (card.length) {
         const cardLanded = r2(base + W.card.open + (card.length > 1 ? 0.3 : 0));
         p.card = { at: base, landed: cardLanded, collapse: r2(cardLanded + W.card.read), chip: r2(cardLanded + W.card.read + W.card.collapse) };
         cursor = r2(p.card.chip + 0.3);
@@ -515,7 +559,10 @@ function plan(B, doc, v, R = NO_RULES) {
     // The camera ends the scene back out at the whole screen: a pull-back unless the last camera move already was one.
     const zoomed = p.blocks.filter(x => x.action && (x.zoom || x.action === "back")).map(x => x.action !== "back").pop();
     const back = p.ui && !last && zoomed ? W.camera : 0;
-    const need = Math.ceil((p.landed + hold + back + exitSpan + nextHalf) * 10) / 10;
+    // The brand's UI animates out at the end of a film that ends on the app (motion.film.walkthrough.ui_in_out).
+    const uiOut = p.ui && last && WF.ui_in_out ? 1.2 : 0;
+    if (uiOut) p.uiOut = uiOut;
+    const need = Math.ceil((p.landed + hold + back + uiOut + exitSpan + nextHalf) * 10) / 10;
     if (need > s.dur) { p.grew = { from: s.dur, to: need }; s.dur = need; }
     p.holdFrom = p.landed; p.holdTo = r2(p.landed + hold);
     if (back) p.backBy = r2(p.holdTo + back);
@@ -546,7 +593,7 @@ function brief(mdPath, outDir) {
   if (T.techniques[doc.fm.technique].ui) {
     // Prism's own lines: each step's eyebrow, and the end card's recap of the steps by their titles.
     const stepScenes = doc.scenes.filter(s => s.layout === "step");
-    stepScenes.forEach((s, i) => { s.extraLines = [`Step ${i + 1} of ${stepScenes.length}`]; });
+    if (R.film.walkthrough.cards !== false) stepScenes.forEach((s, i) => { s.extraLines = [`Step ${i + 1} of ${stepScenes.length}`]; });
     const close = doc.scenes[doc.scenes.length - 1];
     if (close && close.layout === "closing" && stepScenes.length && !close.blocks.some(b => b.role === "list")) {
       const recap = { role: "list", style: "steps", recap: true, items: stepScenes.map(s => ({ text: s.blocks.find(b => b.role === "h2").text, accent: null, icon: null })), a: attrs(""), line: close.line };
@@ -554,11 +601,15 @@ function brief(mdPath, outDir) {
       close.blocks.splice(after, 0, recap);
     }
   }
-  // Icons come from the brand's own set.
-  const iconSet = JSON.parse(fs.readFileSync(B.icons.paths, "utf8"));
+  // Icons come from the brand's own set, or the vendored Lucide set when its films draw Lucide (motion.film.icons).
+  const lucide = R.film.icons === "lucide";
+  const iconSet = lucide ? JSON.parse(fs.readFileSync(path.join(KIT, "vendor", "lucide", "icons.json"), "utf8")) : JSON.parse(fs.readFileSync(B.icons.paths, "utf8"));
+  const toLucide = lucide ? JSON.parse(fs.readFileSync(path.join(KIT, "vendor", "lucide", "from-phosphor.json"), "utf8")) : {};
+  const iconName = n => (lucide && toLucide[n] && !n.startsWith("_")) ? toLucide[n] : n;
+  for (const sc of doc.scenes) for (const b of sc.blocks) { if (b.role === "icon" && b.icon) b.icon = iconName(b.icon); if (b.role === "list") for (const x of b.items) if (x.icon) x.icon = iconName(x.icon); }
   const wantIcons = [...new Set(doc.scenes.flatMap(s => s.blocks.flatMap(b => b.role === "icon" ? [b.icon] : b.role === "list" ? b.items.map(x => x.icon).filter(Boolean) : [])))];
   const noIcon = wantIcons.filter(n => !iconSet[n]);
-  if (noIcon.length) fail([`icon ${noIcon.join(", ")} is not in the brand's icon set (${B.icons.weight})`]);
+  if (noIcon.length) fail([lucide ? `icon ${noIcon.join(", ")} is not a Lucide icon (lucide.dev/icons), and has no Lucide match in vendor/lucide/from-phosphor.json` : `icon ${noIcon.join(", ")} is not in the brand's icon set (${B.icons.weight})`]);
   const P = plan(B, doc, v, R);
   // A plan warning marked ! is a piece rule the format file breaks.
   const broken = P.warnings.filter(w => w.startsWith("!")).map(w => w.slice(1));
@@ -566,6 +617,9 @@ function brief(mdPath, outDir) {
   if (R.known.length && !R.found) v.warnings.push(`this brand has motion rules for ${R.known.join(", ")}; name the piece (piece: ${R.known[0]}) to use them`);
   for (const p of P.scenes) if (p.grew) P.warnings.push(`#${p.s.id} runs ${p.grew.to} s, not ${p.grew.from}: its entrances land at ${p.landed} s, then it holds ${p.hold} s before leaving`);
   for (const p of P.scenes) if (p.step && p.s.dur > 20) P.warnings.push(`#${p.s.id} runs ${p.s.dur} s: a step over 20 s is easier to follow as two steps`);
+  // Fewer, larger words: the brand's most words on screen in one scene (motion.film.words.max_per_scene).
+  const maxWords = R.film.words && R.film.words.max_per_scene;
+  if (maxWords) for (const p of P.scenes) { const n = wordsOnScreen(p.s); if (n > maxWords) P.warnings.push(`#${p.s.id}: ${n} words on screen (the brand keeps a scene to ${maxWords})`); }
   if (P.total > 300) fail([`the film runs ${P.total} s with its holds; Motion films are 300 s at most`]);
   const len = T.techniques[doc.fm.technique].length;
   if (P.total < len[0] || P.total > len[1]) P.warnings.push(`the film runs ${P.total} s; a ${doc.fm.technique} film is usually ${len[0]}–${len[1]} s`);
@@ -631,7 +685,7 @@ function brief(mdPath, outDir) {
 
   const film = { v: 2, title: fm.title, technique: fm.technique, piece: fm.piece || null, brand: B.id,
     deny: { colors: R.deny.roles.filter(n => B.has(n)).flatMap(n => Object.values(B.res.roles[n].value || {})).filter(x => typeof x === "string" && /^#/.test(x)) }, aspect: v.aspect, width: A.width, height: A.height, fps: 60,
-    background: P.scenes[0].ground.stops[0], energy: fm.energy || tech.energy, music: fm.music || "calm", length: P.total, hold: P.hold,
+    background: P.scenes[0].ground.stops[0], energy: fm.energy || tech.energy, music: fm.music || R.film.music || "calm", length: P.total, hold: P.hold,
     assets: [...assets.values()], records: records.map(r => ({ collection: r.collection, doc_id: r.doc_id })), faces: Object.fromEntries(Object.entries(faces).map(([k, f]) => [k, { face: f.face, weight: f.weight }])),
     scenes: P.scenes.map(p => {
       const title = p.step ? (p.s.blocks.find(b => b.role === "h2") || {}).text : null;
@@ -703,23 +757,39 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push(`- **Style:** ${tech.look}. ${E.say}.`);
   L.push(`- **Colors:** the brand's design system (${B.name}), no others. In scenes.json: \`"palettes":[["${pal}","${main}","${ink}","${accent}"]]\`, \`"theirs":1\`. Each scene has its own ground and colors from the brand, listed below.`);
   L.push(`- **Length:** ${film.length} seconds, as the scenes below add up (each holds after its last entrance lands: ${sayHold(P.hold)}).`, "");
+  // The brand's own direction for every film (motion.film): tone, feel, words, and what it never uses.
+  const FL = R.film, WF = FL.walkthrough, noCards = !!tech.ui && WF.cards === false, scale = (FL.words && Number(FL.words.scale)) || 1;
+  const brandRules = [];
+  if (FL.tone) brandRules.push(`**Tone:** ${FL.tone}`);
+  if (FL.feel) brandRules.push(`**Feel:** ${FL.feel}`);
+  if (FL.words) brandRules.push(`**Fewer, larger words, larger visuals.** ${FL.words.max_per_scene ? `At most ${FL.words.max_per_scene} words on screen in a scene. ` : ""}${scale !== 1 ? `The type sizes below are already ${scale}× core's. ` : ""}Icons, stats, charts and pictures are large and fill the frame; nothing is small or decorative.`);
+  if (FL.deny_motifs.length) brandRules.push(`**No ${FL.deny_motifs.join(", ")} motif anywhere**: not as a backdrop, a divider, a transition's edge or a line along the bottom of the frame.`);
+  if (FL.music === "none" && !fm.music) brandRules.push("**No music**: the film is silent.");
+  if (FL.icons === "lucide") brandRules.push("**Icons are Lucide** (stroke icons), never filled or another set.");
+  if (brandRules.length) { L.push(`## ${B.name} films`, ""); for (const r of brandRules) L.push(`- ${r}`); L.push(""); }
   L.push("## The stage", "");
   L.push(`- ${A.width}×${A.height}, 60 fps, scenes.json \`background\` ${film.background}. ${cap(A.safe)}.`);
   L.push(`- \`look\` in scenes.json, word for word: "${tech.look}; brand ${B.name}, font files supplied".`);
   L.push(`- **One shared.js** holds what every scene does the same way: splitting a line into words (the accent words marked), the entrances, holds and exits named below, the transition halves and the backdrops. Scenes call it, so a move looks the same everywhere and a fix is one write.`);
   L.push(`- **Scene colors live in base.css**: one class per scene, \`.g-<scene id>\`, on that scene's \`.ground\`, setting \`--ground\`, \`--ink\`, \`--main\`, \`--c2\`, \`--c3\` (and its gradient) to the hexes below. Scenes use the variables, never their own hexes, so a color change is one write.`);
   L.push(`- Fonts are the brand's files, uploaded as assets with these exact names: ${film.assets.filter(a => a.mime.startsWith("font/")).map(a => `\`${a.name}\``).join(", ")}. Each registers as a face named by its file stem; name it ahead of the stack in base.css. In scenes.json \`fonts\`, put the nearest shipped faces underneath.`);
+  if (FL.gradients) {
+    L.push("- **Gradient grounds: only these, exactly.** A ground that is a gradient is one of these, written as its CSS here, never another gradient or an approximation:");
+    for (const [name, g] of Object.entries(FL.gradients)) L.push(`  - \`${name}\`${g.say ? `: ${g.say}` : ""}\n\n    \`\`\`css\n    background: ${g.css};\n    \`\`\``);
+  }
   for (const l of Object.values(logos)) L.push(`- Logo \`${l.name}\`${l.svg ? " (an SVG, a record below)" : ` (${l.w}×${l.h}, uploaded)`}: the brand's own file, placed with kit.assets.url. Never redraw it.`);
   if (records.length) {
     L.push(`- **Records Prism prepared**: write each with ArtifactData \`set\` and its \`file_path\`, in the first batch after the uploads, before any scene: ${records.map(r => `\`${r.collection}/${r.doc_id}\` from \`${r.file_path}\``).join("; ")}.`);
-    if (records.some(r => r.doc_id === "icons.json")) L.push(`- Icons are the brand's set: \`kit.json('icons.json')[name]\` is an SVG path for \`viewBox="0 0 1024 1024"\`; draw it as \`<svg viewBox="0 0 1024 1024"><path d="…" fill="currentColor"/></svg>\` in the color the scene gives.`);
+    if (records.some(r => r.doc_id === "icons.json")) L.push(FL.icons === "lucide"
+      ? `- Icons are Lucide: \`kit.json('icons.json')[name]\` is the icon's inner SVG markup for a 24×24 box; draw it as \`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">…</svg>\` in the color the scene gives, keeping the stroke (scale the svg, not the stroke width).`
+      : `- Icons are the brand's set: \`kit.json('icons.json')[name]\` is an SVG path for \`viewBox="0 0 1024 1024"\`; draw it as \`<svg viewBox="0 0 1024 1024"><path d="…" fill="currentColor"/></svg>\` in the color the scene gives.`);
     for (const [id, m] of Object.entries(motifAssets).filter(([k]) => k.startsWith("device:"))) L.push(`- Device \`${m.name}\` (${id.slice(7)}): \`kit.module('${m.name}')\` is the frame's <svg> markup, drawn over the screenshot it holds; never redrawn, recolored or reshaped.`);
     for (const [id, m] of Object.entries(motifAssets).filter(([k]) => !k.startsWith("device:"))) L.push(m.svg
       ? `- Motif \`${m.name}\` (${id}): ${m.say}. \`kit.module('${m.name}')\` is its <svg> markup: insert it as it is, scaled to the frame. Its lines may be thickened (3 to 8 px on screen, \`vector-effect: non-scaling-stroke\`) and colored in the scene's second color through CSS; its shape never changes.`
       : `- Motif \`${m.name}\` (${id}): ${m.say}. Use it as an image (\`kit.assets.url('${m.name}')\`), never redrawn.`);
   }
   L.push("", "## Type", "", "Sizes are px on this stage. Set each line in its brand face:", "");
-  L.push(`| Size | px |`, `|---|---|`, ...Object.entries(A.sizes).map(([k, n]) => `| ${k} | ${n} |`), "");
+  L.push(`| Size | px |`, `|---|---|`, ...Object.entries(A.sizes).map(([k, n]) => `| ${k} | ${Math.round(n * scale)} |`), "");
   const usedRoles = new Set(P.scenes.flatMap(p => p.s.blocks.map(b => b.role)));
   for (const [role, def] of Object.entries(T.roles)) if (def.type && usedRoles.has(role)) {
     const dark = def.dark_type && P.scenes.some(p => p.colors.dark && p.s.blocks.some(b => b.role === role)) ? `; on dark grounds ${faceLine(def.dark_type)}` : "";
@@ -733,11 +803,18 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
   L.push(`- **Everything arrives and everything leaves.** Each block enters with its move at its time and leaves with its exit, in reverse order, before the transition out starts (except blocks that stay, and the end card). Nothing simply appears or vanishes.`);
   L.push(`- **Every scene holds once everything has landed**, before anything leaves or the transition starts, long enough to read it (${sayHold(P.hold)}): the content stays put while the backdrop and every hold move keep going. Each scene's hold is below, and its times already include it.`);
   L.push(`- **Nothing is ever still.** The backdrop moves for the whole scene; held blocks keep their hold move. Energy: ${E.say.toLowerCase()} (stagger ${E.stagger} s, overshoot ${E.overshoot}).`);
-  for (const r of tech.rules) L.push(`- ${r}`);
+  // Without cards, core's rules about the step card and the end card don't apply; the brand's annotations take their place.
+  const cardRule = r => noCards && /step card|end card/i.test(r);
+  for (const r of tech.rules) if (!cardRule(r)) L.push(`- ${r}`);
   if (B.res.digest) L.push(`- The brand's visual rules apply (from its digest): ${digestVisual(B.res.digest)}`);
   if (tech.ui) {
     L.push("", "## The walkthrough", "");
-    for (const r of W.rules) L.push(`- ${r}`);
+    for (const r of W.rules) L.push(`- ${cardRule(r) ? r.replace(/while the step card is open/, "while an annotation springs in") : r}`);
+    if (noCards) L.push(`- **No opening or closing card.** The film opens on the app and ends on the app: no title screen, no end card, no recap.`);
+    if (WF.ui === "full-frame") L.push(`- **The app is the whole picture**: the rebuilt UI fills the frame edge to edge. Never a window, browser frame or device frame over a background, and no backdrop behind it.`);
+    if (WF.ui_in_out) L.push(`- **The UI animates in and out**: it builds in at the start (header, navigation, then content, staggered), moves between screens rather than cutting, and leaves at the end (content, navigation, then header, staggered). It never simply appears or vanishes.`);
+    if (noCards && WF.annotations) { const an = WF.annotations, fillHex = /^#/.test(an.fill) ? an.fill : B.has(an.fill) ? B.color(an.fill) : main;
+      L.push(`- **Annotations** take the step card's place: a solid pill in ${fillHex} with ${an.lines === 1 ? "one line" : `${an.lines} lines at most`} of ${an.text || "#FFFFFF"} text in the brand's text face, beside the element it explains${an.tether ? `, joined to it by a thin tether line (2 px) in ${fillHex} that ends in a small dot on the element` : ""}. It springs in with a soft overshoot, moves with the app while the camera moves, never covers the element it points at, and leaves with the page content.`); }
     if (film.data) L.push(`- Data: ${W.data[film.data]}.`);
     L.push("", "## The app", "");
     L.push("- **Build the app once**, in a module `ui.js` that every scene showing the app uses: its chrome (header, navigation, sidebar) and each page below. The chrome is the same code in every scene, so it matches pixel for pixel across a chrome hand-off; scenes swap only the page content and drive the camera, the cursor and the actions.");
@@ -746,9 +823,13 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
       const by = P.scenes.filter(p => p.ui && p.screen.guide && p.screen.guide.src === g.src);
       L.push(`- \`${g.file}\` (${g.w}×${g.h}, ${by[0].screen.screen}): "${by[0].screen.guide.name}", the page for ${by.map(p => `#${p.s.id}`).join(", ")}.`);
     }
-    for (const [sc, fit] of [...new Set(P.scenes.filter(p => p.ui).map(p => `${p.screen.screen}|${p.screen.fit}`))].map(k => k.split("|"))) L.push(`- On this ${A.width}×${A.height} stage the ${T.screens[sc].say.replace(/^the /, "")}: ${fill(T.fits[fit], { device: T.screens[sc].device })}.`);
-    L.push("- **The camera** is one transform (scale and translate) on the app, eased, clamped so the frame never shows past the UI's edges; the cursor moves with the app. The step card and the end card sit outside the camera: they stay put and the same size while it moves.");
-    L.push(`- **The step card** is bottom-left, inside the safe area, on a solid panel of the brand's light surface with a soft shadow, in the brand's faces: the step number in a disc in the brand's main color, the eyebrow, the title, the sentence and the progress dots.`);
+    const COVER = "the UI is scaled to cover the whole frame edge to edge, and the camera pans to where the action is; never a device or window on a background";
+    for (const [sc, fit] of [...new Set(P.scenes.filter(p => p.ui).map(p => `${p.screen.screen}|${p.screen.fit}`))].map(k => k.split("|"))) L.push(`- On this ${A.width}×${A.height} stage the ${T.screens[sc].say.replace(/^the /, "")}: ${fit === "cover" ? COVER : fill(T.fits[fit], { device: T.screens[sc].device })}.`);
+    if (noCards) L.push("- **The camera** is one transform (scale and translate) on the app, eased, clamped so the frame never shows past the UI's edges; the cursor and the annotations move with the app.");
+    else {
+      L.push("- **The camera** is one transform (scale and translate) on the app, eased, clamped so the frame never shows past the UI's edges; the cursor moves with the app. The step card and the end card sit outside the camera: they stay put and the same size while it moves.");
+      L.push(`- **The step card** is bottom-left, inside the safe area, on a solid panel of the brand's light surface with a soft shadow, in the brand's faces: the step number in a disc in the brand's main color, the eyebrow, the title, the sentence and the progress dots.`);
+    }
   }
   if (R.found) {
     L.push("", `## This brand's ${(R.name || R.piece).toLowerCase()} films`, "");
@@ -768,8 +849,9 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
     L.push(`- Layout ${s.layout}: ${p.lay.say}`);
     if (p.ui) {
       const x = p.screen, g = x.guide;
-      L.push(`- **Screen**: ${T.screens[x.screen].say}, ${x.fit === "full" ? "full screen" : x.fit === "crop" ? "cropped to the stage, the camera panning with the action" : `in the ${x.device} mockup`}; the page "${g.name}" (\`${g.src}\`)${x.own ? "" : ", the same page the scene before ended on"}.`);
+      L.push(`- **Screen**: ${T.screens[x.screen].say}, ${x.fit === "full" ? "full screen" : x.fit === "crop" ? "cropped to the stage, the camera panning with the action" : x.fit === "cover" ? "covering the whole frame, the camera panning with the action" : `in the ${x.device} mockup`}; the page "${g.name}" (\`${g.src}\`)${x.own ? "" : ", the same page the scene before ended on"}.`);
       if (s.layout === "app") L.push(`- **Builds in** from ${p.buildAt} s to ${r2(p.buildAt + 2.4)} s: the header, then the navigation, then the content, staggered, with the whole screen in view; the camera then pushes in slowly toward where step 1 happens.`);
+      if (p.note) L.push(`- **Annotation**: "${p.note.text}"${p.note.target ? `, tethered to "${p.note.target}" (what the first action acts on)` : ""}. It springs in at ${p.note.at} s and has landed by ${p.note.landed} s; it stays while the step plays and leaves with the page content. No action starts before it has landed.`);
       if (p.card) L.push(`- **${p.step ? "Step card" : "Intro card"}**: ${p.step ? `the number ${p.step} in its disc, the eyebrow "Step ${p.step} of ${p.steps}", ` : ""}the title and sentence below${p.step ? `, and ${p.steps} progress dots with the first ${p.step} filled` : ""}. It opens at ${p.card.at} s (rises with a slight overshoot) and has landed by ${p.card.landed} s; at ${p.card.collapse} s it collapses over ${W.card.collapse} s to a chip (${p.step ? "the number and " : ""}the title only), which stays until it fades out with the page content. No action starts while it is open.`);
     }
     const groundSay = (p.ui ? "behind the app, seen only during transitions: " : "") + (g.css ? `${g.say || T.grounds[p.bg].say}: exactly \`background: ${g.css}\`` : `${T.grounds[p.bg].say}, ${g.gradient ? `a gradient ${g.stops.join(" → ")} from top left to bottom right` : g.stops[0]}`);
@@ -779,13 +861,14 @@ function briefText(B, doc, film, tech, A, faces, P, records, motifAssets, logos)
     else if (n > 0) L.push(`- **Arrives (cut)**: a deliberate hard cut.`);
     else L.push(`- **Opens the film**: the first blocks are already in place at frame 0 (their entrances start before 0), so the thumbnail reads.`);
     p.toastAt = A.height > A.width ? "top of the frame, inside the safe area" : "bottom right";
-    for (const bp of p.blocks) L.push(`- ${blockLine(bp, p, E, motifAssets, highlight)}`);
+    for (const bp of p.blocks) if (!(p.note && bp.b.role === "h2")) L.push(`- ${blockLine(bp, p, E, motifAssets, highlight)}`);
     for (const note of s.notes) L.push(`- Direction: ${note.replace(/\s+/g, " ")}`);
     L.push(`- Holds from ${p.holdFrom} s to ${p.holdTo} s (${p.hold} s${p.s.attrs.hold !== undefined ? ", set by hand" : `, for ${p.chars} characters`}): everything has landed; the backdrop and the hold moves keep going${p.goneBy === null ? " to the end" : ""}.`);
     if (p.backBy) L.push(`- At ${p.holdTo} s the camera pulls back out to the whole screen; by ${p.backBy} s it is there, so the chrome matches the next scene.`);
     if (p.goneBy !== null) L.push(`- By ${p.goneBy} s every block that leaves has left.`);
     if (p.outT) L.push(`- **Ends (${p.outT.name} into #${P.scenes[n + 1].s.id})**: ${fill(transitionOf(R, p.outT.name).out, p.outT)}${p.outT.motif && motifAssets[p.outT.motif] ? ` (the edge's shape, from the motif \`${motifAssets[p.outT.motif].name}\`)` : ""}.`);
     else if (p.outInto === "cut") L.push(`- **Ends**: a deliberate hard cut into #${P.scenes[n + 1].s.id}.`);
+    else if (p.uiOut) L.push(`- **Ends the film**: over the last ${p.uiOut} s the UI animates out (content, navigation, then header, staggered) to the ground.`);
     else L.push(`- **Ends the film**: held still on the end card, the backdrop still moving gently.`);
     L.push("");
   });
