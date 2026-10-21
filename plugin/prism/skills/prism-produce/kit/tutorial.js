@@ -18,7 +18,7 @@ const s = JSON.parse(fs.readFileSync(path.join(dir, "sample.json"), "utf8"));
 const name = JSON.parse(fs.readFileSync(path.join(b.dir, "profile.json"), "utf8")).name;
 const fx = s.fixed || null, abs = f => path.join(dir, f);
 const out = { brand: id, brand_name: name, sample: dir === own ? "brand" : "kit", dir, ...s, source: s.source.map(abs), project: null, created: false,
-  fixed: fx && { proof: abs(fx.proof), formats: Object.keys(fx.formats || {}) } };
+  fixed: fx && { proof: abs(fx.proof), formats: Object.keys(fx.formats || {}), expect: fx.expect || {} } };
 
 const ws = opt("--out");
 if (ws) {

@@ -7,7 +7,7 @@ figures: illustrative
 status: approved
 version: 2
 changes:
-  - "v2 · proof: cut \"It is fully HIPAA compliant out of the box\" (Check 1)"
+  - "v2 · proof: cut \"CARA approves routine notes automatically, so caseworkers only review the complex ones\" (Check 1)"
   - "v2 · proof: cut \"Staff call it the best tool the agency has ever bought\" (Check 2)"
   - "v2 · proof: cut \"Supervisors think turnover is down too\" (Check 3)"
 date: October 2026

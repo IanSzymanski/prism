@@ -44,7 +44,7 @@ Each team had two hours of training and a "note buddy" for the first month. No n
 
 Staff call it the best tool the agency has ever bought. <!-- CHECK: An unsupported superlative from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them. -->
 
-It is fully HIPAA compliant out of the box. <!-- CHECK: Security language must match the approved wording in the brand manifest; "fully HIPAA compliant out of the box" is not approved, and the notes say it needs checking. Suggest: cut it, or use the manifest's approved security sentence. -->
+CARA approves routine notes automatically, so caseworkers only review the complex ones. <!-- CHECK: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves. -->
 
 ## The *results*
 

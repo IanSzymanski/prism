@@ -56,6 +56,18 @@
    "sheet": "draft/formats/sheet.md",
    "deck": "draft/formats/deck.md",
    "carousel": "draft/formats/carousel.md"
+  },
+  "expect": {
+   "_note": "What the fixed sheet must build to; the tutorial test builds it and checks.",
+   "sheet": {
+    "pages": 2,
+    "same_page": [
+     "Pilot",
+     "Dictate",
+     "Review",
+     "Supervise"
+    ]
+   }
   }
  }
 }

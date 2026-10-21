@@ -116,6 +116,18 @@ try:
         r = tut_js("--out", fws, "--format", "no-such-format"); check("a format with no fixed layout says so", r.returncode == 3, r.stderr)
         a = open(os.path.join(p, "formats", j["fixed"]["formats"][0] + ".md")).read(); tut_js("--out", fws, "--format", j["fixed"]["formats"][0])
         check("the fixed layout is the same every run", a == open(os.path.join(p, "formats", j["fixed"]["formats"][0] + ".md")).read())
+        # The fixed sheet builds to what the sample expects: two pages, the steps together (a first run once came out at four).
+        exp = (j["fixed"].get("expect") or {}).get("sheet")
+        check("the fixed sheet has an expectation", bool(exp), j["fixed"])
+        if exp:
+            tut_js("--out", fws, "--format", "sheet"); pdf = os.path.join(p, "out", "sheet.pdf")
+            r = subprocess.run(["bash", os.path.join(KIT, "run.sh"), "sheet", os.path.join(p, "formats", "sheet.md"), pdf], capture_output=True, text=True)
+            try:
+                import pymupdf
+                pages = [pg.get_text() for pg in pymupdf.open(pdf)] if r.returncode == 0 else []
+                check(f"the fixed sheet builds to {exp['pages']} pages", len(pages) == exp["pages"], r.stdout[-300:] + r.stderr[-300:])
+                check("the fixed sheet keeps its steps on one page", any(all(w in t for w in exp["same_page"]) for t in pages), [[w for w in exp["same_page"] if w in t] for t in pages])
+            except ImportError: check("PyMuPDF is installed (pip install pymupdf)", False)
     else: check("the default brand's sample has fixed files", False, "no fixed: in its sample.json")
     r = tut_js("no-such-brand"); check("an unknown brand stops", r.returncode == 2 and "no brand" in r.stderr, r.stderr)
 

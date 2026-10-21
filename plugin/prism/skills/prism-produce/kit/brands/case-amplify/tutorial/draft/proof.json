@@ -1,10 +1,22 @@
 {
  "_note": "The tutorial's proof doc, fixed so every run shows the same doc: the title, the tabs, and each reviewer flag as a comment (anchor: words of the flagged sentence; most serious first).",
  "title": "How Cedar Hollow got its afternoons back · proof",
- "tabs": ["Content", "Claims"],
+ "tabs": [
+  "Content",
+  "Claims"
+ ],
  "comments": [
-  { "anchor": "fully HIPAA compliant out of", "text": "Check: Security language must match the approved wording in the brand manifest; \"fully HIPAA compliant out of the box\" is not approved, and the notes say it needs checking. Suggest: cut it, or use the manifest's approved security sentence." },
-  { "anchor": "best tool the agency has", "text": "Check: An unsupported superlative from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them." },
-  { "anchor": "think turnover is down too", "text": "Check: An outcome claim with no figure and no source; the notes say there are no turnover figures yet. Suggest: cut it until there are figures." }
+  {
+   "anchor": "approves routine notes automatically",
+   "text": "Check: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves."
+  },
+  {
+   "anchor": "best tool the agency has",
+   "text": "Check: An unsupported superlative from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them."
+  },
+  {
+   "anchor": "think turnover is down too",
+   "text": "Check: An outcome claim with no figure and no source; the notes say there are no turnover figures yet. Suggest: cut it until there are figures."
+  }
  ]
 }

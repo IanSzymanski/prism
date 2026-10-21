@@ -56,7 +56,7 @@ Say:
 - **Why it's here:** the words are written once, with no layout, so every format later is laid out from the same approved text and no number can drift between them.
 - **What you get:** `content.md` (the words: an at-a-glance block, the challenge, what they did, results with the monthly table for a chart, the quotes, the close) and `claims.md` (every number, quote and claim with the line of the notes it came from). Send both with SendUserFile.
 - **Where each claim came from:** a short table of the main claims (each headline number and both quotes): the claim as drafted, then the line of the notes it came from, quoted exactly as stage 1 showed it. The person can trace every number back to the input.
-- **The reviewer** flagged what the notes shouldn't carry as written. For each flag, one line: the flagged sentence in the draft, the notes line it came from (quoted), and the reason (for example the unsourced boast, an unapproved compliance claim, the turnover figure nobody has). It flags; it never rewrites the copy. A notes line that was left out of the draft on purpose (the writer never invents or keeps an unsupported claim) is named too, so the person sees what was dropped and why.
+- **The reviewer** flagged what the notes shouldn't carry as written. For each flag, one line: the flagged sentence in the draft, the notes line it came from (quoted), and the reason (for example the unsourced boast, a claim that the AI approves notes on its own, the turnover figure nobody has). It flags; it never rewrites the copy. A notes line that was left out of the draft on purpose (the writer never invents or keeps an unsupported claim) is named too, so the person sees what was dropped and why.
 
 Pause (next: the proof in Claude Docs).
 
@@ -77,7 +77,7 @@ With fixed files: when the doc read back is the fixed draft with the flagged sen
 
 ## Stage 5: Design mode in Claude Design
 
-Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays out the approved words as a two-page case study (`formats/sheet.md`), then the canvas opens with its board. With fixed files the formatter doesn't run: `run.sh tutorial <brand> --out <workspace> --format sheet` puts the fixed layout in place, so the board is the same every time (the wire command builds it identically from the same file). When the approved words differ from the fixed ones (stage 4), run prism-formatter in patch mode on that file with just those changes, then the number check, before the canvas opens.
+Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays out the approved words as a two-page case study (`formats/sheet.md`), then the canvas opens with its board. With fixed files the formatter doesn't run: `run.sh tutorial <brand> --out <workspace> --format sheet` puts the fixed layout in place, so the board is the same every time (the wire command builds it identically from the same file). When the approved words differ from the fixed ones (stage 4), run prism-formatter in patch mode on that file with just those changes, then the number check, before the canvas opens. Never lay the sheet out afresh when a fixed layout exists: that is what made first runs come out at four pages.
 
 Say:
 
@@ -90,7 +90,7 @@ Pause, with option 1 reading "Say \"done\" and export (Recommended)". A canvas e
 
 ## Stage 6: The export
 
-Do: on "done", follow prism-produce section 4 step 7 and sections 2 and 3: pull and vet the canvas, number check, build the sheet, preview, `verify`, deliver with SendUserFile, record the export, and republish the board stamped "Exported v<n> · <date>".
+Do: on "done", follow prism-produce section 4 step 7 and sections 2 and 3: pull and vet the canvas, number check, build the sheet, preview, `verify`, deliver with SendUserFile, record the export, and republish the board stamped "Exported v<n> · <date>". With fixed files the sheet must come out as `fixed.expect` says (`run.sh tutorial --json`): two pages, with all four steps of "What they did" on one page. The build prints the page count; check the steps in the preview. If the person's own edits pushed it past that, fit it back before delivering ("Fitting" in the sheet card: cut a supporting sentence first) and say what was cut; never deliver a three- or four-page tutorial sheet, or one with its steps split across pages.
 
 Say:
 

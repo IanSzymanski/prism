@@ -44,7 +44,7 @@ Call with the program director and a team supervisor, notes typed up afterwards.
 - Home visits per caseworker per week: 7.2 to 8.6
 - Supervisor said, roughly: "I think turnover is down too." No figures on turnover yet; don't use a number.
 - Director said staff call it "the best tool the agency has ever bought". Not sure we can say that.
-- Someone on the call said it is "fully HIPAA compliant out of the box". Needs checking against the approved security language before it goes anywhere.
+- Someone on the call said CARA "approves the routine notes automatically, so caseworkers only look at the tricky ones". That doesn't match how they described it above; check before it goes anywhere.
 
 ## Quotes (fictional people, approved for the sample)
 
