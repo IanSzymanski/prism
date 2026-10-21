@@ -115,7 +115,7 @@ When the Claude Docs tools are available, the proof happens in a doc, where the 
    - **Content**: content.md's body as Markdown, without the front matter (it stays in content.md). Write each image as its own paragraph, `[Image: images/<file>] <caption>`, so the caption is proofed like any sentence. Leave out every `<!-- CHECK: ... -->` flag; each becomes a comment instead (next point).
    - **Claims**: claims.md's table, as written.
 2. **Flags become comments.** For every reviewer flag, comment on the flagged sentence (3 to 6 of its words as the anchor), starting "Check:" and giving the reason. Number them in the same order as in your message.
-3. **Open the doc** (the Artifact tool's open action with the doc's link) and record the link in log.md. Send images.md with SendUserFile when there are images.
+3. **Open the doc** (the Artifact tool's open action with the doc's link) and record the link in log.md. Don't send content.md, claims.md or images.md as files: the doc shows the words, the claims and every image (its `[Image: ...]` paragraphs), and it is where they change.
 4. **Message**, short: what the piece is and its sections; the flags, numbered, most serious first, and every claims row marked VERIFY; how to proof: edit the words in the doc, reply in a comment, or describe changes in chat; say "approve" when the words are right.
 5. **While proofing, the doc is the draft.** Apply changes asked for in chat to the doc, not to content.md, so the two never drift apart. Read the doc's changes since your last read before every edit.
 6. **On "approve"**, read the doc back before approving:
@@ -123,7 +123,7 @@ When the Claude Docs tools are available, the proof happens in a doc, where the 
    2. Each "Check:" comment still unresolved and unanswered goes back in as a `<!-- CHECK: reason -->` flag after its sentence; a resolved one, or one the person answered, is settled: record how in log.md.
    3. Vet the person's edits: `bash .prism-kit/run.sh vet content.md --was content.v<n>.md --fix`, then proofread every `CHANGED` passage ("Vet every edit" in the prism-produce skill). Fix typos and mechanical slips and list them; a changed number, name, quote or claim goes to the reviewer (below) and is confirmed with the person, never changed silently.
    4. Read the Claims tab back into claims.md, if it changed.
-   5. Continue with **Approve** below. After approval content.md is the only source: later changes go through prism-produce, and the doc stays as the record of the proof. Say so in one line.
+   5. Continue with **Approve** below. After approval content.md is the source the builds read, and the doc keeps showing the same words: later changes go through prism-produce, which makes every wording change in the doc too (its Content and Claims tabs), so the doc is always the current words. Its settled comment threads stay closed. Say so in one line.
 7. **Working with others** ("proof this with @Dana"): co-op mode (prism-produce's `references/coop.md`): an About tab with the owner line, invitees' `@claude` comments applied and answered in their threads, and only the person you work for approves. On their "approve", also catch edits that landed while approving, check every image paragraph survived, and treat "Check:" comments resolved by an invitee as open.
 
 When the Claude Docs tools are not available, proof with files and chat instead:
@@ -139,6 +139,7 @@ Stop. Do not format or build anything until the user approves.
 
 ## Handling the proof
 
+- **One copy of the words, in the doc.** Once the proof doc exists, never send content.md, claims.md, images.md or the source notes as files again, at this stage or any later one: changes are made in the doc, and every reply names what changed there.
 - **Edits in chat:** apply them to content.md with Edit (to the proof doc instead, while one is open). Resolve a CHECK flag only when the edit addresses it. Re-run prism-reviewer on the changed sections only if numbers, quotes or claims changed.
 - **Uploaded content.md:** replace the project's content.md (and the proof doc's Content tab, while one is open), keep the old one as `content.v<n>.md`, and diff them in log.md (one line per changed section).
 - **Approve:** refuse to approve while CHECK flags remain, unless the user explicitly accepts them ("keep it as is"); then delete those comments and note the acceptance in log.md. Also remove any claims.md row still marked VERIFY only if the user confirms it. Set `status: approved`, bump `version` and log the approval. If exports are named (in the request, the `exports` list or a package), start `prism-produce` for them straight away, without asking. Otherwise tell the user they can now ask for outputs ("produce a sheet and a carousel").

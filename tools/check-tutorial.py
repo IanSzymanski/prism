@@ -29,7 +29,7 @@ PHRASES = {
 CARDS_NOT_FORMATS = {"components"}
 # The walkthrough's stages, in words it must use: the proof, design mode, the export and the other formats.
 STAGES = ["Claude Docs", "Claude Design", "export", "other formats", "Why it's here", "What you can do", "Sharing",
-          "Make no tool calls for it", "Earlier stages stay closed", "Leave the brand machinery out"]
+          "Make no tool calls for it", "Earlier stages stay closed", "Leave the brand machinery out", "Every file once"]
 COOP_TERMS = ["co-op", "coop.md", "@claude", "Exports page"]
 TRY_STAGES = ["start", "interview", "draft", "proof", "design", "export", "formats", "revise"]
 SAMPLE_KEYS = ["slug", "title", "prompt", "answers", "source", "try", "more"]
