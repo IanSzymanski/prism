@@ -42,9 +42,9 @@ Cedar Hollow rolled out Case Amplify over four months, starting in February.
 
 Each team had two hours of training and a "note buddy" for the first month. No new staff were hired during the rollout.
 
-Staff call it the best tool the agency has ever bought. <!-- CHECK: An unsupported superlative from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them. -->
+Staff call it the best tool the agency has ever bought. <!-- CHECK: An unsupported superlative, passed on second-hand from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them. -->
 
-CARA approves routine notes automatically, so caseworkers only review the complex ones. <!-- CHECK: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves. -->
+CARA approves routine notes automatically, so caseworkers only review the complex ones. <!-- CHECK: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the same notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves. -->
 
 ## The *results*
 
@@ -58,7 +58,7 @@ After four months, the same time study showed caseworkers spending 1.5 hours a d
 | April | 1.7 | 82% |
 | May | 1.5 | 88% |
 
-Supervisors think turnover is down too. <!-- CHECK: An outcome claim with no figure and no source; the notes say there are no turnover figures yet. Suggest: cut it until there are figures. -->
+A supervisor said turnover is down too. <!-- CHECK: An outcome claim from one remark, with no figure and no source behind it. Suggest: cut it until there are turnover figures. -->
 
 > I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine.
 >

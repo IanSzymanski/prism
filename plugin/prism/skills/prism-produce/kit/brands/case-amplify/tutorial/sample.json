@@ -68,6 +68,58 @@
      "Supervise"
     ]
    }
-  }
+  },
+  "cleanup": [
+   {
+    "notes": "starting Feburary",
+    "draft": "starting in February",
+    "what": "spelling"
+   },
+   {
+    "notes": "what happend on their phone",
+    "draft": "what happened on their phone",
+    "what": "spelling"
+   },
+   {
+    "notes": "nothing is saved untill they do",
+    "draft": "Nothing is saved until they do",
+    "what": "spelling and capitals"
+   },
+   {
+    "notes": "the agencys own template",
+    "draft": "the agency's own template",
+    "what": "apostrophe"
+   },
+   {
+    "notes": "approx 1150 active families",
+    "draft": "about 1,150 active families",
+    "what": "numbers written one way"
+   },
+   {
+    "notes": "only 46 percent of visit notes",
+    "draft": "Only 46% of visit notes",
+    "what": "numbers written one way"
+   },
+   {
+    "notes": "mid sized family services agency, 3 rural counties",
+    "draft": "mid-sized family services agency covering three rural counties",
+    "what": "hyphen, a full sentence"
+   },
+   {
+    "notes": "at the end of each month — worst right before audits",
+    "draft": "at the end of each month, at its worst before audits",
+    "what": "no em dashes (brand voice)"
+   },
+   {
+    "notes": "drive 40+ min between visits!!",
+    "draft": "drive 40 minutes or more between visits",
+    "what": "shorthand and exclamation marks"
+   },
+   {
+    "notes": "Results (after 4 months, May, same time study)",
+    "draft": "## The *results*",
+    "what": "mixed headings (caps, ##, dashes) made one style"
+   }
+  ]
  }
 }

@@ -63,6 +63,11 @@ def fixed_problems(d, label, fx, cards):
     for c in comments:
         if c.get("anchor", "") not in body: out.append(f"{label} sample: proof comment anchor \"{c.get('anchor')}\" is not in the draft")
         if not c.get("text", "").startswith("Check:") or c["text"][len("Check: "):] not in flags: out.append(f"{label} sample: proof comment \"{c.get('anchor')}\" is not one of the draft's CHECK flags, word for word")
+    # The writer's cleanup the walkthrough shows: each slip is in the notes as written, and its fix is in the draft.
+    notes = "\n".join(open(os.path.join(d, x), encoding="utf8").read() for x in json.load(open(os.path.join(d, "sample.json"), encoding="utf8")).get("source", []))
+    for c in fx.get("cleanup", []):
+        if c.get("notes", "") not in notes: out.append(f"{label} sample: cleanup \"{c.get('notes')}\" is not in the notes as written")
+        if c.get("draft", "") not in draft: out.append(f"{label} sample: cleanup fix \"{c.get('draft')}\" is not in the draft")
     if "CHECK" in approved or not re.search(r"^status:\s*approved", approved, re.M): out.append(f"{label} sample: the approved words must be status: approved with no CHECK flags")
     if "VERIFY" in open(p(fx["approved_claims"]), encoding="utf8").read(): out.append(f"{label} sample: the approved claims still have a VERIFY row")
     for f, x in (fx.get("formats") or {}).items():

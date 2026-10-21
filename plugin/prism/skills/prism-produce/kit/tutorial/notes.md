@@ -20,9 +20,9 @@ Call with the operations director and a crew lead, notes typed up afterwards.
 
 ## What they did
 
-- Rolled out a new reporting tool over four months, starting February
+- rolled out a new reporting tool over four months, starting Feburary
 - Month 1: one pilot crew of 8 technicians; month 2: two more crews; month 3: everyone
-- After a job, the technician dictates what happened on their phone; the tool drafts the report in the company's own template
+- After a job, the technician dictates what happened on their phone; the tool drafts the report in the companys own template
 - The technician reads the draft, corrects anything it got wrong or left out, and approves it. Nothing is saved until they do
 - Two hours of training per crew; a "report buddy" on each crew for the first month
 - No new staff were hired during the rollout
@@ -41,8 +41,8 @@ Call with the operations director and a crew lead, notes typed up afterwards.
 - Reports done within 24 hours: 46% to 88%
 - Month-end backlog: 9 days to 2 days
 - Jobs per technician per week: 7.2 to 8.6
-- Crew lead said, roughly: "I think turnover is down too." No figures on turnover yet; don't use a number.
-- Director said staff call it "the best tool we have ever bought". Not sure we can say that.
+- crew lead said turnover is down too
+- director said staff call it "the best tool we have ever bought"
 
 ## Quotes (fictional people, approved for the sample)
 
