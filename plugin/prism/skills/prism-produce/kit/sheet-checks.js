@@ -17,10 +17,11 @@ function orphans() {
   const joinLastTwo = el => {
     const texts = [], walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
     for (let n; (n = walk.nextNode());) texts.push(n);
-    for (let i = texts.length - 1; i >= 0; i--) {
-      const t = texts[i], d = t.data.replace(/\s+$/, ""), k = d.search(/ [^ ]*$/);
-      if (k >= 0) { t.data = d.slice(0, k) + "\u00a0" + d.slice(k + 1) + t.data.slice(d.length); return true; }
-    }
+    // The last space before the last word, across text nodes (the word may sit in its own *emphasis*).
+    const all = texts.map(t => t.data).join(""), end = all.replace(/\s+$/, "").length, k = all.slice(0, end).search(/ [^ ]*$/);
+    if (k < 0) return false;
+    for (let i = 0, at = 0; i < texts.length; at += texts[i++].data.length)
+      if (k < at + texts[i].data.length) { const t = texts[i], j = k - at; t.data = t.data.slice(0, j) + "\u00a0" + t.data.slice(j + 1); return true; }
     return false;
   };
   const out = [], r = document.createRange();
@@ -35,9 +36,9 @@ function orphans() {
     for (const x of words) { const l = lines[lines.length - 1]; if (l && Math.abs(l.top - x.top) < 4) l.words.push(x.w); else lines.push({ top: x.top, words: [x.w] }); }
     return lines.length > 1 ? lines[lines.length - 1].words : null;
   };
-  const sel = ".prism-mast h1, main.prism-sheet h2, main.prism-sheet h3, main.prism-sheet p, main.prism-sheet li";
+  const sel = [".prism-mast h1", ...["main.prism-sheet", ".panel"].flatMap(r => ["h1", "h2", "h3", "p", "li"].map(t => `${r} ${t}`))].join(", ");
   for (const el of document.querySelectorAll(sel)) {
-    if (el.closest(".stats, .prism-chart, figure, .qr__code")) continue;
+    if (el.closest(".stats, .prism-chart, figure, .qr__code, .prism-postage")) continue;
     const last = lastLine(el);
     //   joins words on purpose (the writer's `\ `), so a pair joined that way is one line-end and never counts.
     if (!last || last.length > 1 || !/\w/.test(last[0])) continue;
@@ -60,7 +61,10 @@ function variety() {
     el.matches("table") ? "table" : el.matches(".callout") ? "callout" : el.matches(".band") ? "band" : el.matches(".cols") ? "columns" :
     el.matches(".checks") ? "checklist" : el.matches(".media, .gallery, figure, .hero-image") ? "image" : null;
   const sections = [];
-  for (const el of document.querySelectorAll("main.prism-sheet > *")) {
+  // A sheet's blocks; a brochure's inside spread (its last), panel by panel: flap, back and cover have fixed shapes.
+  const spreads = document.querySelectorAll(".spread"), inside = spreads[spreads.length - 1];
+  const blocks = inside ? inside.querySelectorAll(".panel > *, .panel > .col > *") : document.querySelectorAll("main.prism-sheet > *");
+  for (const el of blocks) {
     if (el.matches("h2")) { sections.push({ name: el.textContent.trim(), kinds: [] }); continue; }
     if (!sections.length || el.matches(".cta-card, hr")) continue;
     const k = kind(el); if (k) sections[sections.length - 1].kinds.push(k);
