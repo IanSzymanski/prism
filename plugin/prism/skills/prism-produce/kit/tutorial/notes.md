@@ -29,13 +29,12 @@ Call with the operations director and a crew lead, notes typed up afterwards.
 
 ## Results after four months (May, same time study)
 
-| Month | Hours a day on reports | Reports done within 24 hours |
-|---|---|---|
-| January (before) | 2.6 | 46% |
-| February | 2.4 | 58% |
-| March | 2.0 | 71% |
-| April | 1.7 | 82% |
-| May | 1.5 | 88% |
+by month (hrs/day on reports, then % done within 24 hrs):
+jan (before) 2.6 hrs, 46%
+feb 2.4 / 58%
+march - 2.0 hrs a day, 71 %
+april 1.7, 82%
+may 1.5hrs 88%
 
 - Time on reports down 41% (2.6 hours to 1.5 hours a day per technician)
 - Reports done within 24 hours: 46% to 88%
@@ -48,7 +47,3 @@ Call with the operations director and a crew lead, notes typed up afterwards.
 
 - Sam Ortiz, field technician: "I used to write reports in the van. Now I read a draft, fix what it got wrong, and sign it. The report is still mine."
 - Lee Park, crew lead: "Fridays used to be for chasing late reports. Now I spend them coaching."
-
-## Close
-
-- Call to action: book a 20-minute demo at example.com

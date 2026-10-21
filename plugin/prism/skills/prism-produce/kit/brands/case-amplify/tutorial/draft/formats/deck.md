@@ -90,7 +90,7 @@ Home visits per caseworker rose from 7.2 to 8.6 a week.
 
 ## See it with *your* team
 
-Book a 20-minute demo.
+Book a demo.
 
 caseamplify.com
 ::::
