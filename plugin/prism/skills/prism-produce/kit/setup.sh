@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Gets the build tools ready for one output type and remembers it. Usage: setup.sh [sheet|social|deck|all]
+# Gets the build tools ready for one output type and remembers it. Usage: setup.sh [sheet|social|deck|illustration|all]
 # sheet (also brochure), social (also email, carousel): pandoc + Chromium. deck: adds pptxgenjs, sharp and the Office fonts.
+# illustration: Chromium plus GSAP, which the bench page carries and the checks play (the website has its own copy).
 # Works in Claude (Cowork) and ChatGPT sandboxes; anything missing comes from the npm and PyPI registries.
 set -e
 KIT="$(cd "$(dirname "$0")" && pwd)"
@@ -8,7 +9,7 @@ cd "$KIT"
 # One setup at a time: a second call waits here, then finds the tools ready.
 exec 9>"$KIT/.setup.lock"; command -v flock >/dev/null && flock 9
 PART="${1:-all}"
-[ "$PART" = all ] && PARTS="sheet deck" || PARTS="$PART"
+[ "$PART" = all ] && PARTS="sheet deck illustration" || PARTS="$PART"
 [ "$PARTS" = social ] && PARTS=sheet
 say() { echo "setup: $*"; }
 t() { timeout "$@"; }   # every step that can hang gets a time limit
@@ -18,7 +19,7 @@ command -v node >/dev/null || { say "MISSING node"; exit 1; }
 if ! grep -q NODE_PATH env.sh; then
   G="$(npm root -g 2>/dev/null || true)"
   M="$KIT/mods"
-  echo "export NODE_PATH=\"$M/playwright/node_modules:$M/pptxgenjs/node_modules:$M/sharp/node_modules:$M/chromium/node_modules:$KIT/node_modules${G:+:$G}\"" >> env.sh; . ./env.sh
+  echo "export NODE_PATH=\"$M/playwright/node_modules:$M/pptxgenjs/node_modules:$M/sharp/node_modules:$M/chromium/node_modules:$M/gsap/node_modules:$KIT/node_modules${G:+:$G}\"" >> env.sh; . ./env.sh
 fi
 has() { node -e "require('$1')" 2>/dev/null; }
 pkg() { node -e "const p=require('./package.json').dependencies;console.log('$1@'+p['$1'])"; }
@@ -63,5 +64,10 @@ if [[ " $PARTS " == *" deck "* ]]; then
   mkdir -p "$HOME/.fonts" && node -e 'const fs=require("fs"),p=require("path"),k=process.argv[1];for(const b of fs.readdirSync(p.join(k,"brands"))){const f=p.join(k,"brands",b,"profile.json");if(!fs.existsSync(f))continue;const o=(JSON.parse(fs.readFileSync(f,"utf8")).office||{}).files||{};for(const x of Object.keys(o))console.log(p.join(k,"brands",b,x))}' "$KIT" | while read -r f; do cp "$f" "$HOME/.fonts/"; done && (t 20 fc-cache "$HOME/.fonts" >/dev/null 2>&1 || true)
   touch .ready-deck
   say "deck tools ok"
+fi
+if [[ " $PARTS " == *" illustration "* ]]; then
+  need gsap
+  touch .ready-illustration
+  say "illustration tools ok"
 fi
 say "ready ($PART)"

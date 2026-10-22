@@ -8,7 +8,7 @@ description: >
   "what can you do" with the rundown in references/tutorial.md, and runs the guided walkthrough on a sample piece
   ("tutorial", "walk me through it", "show me how it works") from references/walkthrough.md.
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Draft: raw material to an approved content.md
@@ -60,7 +60,7 @@ Ask only for what the request doesn't already say, in one AskUserQuestion call. 
 
 1. **Audience**: who reads it.
 2. **Length**: short (one page, a few posts), standard, or long (several pages), or a word count. Skipped: what suits the piece type.
-3. **Outputs**: any of sheet, brochure, 5x7 (a two-sided 5 × 7 in card: postcard, invitation, mailer), deck, social, email (header images), html-email (the whole email: newsletter, announcement or letter), carousel, blog, motion (a short animated film made in Claude Motion; Claude only, Team and Enterprise plans), or a package (one option per package from `run.sh packages`, its outputs in the description). Skipped: decided after approval. With a package, a skipped Length takes the package's `length`.
+3. **Outputs**: any of sheet, brochure, 5x7 (a two-sided 5 × 7 in card: postcard, invitation, mailer), deck, social, email (header images), html-email (the whole email: newsletter, announcement or letter), carousel, blog, motion (a short animated film made in Claude Motion; Claude only, Team and Enterprise plans), illustration (an animated UI mockup of one feature for the website: an HTML block and a bench page), or a package (one option per package from `run.sh packages`, its outputs in the description). Skipped: decided after approval. With a package, a skipped Length takes the package's `length`.
 4. **Images**: "Do you have photos or images for this piece?" Options: "I'll upload them now", "Use photos from the brand library" (only when `bash .prism-kit/run.sh library <brand>` lists any), "Add them later", "No images". Uploads are taken as soon as they arrive (step 1, Images); "later" can be any time, design mode included.
 
 Ask in a second call only what is still unclear and matters: **figures**, real (from sources) or illustrative (fictional example), and the **piece type** when it isn't obvious (case study, one-pager, brief, announcement, guide, blog post). For a blog post also establish its blog type (educational, insights, features, spontaneous, impact, changelog) and author, and ask whether they have a header photo to upload (faded into a brand gradient) or, for features, a product screenshot. Without one the header is a brand gradient. A changelog is its own series: ask for its release line ("Release 2.4 · September 2026"). Record them in content.md front matter as `blog-type`, `author`, `role`, `tags`.

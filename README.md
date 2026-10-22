@@ -2,7 +2,7 @@
 
 Prism turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. The words are written and approved once, in `content.md`; every output is laid out from them by a fixed build kit, in whichever brand the piece names, so nothing drifts and no number appears that isn't in the approved words.
 
-It ships as a Claude plugin built from this repository. **This is 1.1.1** (1.0.0 was the first release) (a zip of the plugin is attached to each release in the GitHub Releases section; `.github/workflows/release.yml` builds it). `HANDOFF.md` holds the working notes, standing rules and design decisions; the backlog lives in the pinned Prism Backlog artifact it links. The ChatGPT edition is deprecated and frozen (`chatgpt/`).
+It ships as a Claude plugin built from this repository. **This is 1.2.0** (1.0.0 was the first release) (a zip of the plugin is attached to each release in the GitHub Releases section; `.github/workflows/release.yml` builds it). `HANDOFF.md` holds the working notes, standing rules and design decisions; the backlog lives in the pinned Prism Backlog artifact it links. The ChatGPT edition is deprecated and frozen (`chatgpt/`).
 
 ## What it makes
 
@@ -15,6 +15,7 @@ It ships as a Claude plugin built from this repository. **This is 1.1.1** (1.0.0
 | Social posts, stories, carousels, email headers | `run.sh social` | PNGs plus `captions.md`; stories are checked against the app's safe area |
 | Blog post | `run.sh blog` | Header PNG, chart PNGs, `post.md` and `post.html` |
 | HTML email | `run.sh email` | HTML, an images zip, plain text, light and dark previews |
+| Website illustration | `run.sh illustration` | An animated UI mockup of one feature for a website feature page: the single HTML block (dark and light) for the site, a bench page that previews it live, finished-frame PNGs at desktop and phone width and a strip of the motion. `run.sh illustration bench OUT.html A.md B.md` lays several out as a feature page |
 | Animated film | `run.sh motion brief` | A brief Claude Motion makes the film from; Prism checks and renders the film it made; Export on the film's page saves the MP4. Techniques: stat story, kinetic type and UI walkthrough (`run.sh motion gaps` lists what a walkthrough still needs from the person) |
 | Package | `run.sh packages` | A set of outputs from one piece (such as a case study package), delivered as one zip |
 
@@ -65,13 +66,13 @@ Brands today: run `run.sh brands` (it marks the default and lists onboarding dra
 
 ## Requirements
 
-Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
+Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
 
 ## Build
 
 ```bash
 # The plugin zip into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
-python3 tools/build.py 1.1.1
+python3 tools/build.py 1.2.0
 
 # One output, from a workspace with the kit copied in
 cp -r plugin/prism/skills/prism-produce/kit .prism-kit
@@ -82,6 +83,8 @@ bash .prism-kit/run.sh deck fixtures/deck.md out/deck.pptx
 bash .prism-kit/run.sh social fixtures/carousel.md out/carousel                  # also social.md, stories.md, email.md
 bash .prism-kit/run.sh blog fixtures/blog.md out/blog
 bash .prism-kit/run.sh email fixtures/html-email-newsletter.md out/newsletter
+bash .prism-kit/run.sh illustration fixtures/illustration.md out/illustration       # also illustration-notes.md, illustration-full.md
+bash .prism-kit/run.sh illustration bench out/bench.html fixtures/illustration-full.md fixtures/illustration.md fixtures/illustration-notes.md
 bash .prism-kit/run.sh motion brief fixtures/motion.md --out out/motion           # then link, check and render the film
 bash .prism-kit/run.sh motion gaps fixtures/motion-walkthrough.md                 # a walkthrough's questions for the person
 bash .prism-kit/run.sh devices render shot.png out/shot-laptop.png --device laptop
@@ -129,6 +132,7 @@ node tests/kit-small.test.js           # file tags, state paths, unbroken terms,
 node tests/motion.test.js              # motion: the language, holds, the brief, the film check, walkthroughs and their gaps
 node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
 node tests/deck-variants.test.js       # decks: dark and purple slides, the brand footer (number left, logo right)
+node tests/illustration.test.js        # website illustrations: parsing, the block, the brand's look, motion, phone, the bench
 node tests/social-checks.test.js       # posts and carousels: counters, point numbers, the thread, purple, the word, layout, color, photo and stat checks
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op

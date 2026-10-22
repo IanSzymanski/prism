@@ -2,11 +2,11 @@
 name: prism-produce
 description: >
   Use to build or revise any designed branded file with the brand kit, the only allowed way to
-  make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header, HTML email (newsletter, announcement, outreach email) or animated film (motion graphics, animated story, explainer clip, MP4). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
+  make one: one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header, HTML email (newsletter, announcement, outreach email), animated film (motion graphics, animated story, explainer clip, MP4) or website illustration (animated UI mockup, feature illustration, HTML block for the site). Triggers: "produce", "build", "make a PDF / PowerPoint / one sheet from this",
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
   "I'm done editing", an edited format file, or a finished Markdown file in the Prism format. Works from an approved content.md.
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Produce: approved content to finished files, and revisions
@@ -19,12 +19,12 @@ When the next step can't lose work or change meaning, take it without asking: st
 
 ## Build route (always)
 
-Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header or HTML email) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
+Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, leave-behind, fact sheet, brief, case study PDF, brochure, trifold, 5x7 card, postcard, invitation, mailer, PowerPoint, slides, deck, blog post and blog header, social post, Instagram story, carousel, email header, HTML email or website illustration) is built with this plugin's kit through `.prism-kit/run.sh`, and nothing else. Never use ReportLab, python-docx, python-pptx, hand-written HTML, a generic PDF or slides skill, or your own colours and fonts, even for a draft. If the kit cannot run, say which tool is missing and stop: never approximate the brand. Before delivering, run `.prism-kit/run.sh verify <file or folder>` and deliver only what it reports as `OK`.
 
 Files next to this SKILL.md:
 
 - `kit/`: build scripts, stylesheets, fonts, images. Entry points `setup.sh` and `run.sh`.
-- `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `5x7.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`, `motion.md` for animated films) plus `components.md` shared by all.
+- `references/formats/`: one card per output (`sheet.md`, `brochure.md`, `5x7.md`, `blog.md`, `deck.md`, `social.md`, `email.md` for header images, `html-email.md` for whole emails, `carousel.md`, `motion.md` for animated films, `illustration.md` for website illustrations) plus `components.md` shared by all.
 - `references/film.md`: how a motion format file becomes a Claude Motion film, is checked, delivered and revised.
 - The brand's digest: its rules (claims, voice, visual), passed to every formatter and reviewer. `<brand>` is content.md `brand:`, else the default brand (`.prism-kit/run.sh brands` marks it); `run.sh brands --json` gives each brand's `digest` path (a shipped brand's is in `kit/brands/<brand>/`, a draft from onboarding's in `.prism/brands/<brand>/` beside `.prism-kit`).
 - `run.sh swatch <brand> out/<brand>-swatch.pdf`: the swatch sheet, in its own neutral format: how the brand's design system maps onto every core role, its ornaments by place, Office fonts, email palette checks, unused tokens and unmapped roles, then one sample of every sheet layout built in the brand (the layouts' Markdown is written beside it as `-layouts.md`). Make it when a brand profile is new or changed, or when asked to check a brand.
@@ -63,7 +63,7 @@ As soon as the format files exist, open the canvas with one board per format fil
 
 **A package opens as one set.** After approval, every output of the package opens side by side on the one canvas (one board per format file, in package.json's order), titled "<piece title> · <package name>", so the set is seen and edited together. Each output can be edited on its own; only a changed number or a new claim is flagged (section 4).
 
-**Motion outputs never open on the canvas:** a film is reviewed on its own page, so go straight to `references/film.md` for them while the other outputs open here.
+**Motion outputs never open on the canvas:** a film is reviewed on its own page, so go straight to `references/film.md` for them while the other outputs open here. **Illustrations** don't open on the canvas either: their layout is reviewed live on the bench, so build them straight away (step 2).
 
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
 
@@ -84,6 +84,7 @@ For each format file:
    - print copy (sheet, brochure, 5x7), only when asked ("print version", "for the office printer", "white background"): the same command with `--print`, to `out/<tag>-print.pdf`, beside the screen copy. It sets the page to plain white and keeps the glow and tinted blocks. Never make a second format file for it, so the two copies can't drift; once asked for, rebuild it with every later export of that format.
    - blog: `.prism-kit/run.sh blog formats/blog.md out/blog` (`<tag>-header.png`, chart PNGs, `<tag>-post.md` and `.html` for the CMS)
    - deck: `.prism-kit/run.sh deck formats/deck.md out/<tag>.pptx`
+   - illustration: `.prism-kit/run.sh illustration formats/illustration.md out/illustration` (`<tag>-dark.html` and `<tag>-light.html`, the single HTML block for the site; `<tag>-bench.html`, the live preview; finished-frame PNGs at desktop and phone width and a `-frames.png` strip of the motion). It prints `[illustration]` warnings and errors (colored fills, anything past the tile or cut off, small type on a phone, words the brand never uses, an animation that doesn't end on the markup's frame, plays early or runs long); fix each in the format file and rebuild. Several illustrations for one page: also `.prism-kit/run.sh illustration bench out/<tag>-bench.html formats/a.md formats/b.md` in page order (neighbors on the same ground stop it).
    - html-email: `.prism-kit/run.sh email formats/html-email.md out/html-email` (`<tag>.html`, `<tag>.txt`, images/, `<tag>-images.zip`, `<tag>-preview.png`). It prints `[email]` warnings; act on each (the card lists them). Look at preview.png in the visual check: all four views, light and dark, nothing unreadable in dark mode.
    - package outputs: the command for the output's format, with `formats/<output id>.md`, and folder builds into `out/<output id>` (`.prism-kit/run.sh social formats/story.md out/story`), so outputs of one format never share a folder.
    - motion: `references/film.md` (brief, the film in Claude Motion, check, render). Prism makes no file for it: the film's page exports the MP4. `verify` doesn't apply; `motion check` and `motion render` take its place.
@@ -104,7 +105,7 @@ For each format file:
    - missing fictional labels when `figures: illustrative`;
    - images: the build prints `[sheet] low resolution` or `missing image` warnings, and `[deck]` equivalents. Fix a missing path; report low-resolution images to the user with the size they print at, and move them to a smaller layout (gallery, media row) or drop them from print;
    - the brand digest's placement rules (for example, no section ornament directly above or beside a photo of a person or a quote, one dark card at most, no mono text on dark); a portrait photo not squeezed into a landscape slot.
-5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image and HTML email folders; add `--brand <brand>` when the piece is not in the default brand. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
+5. **Verify:** `.prism-kit/run.sh verify out/<file>` for each PDF and PPTX, and `out/<format>` for image, HTML email and illustration folders; add `--brand <brand>` when the piece is not in the default brand. `FAIL` means the file was not built by the kit or uses non-brand fonts: rebuild it through `run.sh`; never deliver a failing file.
 6. **Package:** `.prism-kit/run.sh packages check <slug> --built` (every output built, page counts as the package asks: a one-pager on one page, a multipage PDF on at least its pages) and `.prism-kit/run.sh packages claims <slug>` (no output claims what content.md doesn't) must both print OK. Fix and rebuild what they list; a claim still open from "Packages: edit each output freely, flag claims" in section 4 waits for the person's answer.
 7. Record in log.md: files built, cuts made by each formatter, check and verify results.
 
@@ -112,7 +113,7 @@ For each format file:
 
 - **A package goes out as one zip.** Once every output is verified, `.prism-kit/run.sh packages zip <slug>` writes `out/<slug>-<package>-v<version>.zip`: a folder per output with its files (captions files, the email's HTML, text, images and images zip, the blog's post and header), the deck's font pack when one was made (make it first, below), and `CONTENTS.txt`. Deliver that zip and the preview contact sheets, not the files one by one; every later export is a new zip at the new version. When the set was a one-off (`from: this piece` in package.json) or the person changed a package, offer once to save it as a package for everyone (the prism-onboard skill, "A package"). The rest of this section (each file's job, revisions) applies to the files inside it.
 - Send only the files this round built, each once. Never send content.md, claims.md, images.md, the source notes or the format files: when a proof doc exists, the words live there (content lane, step 1).
-- Send the built files with SendUserFile: PDF, PPTX, PNGs (all images for social/email/carousel), each captions file, and the preview contact sheets. HTML email: the `.html`, the images zip, the `.txt` and the preview. If a folder from the user's computer is connected, also write content.md, the format files and out/ there.
+- Send the built files with SendUserFile: PDF, PPTX, PNGs (all images for social/email/carousel), each captions file, and the preview contact sheets. HTML email: the `.html`, the images zip, the `.txt` and the preview. Illustration: publish the bench as an Artifact (it plays live there) and send the two block `.html` files and the PNGs. If a folder from the user's computer is connected, also write content.md, the format files and out/ there.
 - Asked for Illustrator, Canva, InDesign, .ai, .indd or "editable" files: Prism does not send files for editing elsewhere. Say in one line that layout and wording changes are made here and rebuilt, then ask what should change.
 <!-- claude-only -->
 - Remind the person in one line that the design canvas is open and now matches these files, and that any change they ask for (on the canvas or in chat) is exported again straight away.
@@ -120,6 +121,7 @@ For each format file:
 - Name each file's job in the message, one line each, so nobody mistakes the source for a deliverable:
   - the PDF, PPTX or PNGs: the finished piece;
   - the captions file: the post copy to paste with each image (email: subject line and preheader);
+  - illustration: `<tag>-dark.html` / `-light.html` is the block to paste into the site page (an HTML block), as it is; it uses the site's GSAP and ScrollTrigger. The bench is the preview only, with its own copy of GSAP;
   - HTML email: in the sending tool (content.md's `Send from:`, else the brand's email tool from `run.sh brands`), upload the `.html` and the images zip beside it (or paste the `.html` into any tool once `images/` is uploaded to the `image-base` folder), `email.txt` for the plain-text part, `preview.png` to check light and dark. Say which merge tags passed through, and that a test send to Outlook, Gmail and Apple Mail is the last check;
   - `formats/<format>.md`: the editable source for that output. For social it holds both the image text and the caption; edit it and ask for a rebuild rather than editing captions.md.
 - Message: one line per output, what each formatter cut, and any check the build could not fix. Remind deck users once that decks need the brand's Office fonts installed to present; the first time a deck is delivered, make the pack with `.prism-kit/run.sh fonts out/<brand>-fonts.zip <brand>` and send it.

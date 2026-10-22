@@ -6,7 +6,7 @@ description: >
   "just make it", "quick mode". Builds one output in one pass with the brand kit, the only
   allowed way to make a designed branded file. Not for pieces to be drafted and proofed first (prism-draft).
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Quick mode: raw material to one finished file, one pass
@@ -30,7 +30,7 @@ The resolve line (`<brand>`: the one the user named, else `default`) checks the 
 
 ## 2. Decide without asking
 
-- **Format:** what the user named, else a one-pager sheet. One format per quick run. An animated film is not quick mode either: it goes through the full process (prism-draft, then prism-produce's `references/film.md`); say so in one line. A package ("case study package", several outputs at once) is not quick mode: say so in one line and start the prism-draft skill, since its outputs must share approved words. Sheet and single social posts: read nothing else, use the cheat sheets below. Brochure, blog, email, carousel, deck: read that card in `../prism-produce/references/formats/` first (deck builds are slower; say so).
+- **Format:** what the user named, else a one-pager sheet. One format per quick run. An animated film is not quick mode either: it goes through the full process (prism-draft, then prism-produce's `references/film.md`); say so in one line. A package ("case study package", several outputs at once) is not quick mode: say so in one line and start the prism-draft skill, since its outputs must share approved words. Sheet and single social posts: read nothing else, use the cheat sheets below. Brochure, blog, email, carousel, deck, illustration: read that card in `../prism-produce/references/formats/` first (deck builds are slower; say so).
 - **Figures:** only numbers that appear in the source. No numbers in the source means no stats block. If the user asked for an example or mock piece, figures are illustrative and every output says so.
 - **Photos:** use uploaded photos without identifiable people freely. Photos with people only if the user said they have permission; otherwise leave them out and say so. Best landscape photo becomes the hero. Layouts crop each photo around the focal point images.py found. No photos: no image blocks (no placeholders unless asked); a photo from the brand library (`.prism-kit/run.sh library <brand>`, `![](brand:<id>)`) only when the user asks for one.
 - **Brand:** the one the user named, else the default (`.prism-kit/run.sh brands` marks it; it also gives the brand's name, contact line and default audience). Write `brand: <id>` in the front matter when it isn't the default.
