@@ -111,6 +111,7 @@ Do: ask one AskUserQuestion call, multi-select, "Which other formats should the 
 
 - The deck, carousel and any other static format get their board added to the same canvas beside the sheet (`references/wireframe.md`, "A format added later"). Since the piece is already exported, each one is built, checked, verified and delivered straight away (section 4, Design session step 8), and its board is stamped.
 - An animated film never opens on the canvas: follow prism-produce `references/film.md` (the direction script, the film in Claude Motion, `motion check`, stills); the film's own page is where it's reviewed, and **Export** there saves the MP4.
+- A website illustration (an animated UI mockup of one feature for the brand's website) never opens on the canvas either: `run.sh illustration` builds the HTML block for the site and a bench page, and the bench, published as an Artifact, is where it's reviewed, playing live.
 
 Say, per format, one or two lines:
 

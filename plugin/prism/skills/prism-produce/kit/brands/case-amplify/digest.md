@@ -80,3 +80,15 @@ The brief carries these from the profile (`motion.film`); a format file never ov
 - Lucide icons (write `.ph-` names as usual; the brief maps them).
 - Fewer, larger words: 12 at most on screen per scene; large visuals that fill the frame. Free flowing: continuous motion from scene to scene.
 - Walkthroughs: no title or end card (`.title`, `.closing` are refused); the app fills the whole frame (no window over a background), animates in at the start and out at the end; each step's `##` becomes a tethered annotation: a purple pill with one line of white text, joined to what it points at by a purple tether.
+
+## Website illustrations
+
+Abstract UI mockups for caseamplify.com feature pages, in the style of Ian's "Active Cases" artwork: a rounded tile on a deep violet gradient, a frosted glass panel with a Literata title, the rows that matter as lighter glass bands with outlined status pills, the rest as placeholder circles and bars, and a floating glass callout over the panel's edge. The profile (`illustration`) carries the look; the build enforces it. Write for it this way:
+
+- One real Case Amplify feature per mockup, readable at a glance with its problem. When Ian supplies feature copy, illustrate that copy. Use the `caseamplify-manifest` skill's terms: connected case context, human review, reviewable and correctable output, caseworkers and program staff, participants.
+- Each mockup gets its own layout and its own ground (violet, grape, dusk, haze), never the same as its neighbor on the page. "In the style of" means the glass, the simplified details and the kept important info, not the composition.
+- Show the problem, then the answer. Where the feature involves AI output (`.ai`), end on a person reviewing or approving it (`.approve`): human review is product value.
+- Color is only ever an outline: pills, citation circles, tags, buttons, dots, avatars. Emphasis is a `.key` row or `.mark` line (brighter glass), never a hue. `review` (amber) marks anything that still needs a person; `urgent` and `stable` only as status pills, as in the reference. No red or green traces.
+- No waveform beside a person's name or photo, and nothing that idles after the animation.
+- Fictional people and data only; one key fact per element (12 words at most). Never imply every form fills automatically, promise SMS delivery or replies, show an unconfirmed workflow capability as shipped, or present illustrative numbers as real results.
+- About 5 seconds (a `size: full` overview about 6). Every block runs on the WordPress + Kadence site with its self-hosted GSAP 3.12.5 and ScrollTrigger: it plays once on the sitewide trigger line (`top 75%`, as `ca-rise`), joins the site boot through `CA.ready`, hides under `.js.pre`, and its script carries `data-cookieconsent="ignore"`. For production, the shared CSS can move into one `ca-mock.css` and the scripts into an enqueued file on the Cookiebot allowlist; the blocks work as they are until then.

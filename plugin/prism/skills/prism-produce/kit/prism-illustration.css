@@ -1,0 +1,81 @@
+/* Shared illustration CSS: identical in every block of a brand, so blocks can share a page. __P__ is the brand's prefix. */
+/* Per-mockup values arrive as custom properties on the block itself (ground, aspect, positions), never as extra rules. */
+.__P__{container:__P__w/inline-size;width:100%;font-synthesis:none;-webkit-font-smoothing:antialiased}
+.__P__,.__P__ *{box-sizing:border-box}
+.__P__ __THEME_DARK__
+.__P__.__P__--light __THEME_LIGHT__
+.__P____tile{--AR:var(--ar);--T:1;position:relative;width:100%;aspect-ratio:var(--AR);container:__P__t/size;overflow:hidden;border-radius:calc(2.6 * var(--u));background:var(--g);color:var(--ink);font-family:__SANS__;--u:2.5cqw;font-size:calc(var(--u) * var(--T));line-height:1.3}
+.__P__--full .__P____tile{aspect-ratio:auto;height:100vh;height:100svh;--u:min(1.5cqw,calc(1.5vh * var(--AR)));--u:min(1.5cqw,calc(1.5svh * var(--AR)));min-height:30em;border-radius:0}
+__PRE__
+/* Modules sit on a copy of the ground, so nothing under them shows through their glass. */
+.__P____m{--X:var(--x);--Y:var(--y);--W:var(--w);position:absolute;left:calc(var(--X) * 1cqw);top:calc(var(--Y) * 1cqh);width:calc(var(--W) * 1cqw);border-radius:1.2em;background:var(--g);background-size:100cqw 100cqh;background-position:calc(var(--X) * -1cqw) calc(var(--Y) * -1cqh);background-origin:border-box}
+.__P____m::before,.__P____glass{content:"";position:absolute;inset:0;border-radius:inherit;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--shadow);pointer-events:none}
+.__P____m>*{position:relative}
+.__P____card{border-radius:1em}
+.__P____card::before{background:var(--glass-hi);border-color:var(--edge-hi)}
+.__P____card{display:flex;align-items:center;gap:.9em;padding:1em 1.3em}
+.__P____card>.__P____body{flex:1;min-width:0}
+.__P____panel{padding:.4em 0 .9em}
+.__P____stack{display:flex;flex-direction:column;gap:.5em;padding:0 1.5em}
+.__P____panel>.__P____title{padding:.9em 1.4em .55em;font-family:__SERIF__;font-weight:500;font-size:1.7em;line-height:1.15;letter-spacing:-.01em}
+.__P____title{font-family:__SERIF__;font-weight:500;font-size:1.25em;line-height:1.2}
+.__P____label{font-family:__MONO__;font-size:.56em;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.__P____line{position:relative;font-size:.82em;line-height:1.45;color:var(--ink-2);padding:.12em .3em;margin:0 -.3em}
+.__P____line.is-strong{color:var(--ink);font-weight:500}
+.__P____quote{font-family:__SERIF__;font-size:1em;line-height:1.4;color:var(--ink)}
+.__P____quote::before{content:"\201C"}.__P____quote::after{content:"\201D"}
+/* A highlight is a band of brighter glass over the whole line, top to bottom. */
+.__P____band{position:absolute;inset:0;border-radius:.3em;background:var(--glass-mark);border:1px solid var(--edge-mark);transform-origin:0 50%}
+.__P____line>.__P____txt,.__P____has-band>.__P____txt{position:relative}
+.__P____stack>*,.__P____body>*{position:relative}
+.__P____has-band{padding:.12em .3em;margin:0 -.3em}
+.__P____row{display:flex;align-items:center;gap:.85em;min-height:4.2em;padding:.6em 1.5em;position:relative}
+.__P____row>:not(.__P____glass){position:relative}
+.__P____row .__P____glass{border-radius:0;border-left:0;border-right:0;background:var(--glass-key);border-color:var(--edge-key);box-shadow:none}
+.__P____who{display:flex;flex-direction:column;min-width:0;flex:1}
+.__P____name{font-size:.95em;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.__P____sub{font-size:.68em;color:var(--ink-3);margin-top:.15em}
+.__P____av{flex:none;width:2.9em;height:2.9em;border-radius:50%;display:grid;place-items:center;border:.07em solid var(--c,var(--edge-hi));color:var(--c,var(--ink-2));font-size:1em;font-weight:500;overflow:hidden}
+.__P____av>span{font-size:.72em;letter-spacing:.04em}
+.__P____av>img{width:100%;height:100%;object-fit:cover;display:block}
+.__P____ghost{display:flex;align-items:center;gap:.85em;min-height:4.2em;padding:.6em 1.5em}
+.__P____ghost>i{flex:none;width:2.9em;height:2.9em;border-radius:50%;background:var(--ph)}
+.__P____ghost>b{display:flex;flex-direction:column;gap:.55em;flex:1}
+.__P____bar{display:block;height:.62em;border-radius:.4em;background:var(--ph);width:var(--bw,60%)}
+.__P____bars{display:flex;flex-direction:column;gap:.55em;padding:.2em 0}
+.__P____pill{flex:none;display:inline-flex;align-items:center;gap:.4em;border:.075em solid var(--c,var(--edge-hi));color:var(--c,var(--ink-2));border-radius:2em;padding:.38em 1em;font-size:.7em;font-weight:600;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;line-height:1.1;background:transparent}
+.__P____stack>.__P____pill,.__P____body>.__P____pill{align-self:flex-start}
+.__P____body{display:flex;flex-direction:column;gap:.45em}
+.__P____tags{display:flex;flex-wrap:wrap;gap:.45em}
+.__P____tags>span{border:.07em solid var(--c,var(--edge-hi));color:var(--c,var(--ink-2));border-radius:2em;padding:.3em .85em;font-size:.66em;font-weight:500;white-space:nowrap}
+.__P____cite{display:inline-grid;place-items:center;width:1.45em;height:1.45em;margin-left:.35em;border-radius:50%;border:.08em solid var(--c,var(--t-accent));color:var(--c,var(--t-accent));font-size:.72em;font-weight:600;vertical-align:.08em;line-height:1}
+.__P____list{display:flex;flex-direction:column;gap:.35em}
+.__P____list>div{display:flex;gap:.6em;align-items:baseline;font-size:.82em;color:var(--ink-2);line-height:1.4}
+.__P____list>div>i{flex:none;width:.5em;height:.5em;border-radius:50%;border:.1em solid var(--c,var(--t-accent));transform:translateY(-.05em)}
+.__P____field{display:flex;flex-direction:column;gap:.35em}
+.__P____field>div{position:relative;border:1px solid var(--c,var(--edge));border-radius:.5em;padding:.55em .8em;font-size:.82em;color:var(--ink);min-height:2.3em}
+.__P____field.is-missing>div{color:var(--c);border-width:.08em}
+.__P____btn{position:relative;align-self:flex-start;display:inline-flex;align-items:center;gap:.5em;border:.08em solid var(--c,var(--edge-hi));color:var(--c,var(--ink));border-radius:.6em;padding:.55em 1.1em;font-size:.8em;font-weight:600;white-space:nowrap}
+.__P____was{display:none}
+.is-was>.__P____now{display:none}.is-was>.__P____was{display:inline}
+.__P____ring{position:absolute;inset:-.08em;border-radius:inherit;border:.08em solid var(--c,var(--ink));opacity:0;pointer-events:none}
+.__P____row-end{display:flex;gap:.6em;align-items:center;justify-content:space-between}
+.__P____ico{flex:none;width:1.6em;height:1.6em;display:block;fill:currentColor}
+.__P____card>.__P____ico:first-child{color:var(--ink-3);width:2em;height:2em}
+.__P____card .__P____text{font-size:.98em;line-height:1.3;color:var(--ink)}
+.__P____arrow{flex:none;width:1.4em;height:1.4em;fill:currentColor;color:var(--ink);align-self:flex-end}
+.__P____sp{height:.35em}
+/* Tethers are drawn over the modules. */
+.__P____tethers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.__P____tethers path,.__P____tethers circle{fill:none;stroke:var(--c,var(--t-accent));stroke-width:2.6;stroke-linecap:round}
+.__P____tethers.__P__-phone{display:none}
+.__P__ [data-tone=urgent]{--c:var(--t-urgent)}.__P__ [data-tone=stable]{--c:var(--t-stable)}.__P__ [data-tone=review]{--c:var(--t-review)}.__P__ [data-tone=accent]{--c:var(--t-accent)}.__P__ [data-tone=neutral]{--c:var(--t-neutral)}.__P__ [data-tone=done]{--c:var(--t-done)}
+/* Narrow screens get their own composition. */
+@container __P__w (max-width: 560px){
+  .__P____tile{--AR:var(--ar2,var(--ar));--T:var(--t2,1.7)}
+  .__P__--full .__P____tile{--u:min(2.5cqw,calc(2.5vh * var(--AR)));--u:min(2.5cqw,calc(2.5svh * var(--AR)))}
+  .__P____m{--X:var(--x2,var(--x));--Y:var(--y2,var(--y));--W:var(--w2,var(--w))}
+  .__P____tile .is-wide{display:none}
+  .__P____tethers.__P__-wide{display:none}
+  .__P____tethers.__P__-phone{display:block}
+}

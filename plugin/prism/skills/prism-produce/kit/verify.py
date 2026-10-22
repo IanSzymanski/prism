@@ -87,7 +87,7 @@ def folder(path):
                      if f.lower().endswith(IMAGES) and gps_in_image(open(os.path.join(d, f), "rb").read()))
     if located: errs.append(GPS + ": " + ", ".join(located))
     main = data.get("main", "email.html")
-    if data.get("format") == "html-email" and not os.path.exists(os.path.join(path, main)):
+    if data.get("format") in ("html-email", "illustration") and not os.path.exists(os.path.join(path, main)):
         errs.append(f"{main} is missing")
     return errs
 

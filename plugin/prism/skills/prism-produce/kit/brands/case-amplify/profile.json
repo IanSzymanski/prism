@@ -221,7 +221,7 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "c5fb22188fa8e92749eb019732215bd7565526b05739c1c232453dcdb0f49151",
+  "sha256": "74c2f86c6d9bf5d1b9e08b5010db675dc35dd5958abe10414c8e500424cfd58b",
   "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },
@@ -563,5 +563,273 @@
     "ui_in_out": true
    }
   }
+ },
+ "illustration": {
+  "_note": "Case Amplify website illustrations (Ian, Oct 22): abstract glassy UI mockups for caseamplify.com feature pages, from the Active Cases reference. Color only as outlines; emphasis is brighter glass; approved gradients only; one block per mockup on the WordPress + Kadence site with its self-hosted GSAP 3.12.5 and ScrollTrigger.",
+  "prefix": "ca-mock",
+  "feature_prefix": "ca-",
+  "start": "top 75%",
+  "boot": {
+   "ready": "CA.ready",
+   "pre": ".js.pre"
+  },
+  "script_attrs": {
+   "data-cookieconsent": "ignore"
+  },
+  "seconds": {
+   "tile": 5,
+   "wide": 5,
+   "tall": 5,
+   "full": 6
+  },
+  "max_words": 12,
+  "ai_review": true,
+  "never": [
+   "AI caseworker",
+   "autonomous case management",
+   "fully autonomous",
+   "replaces staff",
+   "replace staff",
+   "replaces caseworkers",
+   "perfect notes",
+   "eliminates errors",
+   "eliminate errors",
+   "error-free",
+   "instant compliance",
+   "one-click implementation",
+   "works with every system",
+   "integrates with every system",
+   "revolutionary",
+   "game-changing",
+   "groundbreaking"
+  ],
+  "themes": {
+   "dark": {
+    "ink": "#FFFFF8",
+    "ink-2": "rgba(255,255,248,.78)",
+    "ink-3": "rgba(255,255,248,.56)",
+    "glass": "linear-gradient(160deg, rgba(255,255,255,.11), rgba(255,255,255,.04))",
+    "edge": "rgba(255,255,255,.14)",
+    "glass-hi": "linear-gradient(160deg, rgba(255,255,255,.17), rgba(255,255,255,.09))",
+    "edge-hi": "rgba(255,255,255,.26)",
+    "glass-key": "rgba(255,255,255,.10)",
+    "edge-key": "rgba(255,255,255,.07)",
+    "glass-mark": "rgba(255,255,255,.15)",
+    "edge-mark": "rgba(255,255,255,.32)",
+    "ph": "rgba(255,255,255,.07)",
+    "shadow": "0 1.2em 3em rgba(4,2,12,.28)",
+    "t-urgent": "#F07A7C",
+    "t-stable": "#6FAE84",
+    "t-review": "#F2B65C",
+    "t-accent": "#C89BF0",
+    "t-done": "#C89BF0",
+    "t-neutral": "rgba(255,255,248,.6)",
+    "page": "#080612"
+   },
+   "light": {
+    "ink": "#11111C",
+    "ink-2": "#3A3A44",
+    "ink-3": "rgba(17,17,28,.52)",
+    "glass": "linear-gradient(160deg, rgba(255,255,255,.62), rgba(255,255,255,.34))",
+    "edge": "rgba(255,255,255,.9)",
+    "glass-hi": "linear-gradient(160deg, rgba(255,255,255,.82), rgba(255,255,255,.58))",
+    "edge-hi": "rgba(255,255,255,1)",
+    "glass-key": "rgba(255,255,255,.62)",
+    "edge-key": "rgba(255,255,255,.95)",
+    "glass-mark": "rgba(255,255,255,.78)",
+    "edge-mark": "rgba(141,22,212,.30)",
+    "ph": "rgba(58,30,110,.07)",
+    "shadow": "0 .8em 2.4em rgba(90,40,150,.10)",
+    "t-urgent": "#C24E50",
+    "t-stable": "#3F7D55",
+    "t-review": "#A8660A",
+    "t-accent": "#8D16D4",
+    "t-done": "#8D16D4",
+    "t-neutral": "rgba(17,17,28,.5)",
+    "page": "#FFFFF8"
+   }
+  },
+  "grounds": {
+   "violet": {
+    "_say": "The reference: violet glow top-left, magenta glow bottom-left, near-black right.",
+    "dark": {
+     "base": "linear-gradient(115deg, #1A0B3C 0%, #0E0722 50%, #080612 100%)",
+     "glows": [
+      {
+       "color": "#5B24C8",
+       "at": "0% 0%",
+       "size": "115% 90%",
+       "alpha": 0.9
+      },
+      {
+       "color": "#8F15D5",
+       "at": "0% 100%",
+       "size": "95% 75%",
+       "alpha": 0.85
+      },
+      {
+       "color": "#CE08F2",
+       "at": "0% 100%",
+       "size": "55% 45%",
+       "alpha": 0.35
+      }
+     ]
+    },
+    "light": {
+     "base": "#FFFFF8",
+     "glows": [
+      {
+       "color": "#DCC6F3",
+       "at": "0% 0%",
+       "size": "115% 95%",
+       "alpha": 0.95
+      },
+      {
+       "color": "#E9D5F6",
+       "at": "0% 100%",
+       "size": "100% 80%",
+       "alpha": 0.9
+      },
+      {
+       "color": "#F0E1F4",
+       "at": "100% 50%",
+       "size": "90% 110%",
+       "alpha": 0.6
+      }
+     ]
+    }
+   },
+   "grape": {
+    "_say": "Grape rising from the bottom right on deep indigo.",
+    "dark": {
+     "base": "linear-gradient(200deg, #140A33 0%, #0C0820 55%, #11111C 100%)",
+     "glows": [
+      {
+       "color": "#8D16D4",
+       "at": "100% 100%",
+       "size": "120% 95%",
+       "alpha": 0.85
+      },
+      {
+       "color": "#3A1F87",
+       "at": "100% 0%",
+       "size": "100% 85%",
+       "alpha": 0.8
+      },
+      {
+       "color": "#CE08F2",
+       "at": "100% 100%",
+       "size": "50% 45%",
+       "alpha": 0.25
+      }
+     ]
+    },
+    "light": {
+     "base": "#FFFFF8",
+     "glows": [
+      {
+       "color": "#D6BDEF",
+       "at": "100% 100%",
+       "size": "120% 100%",
+       "alpha": 0.9
+      },
+      {
+       "color": "#E3D0F3",
+       "at": "100% 0%",
+       "size": "100% 85%",
+       "alpha": 0.8
+      }
+     ]
+    }
+   },
+   "dusk": {
+    "_say": "A violet glow from the top, grape low on the left, on near-black.",
+    "dark": {
+     "base": "linear-gradient(180deg, #120A2C 0%, #080612 100%)",
+     "glows": [
+      {
+       "color": "#6A22B8",
+       "at": "50% 0%",
+       "size": "130% 85%",
+       "alpha": 0.85
+      },
+      {
+       "color": "#8F15D5",
+       "at": "0% 100%",
+       "size": "90% 70%",
+       "alpha": 0.55
+      }
+     ]
+    },
+    "light": {
+     "base": "#FFFFF8",
+     "glows": [
+      {
+       "color": "#E3D0F3",
+       "at": "50% 0%",
+       "size": "130% 90%",
+       "alpha": 0.95
+      },
+      {
+       "color": "#F3E3F1",
+       "at": "0% 100%",
+       "size": "100% 80%",
+       "alpha": 0.85
+      },
+      {
+       "color": "#F6E6EE",
+       "at": "100% 100%",
+       "size": "70% 60%",
+       "alpha": 0.5
+      }
+     ]
+    }
+   },
+   "haze": {
+    "_say": "Violet and grape glows meeting across the middle; light: lilac with a faint pink mist.",
+    "dark": {
+     "base": "linear-gradient(90deg, #0E0820 0%, #11111C 100%)",
+     "glows": [
+      {
+       "color": "#5B24C8",
+       "at": "0% 50%",
+       "size": "95% 120%",
+       "alpha": 0.75
+      },
+      {
+       "color": "#8D16D4",
+       "at": "100% 30%",
+       "size": "90% 110%",
+       "alpha": 0.6
+      }
+     ]
+    },
+    "light": {
+     "base": "#FFFFF8",
+     "glows": [
+      {
+       "color": "#E3D0F3",
+       "at": "0% 40%",
+       "size": "100% 120%",
+       "alpha": 0.9
+      },
+      {
+       "color": "#F7E4EE",
+       "at": "100% 70%",
+       "size": "95% 110%",
+       "alpha": 0.75
+      }
+     ]
+    }
+   }
+  },
+  "rules": [
+   "An abstract, stylized illustration of one real feature, never a screenshot; the feature and the problem it solves read at a glance.",
+   "Anything the feature does not need is left out or a placeholder (empty circles, bars).",
+   "Each mockup gets the layout that best shows its feature; never reuse a layout across features, and never the same ground as its neighbor.",
+   "Tell it in one pass: the problem, then the answer; AI output ends on a person reviewing or approving it.",
+   "Amber (review) marks anything that still needs a person. Urgent and stable pills only as in the reference; no red or green traces.",
+   "No waveform beside a person's name or photo; nothing idles after the animation ends."
+  ]
  }
 }
