@@ -2,7 +2,7 @@
 
 Prism turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. The words are written and approved once, in `content.md`; every output is laid out from them by a fixed build kit, in whichever brand the piece names, so nothing drifts and no number appears that isn't in the approved words.
 
-It ships as a Claude plugin built from this repository. **This is 1.1.0** (1.0.0 was the first release) (a zip of the plugin is attached to each release in the GitHub Releases section; `.github/workflows/release.yml` builds it). `HANDOFF.md` holds the working notes, standing rules and design decisions; the backlog lives in the pinned Prism Backlog artifact it links. The ChatGPT edition is deprecated and frozen (`chatgpt/`).
+It ships as a Claude plugin built from this repository. **This is 1.1.1** (1.0.0 was the first release) (a zip of the plugin is attached to each release in the GitHub Releases section; `.github/workflows/release.yml` builds it). `HANDOFF.md` holds the working notes, standing rules and design decisions; the backlog lives in the pinned Prism Backlog artifact it links. The ChatGPT edition is deprecated and frozen (`chatgpt/`).
 
 ## What it makes
 
@@ -71,7 +71,7 @@ Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` ru
 
 ```bash
 # The plugin zip into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
-python3 tools/build.py 1.1.0
+python3 tools/build.py 1.1.1
 
 # One output, from a workspace with the kit copied in
 cp -r plugin/prism/skills/prism-produce/kit .prism-kit
@@ -129,7 +129,7 @@ node tests/kit-small.test.js           # file tags, state paths, unbroken terms,
 node tests/motion.test.js              # motion: the language, holds, the brief, the film check, walkthroughs and their gaps
 node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
 node tests/deck-variants.test.js       # decks: dark and purple slides, the brand footer (number left, logo right)
-node tests/social-checks.test.js       # posts and carousels: counters, the thread, purple, the word, layout, color and photo checks
+node tests/social-checks.test.js       # posts and carousels: counters, point numbers, the thread, purple, the word, layout, color, photo and stat checks
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op
 python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete

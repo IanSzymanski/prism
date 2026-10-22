@@ -65,7 +65,9 @@ The approved Case Amplify one-sheet look (Oct 2026). Use it for a one-pager unle
 ## Posts and carousels
 
 - One idea per post or panel: a heading and at most one short sentence (the build warns over 30 words, 35 on a story). The type is large; let it be.
-- No wave line along the bottom and no page counter (the build leaves both out); "Swipe →" on the cover stays.
+- No wave line along the bottom, no page counter and no 01, 02 point numbers on panels (the build leaves all three out; don't write `burst`, counter notes or `[01]{.num}`); "Swipe →" on the cover stays.
+- Stat figures are 3 characters at most (`41%`, `88%`, `9x`) so the big type never oversets; round the figure or move the unit into the label. The build reports longer ones (`[social] stats`).
+- Charts work on panels: one ` ```chart ` under a short heading, at most six bars or rows; on `.dark` and `.purple` panels they take the on-dark colors with solid bars. Keep line and donut charts on light panels, as on slides.
 - Vary them: no two panels in a row with the same layout, at least one `.dark` or `.purple` panel in a carousel of five or more, no three posts in a row on the same ground, no photo used twice and no three photo posts in a row. The build reports each (`[social] layout|color|photo|words`).
 
 ## Films

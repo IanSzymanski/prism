@@ -51,3 +51,5 @@
 .post.story p{font-size:16pt}
 /* No mono on dark or purple: point numbers and step counters take the sans face there. */
 .post.dark .num,.carousel .post.dark .steps li::before{font-family:var(--prism-font-sans);font-weight:600}
+/* Charts on dark and purple: no mono there either. */
+.post.dark .prism-chart :is(.tick,.lab),.post.dark .prism-chart figcaption{font-family:var(--prism-font-sans);letter-spacing:.02em}

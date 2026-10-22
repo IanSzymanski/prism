@@ -221,7 +221,7 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "29b8729b01582c138ca4b7474846b0addcc1051ad44622a6a3619fa8309c0e6d",
+  "sha256": "c5fb22188fa8e92749eb019732215bd7565526b05739c1c232453dcdb0f49151",
   "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },
@@ -307,7 +307,7 @@
   "layers/blog.css": "ed559f594516c27b4559098610b9c60cfaf505b516ad2378b8ebc34d0e324ce9",
   "layers/brochure.css": "d1348972a7b8d0fc95d1fda7d71b2d60e84997775417d099da3fb2dc44e7e6cc",
   "layers/sheet.css": "a0e7334ad43181267a43b7c8188e5c9d56c13a779af1d6bfd89c022c971834c1",
-  "layers/social.css": "24498eb485f2fa456d3a8d7cd48dd901a49ee4e23cae33ec84ca9de78836a1aa",
+  "layers/social.css": "f566fd41b461cd7a10bdc6edb69f62cc754c840917c8c5bf1bd99a0df352e4bc",
   "ornaments.js": "295f8de2b704d499f93be20d89c1c918eb8eb3cb8883b15fa6269296ae7840c7",
   "own/placeholder-dark.png": "b85932febb19d3cdafdeb6325f8067f3e521476de0b14a1df0d930a0a7b2d23f",
   "own/placeholder-light.png": "f9f3493882dc5f51b8695bc446c62178cc83274e44af8795e4414baf8756e8c0"
@@ -346,14 +346,17 @@
    }
   },
   "social": {
-   "_note": "Case Amplify posts and carousels: no wave thread, no page counter, and the word, layout, color and photo variety checks.",
+   "_note": "Case Amplify posts and carousels: no wave thread, no page counter, no 01, 02 point numbers on carousel panels, stat figures of 3 characters at most (so the big type never oversets), and the word, layout, color, photo and stat checks.",
    "thread": false,
    "counter": false,
+   "numbers": false,
+   "stat_chars": 3,
    "checks": [
     "words",
     "layout",
     "color",
-    "photo"
+    "photo",
+    "stats"
    ]
   }
  },

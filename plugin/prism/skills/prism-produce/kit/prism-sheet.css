@@ -313,16 +313,25 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 /* Charts — generated from ```chart blocks by prism-charts.lua. Sizes are in chart units (640 wide). */
 .prism-chart{margin:14pt 0 18pt;break-inside:avoid}
 .prism-chart svg{display:block;width:100%;height:auto;overflow:visible}
-.prism-chart .tick{font:500 9px var(--prism-font-mono);fill:var(--prism-color-text-faint)}
-.prism-chart .lab{font:500 9.5px var(--prism-font-mono);letter-spacing:.08em;text-transform:uppercase;fill:var(--prism-color-text)}
-.prism-chart .val{font:600 12px var(--prism-font-sans);fill:var(--prism-color-text-strong)}
-.prism-chart .rowlab{font:500 11px var(--prism-font-sans);fill:var(--prism-color-text-strong)}
-.prism-chart .note,.prism-chart .legend{font:500 10.5px var(--prism-font-sans);fill:var(--prism-color-text)}
-.prism-chart .big{font:var(--prism-type-stat-weight) 30px var(--prism-type-stat-family);letter-spacing:var(--prism-type-stat-ls);fill:var(--prism-color-text-strong)}
+/* --chart-text (set by prism-charts.lua, e.g. in a carousel) scales the text with the room the chart leaves for it. */
+.prism-chart .tick{font:500 calc(9px * var(--chart-text, 1)) var(--prism-font-mono);fill:var(--prism-color-text-faint)}
+.prism-chart .lab{font:500 calc(9.5px * var(--chart-text, 1)) var(--prism-font-mono);letter-spacing:.08em;text-transform:uppercase;fill:var(--prism-color-text)}
+.prism-chart .val{font:600 calc(12px * var(--chart-text, 1)) var(--prism-font-sans);fill:var(--prism-color-text-strong)}
+.prism-chart .rowlab{font:500 calc(11px * var(--chart-text, 1)) var(--prism-font-sans);fill:var(--prism-color-text-strong)}
+.prism-chart .note,.prism-chart .legend{font:500 calc(10.5px * var(--chart-text, 1)) var(--prism-font-sans);fill:var(--prism-color-text)}
+.prism-chart .big{font:var(--prism-type-stat-weight) calc(30px * var(--chart-text, 1)) var(--prism-type-stat-family);letter-spacing:var(--prism-type-stat-ls);fill:var(--prism-color-text-strong)}
 .prism-chart .grid{stroke:var(--prism-color-chart-grid);stroke-width:1}
 .prism-chart .base{stroke:var(--prism-color-rule);stroke-width:1}
 .prism-chart .marker{stroke:var(--prism-color-text-strong);stroke-width:1;stroke-dasharray:3 3}
 .prism-chart--donut svg,.prism-chart--hbar svg{max-width:92%}
+/* On a dark or purple ground (prism-charts.lua draws its bars and lines in the on-dark colors): the on-dark text and rules. */
+.prism-chart--on-dark .tick{fill:var(--prism-color-text-muted-dark)}
+.prism-chart--on-dark .lab,.prism-chart--on-dark .note,.prism-chart--on-dark .legend{fill:var(--prism-color-text-dark)}
+.prism-chart--on-dark .val,.prism-chart--on-dark .rowlab,.prism-chart--on-dark .big{fill:var(--prism-color-text-strong-dark)}
+.prism-chart--on-dark .grid{stroke:var(--prism-color-rule-on-dark, var(--prism-color-rule-dark))}
+.prism-chart--on-dark .base{stroke:var(--prism-color-rule-dark)}
+.prism-chart--on-dark .marker{stroke:var(--prism-color-text-strong-dark)}
+.prism-chart--on-dark figcaption{color:var(--prism-color-text-muted-dark)}
 
 /* Footnotes. Pandoc opens them with an <hr>, which must not become a full stop. */
 .footnotes{font-size:8pt;line-height:1.5;color:var(--prism-color-text);margin-top:24pt;border-top:var(--line);padding-top:8pt}

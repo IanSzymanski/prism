@@ -65,8 +65,10 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   const page = await browser.newPage({ viewport: { width: 8000, height: 1500 }, deviceScaleFactor: 1 });
   await page.goto("file://" + html, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
-  // options.social: the checks (words, layout, color, photo) read the posts before anything changes them.
+  // options.social: the checks (words, layout, color, photo, stats) read the posts before anything else changes them;
+  // numbers: false first drops the 01, 02 point numbers on carousel panels, so the layout check sees the panels as drawn.
   const SC = require("./social-checks.js"), checks = B.option("social.checks", []);
+  if (B.option("social.numbers", true) === false) await page.evaluate(SC.dropNumbers);
   const summary = await page.evaluate(SC.summary);
   // options.social.counter: false drops the "02 / 07" counters; a purple post takes the dark text roles.
   if (B.option("social.counter", true) === false) await page.evaluate(SC.dropCounters);
@@ -141,5 +143,5 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   for (const id of missing) console.error(`[social] missing caption: ${id}. Put a ::: caption block inside the post's :::: fence.`);
   if (missing.length) process.exitCode = 1;
   for (const u of unsafe) console.warn(`[social] story ${u}`);
-  for (const w of SC.check(summary, checks)) console.warn("[social] " + w);
+  for (const w of SC.check(summary, checks, B.option("social.stat_chars", 3))) console.warn("[social] " + w);
 })();
