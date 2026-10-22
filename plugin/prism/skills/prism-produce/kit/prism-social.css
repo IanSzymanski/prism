@@ -88,6 +88,8 @@ body.prism-social{margin:0;padding:40px;background:var(--prism-color-desk);max-w
 .carousel .steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:13pt;font:500 10pt var(--prism-font-mono);color:var(--prism-color-accent)}
 .carousel .steps li::marker{content:none}
 .carousel .steps li strong{font-family:var(--prism-type-heading-2-family);font-weight:var(--prism-type-heading-2-weight)}
+/* Charts draw larger text in a carousel (prism-charts.lua); the caption keeps up. */
+.carousel .prism-chart figcaption{font-size:10pt}
 /* The shared thread line, drawn by build-social.js with the brand's ornaments (thread). */
 .carousel .prism-thread{position:absolute;left:0;top:0;pointer-events:none}
 
@@ -143,7 +145,8 @@ body.prism-social{margin:0;padding:40px;background:var(--prism-color-desk);max-w
 .carousel .post.post[class*="logo-"]:not(.logo-none)::before{display:block}
 .post.post.post.logo-none::before{display:none}
 .post.post.post.logo-bottom-right:not(.email)::after,.post.email.logo-top-right::after{right:auto;left:var(--logo-side)}
-/* Bold words, point numbers and steps on dark (and purple) posts and panels take the on-dark roles. */
+/* Bold words, point numbers, stat labels and steps on dark (and purple) posts and panels take the on-dark roles. */
 .post.dark strong{color:var(--prism-color-surface)}
+.post.dark .stats li{color:var(--prism-color-text-dark)}
 .post.dark .num,.carousel .post.dark .steps li::before{color:var(--prism-color-eyebrow-on-dark)}
 .carousel .post.dark .steps li{border-color:var(--prism-color-rule-dark, rgb(255 255 255 / .22));color:var(--prism-color-text-dark)}

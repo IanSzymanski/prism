@@ -7,6 +7,17 @@ function dropCounters() {
   return n;
 }
 
+// The point numbers on carousel panels ([01]{.num}) are dropped, with the paragraph they sit in when that holds nothing else.
+function dropNumbers() {
+  let n = 0;
+  document.querySelectorAll(".carousel .post .num").forEach(e => {
+    const p = e.parentElement;
+    e.remove(); n++;
+    if (p && p.matches("p") && !p.textContent.trim() && !p.children.length) p.remove();
+  });
+  return n;
+}
+
 // A purple post or panel takes the dark text roles; the brand layer gives it its own ground (core falls back to the accent).
 function purpleAsDark() {
   document.querySelectorAll(".post.purple").forEach(p => p.classList.add("dark"));
@@ -27,12 +38,14 @@ function summary() {
       cover: p.classList.contains("cover"), end: p.classList.contains("end"), story: p.classList.contains("story"), email: p.classList.contains("email"),
       ground: p.classList.contains("purple") ? "purple" : p.classList.contains("dark") || p.classList.contains("photo-full") ? "dark" : "light",
       sig: sig.filter((k, i) => k !== sig[i - 1]).join("+"), words: words(p),
-      photos: [...p.querySelectorAll("img")].filter(i => !i.closest(".qr__code")).map(i => i.getAttribute("src")) };
+      photos: [...p.querySelectorAll("img")].filter(i => !i.closest(".qr__code")).map(i => i.getAttribute("src")),
+      stats: [...p.querySelectorAll(".stats li > strong:first-child")].map(s => s.textContent.trim()) };
   });
 }
 
-// The checks, on that summary (plain data, so they also run outside a page). `on` lists which: words, layout, color, photo.
-function check(posts, on) {
+// The checks, on that summary (plain data, so they also run outside a page). `on` lists which: words, layout, color, photo,
+// stats (a carousel's stat figures no longer than `statChars` characters, spaces aside, so the big type never oversets).
+function check(posts, on, statChars = 3) {
   const out = [], name = p => p.carousel ? `${p.carousel} panel ${p.n}` : `post ${p.id || "?"}`;
   const runs = (list, key, n) => { const hits = []; for (let i = n - 1; i < list.length; i++) if (list.slice(i - n + 1, i + 1).every(x => key(x) === key(list[i]))) hits.push(list.slice(i - n + 1, i + 1)); return hits; };
   const groups = [...new Set(posts.map(p => p.carousel))].map(c => ({ c, list: posts.filter(p => p.carousel === c && !p.email) }));
@@ -57,6 +70,13 @@ function check(posts, on) {
       if (!c && list.length >= 4 && !withPhoto.length && posts.some(p => p.photos.length)) out.push(`photo: none of these ${list.length} posts has a photo; use one of the piece's photos on one`);
     }
   }
+  if (on.includes("stats")) for (const p of posts) {
+    if (!p.carousel) continue;
+    for (const fig of p.stats || []) {
+      const n = [...fig.replace(/\s+/g, "")].length;
+      if (n > statChars) out.push(`stats: ${name(p)} has the figure "${fig}" (${n} characters); big figures take ${statChars} at most (41%, 9x, $2M): round it or move the unit into the label`);
+    }
+  }
   if (on.includes("photo")) {
     const seen = {};
     for (const p of posts) for (const src of new Set(p.photos.filter(s => !/placeholder/.test(s)))) (seen[src] = seen[src] || []).push(name(p));
@@ -65,4 +85,4 @@ function check(posts, on) {
   return [...new Set(out)];
 }
 
-module.exports = { dropCounters, purpleAsDark, summary, check };
+module.exports = { dropCounters, dropNumbers, purpleAsDark, summary, check };

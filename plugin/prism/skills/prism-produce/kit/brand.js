@@ -112,6 +112,8 @@ module.exports = function brand(md, forceId) {
       const e = { ...process.env };
       for (const [n, r] of Object.entries(res.roles)) {
         if (r.kind === "color") e[n.toUpperCase().replace(/-/g, "_")] = r.value[res.themes[0]];
+        // The dark value as well (PRISM_DARK_COLOR_ACCENT), for charts drawn on a dark ground.
+        if (r.kind === "color" && r.value.dark) e[n.toUpperCase().replace(/-/g, "_").replace(/^PRISM_COLOR_/, "PRISM_DARK_COLOR_")] = r.value.dark;
         if (r.kind === "asset") e[n.toUpperCase().replace(/-/g, "_")] = r.value.path;
       }
       for (const [n, l] of Object.entries(res.library)) { if (!l.path) continue; const k = "PRISM_LIBRARY_" + n.toUpperCase().replace(/-/g, "_"); e[k] = l.path; if (l.focus) e[k + "_FOCUS"] = l.focus; }

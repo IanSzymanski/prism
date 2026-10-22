@@ -27,6 +27,10 @@ out = SC.check([post({ id: "a", photos: ["images/x.jpg"] }), post({ id: "b", pho
 ok(has(out, /^photo: x\.jpg is used in post a and post b/), `a photo used twice is reported: ${out}`);
 ok(has(out, /^photo: post a, post b, post c all lead with photos/), "three photo posts in a row are reported");
 ok(!has(SC.check([post({ id: "a", photos: ["prism:placeholder.png"] }), post({ id: "b", photos: ["prism:placeholder.png"], sig: "x" })], ["photo"]), /is used in/), "placeholders may repeat");
+out = SC.check([car(2, { stats: ["41%", "2.6x", "$1.2 M"] }), post({ id: "solo", stats: ["2.6x"] })], ["stats"]);
+ok(has(out, /^stats: c panel 2 has the figure "2\.6x" \(4 characters\)/) && has(out, /"\$1\.2 M" \(5 characters\)/), `long stat figures on a carousel are reported: ${out}`);
+ok(!has(out, /"41%"/) && !has(out, /post solo/), "3-character figures and single posts pass");
+ok(!has(SC.check([car(2, { stats: ["2.6x"] })], ["stats"], 4), /^stats/), "a brand may set its own limit");
 
 // 2. In a page: counters dropped (other notes kept), purple read before it turns dark, the summary's signatures.
 (async () => {
@@ -35,12 +39,15 @@ ok(!has(SC.check([post({ id: "a", photos: ["prism:placeholder.png"] }), post({ i
   const page = await browser.newPage();
   await page.setContent(`<div class="carousel" id="car">
     <div class="post panel cover" data-note="Swipe →"><h1>Cover</h1></div>
-    <div class="post panel purple" data-note="02 / 03"><p class="num">01</p><h2>Two</h2><p>One sentence here.</p><div class="caption"><p>not counted at all ever</p></div></div>
+    <div class="post panel purple" data-note="02 / 03"><p><span class="num">01</span></p><h2>Two</h2><p>One sentence here.</p><div class="caption"><p>not counted at all ever</p></div></div>
     <div class="post panel dark end" data-note=" 03 / 03 "><h2>End</h2></div></div>
     <div class="post square" id="solo" data-note="Illustrative example"><h2>Solo</h2><p><img src="images/a.jpg"></p></div>`);
-  const sum = await page.evaluate(SC.summary);
+  let sum = await page.evaluate(SC.summary);
+  ok(sum[1].sig === "num+h2+p", `the point number is read: ${sum[1].sig}`);
+  ok(await page.evaluate(SC.dropNumbers) === 1, "the carousel's point number is dropped");
+  sum = await page.evaluate(SC.summary);
   ok(sum.length === 4 && sum[1].ground === "purple" && sum[2].ground === "dark", `grounds are read: ${JSON.stringify(sum.map(s => s.ground))}`);
-  ok(sum[1].sig === "num+h2+p" && sum[1].words === 5, `a panel's layout and words, without its caption: ${sum[1].sig} ${sum[1].words}`);
+  ok(sum[1].sig === "h2+p" && sum[1].words === 4, `a panel's layout and words, without its caption: ${sum[1].sig} ${sum[1].words}`);
   ok(sum[3].photos[0] === "images/a.jpg" && sum[3].carousel === null, "a single post's photos are listed");
   const dropped = await page.evaluate(SC.dropCounters);
   const notes = await page.evaluate(() => [...document.querySelectorAll(".post")].map(p => p.getAttribute("data-note")));
@@ -54,6 +61,8 @@ ok(!has(SC.check([post({ id: "a", photos: ["prism:placeholder.png"] }), post({ i
   ok(/B\.option\("social\.thread", true\) !== false/.test(src), "the thread line is left out only when the brand says thread: false");
   ok(/B\.option\("social\.counter", true\) === false\) await page\.evaluate\(SC\.dropCounters\)/.test(src), "counters are dropped only when the brand says counter: false");
   ok(/B\.option\("social\.checks", \[\]\)/.test(src), "the checks run only when the brand lists them");
+  ok(/B\.option\("social\.numbers", true\) === false\) await page\.evaluate\(SC\.dropNumbers\)/.test(src), "point numbers are dropped only when the brand says numbers: false");
+  ok(/B\.option\("social\.stat_chars", 3\)/.test(src), "the stat limit is the brand's, 3 by default");
   const css = fs.readFileSync(path.join(KIT, "prism-social.css"), "utf8");
   ok(/\.post\.dark\.purple\{background:var\(--prism-color-accent\)\}/.test(css), "core's purple falls back to the accent");
 
