@@ -6,7 +6,7 @@ description: >
   "rebuild", "change the headline", "move the chart", "apply my edits", "design mode", "edit the layout visually",
   "I'm done editing", an edited format file, or a finished Markdown file in the Prism format. Works from an approved content.md.
 metadata:
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # Produce: approved content to finished files, and revisions

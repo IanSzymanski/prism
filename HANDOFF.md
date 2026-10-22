@@ -1,6 +1,6 @@
 # Prism: handoff for continued development
 
-State as of 22 October 2026, version **1.1.1** (carousels: no point numbers, 3-character stats, charts on any panel; 1.1.0 was tagged `v1.1.0`; 1.0.0 was the first release), each with the plugin zip on its GitHub release. Before that, Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. v1 was the only release cut; work after it continues from 1.0.0. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
+State as of 22 October 2026, version **1.2.0** (website illustrations: animated UI mockups as one HTML block plus a bench page; 1.1.1: carousels with no point numbers, 3-character stats, charts on any panel; 1.1.0 was tagged `v1.1.0`; 1.0.0 was the first release), each with the plugin zip on its GitHub release. Before that, Everything through 0.16 (F1, F5, F6, `/prism-interview`, `/prism-tutorial`, design-mode M1–M5, M7–M9, brand-free core) is merged and was confirmed working in a live Cowork run by Ian. v1 was the only release cut; work after it continues from 1.0.0. D11 (brand onboarding) is built on this branch and tested locally; not yet run live in Cowork.
 
 ## Backlog
 

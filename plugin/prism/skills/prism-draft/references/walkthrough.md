@@ -1,5 +1,5 @@
 # Prism guided walkthrough: one sample piece, start to finish
-<!-- walkthrough-reviewed: 1.1 -->
+<!-- walkthrough-reviewed: 1.2 -->
 
 Run this when someone types `/prism-tutorial` with no topic, or asks to be walked through Prism ("show me how it works", "walk me through it", "guided tutorial"). It makes a real sample piece with the real skills, stage by stage: the prompt and source material, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, and then the same approved words exported again as other formats. At every stage, say **why the stage is there**, **what the person can do in it**, and **how it is shared**, then pause so they can try it before moving on.
 
