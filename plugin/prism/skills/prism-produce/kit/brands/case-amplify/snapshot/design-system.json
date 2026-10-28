@@ -95,9 +95,9 @@
   "sections": []
  },
  "lastChange": {
-  "by": "Claude",
-  "at": "2026-10-05T19:03:34Z",
-  "via": "Claude.ai",
-  "note": "Point-based sizes stored to four decimals (17pt is 22.6667px, not 22.67px), so builds match the kit's pt values exactly."
+  "by": "Ian",
+  "at": "2026-10-19T16:09:05Z",
+  "via": "Claude Cowork",
+  "note": "Series colours (series-1 to series-5) restricted to charts and graphs only; README and token usage notes updated."
  }
 }

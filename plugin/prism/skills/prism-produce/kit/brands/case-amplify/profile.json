@@ -2,27 +2,41 @@
  "schema": 1,
  "id": "case-amplify",
  "name": "Case Amplify",
- "default": true,
- "version": 1,
+ "version": 2,
  "source": {
   "kind": "claude-design-system",
   "url": "https://claude.ai/artifact/MP9SjqKoJECgCoSWyQNG3m",
   "title": "Case Amplify",
-  "snapshot_taken": "2026-10-02",
-  "_note": "Optional live source. Builds always use snapshot/; the live system is only compared against it."
+  "snapshot_taken": "2026-10-28",
+  "_note": "Optional live source. Builds always use snapshot/; the live system is only compared against it.",
+  "components": [
+   "BandFlow",
+   "Button",
+   "Callout",
+   "Checklist",
+   "Cover",
+   "CtaCard",
+   "Eyebrow",
+   "FeatureCards",
+   "Masthead",
+   "PullQuote",
+   "SectionHeading",
+   "Stats",
+   "Wave"
+  ]
  },
  "snapshot": {
   "files": {
-   "README.md": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
+   "README.md": "811f06390e7c8d3b65ad4190b718cb16df95dd395a4a0d70f7738549979d5bce",
    "assets/Backgrounds/cta-card.png": "389977e5cf449f7bb2aa917507c7dda67bfe143e10f2c104fa353beff208a27e",
    "assets/Logos/ca-logo-light.png": "828887548fb013db91bfc1ed85bd275af049d3087b482c18911802b461feb411",
    "assets/Logos/ca-logo.png": "f02a0e32bcf958ae86b19e09071dc689e62e966a13d777724d2df4e67acbd30d",
    "assets/Wave/wave-core.js": "7e58ab4dc7a1abf4007b65684447d6e751910e00244e2e606a81c7b63da9b566",
-   "assets/Wave/wave-opener-end.svg": "d5a5dc78bdf2ff6489bd022018eada9a2bfe2f00aed7989f21ef6e0a05ebe196",
-   "assets/Wave/wave-opener-start-dark.svg": "f908cee3a70e28e94ad026b5040235792251ce2a96565dd1730c939643f7cf95",
-   "assets/Wave/wave-opener-start.svg": "2aae55fe352f51c97d574824a5ed7fda2fb79be515d8c3abee85e7f17aba85a0",
-   "assets/Wave/wave-stop.svg": "5db625312f12f6c7ec46fc0205040ddde9444c871021bed2a9c0babfef63ad21",
-   "design-system.json": "1d80785fe9ff3132267e8dbbefaf67652b586098a26b1fdf3626f95db4cd050d",
+   "assets/Wave/wave-opener-end.svg": "ef7d9469ab622f0c87f0e3414e860ac0a4e2082cbd7fac3b4f5cd13ea1272097",
+   "assets/Wave/wave-opener-start-dark.svg": "7bf36b4391dd36a9c6ffa34d3381daaad73fa6a355fb4a7e2a6ecf87b6528c66",
+   "assets/Wave/wave-opener-start.svg": "e75616732c17c6571280cfab1cfe19f8107c0833657f700314bb94ebc812b5b6",
+   "assets/Wave/wave-stop.svg": "ee9ea27bb1de5a3d720b24e271fda3298988b8903f4aae04011397a5b7841641",
+   "design-system.json": "a3081134af9412cea1ab2a7615de11016fca063d0a27ab36f451434c80777199",
    "fonts/IBMPlexMono-Medium.ttf": "13573e85cb64c9cad0742e979b14bf6e9111fa3d9e70598b12c9ddd862a7d4fd",
    "fonts/Inter-Medium.ttf": "93e4e46a15d3c4de8bc1b34a5b8c71ae5b6de61a2da7c9baff0125e7da69a6b2",
    "fonts/Inter-Regular.ttf": "c3a57eb0f716b30e51712843d753141827aa1d9266531c4f7357ec352d22f80f",
@@ -30,7 +44,7 @@
    "fonts/Literata-Medium.ttf": "d3919555b65a01a982f94d86185d9283a69a50196c840a194014b0e4cd1945f0",
    "fonts/Literata-Regular.ttf": "208e04c5e8a4b86de2aa67d46bbc6f0188048f4dcda422f88a4be2ec59d40b10",
    "fonts/Literata-SemiBold.ttf": "45fbb4d0c37b32002c0bbd652c9be16a00ac19bced980b7e95bb44ae794ea6aa",
-   "tokens.json": "cfd65ac49bcfbd468ab3129234bb0794420d3f5e5db3ad04869eb6c70d313c61"
+   "tokens.json": "fd0b891526850041b8850d83288c859018c1da7b102b41292cde697a5ef8af86"
   },
   "blobs": {
    "assets/Logos/ca-logo.png": "aed5b80d718d62b88ef0d081be43f617",
@@ -221,8 +235,8 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "74c2f86c6d9bf5d1b9e08b5010db675dc35dd5958abe10414c8e500424cfd58b",
-  "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
+  "sha256": "5e82f573afd7ab67475032d072ca351d56f8da0e5c68c1a52e19c06dc85b5570",
+  "readme_sha256": "811f06390e7c8d3b65ad4190b718cb16df95dd395a4a0d70f7738549979d5bce",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },
  "office": {
@@ -831,5 +845,6 @@
    "Amber (review) marks anything that still needs a person. Urgent and stable pills only as in the reference; no red or green traces.",
    "No waveform beside a person's name or photo; nothing idles after the animation ends."
   ]
- }
+ },
+ "default": true
 }

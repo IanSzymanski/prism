@@ -64,9 +64,11 @@ for (const m of read("ca-sheet.css").matchAll(/src:url\("fonts\/print\/([\w-]+\.
 eq(R["prism-font-serif"].value.stack.split(",")[0], "Literata", "serif family");
 // Wave rules: pre-rendered SVGs identical to the sheet's data URIs; generator parameters match every builder call
 const css = read("ca-sheet.css");
+// Same drawing whatever the serializer: quote style, self-closing tags and whitespace don't count.
+const svgNorm = s => s.replace(/'/g, '"').replace(/<(\w+)([^<>]*?)><\/\1>/g, "<$1$2/>").replace(/\s+/g, " ").replace(/\s*(\/?>)\s*/g, "$1").trim();
 for (const [k, role] of [["opener-end", "rule-opener-end"], ["opener-start", "rule-opener-start"], ["stop", "rule-stop"], ["opener-start-dark", "rule-opener-start-on-dark"]]) {
   const svg = decodeURIComponent(new RegExp(`--ca-wave-${k}:url\\("data:image/svg\\+xml,(.*?)"\\)`).exec(css)[1]);
-  ok(fs.readFileSync(R[A(role)].value.path, "utf8") === svg, `wave svg ${k}`);
+  ok(svgNorm(fs.readFileSync(R[A(role)].value.path, "utf8")) === svgNorm(svg), `wave svg ${k}`);
 }
 const g = R["prism-generator-rule"].value, p = g.params.default;
 ok(fs.readFileSync(g.script, "utf8") === read("wave-core.js"), "wave-core.js identical");
