@@ -15,8 +15,8 @@ prof.snapshot.blobs = Object.fromEntries(Object.entries(idx.assetGroups || {}).f
 if (prof.office && fs.existsSync(path.join(dir, "office"))) prof.office.files = Object.fromEntries(walk(path.join(dir, "office")).sort().map(p => [path.relative(dir, p), sha(p)]));
 // Office fonts taken straight from the snapshot (no office/ folder) keep their names and take fresh hashes.
 else if (prof.office && prof.office.files) prof.office.files = Object.fromEntries(Object.keys(prof.office.files).filter(f => fs.existsSync(path.join(dir, f))).map(f => [f, sha(path.join(dir, f))]));
-// Every brand-owned file beside the profile (ornaments, layers, own assets; digest excluded), pinned like the snapshot.
-const ownFiles = [...fs.readdirSync(dir).filter(f => f.endsWith(".js")), ...["layers", "own"].filter(d => fs.existsSync(path.join(dir, d))).flatMap(d => walk(path.join(dir, d)).map(p => path.relative(dir, p)))];
+// Every brand-owned file beside the profile (ornaments, layers, own assets, site kit; digest excluded), pinned like the snapshot.
+const ownFiles = [...fs.readdirSync(dir).filter(f => f.endsWith(".js")), ...["layers", "own", "web"].filter(d => fs.existsSync(path.join(dir, d))).flatMap(d => walk(path.join(dir, d)).map(p => path.relative(dir, p)))];
 prof.own = Object.fromEntries(ownFiles.sort().map(f => [f, sha(path.join(dir, f))]));
 prof.digest.sha256 = sha(path.join(dir, prof.digest.file)); prof.digest.readme_sha256 = prof.snapshot.files["README.md"];
 fs.writeFileSync(path.join(dir, "profile.json"), JSON.stringify(prof, null, 1) + "\n");

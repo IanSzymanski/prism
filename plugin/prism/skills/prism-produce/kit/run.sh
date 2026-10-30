@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# One entry point for every build: ./run.sh sheet|deck|social|blog|email|illustration|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|tutorial <args>
+# One entry point for every build: ./run.sh sheet|deck|social|blog|email|illustration|web|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|tutorial <args>
 # Runs the setup a build needs the first time it is used, so no separate setup step is required.
 KIT="$(cd "$(dirname "$0")" && pwd)"
 cmd="$1"; shift
-case "$cmd" in sheet|social|blog|email|wire|swatch) part=sheet ;; illustration) part=illustration ;; deck|devices) part=deck ;; motion) [ "$1" = render ] && part=sheet || part="" ;; *) part="" ;; esac
+case "$cmd" in sheet|social|blog|email|wire|swatch) part=sheet ;; illustration) part=illustration ;; web) part=web ;; deck|devices) part=deck ;; motion) [ "$1" = render ] && part=sheet || part="" ;; *) part="" ;; esac
 if [ -n "$part" ] && [ ! -f "$KIT/.ready-$part" ]; then bash "$KIT/setup.sh" "$part" || exit 1; fi
 [ -f "$KIT/env.sh" ] && . "$KIT/env.sh"
 [ -n "$NODE_PATH" ] || export NODE_PATH="$KIT/node_modules:$(npm root -g 2>/dev/null)"
@@ -14,6 +14,7 @@ case "$cmd" in
   blog)    node "$KIT/build-blog.js" "$@" ;;
   email)   node "$KIT/build-email.js" "$@" ;;
   illustration) node "$KIT/build-illustration.js" "$@" ;;
+  web)     node "$KIT/build-web.js" "$@" ;;
   motion)  node "$KIT/motion.js" "$@" ;;
   devices) node "$KIT/devices.js" "$@" ;;
   tag)     node "$KIT/naming.js" "$@" ;;
@@ -38,5 +39,5 @@ case "$cmd" in
   onboard) node "$KIT/onboard.js" "$@" ;;
   tutorial) node "$KIT/tutorial.js" "$@" ;;
   setup)   bash "$KIT/setup.sh" "$@" ;;
-  *) echo "usage: run.sh sheet|deck|social|blog|email|illustration|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|tutorial|wire|wire-diff|setup <args>"; exit 2 ;;
+  *) echo "usage: run.sh sheet|deck|social|blog|email|illustration|web|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|tutorial|wire|wire-diff|setup <args>"; exit 2 ;;
 esac

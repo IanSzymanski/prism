@@ -94,6 +94,29 @@ try:
     check("diff: an untouched board has no changes", r.stdout.strip() == "No changes.", r.stdout)
     check("diff: moves and text edits are not styling", "NOT CARRIED" not in out, out)
 
+    # Website pages: sides alternate as the build places them, and a section moved on the canvas keeps the zigzag.
+    r = run("wire", "fixtures/web.md", "wire/web", cwd=tmp)
+    check("web: board builds", r.returncode == 0, r.stderr)
+    web = open(os.path.join(tmp, "wire/web/web.dc.html")).read()
+    check("web: headings on the right are mirrored, the centered title has no ornament", web.count('class="wp wrev"') == 3 and web.count('class="wp wcenter"') == 1, re.findall(r'class="wp w(?:rev|center)"', web))
+    media = [m for m in re.findall(r'<div data-block="b\d+" class="wb">.*?(?=\n<div data-block=|\n</div>)', web, re.S) if "image + text" in m]
+    check("web: media rows alternate, image left then right", [m.index("width: 42%") < m.index("flex-grow: 1") for m in media] == [True, False, True, False, True, False], len(media))
+    check("web: an eyebrow sits on its heading's side", web.count("weyebrow wright") == 2, web.count("weyebrow wright"))
+    check("web: lists in a media row are drawn as items", "<p class=\"wx\">• Turning conversations into formal case notes</p>" in web)
+    lines = web.split("\n")
+    sec = [l for l in lines if re.match(r'<div data-block="b0[456]"', l)]
+    moved = [l for l in lines if l not in sec]
+    at = next(i for i, l in enumerate(moved) if l.startswith('<div data-block="b10"'))
+    open(os.path.join(tmp, "web-moved.dc.html"), "w").write("\n".join(moved[:at] + sec + moved[at:]))
+    shutil.copy(os.path.join(tmp, "fixtures/web.md"), os.path.join(tmp, "web-applied.md"))
+    r = subprocess.run([sys.executable, os.path.join(KIT, "wire_diff.py"), os.path.join(tmp, "wire/web"), os.path.join(tmp, "web-moved.dc.html"), "--apply", os.path.join(tmp, "web-applied.md")], capture_output=True, text=True)
+    check("web: a moved section reads back", "MOVED" in r.stdout and "STOP" not in r.stdout, r.stdout)
+    sides = subprocess.run(["node", "-e", "const W=require(process.argv[1]),fs=require('fs');const m=W.model(W.parse(fs.readFileSync(process.argv[2],'utf8')),n=>({name:n,weight:'light'}));"
+                            "console.log(m.errors.length+' '+m.comps.filter(c=>c.side).map(c=>c.name[0]+c.side[0]).join(','))", os.path.join(KIT, "build-web.js"), os.path.join(tmp, "web-applied.md")], capture_output=True, text=True).stdout.strip()
+    check("web: after the move the page still alternates", sides == "0 hl,ml,hr,mr,hl,ml,hr,mr,hl,ml,hr,mr,hl", sides)
+    r = run("web", "web-applied.md", "out-web", cwd=tmp)
+    check("web: the moved page builds", r.returncode == 0 and "ERROR" not in r.stderr, r.stderr)
+
     # Safe read-back: a restyle is reported, a broken save or mass cut stops before the format file is touched.
     diff = lambda board, *a: subprocess.run([sys.executable, os.path.join(KIT, "wire_diff.py"), w, board, *a], capture_output=True, text=True)
     fmt = os.path.join(tmp, "fixtures/html-email-newsletter.md"); orig = open(fmt).read()

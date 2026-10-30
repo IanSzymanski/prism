@@ -1,5 +1,5 @@
 # Prism guided walkthrough: one sample piece, start to finish
-<!-- walkthrough-reviewed: 1.2 -->
+<!-- walkthrough-reviewed: 1.3 -->
 
 Run this when someone types `/prism-tutorial` with no topic, or asks to be walked through Prism ("show me how it works", "walk me through it", "guided tutorial"). It makes a real sample piece with the real skills, stage by stage: the prompt and source material, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, and then the same approved words exported again as other formats. At every stage, say **why the stage is there**, **what the person can do in it**, and **how it is shared**, then pause so they can try it before moving on.
 
@@ -107,7 +107,7 @@ Pause (next: the same words in other formats).
 
 ## Stage 7: The same words, other formats
 
-Do: ask one AskUserQuestion call, multi-select, "Which other formats should the same approved words become?", one option per `more` line the sample printed, with its prompt as the description; the first three options, a PowerPoint deck, a carousel and an animated film, marked "(Recommended)". Four options at most, so keep the deck, carousel and film and offer one of the rest; "Other" covers the remaining ones (social posts and stories, an HTML email, a blog post, a brochure, a 5x7 card, an email header, a one sheet). Then follow prism-produce "New export later" for each one picked: one prism-formatter per format in create mode, in parallel, from the same content.md. With fixed files, a format with a fixed layout (`fixed layout` on its `more` line: the deck and the carousel) takes it from `run.sh tutorial <brand> --out <workspace> --format <name>` instead of a formatter (patched, as in stage 5, when the words differ), so its board and file are the same every run; the rest are made by the formatter and said to be made fresh.
+Do: ask one AskUserQuestion call, multi-select, "Which other formats should the same approved words become?", one option per `more` line the sample printed, with its prompt as the description; the first three options, a PowerPoint deck, a carousel and an animated film, marked "(Recommended)". Four options at most, so keep the deck, carousel and film and offer one of the rest; "Other" covers the remaining ones (social posts and stories, an HTML email, a blog post, a brochure, a 5x7 card, an email header, a one sheet, a website page). Then follow prism-produce "New export later" for each one picked: one prism-formatter per format in create mode, in parallel, from the same content.md. With fixed files, a format with a fixed layout (`fixed layout` on its `more` line: the deck and the carousel) takes it from `run.sh tutorial <brand> --out <workspace> --format <name>` instead of a formatter (patched, as in stage 5, when the words differ), so its board and file are the same every run; the rest are made by the formatter and said to be made fresh.
 
 - The deck, carousel and any other static format get their board added to the same canvas beside the sheet (`references/wireframe.md`, "A format added later"). Since the piece is already exported, each one is built, checked, verified and delivered straight away (section 4, Design session step 8), and its board is stamped.
 - An animated film never opens on the canvas: follow prism-produce `references/film.md` (the direction script, the film in Claude Motion, `motion check`, stills); the film's own page is where it's reviewed, and **Export** there saves the MP4.
@@ -118,6 +118,7 @@ Say, per format, one or two lines:
 - **Deck:** an editable 16:9 PowerPoint with native charts; the monthly figures become a real chart that can be edited. The brand's Office fonts come as a pack with the first deck; they need to be installed to present.
 - **Carousel:** PNG panels and a caption file for posting; the cover comes first and the closing panel last.
 - **Animated film:** the same results as a short film in the brand's colours, fonts and logo, each scene held long enough to read. Comments on its page pin to a moment; Export saves the MP4.
+- **Website page:** the same words as a whole page for the brand's site, sections alternating sides, as block markup to paste into a new WordPress draft, with its search fields and photo slots in a page file. Its board joins the canvas like the others; the draft on the site is the real preview.
 - **Any other format:** what the plugin README's outputs table says it is.
 - **Sharing:** the new boards sit on the same canvas, so anyone already invited can review them with you; a film's page can be shared the same way for comments. You approve every change.
 

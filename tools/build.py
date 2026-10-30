@@ -8,7 +8,7 @@ VER = sys.argv[1]
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.environ.get("PRISM_SRC", os.path.join(ROOT, "plugin", "prism"))
 DIST = os.environ.get("PRISM_DIST", os.path.join(ROOT, "dist"))
-JUNK = ["__pycache__", "node_modules", "mods", "cache", "env.sh", ".ready-sheet", ".ready-deck", ".ready-illustration", ".setup.lock"]
+JUNK = ["__pycache__", "node_modules", "mods", "cache", "env.sh", ".ready-sheet", ".ready-deck", ".ready-illustration", ".ready-web", ".setup.lock"]
 
 
 def sub(p, pat, rep):

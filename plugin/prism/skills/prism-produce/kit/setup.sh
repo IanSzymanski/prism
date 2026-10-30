@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Gets the build tools ready for one output type and remembers it. Usage: setup.sh [sheet|social|deck|illustration|all]
+# Gets the build tools ready for one output type and remembers it. Usage: setup.sh [sheet|social|deck|illustration|web|all]
 # sheet (also brochure), social (also email, carousel): pandoc + Chromium. deck: adds pptxgenjs, sharp and the Office fonts.
 # illustration: Chromium plus GSAP, which the bench page carries and the checks play (the website has its own copy).
+# web: only WordPress's block parser, which checks every page's markup; no browser.
 # Works in Claude (Cowork) and ChatGPT sandboxes; anything missing comes from the npm and PyPI registries.
 set -e
 KIT="$(cd "$(dirname "$0")" && pwd)"
@@ -9,7 +10,7 @@ cd "$KIT"
 # One setup at a time: a second call waits here, then finds the tools ready.
 exec 9>"$KIT/.setup.lock"; command -v flock >/dev/null && flock 9
 PART="${1:-all}"
-[ "$PART" = all ] && PARTS="sheet deck illustration" || PARTS="$PART"
+[ "$PART" = all ] && PARTS="sheet deck illustration web" || PARTS="$PART"
 [ "$PARTS" = social ] && PARTS=sheet
 say() { echo "setup: $*"; }
 t() { timeout "$@"; }   # every step that can hang gets a time limit
@@ -19,13 +20,16 @@ command -v node >/dev/null || { say "MISSING node"; exit 1; }
 if ! grep -q NODE_PATH env.sh; then
   G="$(npm root -g 2>/dev/null || true)"
   M="$KIT/mods"
-  echo "export NODE_PATH=\"$M/playwright/node_modules:$M/pptxgenjs/node_modules:$M/sharp/node_modules:$M/chromium/node_modules:$M/gsap/node_modules:$KIT/node_modules${G:+:$G}\"" >> env.sh; . ./env.sh
+  echo "export NODE_PATH=\"$M/playwright/node_modules:$M/pptxgenjs/node_modules:$M/sharp/node_modules:$M/chromium/node_modules:$M/gsap/node_modules:$M/@wordpress/block-serialization-default-parser/node_modules:$KIT/node_modules${G:+:$G}\"" >> env.sh; . ./env.sh
 fi
 has() { node -e "require('$1')" 2>/dev/null; }
 pkg() { node -e "const p=require('./package.json').dependencies;console.log('$1@'+p['$1'])"; }
 # Each package gets its own folder, so installing one never removes another.
 inst() { mkdir -p "mods/$1" && t 180 npm install --prefix "mods/$1" --no-audit --no-fund --silent "$2"; }
 need() { for m in "$@"; do has "$m" || { say "installing $m"; inst "$m" "$(pkg "$m")"; }; done; }
+
+# A website page needs only the block parser.
+if [ "$PARTS" = web ]; then need @wordpress/block-serialization-default-parser; touch .ready-web; say "web tools ok"; say "ready (web)"; exit 0; fi
 
 # pandoc: system copy, else the pip wheel that bundles the binary.
 if command -v pandoc >/dev/null; then say "pandoc ok"; else
@@ -69,5 +73,10 @@ if [[ " $PARTS " == *" illustration "* ]]; then
   need gsap
   touch .ready-illustration
   say "illustration tools ok"
+fi
+if [[ " $PARTS " == *" web "* ]]; then
+  need @wordpress/block-serialization-default-parser
+  touch .ready-web
+  say "web tools ok"
 fi
 say "ready ($PART)"

@@ -23,7 +23,7 @@ const KIT = __dirname;
 const FORMATS = ["sheet", "brochure", "5x7", "deck", "social", "email", "html-email", "carousel", "blog"];
 // Which counts each format can take; folder builds write into out/<output id>/.
 const COUNTS = { posts: ["social", "email"], stories: ["social"], pages: ["sheet", "brochure", "5x7"], min_pages: ["sheet", "brochure"], max_pages: ["sheet", "brochure", "5x7"] };
-const FOLDER = new Set(["social", "email", "carousel", "blog", "html-email"]);
+const FOLDER = new Set(["social", "email", "carousel", "blog", "html-email", "web"]);
 const EXT = { sheet: ".pdf", brochure: ".pdf", "5x7": ".pdf", deck: ".pptx" };
 
 const die = m => { console.error(m); process.exit(2); };

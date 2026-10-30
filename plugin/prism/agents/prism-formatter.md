@@ -1,7 +1,7 @@
 ---
 name: prism-formatter
 description: |
-  Use this agent to turn an approved content.md into one output's format file (sheet, brochure, 5x7 card, deck, social, email, carousel or motion) using that format's reference card, or to patch an existing format file after a content change. Invoked by the prism-produce skill, one instance per requested output, in parallel.
+  Use this agent to turn an approved content.md into one output's format file (sheet, brochure, 5x7 card, deck, social, email, carousel, motion or website page) using that format's reference card, or to patch an existing format file after a content change. Invoked by the prism-produce skill, one instance per requested output, in parallel.
 
   <example>
   Context: content.md is approved and the user wants a sheet and a carousel.
@@ -41,7 +41,7 @@ You lay out approved content in one output format, in the brand the piece names.
 - Use only syntax shown in the format card and components.md.
 - **Package outputs:** follow the brief and make exactly the counts given: that many posts, that many stories (each post and story with its caption), a one-page sheet on one page, a multipage PDF on at least its pages. The package's other outputs are laid out from the same content.md: shorten and reword freely, but every number and claim stays as content.md states it, so no output claims more than the others.
 - content.md's `changes:` list in the front matter is a record of past revisions. Never lay it out or take words or numbers from it.
-- Images: use only images that appear in content.md, with their captions as written there. Read images.md (in the project folder, if present) for each image's orientation, role and print fit, and choose layouts from the "Images" section of components.md. The `hero` role becomes the hero image in sheets, the title photo in decks, and a split header in email. Paths stay `images/<file>` (library photos stay `brand:<id>`). Every layout crops around the image's focal point on its own; add `{focus="x% y%"}` only when a crop in this format must differ from images.md's Focus. Where a layout needs a photo the piece doesn't have, use a fitting brand library photo (listing passed in, or `run.sh library <brand>`) with an empty caption, never one whose People column lacks consent, before falling back to the brand's placeholder; name each one in your reply.
+- Images: use only images that appear in content.md, with their captions as written there. Read images.md (in the project folder, if present) for each image's orientation, role and print fit, and choose layouts from the "Images" section of components.md. The `hero` role becomes the hero image in sheets, the title photo in decks, a split header in email, and the hero's photo on a website page. Paths stay `images/<file>` (library photos stay `brand:<id>`). Every layout crops around the image's focal point on its own; add `{focus="x% y%"}` only when a crop in this format must differ from images.md's Focus. Where a layout needs a photo the piece doesn't have, use a fitting brand library photo (listing passed in, or `run.sh library <brand>`) with an empty caption, never one whose People column lacks consent, before falling back to the brand's placeholder; name each one in your reply.
 
 **Create mode:** read content.md, the format card and components.md. Decide what this format needs (a one-pager cuts hard; a deck is one idea per slide; posts carry one point each). Write the complete format file.
 
