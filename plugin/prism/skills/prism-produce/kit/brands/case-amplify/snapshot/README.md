@@ -17,7 +17,7 @@ This system is built from the Case Amplify Content Studio kit (0.13.1), which pr
 
 **Ground.** Every page, slide and post sits on `paper` (#FFFFF8), never pure white. Colours are solid, never transparent, because PDF viewers blend transparency differently. Title areas sit on a radial wash from `wash` to `paper`.
 
-**Colour.** `ink` for headings, `body` for text, `muted` for captions, `faint` for folios and axis ticks only. `grape` is the brand hue, used in small, exact doses: the one accent word in a heading, stat figures, list markers, check icons, chart highlights, email buttons. Hairlines in `hair-soft`; the wave in `hair`. Charts use `series-1` to `series-5` in order, with `grape-hot` over `grape` for highlighted bars.
+**Colour.** `ink` for headings, `body` for text, `muted` for captions, `faint` for folios and axis ticks only. `grape` is the brand hue, used in small, exact doses: the one accent word in a heading, stat figures, list markers, check icons, chart highlights, email buttons. Hairlines in `hair-soft`; the wave in `hair`. Charts use `series-1` to `series-5` in order, with `grape-hot` over `grape` for highlighted bars. The series colours belong to charts and graphs only: data marks and their legend keys. Never use them for text, accent words, backgrounds, borders, icons, buttons, washes or any other part of a layout; outside a chart, reach for the named tokens above.
 
 **Dark.** The dark theme is the dark card, not a dark mode: `dark-card` under the `cta-card` background image, used once per sheet (the closing card), once per post set, and for the deck's dark slides (gradient `dark-deep` → `dark-card` → `dark-high`). On dark: eyebrows in `lilac` and sans, never mono.
 
