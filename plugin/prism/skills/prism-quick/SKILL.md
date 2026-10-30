@@ -6,7 +6,7 @@ description: >
   "just make it", "quick mode". Builds one output in one pass with the brand kit, the only
   allowed way to make a designed branded file. Not for pieces to be drafted and proofed first (prism-draft).
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Quick mode: raw material to one finished file, one pass

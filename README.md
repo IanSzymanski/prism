@@ -75,7 +75,7 @@ Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` ru
 
 ```bash
 # The plugin zip into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
-python3 tools/build.py 1.2.0
+python3 tools/build.py 1.3.0
 
 # One output, from a workspace with the kit copied in
 cp -r plugin/prism/skills/prism-produce/kit .prism-kit

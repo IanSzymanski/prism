@@ -8,7 +8,7 @@ description: >
   "what can you do" with the rundown in references/tutorial.md, and runs the guided walkthrough on a sample piece
   ("tutorial", "walk me through it", "show me how it works") from references/walkthrough.md.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # Draft: raw material to an approved content.md

@@ -1,5 +1,5 @@
 # Prism tutorial: how to use the plugin
-<!-- tutorial-reviewed: 1.2 -->
+<!-- tutorial-reviewed: 1.3 -->
 
 Give this rundown when someone asks how to use Prism ("how does this work", "tutorial", "what can you do"). Present it in your own words, short and scannable: a two-line intro, then the sections below as brief headed lists. When they ask about one part ("how does design mode work", "tell me about quick mode"), give only that section, in a little more depth. Never invent features; everything Prism does is in this file. End by offering a next step that fits: "Paste some notes and say 'draft this into a one-pager'", try quick mode, or the guided walkthrough (`/prism-tutorial` with no topic, in `walkthrough.md`), which makes a sample piece through every stage.
 
