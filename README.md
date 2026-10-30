@@ -16,6 +16,7 @@ It ships as a Claude plugin built from this repository. **This is 1.2.0** (1.0.0
 | Blog post | `run.sh blog` | Header PNG, chart PNGs, `post.md` and `post.html` |
 | HTML email | `run.sh email` | HTML, an images zip, plain text, light and dark previews |
 | Website illustration | `run.sh illustration` | An animated UI mockup of one feature for a website feature page: the single HTML block (dark and light) for the site, a bench page that previews it live, finished-frame PNGs at desktop and phone width and a strip of the motion. `run.sh illustration bench OUT.html A.md B.md` lays several out as a feature page |
+| Website page | `run.sh web` | A whole page for the brand's WordPress site: the block markup to paste into a draft (the brand's site kit, or plain WordPress blocks for a brand without one), `page.json` (template and page settings, search fields, image slots, photos to upload) and the photos. `run.sh web compare A.html B.html` lists every block that differs between two saved pages |
 | Animated film | `run.sh motion brief` | A brief Claude Motion makes the film from; Prism checks and renders the film it made; Export on the film's page saves the MP4. Techniques: stat story, kinetic type and UI walkthrough (`run.sh motion gaps` lists what a walkthrough still needs from the person) |
 | Package | `run.sh packages` | A set of outputs from one piece (such as a case study package), delivered as one zip |
 
@@ -24,6 +25,8 @@ Every block format the outputs share (stats, charts, flows, quotes, media rows, 
 **Device mockups** (core): `![](images/app.png){device=phone|tablet|laptop}` puts a screenshot in a phone, tablet or laptop frame (`tone="light"` for silver, `.landscape` to turn a phone or tablet). Sheets, brochures, cards and posts draw the frame as vector; decks place framed PNGs and add **overset** media slides (`.overset-left`, `.overset-right`: the picture runs off that edge) and **layers** (a laptop with a phone in front, each its own picture); films take `frame=phone|tablet|laptop`. `run.sh devices render SHOT OUT.png --device laptop` makes one on its own.
 
 **UI walkthroughs** (`technique: walkthrough`): a product film rebuilt from the person's screenshots, which are layout guides (`{.screen}`) rather than pictures: an opening title, the app building in, numbered steps with a collapsing step card, actions (`.click`, `.fill`, `.choose`, `.focus`, `.open`, `.toast` and more) that run one after another, and an end card with a recap of the steps. Hand-offs follow the screens: the same screen keeps its chrome, a desktop-to-phone change reframes, and the brief carries the house rules for walkthrough videos (pacing, zoom, focus scrim, typing speed, nothing overset). `run.sh motion gaps` turns what's missing (screenshots, demo or real data, the call to action, assumed details) into interview questions; the needed ones stop the brief.
+
+**Website pages** (`layout: web`): the format file is Prism Markdown (`::: hero`, `## heading` sections, `::: media`, `::: features`, `:::: band`, `::: cta-card`, `::: faq`). The build adds the spacers, the brand's page end and the sides (headings and media rows alternate down the page), so moving sections in design mode keeps the zigzag. Core (`build-web.js`, `web-blocks.js`) parses, checks, names image slots and writes `page.json`; the blocks come from the brand's site kit (profile `web.renderer`, Case Amplify's in `kit/brands/case-amplify/web/`), else core's plain WordPress blocks. Every build parses its markup with WordPress's own block parser (no stray text, no repeated block id). The site bridge that would create drafts from `page.json` is specified in `docs/wordpress-bridge.md` and not built yet.
 
 **Motion holds** grow with the words on screen: after its last entrance lands, every scene holds a second for every 20 characters it shows (3 s at least, 12 s at most). `read:` in a film's front matter changes the rate; `hold=` on a scene sets one by hand.
 
@@ -66,7 +69,7 @@ Brands today: run `run.sh brands` (it marks the default and lists onboarding dra
 
 ## Requirements
 
-Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
+Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations, WordPress's block parser for website pages, which need no browser); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
 
 ## Build
 
@@ -85,6 +88,8 @@ bash .prism-kit/run.sh blog fixtures/blog.md out/blog
 bash .prism-kit/run.sh email fixtures/html-email-newsletter.md out/newsletter
 bash .prism-kit/run.sh illustration fixtures/illustration.md out/illustration       # also illustration-notes.md, illustration-full.md
 bash .prism-kit/run.sh illustration bench out/bench.html fixtures/illustration-full.md fixtures/illustration.md fixtures/illustration-notes.md
+bash .prism-kit/run.sh web fixtures/web.md out/web                                # tests/web/vocational-rehabilitation.md is the live page's round trip
+bash .prism-kit/run.sh web compare tests/web/vocational-rehabilitation.original.html out/web/<tag>-blocks.html
 bash .prism-kit/run.sh motion brief fixtures/motion.md --out out/motion           # then link, check and render the film
 bash .prism-kit/run.sh motion gaps fixtures/motion-walkthrough.md                 # a walkthrough's questions for the person
 bash .prism-kit/run.sh devices render shot.png out/shot-laptop.png --device laptop
@@ -133,9 +138,10 @@ node tests/motion.test.js              # motion: the language, holds, the brief,
 node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
 node tests/deck-variants.test.js       # decks: dark and purple slides, the brand footer (number left, logo right)
 node tests/illustration.test.js        # website illustrations: parsing, the block, the brand's look, motion, phone, the bench
+node tests/web.test.js                 # website pages: sections and sides, the site kit byte for byte, the VR round trip, slots, page.json, checks, core blocks
 node tests/social-checks.test.js       # posts and carousels: counters, point numbers, the thread, purple, the word, layout, color, photo and stat checks
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
-python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op
+python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op, website page sides
 python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete
 python3 tests/readme.test.py           # this README still names every run.sh command and test suite
 python3 tests/core-brand-free.test.py  # no brand is named in core; defaults come from the profiles

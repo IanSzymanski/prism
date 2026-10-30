@@ -2,6 +2,7 @@
 """Confirms a deliverable was built by this kit in the brand fonts. Usage: verify.py [--brand ID] FILE_OR_FOLDER [...]
 PDF: kit stamp in the file properties, and only the brand's fonts (plus Phosphor icons) embedded. PPTX: kit stamp, and only the brand's Office fonts.
 Social, email or carousel folder: every PNG matches the fingerprint the build recorded.
+Website page folder: the block markup, page.json and every photo to upload match the build's fingerprints.
 HTML email folder: the tagged HTML, plain text, images zip and every image match the build's fingerprints.
 Every kind: no photo in it carries GPS (location) data."""
 import hashlib, json, os, re, sys, zipfile
@@ -87,7 +88,7 @@ def folder(path):
                      if f.lower().endswith(IMAGES) and gps_in_image(open(os.path.join(d, f), "rb").read()))
     if located: errs.append(GPS + ": " + ", ".join(located))
     main = data.get("main", "email.html")
-    if data.get("format") in ("html-email", "illustration") and not os.path.exists(os.path.join(path, main)):
+    if data.get("format") in ("html-email", "illustration", "web") and not os.path.exists(os.path.join(path, main)):
         errs.append(f"{main} is missing")
     return errs
 

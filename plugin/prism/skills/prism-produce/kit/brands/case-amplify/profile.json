@@ -221,7 +221,7 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "74c2f86c6d9bf5d1b9e08b5010db675dc35dd5958abe10414c8e500424cfd58b",
+  "sha256": "fbfef048f26a1b23f4d4bd555e03b75ba724110eb29448b248e8e2123e4e7c85",
   "readme_sha256": "d40c2ac4a06b9d201676658b59639024f1876cb9a4bd9d3e3b4eb0538330222a",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },
@@ -310,7 +310,9 @@
   "layers/social.css": "f566fd41b461cd7a10bdc6edb69f62cc754c840917c8c5bf1bd99a0df352e4bc",
   "ornaments.js": "295f8de2b704d499f93be20d89c1c918eb8eb3cb8883b15fa6269296ae7840c7",
   "own/placeholder-dark.png": "b85932febb19d3cdafdeb6325f8067f3e521476de0b14a1df0d930a0a7b2d23f",
-  "own/placeholder-light.png": "f9f3493882dc5f51b8695bc446c62178cc83274e44af8795e4414baf8756e8c0"
+  "own/placeholder-light.png": "f9f3493882dc5f51b8695bc446c62178cc83274e44af8795e4414baf8756e8c0",
+  "web/blocks.js": "5a75e42ea9c8eaf5868976b8caeb47831ac6603a28ae64a3995bda84e348037a",
+  "web/cta-card.html": "5fd749005d6f7062e5faa98a0e7eda020cf5f2139be22dd630ec9410c86f2177"
  },
  "layers": {
   "sheet": "layers/sheet.css",
@@ -831,5 +833,97 @@
    "Amber (review) marks anything that still needs a person. Urgent and stable pills only as in the reference; no red or green traces.",
    "No waveform beside a person's name or photo; nothing idles after the animation ends."
   ]
+ },
+ "web": {
+  "_note": "caseamplify.com pages (ca-web, Oct 30, Ian): WordPress 7.1 multisite (blog 5) on Cloudways, Kadence theme 1.5.2 with the caseamplify-child-new child theme, Kadence Blocks 3.7.10 (Pro), Yoast 28.4. web/blocks.js writes each block as the markup its site pattern saves; the child theme owns every style and script, so the markup carries no CSS.",
+  "renderer": "web/blocks.js",
+  "placeholder": {
+   "_note": "Unfilled image slots show this media library photo until the site fills them; a format file can override it with placeholder: <id> <url>.",
+   "id": 3901,
+   "url": "https://caseamplify.com/wp-content/uploads/sites/5/2026/04/Trust-at-every-level-1.png"
+  },
+  "synced": {
+   "_note": "Synced patterns (wp:block refs).",
+   "stop": 4470
+  },
+  "patterns": {
+   "_note": "Saved as each row's metadata, so the editor keeps the rows linked to their patterns.",
+   "headerDivider": {
+    "name": "ca-header/divider",
+    "categories": [
+     "header"
+    ],
+    "patternName": "core/block/4686"
+   },
+   "dividerHeader": {
+    "name": "ca-divider/header",
+    "categories": [
+     "header"
+    ],
+    "patternName": "core/block/4685"
+   },
+   "imageContent": {
+    "name": "ca-image/content",
+    "categories": [
+     "content"
+    ],
+    "patternName": "core/block/4688"
+   },
+   "contentImage": {
+    "name": "ca-content/image",
+    "categories": [
+     "content"
+    ],
+    "patternName": "core/block/4679"
+   },
+   "cards4": {
+    "name": "ca-4cards",
+    "categories": [
+     "content"
+    ],
+    "patternName": "core/block/4680"
+   },
+   "cardStack": {
+    "name": "ca-3cards/content",
+    "categories": [
+     "content"
+    ],
+    "patternName": "core/block/4682"
+   }
+  },
+  "rise": {
+   "_note": "Entrance motion per block, rise=<name> (wave-system.md §4.4).",
+   "rise": "ca-rise",
+   "settle": "ca-rise--settle",
+   "lift": "ca-rise--lift",
+   "soft": "ca-rise--soft",
+   "sweep": "ca-rise--sweep"
+  },
+  "icons": [
+   "calendar-check-fill",
+   "play-light",
+   "file-magnifying-glass-light",
+   "sparkle-light",
+   "read-cv-logo-light",
+   "briefcase-light",
+   "presentation-chart-light",
+   "list-checks-light",
+   "stack-plus-light",
+   "magnifying-glass-light",
+   "sliders-light",
+   "user-circle-check-light",
+   "link-simple-light",
+   "list-magnifying-glass-light",
+   "folder-lock-light"
+  ],
+  "templates": {
+   "_note": "Kadence page settings per template: what Ian set by hand on the first page, matching the live VR page's body classes (content-title-style-hide content-width-fullwidth content-style-unboxed content-vertical-padding-hide). Meta keys still to confirm with get_post_meta(4246).",
+   "inner": {
+    "_kad_post_title": "hide",
+    "_kad_post_layout": "fullwidth",
+    "_kad_post_content_style": "unboxed",
+    "_kad_post_vertical_padding": "hide"
+   }
+  }
  }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Format files (sheet, blog, brochure, deck, social, story, email, carousel) -> plain wireframe artboards for Claude Design,
+// Format files (sheet, blog, brochure, deck, social, story, email, carousel, website page) -> plain wireframe artboards for Claude Design,
 // plus wire.json per format, the snapshot the diff compares edits against. Content and spacing only; styling comes back from the kit.
 // Slides, posts and panels are drawn as frames at their real proportions, one block per frame.
 // Usage: node build-wire.js formats/deck.md wire/deck                       (one format: deck.dc.html, wire.json, the board size)
@@ -62,6 +62,9 @@ a.wlink{color:inherit;text-decoration:underline;text-decoration-color:#7DA2D6}
 .wmeta-s{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#1C1C24}
 .wstamp{display:inline-block;padding:4px 8px;border-radius:4px;background:#EAF6EF;font:600 11px/1 ui-monospace,Menlo,monospace;color:#2C7A4B;letter-spacing:.06em}
 .wdiv{height:2px;background:#D6D6DB;margin:8px 0}`;
+// Website pages only: headings and eyebrows on the right, mirrored ornaments, centered titles.
+const WEB_CSS = `.wrev{flex-direction:row-reverse;text-align:right}.wrev>:not(.wh){transform:scaleX(-1)}.wcenter{text-align:center}.wright{text-align:right}
+.weyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#6A6A73}`;
 
 let ICONS = null;
 const iconSvg = (B, n) => {
@@ -192,8 +195,11 @@ function wireOne(md, B) {
   // A heading; in flowing formats (sheets, brochures, blogs) a brand may draw its section ornament in lo-fi beside it.
   function heading(level, text, id, inFlow) {
     const t = inline(text.replace(/\s*\{[^}]*\}\s*$/, "")), noRule = /\{[^}]*\.no-rule/.test(text);
+    // On a website page a centered title has no ornament, and a heading on the right mirrors its ornament.
+    const center = isWeb && /\{[^}]*\.center\b/.test(text), side = isWeb ? (center ? " wcenter" : webSide[id] === "right" ? " wrev" : "") : "";
     let deco = { before: "", after: "", cls: "" };
-    if (level === 2 && inFlow && id !== "x") { section++; if (W_.heading && !noRule) deco = { ...deco, ...W_.heading({ n: section, text: plainOf(text) }, B) }; }
+    if (level === 2 && inFlow && id !== "x" && !center) { section++; if (W_.heading && !noRule) deco = { ...deco, ...W_.heading({ n: section, text: plainOf(text) }, B) }; }
+    if (side) deco.cls = (deco.cls ? deco.cls + " " : "") + side.trim();
     // Beside the heading (a rule running to the edge) or stacked with it (a number above, a rule below).
     const box = !(deco.before || deco.after) ? "" : deco.column ? ' style="display: flex; flex-direction: column; gap: 6px"' : ' style="display: flex; align-items: center; gap: 14px"';
     return `<div data-block="${id}" class="wp${deco.cls ? " " + deco.cls : ""}"${box}>${deco.before}<div class="wh wh${level}"${box && !deco.column ? ' style="flex: 0 1 auto"' : ""}>${t}</div>${deco.after}</div>`;
@@ -225,8 +231,9 @@ function wireOne(md, B) {
       if (cls === "hero-image") { const x = /!\[([^\]]*)\]\(([^)]+)\)/.exec(inner) || [];
         return wrap(kind, imgBox(x[1], x[2] || "", 220)); }
       if (cls === "media") { const x = /!\[([^\]]*)\]\(([^)]+)\)/.exec(inner) || [], rest = inner.replace(/!\[[^\]]*\]\([^)]+\)(\{[^}]*\})?/, "");
-        const flip = classes.includes(".flip");
-        const pic = `<div style="width: 42%; flex-shrink: 0">${imgBox(x[1], x[2] || "", 190)}</div>`, txt = `<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">${paras(rest).map(t => `<p class="wx">${inline(t.replace(/^#+\s*/, ""))}</p>`).join("")}</div>`;
+        const flip = isWeb ? webSide[id] === "right" : classes.includes(".flip");
+        const pic = `<div style="width: 42%; flex-shrink: 0">${imgBox(x[1], x[2] || "", 190)}</div>`, txt = `<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">${paras(rest).map(t => /^\s*-\s/.test(t)
+          ? listItems(t).map(i => `<p class="wx">• ${inline(i)}</p>`).join("") : `<p class="wx">${inline(t.replace(/^#+\s*/, ""))}</p>`).join("")}</div>`;
         return wrap("image + text", `<div style="display: flex; gap: 18px; align-items: center">${flip ? txt + pic : pic + txt}</div>`); }
       if (cls === "qr") { const url = (/image="([^"]*)"/.exec(first) ? "uploaded " : "") + ((/url="([^"]*)"/.exec(first) || /image="([^"]*)"/.exec(first) || [, ""])[1]), center = classes.includes(".center"), left = classes.includes(".left");
         const code = `<div style="width: 120px; flex-shrink: 0"><div class="wimg" style="height: 120px; font-size: 11px; word-break: break-all">QR: ${esc(url)}</div></div>`;
@@ -256,12 +263,21 @@ function wireOne(md, B) {
     if (/^!\[/.test(first)) { const x = /!\[([^\]]*)\]\(([^)]+)\)/.exec(b);
       return /\{[^}]*\.logo/.test(b) ? `<div data-block="${id}" class="wp"><div class="wimg" style="height: 34px; width: 150px; padding: 0">Logo</div></div>` : wrap("image", imgBox(x[1], x[2], 240)); }
     if (/^\s*(-|\d+\.)\s/.test(first)) return wrap("list", listItems(b).map((t, i) => `<p data-item="${id}.${i}" class="wx">• ${inline(t)}</p>`).join(""));
-    return `<div data-block="${id}" class="wp"><p class="wx">${inline(b)}</p></div>`;
+    return `<div data-block="${id}" class="wp"><p class="wx${isWeb && /^\[[^\]]+\]\{\.eyebrow\}$/.test(b) ? ` weyebrow${webSide[id] === "right" ? " wright" : ""}` : ""}">${inline(b)}</p></div>`;
   }
 
   // Footnote definitions and page breaks stay in the source but aren't drawn.
   const shown = [], hidden = [];
   blocks.forEach((b, i) => (/^\[\^[^\]]+\]:/.test(b) || /^:{3,}\s*page-break/.test(b) ? hidden : shown).push({ id: `b${String(i).padStart(2, "0")}`, md: b }));
+  // Website pages: sides alternate the way the build places them (build-web.js sides), so the board shows the page's zigzag.
+  const isWeb = meta.layout === "web", webSide = {};
+  if (isWeb) {
+    const seq = shown.map(b => { const f = b.md.split("\n")[0];
+      return { kind: /^##\s/.test(f) && !/\{[^}]*\.center\b/.test(f) ? "heading" : /^:{3,}\s*\{?\s*\.?media\b/.test(f) ? "media" : "other", pin: (/\{[^}]*\.(left|right)\b/.exec(f) || [])[1] }; });
+    require("./build-web.js").sides(seq).forEach((x, i) => { if (x) webSide[shown[i].id] = x; });
+    // An eyebrow sits on its heading's side.
+    shown.forEach((b, i) => { if (/^\[[^\]]+\]\{\.eyebrow\}$/.test(b.md) && shown[i + 1] && webSide[shown[i + 1].id]) webSide[b.id] = webSide[shown[i + 1].id]; });
+  }
   // Frames sit in a wrapping row (a brochure reads as its two printed sides, posts as a grid); sheets and blogs flow in one column.
   const framed = shown.some(b => frameOf(b.md.split("\n")[0]));
   const isEmail = meta.layout === "email";
@@ -277,7 +293,7 @@ function wireOne(md, B) {
   const inner = head + shown.map(b => render(b.md, b.id)).join("\n");
   const W = isEmail ? 744 : !framed ? 816 : meta.layout === "brochure" ? 1200 : shown.some(b => /\.slide\b|\.email\b/.test(b.md.split("\n")[0])) ? 960 : 1140;
   const page = h => `<div data-wire-root="" class="wr ${framed ? "wr-frames" : "wr-flow"}" style="width: ${W}px; height: ${h}">\n${inner}\n</div>`;
-  const css = CSS + (W_.css ? "\n" + W_.css : "");
+  const css = CSS + (isWeb ? "\n" + WEB_CSS : "") + (W_.css ? "\n" + W_.css : "");
   const name = meta.pagetitle || (meta.title || meta.subject || path.basename(md, ".md")).replace(/\*/g, "");
   return { md, outDir, board, W, page, css, name, write(H) {
     fs.writeFileSync(path.join(outDir, board), `<!doctype html>

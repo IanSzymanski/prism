@@ -92,3 +92,18 @@ Abstract UI mockups for caseamplify.com feature pages, in the style of Ian's "Ac
 - No waveform beside a person's name or photo, and nothing that idles after the animation.
 - Fictional people and data only; one key fact per element (12 words at most). Never imply every form fills automatically, promise SMS delivery or replies, show an unconfirmed workflow capability as shipped, or present illustrative numbers as real results.
 - About 5 seconds (a `size: full` overview about 6). Every block runs on the WordPress + Kadence site with its self-hosted GSAP 3.12.5 and ScrollTrigger: it plays once on the sitewide trigger line (`top 75%`, as `ca-rise`), joins the site boot through `CA.ready`, hides under `.js.pre`, and its script carries `data-cookieconsent="ignore"`. For production, the shared CSS can move into one `ca-mock.css` and the scripts into an enqueued file on the Cookiebot allowlist; the blocks work as they are until then.
+
+## Website pages
+
+Whole pages for caseamplify.com (WordPress multisite, Kadence theme and Kadence Blocks Pro, the caseamplify-child-new child theme). The site kit (`web/blocks.js`, profile `web`) writes each block as the markup its site pattern saves, so pasted pages stay editable in the editor; the child theme owns every style and script, so the markup carries no CSS. The live /vocational-rehabilitation/ page is the model: rebuilt from its web.md it matches the saved page block for block.
+
+- `template: inner` on every inner page (title hidden, full width, unboxed, no vertical padding).
+- The section rule belongs to the heading row (the site's header/divider patterns) and runs toward the media row's text, as on the live pages; the build alternates the sides. The hero has its own rule under the title, the band one under its heading, and every page ends on the synced full-stop rule. Never write rules or spacers.
+- Motion: `rise=` on a heading or block takes `rise`, `settle`, `lift`, `soft` or `sweep` (wave-system.md §4.4). The defaults fit almost everywhere (headings and media rows `rise`; centered headings, cards, stacks and the FAQ `lift`); the first media row on the live pages uses `settle`. `sweep` at most once per screen: never in two neighboring sections.
+- One CTA card per page (`::: cta-card`, wave-system.md §4.5): its gradients are found by id. Its heading's `*word*` is set in italics.
+- One band per page, for what changes overall, with up to five glass cards.
+- Icons: Phosphor Light names (`icon=calendar-check-fill` on the primary demo button, as on the site). Only icons already used on the site are known to work in its icon set; the build warns on any other, so check it in the editor's icon picker first.
+- Lists are drawn as "•" lines, as on the live site, until `ca-base.css` has a `ca-` list class.
+- Unfilled image slots show the "Trust at every level" photo (media 3901) until a photo is chosen. Photos of real staff or clients need the usual consent.
+- Delivery: the blocks file is pasted into a new draft's Code editor; Ian and Rob approve and publish. Never use the "Website" WordPress connector (that is intellitect.com). The "Case Amplify Website" connector and the ca-prism-bridge plugin that will create drafts from page.json aren't ready yet: deliver the files. On the multisite only super admins keep `core/html` blocks whole (the CTA card and rules), so whoever saves the page must be one, or the SVG is stripped.
+- `wave-system.md` (the site's motion and CSS spec, in the claude.ai project) governs motion, the rules and the CTA card. A change to any of them names the sections it amends, and Ian is asked before the spec is updated.

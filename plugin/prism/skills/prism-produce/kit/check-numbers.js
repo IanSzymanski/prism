@@ -10,7 +10,7 @@ function claimsText(md) {
     .replace(/^date\s*:.*$/gm, " ")
     // Link and image targets, hosting folders, the email issue line and merge tags are addresses, not claims.
     .replace(/\]\([^)\s]*\)/g, "]")
-    .replace(/^(image-base|issue|logo-link|mast-image|mast-split|mast-focus|mast-fade|seconds|aspect|phone-aspect|phone-scale)\s*:.*$/gm, " ")
+    .replace(/^(image-base|issue|logo-link|mast-image|mast-split|mast-focus|mast-fade|seconds|aspect|phone-aspect|phone-scale|post|parent|placeholder)\s*:.*$/gm, " ")
     .replace(/\$\{[^}\n]+\}|\$\[[^\]\n]+\]\$|\{\{[^}\n]+\}\}|\{%[^%\n]+%\}|\*\|[^|\n]+\|\*|%%[^%\n]+%%/g, " ")
     .replace(/\[\d{1,2}\s*·/g, "[")
     .replace(/\{[^}\n]*\}/g, " ")
