@@ -25,6 +25,7 @@ If the `caseamplify-manifest` skill is available, it is the authority on termino
 - One dark card (`cta-card`, `.dark` post) per sheet. The dark background never carries monospace text.
 - Grape emphasis (`*word*` in a heading) at most once per heading.
 - Icons come from Phosphor Light only.
+- Chart series colors (`series-1` to `series-5`) are for charts and graphs only: data marks and their legend keys. Never use them for text, accent words, backgrounds, borders, icons, buttons, washes or any other part of a layout; outside a chart, use the named colors (ink, body, muted, grape, wash, tint).
 
 ## Photos
 
