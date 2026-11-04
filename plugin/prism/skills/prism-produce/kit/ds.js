@@ -2,7 +2,8 @@
 // Reading a Claude Design System in as few Artifact calls as possible. Its text files (index, tokens, README, fonts, components)
 // are published files under project/; its images are uploads in its asset store, named by the index and read by their ids.
 // A read saves an upload as <id>.<ext> beside the published files; `place` moves each to project/assets/<group>/<file>.
-// Usage: ds.js assets <folder> [--brand <id> | --skip <group>] [--all]   (the upload ids to read in one call; never the photo library)
+// Usage: ds.js assets <folder> [--brand <id> [--used] | --skip <group>] [--all]   (the upload ids to read in one call; never the photo library;
+//        --used: only the images the brand already uses)
 //        ds.js place <folder>                                          (puts the uploads the read saved where the index names them)
 const fs = require("fs"), path = require("path");
 const a = process.argv.slice(2), cmd = a[0], dir = a[1], opt = k => a.includes(k) ? a[a.indexOf(k) + 1] : null;
@@ -17,9 +18,16 @@ if (cmd === "assets") {
   // The photo library stays in the design system: pieces fetch the photos they use (library.js --need).
   let skip = opt("--skip");
   if (!skip && opt("--brand")) skip = (require("./resolve.js").load(opt("--brand")).libraryGroup) || null;
+  // A Prism brand read from its design system names its photo group in the profile it just read.
+  if (!skip && fs.existsSync(path.join(root, "prism", "profile.json"))) { try { skip = (JSON.parse(fs.readFileSync(path.join(root, "prism", "profile.json"), "utf8")).library || {}).group || null; } catch (e) { } }
   if (!skip && !a.includes("--all")) skip = "Photos";
-  const want = uploads.filter(u => a.includes("--all") || u.group !== skip), left = uploads.length - want.length;
-  console.log(`Read these ${want.length} uploads (${Math.round(want.reduce((s, u) => s + (u.size || 0), 0) / 1024)} KB) in one call, as paths${left ? `; the ${left} in "${skip}" stay in the design system` : ""}:`);
+  // A Prism brand needs only the uploads its profile pins (logos, the drawn rule, backgrounds), never the rest of the asset store.
+  let pinned = null;
+  if (!a.includes("--all") && fs.existsSync(path.join(root, "prism", "profile.json"))) { try { pinned = new Set(Object.keys(JSON.parse(fs.readFileSync(path.join(root, "prism", "profile.json"), "utf8")).snapshot.files || {})); } catch (e) { } }
+  // --brand B --used: an update reads only the images the brand already uses (its pinned files), not the whole asset store.
+  if (!pinned && opt("--brand") && a.includes("--used")) { try { const b = require("./resolve.js").brandDir(opt("--brand")); pinned = new Set(Object.keys(JSON.parse(fs.readFileSync(path.join(b.dir, "profile.json"), "utf8")).snapshot.files || {})); } catch (e) { } }
+  const want = uploads.filter(u => a.includes("--all") || (pinned ? pinned.has(u.file) : u.group !== skip)), left = uploads.length - want.length;
+  console.log(`Read these ${want.length} uploads (${Math.round(want.reduce((s, u) => s + (u.size || 0), 0) / 1024)} KB) in one call, as paths${left ? `; the other ${left} ${pinned ? "are not the brand's" : `in "${skip}"`} and stay in the design system` : ""}:`);
   for (const u of want) console.log(u.blob);
   process.exit(0);
 }

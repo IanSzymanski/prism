@@ -9,7 +9,7 @@ import hashlib, json, os, re, sys, zipfile
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brandpath import brand_dir, default_brand
+from brandpath import brand_dir, default_brand, snapshot_dir
 from photometa import gps_in, gps_in_image
 
 KIT = os.path.dirname(os.path.abspath(__file__))
@@ -22,7 +22,7 @@ def brand_fonts(bid):
     """The brand's families from its profile: font roles -> the design system's family stacks -> first family, as PDFs name it."""
     d = brand_dir(bid)
     prof = json.load(open(os.path.join(d, "profile.json")))
-    fam = json.load(open(os.path.join(d, "snapshot", "tokens.json")))["type"]["families"]
+    fam = json.load(open(os.path.join(snapshot_dir(bid), "tokens.json")))["type"]["families"]
     first = lambda r: fam[prof["roles"][r]].split(",")[0].strip().strip("'\"").replace(" ", "")
     return {r: first(f"prism-font-{r}") for r in ("serif", "sans", "mono")}, set((prof.get("office") or {}).get("fonts", {}).values())
 

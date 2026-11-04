@@ -42,7 +42,7 @@ Also:
 - **Quick mode** (`prism-quick`): one output in one pass, no questions and no proof stop; the reply lists every claim to check.
 - **Design mode:** a plain wireframe of each output on a Claude Design canvas; drag, delete and edit there, say "done", and the changes go back into the Markdown and rebuild.
 - **Co-op mode:** the owner invites teammates to the proof doc and canvas; their `@claude` requests are applied by the owner's Prism; only the owner approves and exports (`plugin/prism/skills/prism-produce/references/coop.md`).
-- **Brands:** `prism-onboard` (or `/prism-onboard`) maps a design system onto Prism's roles, shows it on a swatch sheet and packs a bundle for the next release.
+- **Brands:** `prism-onboard` (or `/prism-onboard`) maps a design system onto Prism's roles, shows it on a swatch sheet and publishes it into the design system's `prism/` folder (editors only), so no release is needed; a design system Prism can't publish into still gets a bundle for a release.
 - **Tutorial:** `/prism-tutorial` is a guided walkthrough on a sample piece in the default brand (another with `/prism-tutorial in the <brand> brand`): the sample prompt and notes, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, then the same words as a deck, a carousel or an animated film, with why each stage is there, what can be done in it and how it is shared, and a pause after each one (`prism-draft/references/walkthrough.md`). `/prism-tutorial rundown` gives the overview, and a topic (`/prism-tutorial design mode`) just that part.
 
 ## Layout
@@ -111,8 +111,8 @@ The other `run.sh` commands:
 | `state` | A piece's state between sessions: canvas, versions, exports, co-op owner and invitees |
 | `exports` | The Exports page for co-op invitees |
 | `packages` | List, use, check, claim-check and zip packages |
-| `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in |
-| `onboard` | Add or update a brand (`start`, `map`, `report`, `bundle`, `update`) |
+| `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in (`ds assets`, `ds place`), move a brand's Prism folder in and out of its design system (`ds pack`, `ds install`, `ds remove`), and bring brands in each session (`ds plan`, `ds seen`, `ds want`, `ds default`, `ds status`) |
+| `onboard` | Add or update a brand (`start`, `map`, `report`, `pack` to publish into the design system, `bundle` for a release, `update`) |
 | `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--prompt` prints the full sample message the person is shown, `--approve` and `--format <name>` put a sample's fixed approved words and layouts in place, `--json`) |
 | `devices` | Device mockups: `list`, `render`, `svg`, `html` |
 | `setup` | Install a part's tools up front |
@@ -126,7 +126,8 @@ node tests/resolve.test.js             # the default profile equals the 0.13.1 k
 node tests/brands.test.js              # core holds no brand; every brand resolves and its ornaments draw
 node tests/roles.test.js               # optional roles fall back, a required-only brand resolves, the profile's build theme
 node tests/drafts.test.js              # onboarding drafts build like shipped brands, say so, and are never the default
-node tests/onboard.test.js             # onboarding: draft from a design system, map, bundle, update
+node tests/ds-brands.test.js           # brands in their design systems: pack, install, the same build, drift, the workspace default
+node tests/onboard.test.js             # onboarding: draft from a design system, map, bundle, update (publishing: ds-brands)
 node tests/components.test.js          # closing styles, new design-system components noticed, components from the interview
 node tests/packages.test.js            # packages: definitions, a piece's package, checks, claims, the zip
 node tests/qr.test.js                  # the QR block in every output

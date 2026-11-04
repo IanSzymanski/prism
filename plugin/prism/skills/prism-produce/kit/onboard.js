@@ -1,16 +1,19 @@
 #!/usr/bin/env node
 // Brand onboarding (D11): drafts a brand profile from a design system into the workspace (.prism/brands/<id>/), reports what is
-// mapped and what is not, and packs the finished draft as a bundle a maintainer adds to a release. Never writes to kit/brands.
+// mapped and what is not, and packs the finished draft as the project/prism/ folder its editors publish into the design system
+// (pack), or as a bundle a maintainer adds to a release (bundle). Never writes to kit/brands or to a design system.
 // Usage:
 //   onboard.js start <id> <design-system-dir> [--name N] [--url URL] [--theme T] [--outputs a,b] [--audience A] [--contact C] [--email-sender E] [--force]
 //   onboard.js map <id> <role>=<native|-> ... [theme=<id|->]   (- unmaps; an assets/ path is copied into the snapshot from the source)
 //   onboard.js report <id> [--json]
-//   onboard.js bundle <id> OUT.zip
-//   onboard.js update <id> [<design-system-dir>]    (a shipped brand's design system or client rules changed: a draft with what moved)
+//   onboard.js pack <id> <out-folder>               (done: <out-folder>/project/prism/ to publish into the brand's design system)
+//   onboard.js bundle <id> OUT.zip                  (done, for a design system Prism can't publish to: a bundle for a release)
+//   onboard.js update <id> [<design-system-dir>]    (a brand's design system or client rules changed: a draft with what moved; a brand
+//                                                    read from its design system needs no folder: the copy this session read is used)
 //   onboard.js component <id> <cid> --use T --markup M [--like BLOCK] [--when T] [--max N] [--rule T ...] [--formats a,b] [--sample FILE] [--from NAME] [--remove]
 //   onboard.js library <id> <photo-id> --file assets/<group>/<file> [--shows T] [--people T] [--tags a,b] [--focus "x% y%"] [--orientation O] [--photo PATH] [--remove]
 //   onboard.js palette <id> [--keep]                 (core's proposal for the email palette, or keep it against the current colours)
-const fs = require("fs"), path = require("path"), crypto = require("crypto"), { execFileSync } = require("child_process");
+const fs = require("fs"), path = require("path"), crypto = require("crypto"), { execFileSync, spawnSync } = require("child_process");
 const R = require("./resolve.js");
 const KIT = __dirname, CORE = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
 const STUB = "<!-- onboarding: digest not written yet -->";
@@ -141,6 +144,8 @@ function buildTheme(T, roles) {
 
 // ---------- Draft folder ----------
 const draftDir = id => path.join(R.DRAFTS, id);
+const FROM = ".from-design-system.json";
+const occupied = (id, again) => `a draft of ${id} already exists in ${draftDir(id)} (--force ${again})`;
 const readProf = id => { const f = path.join(draftDir(id), "profile.json"); if (!fs.existsSync(f)) die(`no draft "${id}" in ${R.DRAFTS} (start one with onboard.js start)`); return JSON.parse(fs.readFileSync(f, "utf8")); };
 const writeProf = (id, p) => fs.writeFileSync(path.join(draftDir(id), "profile.json"), JSON.stringify(p, null, 1) + "\n");
 const pin = id => execFileSync("node", [path.join(KIT, "pin.js"), id], { env: { ...process.env, PRISM_DRAFTS: R.DRAFTS }, stdio: ["ignore", "pipe", "inherit"] });
@@ -319,13 +324,44 @@ function codeList(id, prof, ob) {
 
 // ---------- Commands ----------
 const a = process.argv.slice(2), cmd = a[0], opt = k => { const i = a.indexOf(k); return i > 0 ? a[i + 1] : null; };
+// "Done", before a brand leaves this workspace (into its design system, or as a bundle): the checks, the email palette accepted,
+// snapshot files nothing maps dropped, the onboarding record taken out, pinned. Returns the report taken while the record was there.
+function finish(id, note) {
+  pin(id);
+  const r = report(id), prof = readProf(id), dir = draftDir(id), stop = [];
+  if (r.errors.length) stop.push(...r.errors);
+  if (r.todo.some(t => t.startsWith("write digest"))) stop.push("digest.md is still the stub");
+  if (!r.terms.length) stop.push("identity.terms is empty");
+  if (prof.default) stop.push("a draft is never the default brand: remove \"default\" (the maintainer sets it when merging, if wanted)");
+  if (stop.length) die(`not ready to leave this workspace yet:\n  ${stop.join("\n  ")}`);
+  // The person's "done" accepts a proposed palette; a palette reviewed before keeps its record, unless its colours moved since.
+  const m = prof.m365.email, res = R.load(id), { CLIENT_RULES } = require("./outlook-sim.js");
+  const stale = Object.entries(m.source_roles || {}).filter(([r, v]) => res.roles[r] && res.roles[r].value[res.themes[0]].toUpperCase() !== v.toUpperCase()).map(([r]) => r);
+  if (!m.proposed && m.reviewed && (stale.length || m.client_rules !== CLIENT_RULES))
+    die(`the email palette was reviewed against other colours or client rules (${[...stale, ...(m.client_rules !== CLIENT_RULES ? ["client rules"] : [])].join(", ")}): onboard.js palette ${id} proposes a new one, onboard.js palette ${id} --keep keeps this one`);
+  // Accepting a palette with no record of the client rules it was made for accepts it under today's, so "done" can run again.
+  if (m.proposed || !m.reviewed) { m.reviewed = { onboarding: today(), note }; m.client_rules = m.client_rules || CLIENT_RULES; }
+  delete m.proposed;
+  // Drop snapshot files nothing maps (assets tried and replaced along the way), then pin the result.
+  const need = new Set(assetsUsed(prof));
+  for (const f of walk(path.join(dir, "snapshot")).map(p => path.relative(path.join(dir, "snapshot"), p).split(path.sep).join("/")))
+    if (/^assets\//.test(f) && !need.has(f)) fs.rmSync(path.join(dir, "snapshot", f));
+  writeProf(id, prof); pin(id);
+  // The report is taken while the draft still records how each role was matched; the shipped profile drops that record.
+  const final = report(id), pinned = readProf(id), ob = pinned._onboarding || {}, byHow = {};
+  for (const m of final.mapped) byHow[m.how] = (byHow[m.how] || 0) + 1;
+  delete pinned._onboarding; writeProf(id, pinned);
+  return { prof, final, pinned, ob, byHow };
+}
+
 if (cmd === "start") {
   const id = a[1], src = a[2];
   if (!id || !src) die("usage: onboard.js start <id> <design-system-dir> [--name N] [--url URL] [--outputs a,b] [--force]");
   if (!/^[a-z0-9-]+$/.test(id)) die("a brand id is lowercase letters, digits and hyphens");
   if (fs.existsSync(path.join(KIT, "brands", id)) ) die(`${id} is already a shipped brand: use onboard.js update ${id} <design-system-dir> for a changed design system`);
+  if (R.brandDir(id).layout === "design-system") die(`${id} is already a brand in its design system: onboard.js update ${id} drafts a change to it`);
   const dir = draftDir(id);
-  if (fs.existsSync(dir) && !a.includes("--force")) die(`a draft of ${id} already exists in ${dir} (--force starts it again)`);
+  if (fs.existsSync(dir) && !a.includes("--force")) die(occupied(id, "starts it again"));
   fs.rmSync(dir, { recursive: true, force: true });
   const root = dsRoot(src), T = readTokens(root), N = natives(T, root), m = match(N);
   // The design system as read, kept beside the draft so later mappings can copy files from it; never bundled.
@@ -367,32 +403,29 @@ if (cmd === "start") {
 } else if (cmd === "report") {
   const r = report(a[1] || die("usage: onboard.js report <id> [--json]"));
   process.stdout.write(a.includes("--json") ? JSON.stringify(r, null, 1) + "\n" : reportMd(r));
+} else if (cmd === "pack") {
+  // Done (D20): the brand's Prism folder, to publish into its design system. Only its editors and owners can publish it; Prism never
+  // writes to a design system itself. Prints the files to send and any the design system's Prism folder has that this one drops.
+  const id = a[1], out = a[2] && path.resolve(a[2]);
+  if (!id || !out) die("usage: onboard.js pack <id> <out-folder>");
+  if (R.brandDir(id).layout !== "kit" || !R.brandDir(id).draft) die(`${id} is not an onboarding draft here: onboard.js update ${id} starts one`);
+  const { pinned } = finish(id, "Accepted at onboarding; published into the design system by one of its editors, which is the approval.");
+  let from = {}; try { from = JSON.parse(fs.readFileSync(path.join(draftDir(id), FROM), "utf8")); } catch { }
+  // A brand drafted from its design system names that design system as its source (its photo library is fetched from there).
+  if (from.url && (pinned.source || {}).url !== from.url) { pinned.source = { ...(pinned.source || {}), url: from.url }; writeProf(id, pinned); }
+  fs.rmSync(path.join(out, "project", "prism"), { recursive: true, force: true });
+  const r = spawnSync("node", [path.join(KIT, "dsbrand.js"), "pack", id, out], { env: { ...process.env, PRISM_DRAFTS: R.DRAFTS }, encoding: "utf8" });
+  process.stdout.write(r.stdout || "");
+  if (r.status !== 0) die((r.stderr || "").replace(/^\[ds\] /, "").trim());
+  const now = new Set(walk(path.join(out, "project", "prism")).map(p => path.relative(path.join(out, "project", "prism"), p).split(path.sep).join("/")));
+  const gone = (from.files || []).filter(f => !now.has(f));
+  for (const f of gone) console.log(`remove project/prism/${f}`);
+  const url = from.url || (pinned.source && pinned.source.url) || null;
+  console.log(`[onboard] ${pinned.name}: publish ${now.size} file${now.size === 1 ? "" : "s"}${gone.length ? `, remove ${gone.length}` : ""} into ${url || "its design system"} (project/prism/, nothing else); then read it back so this workspace builds from it.`);
 } else if (cmd === "bundle") {
   const id = a[1], out = a[2] && path.resolve(a[2]);
   if (!id || !out) die("usage: onboard.js bundle <id> OUT.zip");
-  pin(id);
-  const r = report(id), prof = readProf(id), dir = draftDir(id), stop = [];
-  if (r.errors.length) stop.push(...r.errors);
-  if (r.todo.some(t => t.startsWith("write digest"))) stop.push("digest.md is still the stub");
-  if (!r.terms.length) stop.push("identity.terms is empty");
-  if (prof.default) stop.push("a draft is never the default brand: remove \"default\" (the maintainer sets it when merging, if wanted)");
-  if (stop.length) die(`not ready to bundle:\n  ${stop.join("\n  ")}`);
-  // The person's "done" accepts a proposed palette; a palette reviewed before keeps its record, unless its colours moved since.
-  const m = prof.m365.email, res = R.load(id), { CLIENT_RULES } = require("./outlook-sim.js");
-  const stale = Object.entries(m.source_roles || {}).filter(([r, v]) => res.roles[r] && res.roles[r].value[res.themes[0]].toUpperCase() !== v.toUpperCase()).map(([r]) => r);
-  if (!m.proposed && m.reviewed && (stale.length || m.client_rules !== CLIENT_RULES))
-    die(`the email palette was reviewed against other colours or client rules (${[...stale, ...(m.client_rules !== CLIENT_RULES ? ["client rules"] : [])].join(", ")}): onboard.js palette ${id} proposes a new one, onboard.js palette ${id} --keep keeps this one`);
-  if (m.proposed || !m.reviewed) m.reviewed = { onboarding: today(), note: "Accepted at onboarding; merging this bundle into a release is the approval." };
-  delete m.proposed;
-  // Drop snapshot files nothing maps (assets tried and replaced along the way), then pin the result.
-  const need = new Set(assetsUsed(prof));
-  for (const f of walk(path.join(dir, "snapshot")).map(p => path.relative(path.join(dir, "snapshot"), p).split(path.sep).join("/")))
-    if (/^assets\//.test(f) && !need.has(f)) fs.rmSync(path.join(dir, "snapshot", f));
-  writeProf(id, prof); pin(id);
-  // The report is taken while the draft still records how each role was matched; the shipped profile drops that record.
-  const final = report(id), pinned = readProf(id), ob = pinned._onboarding || {}, byHow = {};
-  for (const m of final.mapped) byHow[m.how] = (byHow[m.how] || 0) + 1;
-  delete pinned._onboarding; writeProf(id, pinned);
+  const { prof, final, pinned, ob, byHow } = finish(id, "Accepted at onboarding; merging this bundle into a release is the approval."), dir = draftDir(id);
   const notes = [reportMd(final, true).replace(/^# .*\n/, `# ${prof.name} (${id}): brand bundle\n`).replace(/^Draft: .*\n/m, "").replace("## To do", "## Notes"),
     `## Onboarding`, `Started ${ob.started || "?"}, bundled ${today()}. Roles matched by ${Object.entries(byHow).map(([k, v]) => `${k}: ${v}`).join(", ")}.`, "",
     ...(ob.update_of ? [`## Changes since shipped version ${ob.update_of}`, ...(ob.changes.length ? ob.changes.map(c => `- ${c}`) : ["- none in the design system"]), "", `Merge with --replace: python3 tools/add-brand.py <bundle> --replace`, ""] : []),
@@ -409,10 +442,23 @@ if (cmd === "start") {
 } else if (cmd === "update") {
   // A shipped brand whose design system (or core's email client rules) changed: a draft copy with the new snapshot and the same
   // mapping, and a list of what moved, so only the changes are reviewed. Without a design system it re-checks the email palette.
-  const id = a[1], src = a[2] && !a[2].startsWith("--") ? a[2] : null, shipped = path.join(KIT, "brands", id || "");
-  if (!id || !fs.existsSync(path.join(shipped, "profile.json"))) die("usage: onboard.js update <shipped brand> [<design-system-dir>] [--force]");
-  const dir = draftDir(id);
-  if (fs.existsSync(dir) && !a.includes("--force")) die(`a draft of ${id} already exists in ${dir} (--force replaces it)`);
+  const id = a[1], fromDs = !!id && R.brandDir(id).layout === "design-system", dir = draftDir(id || "");
+  let src = a[2] && !a[2].startsWith("--") ? a[2] : null, shipped = path.join(KIT, "brands", id || ""), was = null;
+  if (!id || (!fromDs && !fs.existsSync(path.join(shipped, "profile.json")))) die("usage: onboard.js update <brand> [<design-system-dir>] [--force]   (a bundled brand, or one read from its design system)");
+  if (fromDs) {
+    // A brand read from its design system (D19): the copy this session read is both the brand to draft from and the design system
+    // as it is now, so no folder is needed. Its Prism files are recorded, so publishing can take out the ones the change drops.
+    const tmp = fs.mkdtempSync(path.join(require("os").tmpdir(), "prism-update-")), inst = R.brandDir(id), rec = R.installRecord(id) || {};
+    shipped = path.join(tmp, "brand"); const now = path.join(tmp, "design-system");
+    fs.cpSync(inst.dir, shipped, { recursive: true });
+    for (const p of walk(inst.snap)) {
+      const f = path.relative(inst.snap, p).split(path.sep).join("/");
+      if (f.startsWith("prism/") || f.split("/").some(x => x.startsWith("."))) continue;
+      for (const to of [path.join(shipped, "snapshot", f), path.join(now, f)]) { fs.mkdirSync(path.dirname(to), { recursive: true }); fs.copyFileSync(p, to); }
+    }
+    src = src || now;
+    was = { url: rec.url || null, version: rec.version || null, files: walk(inst.dir).map(p => path.relative(inst.dir, p).split(path.sep).join("/")).sort() };
+  } else if (fs.existsSync(dir) && !a.includes("--force")) die(occupied(id, "replaces it"));
   fs.rmSync(dir, { recursive: true, force: true });
   fs.cpSync(shipped, dir, { recursive: true });
   const prof = readProf(id), oldSnap = path.join(shipped, "snapshot"), changes = [];
@@ -444,20 +490,28 @@ if (cmd === "start") {
       if (!r) changes.push(`library photo ${lid}: ${e.file} removed from the design system (onboard.js library ${id} ${lid} --remove)`);
       else if (r.blob !== prof.snapshot.blobs[e.file]) changes.push(`library photo ${lid}: ${e.file} replaced (check shows, people and focus against the new photo)`);
     }
+    if (fromDs && prof.snapshot.files["tokens.json"] && sha(path.join(root, "tokens.json")) !== prof.snapshot.files["tokens.json"])
+      changes.push("tokens.json: changed since the brand was checked (the report lists any role that no longer resolves; the swatch shows the rest)");
     for (const f of walk(path.join(root, "fonts")).map(p => path.relative(root, p).split(path.sep).join("/"))) if (!prof.snapshot.files[f]) changes.push(`${f}: new font file`);
     if (!prof.snapshot.files["packages.json"] && fs.existsSync(path.join(root, "packages.json"))) changes.push("packages.json: new (the brand's own packages; the saved copy updates with this release)");
     const keepFiles = assetsUsed(prof).filter(f => fs.existsSync(path.join(root, f)));
     snapshotFrom(dir, root, { ...prof, roles: Object.fromEntries(Object.entries(prof.roles).filter(([, v]) => !/^assets\//.test(v) || keepFiles.includes(v))), generators: Object.fromEntries(Object.entries(prof.generators || {}).filter(([, g]) => keepFiles.includes(g.script))) });
     // Components the design system added or dropped since this release: each new one is an interview (when, how often, rules).
-    const nowComps = dsComponents(root), had = prof.source && prof.source.components;
-    if (!had) { if (nowComps.length) changes.push(`design-system components (this release never recorded them; ask which are new to Prism): ${nowComps.join(", ")}`); }
+    // A session reads a brand from its design system without its components/ (it doesn't need them), so they are compared only
+    // when the folder has them.
+    const nowComps = dsComponents(root), had = prof.source && prof.source.components, compared = fs.existsSync(path.join(root, "components"));
+    if (!compared) { }
+    else if (!had) { if (nowComps.length) changes.push(`design-system components (this release never recorded them; ask which are new to Prism): ${nowComps.join(", ")}`); }
     else {
       for (const c of nowComps.filter(c => !had.includes(c))) changes.push(`new design-system component: ${c} (components/${c}/README.md): interview and add it (prism-onboard, "A new component")`);
       for (const c of had.filter(c => !nowComps.includes(c))) changes.push(`design-system component removed: ${c}${Object.keys(prof.components || {}).length ? " (check the brand's components that came from it)" : ""}`);
     }
-    prof.source = { ...prof.source, snapshot_taken: today(), components: nowComps };
+    prof.source = { ...prof.source, snapshot_taken: today(), ...(compared ? { components: nowComps } : {}) };
   }
   prof._onboarding = { started: today(), update_of: prof.version - 1, source: src ? "source/" : null, matched: Object.fromEntries(Object.keys(prof.roles).map(r => [r, `kept from version ${prof.version - 1}`])), changes };
+  // Where a draft of a published brand came from, beside it: pack publishes back there however often it runs. A dot-file, so it is
+  // never published itself.
+  if (was) fs.writeFileSync(path.join(dir, FROM), JSON.stringify(was, null, 1) + "\n");
   writeProf(id, prof); pin(id);
   // The email palette was approved against these colours and client rules: say which moved, never change it silently.
   const after = R.load(id), m = prof.m365 && prof.m365.email, { CLIENT_RULES } = require("./outlook-sim.js");
@@ -466,7 +520,7 @@ if (cmd === "start") {
     if (m.client_rules !== CLIENT_RULES) changes.push(`email palette: client rules changed (${m.client_rules} -> ${CLIENT_RULES}); check it with run.sh palette ${id}`);
   }
   const p2 = readProf(id); p2._onboarding.changes = changes; writeProf(id, p2);
-  console.log(`# ${prof.name}: what changed since the shipped version\n\n${changes.length ? changes.map(c => `- ${c}`).join("\n") : "- nothing: the design system matches this release"}\n`);
+  console.log(`# ${prof.name}: what changed since the ${was ? "published" : "shipped"} version\n\n${changes.length ? changes.map(c => `- ${c}`).join("\n") : `- nothing: the design system matches this ${was ? "brand as it was checked" : "release"}`}\n`);
   process.stdout.write(reportMd(report(id)));
 } else if (cmd === "component") {
   // Records one of the brand's own components from the interview: what it is for, when, how often, its rules, where it goes.

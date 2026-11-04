@@ -2,13 +2,27 @@
 
 Case Amplify is AI-assisted case management for human services agencies. The brand is plain, specific and calm: paper-white pages, Literata headings, one grape word, and a single wave line that reads as signal, never as a pulse.
 
-This system is built from the Case Amplify Content Studio kit (0.13.1), which produces every designed Case Amplify file: sheets, brochures, decks, blog posts, social posts, carousels and HTML emails. Values are the kit's, exactly; print sizes are pt in the kit and px here.
+This system's visuals are built from the Case Amplify Content Studio kit (0.13.1, now Prism), which produces every designed Case Amplify file: sheets, brochures, decks, blog posts, social posts, carousels and HTML emails. Values are the kit's, exactly; print sizes are pt in the kit and px here.
+
+## Product and message
+
+The **Case Amplify Product and Marketing Manifest** (version 0.12, October 26, 2026) is part of this system: the *Manifest* sections that follow the brand book hold it in full. It is the source of truth for what Case Amplify is, what it does, how it is described, and what may be claimed. Where this brand book and the manifest overlap, the manifest governs the words and this book governs the visuals.
+
+**Positioning statement** (approved; use as written in About and boilerplate sections, press releases, proposals, RFP overviews and partner materials):
+
+> Case Amplify is an AI-powered case management system that turns everyday conversations into actionable case information, making it easier to support clients and foster meaningful outcomes.
+
+**One-liner:** Smarter case management. Less paperwork. More human impact. Short form, where space is tight (social graphics, ad units, email headers, slide footers): Smarter case management. More human impact. Never reworded.
+
+**Core idea.** Case Amplify helps caseworkers and program teams spend less time reconstructing context, moving information between systems and producing repetitive documentation, so they can keep case information organized, see what needs attention and act with better context. The assistant is **CARA**; dashboards built by describing them are **Case IQ**.
 
 ## Content fundamentals
 
-**Claims.** AI assists; people decide. Never imply Case Amplify makes eligibility, safety, legal, clinical, financial, placement or service decisions. Never "AI caseworker", "autonomous case management", or a replacement for staff. Human review, correction and approval are part of the product, not a caveat. A number needs a source. Security and compliance language (HIPAA, SOC 2, data use) only as approved in the Case Amplify manifest. Integrations depend on configuration; never promise them unconditionally. Illustrative pieces say so on every output: eyebrow or footer, quote attributions, captions.
+**Working agreement** (Manifest · About). Draft first and write with confidence, in present tense. Where a piece needs a number, customer, quote or detail nobody has supplied, put a bracketed placeholder such as [X hours saved per week] and keep writing; never invent one. Leave AI caveats and compliance fine print out unless the piece is about them. Ian and Rob review every piece before it ships; direction from them for a piece wins.
 
-**Voice.** Plain, specific, calm. Short sentences; concrete over abstract. Written for program directors, supervisors and caseworkers in human services: respect the work, don't lecture.
+**Claims** (Manifest · 13–15 and 7). Human review is part of the product, not a caveat: staff review, correct and approve AI-assisted information. The hard lines never move: Case Amplify does not replace caseworkers; AI output is not described as always accurate or error-free; AI does not make final consequential decisions or update the record without review; nothing guarantees compliance or is "HIPAA certified"; no planned capability is presented as available (Case IQ exports, detailed dashboard permissions and sharing); Case IQ visualizes data already in Case Amplify and never generates or predicts it; and no invented numbers, customers, quotes, testimonials or outcomes. HIPAA, SOC 2 Type II, audit, report and BAA wording is used exactly as approved in Manifest · 7. Illustrative pieces say so on every output: eyebrow or footer, quote attributions, captions.
+
+**Voice** (Manifest · 14). Respectful toward caseworkers and clients; practical and direct; specific without becoming inaccessible; confident but measured; clear about human oversight; grounded in real work. Lead with recognizable casework problems, not abstract AI capability. Short sentences, concrete over abstract.
 
 - Do: "Notes close the same day." "Staff approve every draft before it is saved."
 - Don't: hype words (revolutionary, game-changer, seamless, unlock, cutting-edge, robust), fear-based replacement language, em dashes, stacked "not X, but Y", rule-of-three padding.

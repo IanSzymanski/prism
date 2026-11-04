@@ -1,6 +1,6 @@
 # Prism
 
-Raw material in, on-brand files out, with a human proof in between. The words are approved once, in `content.md`, and every output is laid out from them. Brands live in the kit (`run.sh brands` lists them); a piece names one with `brand:`, and without one it uses the default brand. Packages (`run.sh packages`) are set bundles of outputs from one piece, such as a case study package, delivered as one zip.
+Raw material in, on-brand files out, with a human proof in between. The words are approved once, in `content.md`, and every output is laid out from them. Brands live in their own design systems (Prism's files in a `prism/` folder there; each session brings in the ones you can open) or come bundled with the plugin (`run.sh brands` lists them); a piece names one with `brand:`, and without one it uses the default brand. Packages (`run.sh packages`) are set bundles of outputs from one piece, such as a case study package, delivered as one zip.
 
 New to Prism? Run `/prism-tutorial` for a guided walkthrough: it makes a fictional sample case study in the default brand, from the prompt and notes through the interview, the proof in Claude Docs, design mode in Claude Design and the export, then turns the same approved words into a deck, a carousel or an animated film, explaining each stage and pausing so you can try it. The sample's draft, flags, proof doc and design boards are fixed, so every run shows the same thing. `/prism-tutorial rundown` gives the overview instead, and a topic (such as `/prism-tutorial design mode`) just that part.
 
@@ -19,7 +19,7 @@ New to Prism? Run `/prism-tutorial` for a guided walkthrough: it makes a fiction
 
 **Work together (co-op mode).** Invite teammates by name: they edit the proof doc and the design canvas or ask `@claude` in comments, your Prism does the work, and only you approve and export. Invitees get the files from an Exports page and don't need Prism.
 
-**Add a brand.** Say "add a brand" (or run `/prism-onboard`) with a design system's link or files. Prism maps its colours, fonts, type and logos onto its own roles without changing the design system, shows the result on a swatch sheet (in design mode first), and on "done" packs a brand bundle for the next release. Until then the brand works where it was made, as a draft.
+**Add a brand.** Say "add a brand" (or run `/prism-onboard`) with a design system's link or files. Prism maps its colours, fonts, type and logos onto its own roles without changing the design system, shows the result on a swatch sheet (in design mode first), and on "done" publishes the brand into its design system (its editors and owners only), so everyone who can open the design system has it in their next session, with no Prism release. Until then the brand works where it was made, as a draft.
 
 ## Outputs
 

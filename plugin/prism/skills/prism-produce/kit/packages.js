@@ -62,8 +62,9 @@ function dsPackages(brand, live) {
     if (!fs.existsSync(L)) die(`no design system at ${live}`);
     return { pkgs: fs.existsSync(f) ? readPkgs(f) : {}, from: "design system" };
   }
-  const f = path.join(brandDir(brand).dir, "snapshot", "packages.json");
-  return { pkgs: fs.existsSync(f) ? readPkgs(f) : {}, from: "design system (saved copy)" };
+  // A brand read from its design system keeps them in its Prism folder (or, as before, at the design system's root).
+  const b = brandDir(brand), f = [b.layout === "design-system" && path.join(b.dir, "packages.json"), path.join(b.snap, "packages.json")].find(p => p && fs.existsSync(p));
+  return { pkgs: f ? readPkgs(f) : {}, from: b.layout === "design-system" ? "design system" : "design system (saved copy)" };
 }
 // Core starters, then the design system's: added, replaced by id, or removed with null.
 function load(brand, live) {

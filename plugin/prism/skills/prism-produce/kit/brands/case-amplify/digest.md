@@ -1,20 +1,38 @@
 # Case Amplify brand rules for content
 
-If the `caseamplify-manifest` skill is available, it is the authority on terminology, positioning and approved claims. Load it. These rules are the short version and apply either way.
+The Case Amplify Product and Marketing Manifest (version 0.12, October 26, 2026) is the source of truth for what Case Amplify is, what it does, how it is described and what may be claimed. It is part of the Case Amplify design system (its Manifest sections) and, when the `caseamplify-manifest` skill is available, that skill: load it. Where the manifest and the brand book overlap, the manifest governs the words and the brand book governs the visuals. These rules are the short version and apply either way.
+
+## Product and message
+
+- Positioning statement, approved: use it as written in About and boilerplate sections, press releases, proposals, RFP overviews and partner materials. "Case Amplify is an AI-powered case management system that turns everyday conversations into actionable case information, making it easier to support clients and foster meaningful outcomes."
+- One-liner: "Smarter case management. Less paperwork. More human impact." Where space is tight (social graphics, ad units, email headers, slide footers): "Smarter case management. More human impact." Never reworded.
+- Core idea: Case Amplify helps caseworkers and program teams spend less time reconstructing context, moving information between systems and producing repetitive documentation, so they can keep case information organized, see what needs attention and act with better context.
+- Names: the assistant is CARA; dashboards built by describing them are Case IQ.
+
+## Working agreement
+
+- Draft first and write with confidence, in present tense.
+- Where a piece needs a number, customer, quote or detail nobody has supplied, put a bracketed placeholder such as [X hours saved per week] and keep writing. Never invent one.
+- Leave AI caveats and compliance fine print out unless the piece is about them.
+- Ian and Rob review every piece before it ships; their direction for a piece wins.
 
 ## Claims
 
-- AI assists; people decide. Never imply Case Amplify makes eligibility, safety, legal, clinical, financial, placement or service decisions.
-- Never call it an "AI caseworker", "autonomous case management", or a replacement for staff.
-- Acknowledge that AI output can contain mistakes, omissions, unsupported details, misread context and overconfident language. Human review, correction and approval are part of the product, not a caveat.
-- No unsupported metrics. A number needs a source in claims.md or it is flagged.
-- Security and compliance language (HIPAA, SOC 2, data use, "data never leaves") only as approved in the manifest. Flag anything else.
+- Human review is part of the product, not a caveat: staff review, correct and approve AI-assisted information.
+- Case Amplify does not replace caseworkers. Never call it an "AI caseworker" or "autonomous case management".
+- Never describe AI output as always accurate or error-free.
+- AI does not make final consequential decisions (eligibility, safety, legal, clinical, financial, placement or service) or update the record without review.
+- Nothing guarantees compliance, and Case Amplify is never "HIPAA certified". HIPAA, SOC 2 Type II, audit, report and BAA wording only as approved in the manifest (section 7); flag anything else.
+- No planned capability as available: Case IQ exports and detailed dashboard permissions and sharing are planned. Case IQ visualizes data already in Case Amplify; it never generates or predicts data.
 - Integrations and automatic form completion depend on configuration. Do not promise them unconditionally.
+- No invented numbers, customers, quotes, testimonials or outcomes. A number needs a source in claims.md, or a bracketed placeholder until it has one.
 - Illustrative or fictional pieces say so on every output: in the eyebrow or footer, on any quote attribution, and in captions.
 
 ## Voice
 
-- Plain, specific, calm. Short sentences. Concrete over abstract.
+- Respectful toward caseworkers and clients; practical and direct; specific without becoming inaccessible; confident but measured; clear about human oversight; grounded in real work.
+- Lead with recognizable casework problems, not abstract AI capability.
+- Short sentences. Concrete over abstract.
 - No fear-based replacement language, no hype words (revolutionary, game-changer, seamless, unlock, cutting-edge, robust).
 - No em dashes. No "not X, but Y" constructions stacked for effect. No rule-of-three padding.
 - Write for program directors, supervisors and caseworkers in human services. Respect the work; don't lecture.
