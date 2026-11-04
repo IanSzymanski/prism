@@ -141,6 +141,8 @@ function buildTheme(T, roles) {
 
 // ---------- Draft folder ----------
 const draftDir = id => path.join(R.DRAFTS, id);
+// What already holds a brand's workspace folder: an onboarding draft, or the brand read from its design system (D19).
+const occupied = (id, again) => `${fs.existsSync(path.join(draftDir(id), "prism", "profile.json")) ? `${id} is read from its design system into ${draftDir(id)} (run.sh ds remove ${id} first, or` : `a draft of ${id} already exists in ${draftDir(id)} (`}--force ${again})`;
 const readProf = id => { const f = path.join(draftDir(id), "profile.json"); if (!fs.existsSync(f)) die(`no draft "${id}" in ${R.DRAFTS} (start one with onboard.js start)`); return JSON.parse(fs.readFileSync(f, "utf8")); };
 const writeProf = (id, p) => fs.writeFileSync(path.join(draftDir(id), "profile.json"), JSON.stringify(p, null, 1) + "\n");
 const pin = id => execFileSync("node", [path.join(KIT, "pin.js"), id], { env: { ...process.env, PRISM_DRAFTS: R.DRAFTS }, stdio: ["ignore", "pipe", "inherit"] });
@@ -325,7 +327,7 @@ if (cmd === "start") {
   if (!/^[a-z0-9-]+$/.test(id)) die("a brand id is lowercase letters, digits and hyphens");
   if (fs.existsSync(path.join(KIT, "brands", id)) ) die(`${id} is already a shipped brand: use onboard.js update ${id} <design-system-dir> for a changed design system`);
   const dir = draftDir(id);
-  if (fs.existsSync(dir) && !a.includes("--force")) die(`a draft of ${id} already exists in ${dir} (--force starts it again)`);
+  if (fs.existsSync(dir) && !a.includes("--force")) die(occupied(id, "starts it again"));
   fs.rmSync(dir, { recursive: true, force: true });
   const root = dsRoot(src), T = readTokens(root), N = natives(T, root), m = match(N);
   // The design system as read, kept beside the draft so later mappings can copy files from it; never bundled.
@@ -412,7 +414,7 @@ if (cmd === "start") {
   const id = a[1], src = a[2] && !a[2].startsWith("--") ? a[2] : null, shipped = path.join(KIT, "brands", id || "");
   if (!id || !fs.existsSync(path.join(shipped, "profile.json"))) die("usage: onboard.js update <shipped brand> [<design-system-dir>] [--force]");
   const dir = draftDir(id);
-  if (fs.existsSync(dir) && !a.includes("--force")) die(`a draft of ${id} already exists in ${dir} (--force replaces it)`);
+  if (fs.existsSync(dir) && !a.includes("--force")) die(occupied(id, "replaces it"));
   fs.rmSync(dir, { recursive: true, force: true });
   fs.cpSync(shipped, dir, { recursive: true });
   const prof = readProf(id), oldSnap = path.join(shipped, "snapshot"), changes = [];

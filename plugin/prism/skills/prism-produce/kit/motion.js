@@ -669,7 +669,7 @@ function brief(mdPath, outDir) {
   // An SVG motif goes in as markup (a module), so its stroke can be thickened and recolored without changing its shape.
   const motifAssets = {};
   for (const id of usedMotifs) {
-    const m = P.motifs.find(x => x.id === id), file = path.join(B.res.dir, m.file), ext = path.extname(file).toLowerCase();
+    const m = P.motifs.find(x => x.id === id), file = require("./resolve.js").brandFile(B.res, m.file), ext = path.extname(file).toLowerCase();
     if (ext === ".svg") { const name = `motif-${id}.html`; record("modules", name, { kind: "html", text: fs.readFileSync(file, "utf8").trim() }); motifAssets[id] = { name, say: m.say, svg: true }; }
     else { const name = `motif-${id}${ext}`; record("assets", name, { ref: `data:${MIME[ext]};base64,${fs.readFileSync(file).toString("base64")}`, mime: MIME[ext] }); motifAssets[id] = { name, say: m.say }; }
   }

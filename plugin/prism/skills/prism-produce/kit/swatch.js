@@ -65,7 +65,7 @@ H.push(`<section><h2>Email palette</h2><p>${P.reviewed ? "From the profile, revi
 <table class="pal"><tr><th>Key</th><th>Light</th><th>Outlook dark</th><th>Own dark CSS</th></tr>${Object.entries(P.light).map(([k, v]) => { const o = surf(k) ? sim.background(v) : sim.text(v), d = P.dark[k];
   return `<tr><td>${k}</td><td><i style="background:${v}"></i>${v}</td><td><i style="background:${o}"></i>${o}</td><td>${d ? `<i style="background:${d}"></i>${d}` : ""}</td></tr>`; }).join("")}</table>
 <ul class="checks">${PAL.check(P.light).map(r => `<li class="${r.ok ? "ok" : "bad"}">${r.ok ? "ok" : "fails"}: ${esc(r.msg)}</li>`).join("")}</ul></section>`);
-const T = JSON.parse(fs.readFileSync(path.join(B.res.dir, "snapshot", "tokens.json"), "utf8")), used = new Set(Object.values(R).map(r => r.native));
+const T = JSON.parse(fs.readFileSync(path.join(B.res.snap, "tokens.json"), "utf8")), used = new Set(Object.values(R).map(r => r.native));
 const spare = [...Object.entries(T).filter(([, v]) => v && Array.isArray(v.tokens)).flatMap(([k, v]) => v.tokens.map(t => [k, t.name])), ...T.type.groups.flatMap(g => g.styles.map(s => ["type", s.name])), ...Object.keys(T.type.families).map(f => ["family", f])].filter(([, n]) => !used.has(n));
 // The brand's own roles: slots only its layers and ornaments read (own-<kind>-<name>), shown with their values.
 const ownR = Object.entries(R).filter(([k]) => k.startsWith("own-"));

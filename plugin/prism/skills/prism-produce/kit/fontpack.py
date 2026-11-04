@@ -5,7 +5,7 @@ import glob, json, os, sys, zipfile
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brandpath import brand_dir, default_brand
+from brandpath import brand_dir, brand_file, default_brand
 
 KIT = os.path.dirname(os.path.abspath(__file__))
 out = sys.argv[1]
@@ -24,6 +24,6 @@ All fonts are under the SIL Open Font License.
 """
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("README.txt", README)
-    for f in sorted(os.path.join(brand_dir(brand), p) for p in prof["office"].get("files", {})):
+    for f in sorted(brand_file(brand, p) for p in prof["office"].get("files", {})):
         z.write(f, f"{folder}/{os.path.basename(f)}")
 print(f"wrote {out}")

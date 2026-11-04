@@ -111,7 +111,7 @@ The other `run.sh` commands:
 | `state` | A piece's state between sessions: canvas, versions, exports, co-op owner and invitees |
 | `exports` | The Exports page for co-op invitees |
 | `packages` | List, use, check, claim-check and zip packages |
-| `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in |
+| `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in (`ds assets`, `ds place`), and move a brand's Prism folder in and out of its design system (`ds pack`, `ds install`, `ds remove`) |
 | `onboard` | Add or update a brand (`start`, `map`, `report`, `bundle`, `update`) |
 | `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--prompt` prints the full sample message the person is shown, `--approve` and `--format <name>` put a sample's fixed approved words and layouts in place, `--json`) |
 | `devices` | Device mockups: `list`, `render`, `svg`, `html` |
@@ -126,6 +126,7 @@ node tests/resolve.test.js             # the default profile equals the 0.13.1 k
 node tests/brands.test.js              # core holds no brand; every brand resolves and its ornaments draw
 node tests/roles.test.js               # optional roles fall back, a required-only brand resolves, the profile's build theme
 node tests/drafts.test.js              # onboarding drafts build like shipped brands, say so, and are never the default
+node tests/ds-brands.test.js           # brands in their design systems: pack, install, the same build, drift, the workspace default
 node tests/onboard.test.js             # onboarding: draft from a design system, map, bundle, update
 node tests/components.test.js          # closing styles, new design-system components noticed, components from the interview
 node tests/packages.test.js            # packages: definitions, a piece's package, checks, claims, the zip

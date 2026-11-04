@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Resolves core prism- roles to a brand's values through its profile (brands/<id>/profile.json).
 // Usage: resolve.js <brand|default> [--out DIR] [--live DIR] [--get ROLE [--theme dark]]
-// Builds always use the bundled snapshot; --live only compares a fetched design system against it.
+// A bundled brand builds from its snapshot (--live only compares a fetched design system against it); a brand read from its
+// design system into the workspace (dsbrand.js install) builds from that copy.
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
 const KIT = __dirname;
 // Draft brands from onboarding live in the workspace, beside .prism-kit, until a release ships them (PRISM_DRAFTS overrides).
@@ -9,12 +10,27 @@ const DRAFTS = process.env.PRISM_DRAFTS || path.join(path.dirname(KIT), ".prism"
 // Library photos fetched from a brand's design system, one folder per upload id, so a replaced photo is never mistaken for the old one.
 const LIBRARY = process.env.PRISM_LIBRARY_CACHE || path.join(path.dirname(KIT), ".prism", "library");
 const libraryFile = (id, blob, file) => path.join(LIBRARY, id, blob, path.basename(file));
-const hasProfile = (d, b) => fs.existsSync(path.join(d, b, "profile.json"));
-// Where a brand lives: a workspace draft wins over the shipped brand of the same id, so a re-run can be previewed.
+// A brand's profile sits in its folder (shipped brands and onboarding drafts: profile.json beside snapshot/), or in the prism/
+// folder of a design system read into the workspace (D19: <id>/prism/profile.json beside the design system's own tokens.json,
+// fonts/ and assets/, the same as project/ in the design system itself).
+const hasProfile = (d, b) => fs.existsSync(path.join(d, b, "profile.json")) || fs.existsSync(path.join(d, b, "prism", "profile.json"));
+// The profile format this kit reads; a profile with a newer schema is refused, not guessed at.
+const SCHEMA = 1;
+// Where a brand lives: {dir (its profile and own files), snap (the design-system files: its snapshot, or the design system
+// itself), draft, layout ("kit" or "design-system")}. A workspace brand wins over the shipped brand of the same id, so a re-run
+// can be previewed and a design system's current brand replaces the copy bundled with the plugin.
 function brandDir(id) {
-  if (fs.existsSync(DRAFTS) && hasProfile(DRAFTS, id)) return { dir: path.join(DRAFTS, id), draft: true };
-  return { dir: path.join(KIT, "brands", id), draft: false };
+  if (fs.existsSync(DRAFTS) && fs.existsSync(path.join(DRAFTS, id, "prism", "profile.json")))
+    return { dir: path.join(DRAFTS, id, "prism"), snap: path.join(DRAFTS, id), draft: false, layout: "design-system" };
+  if (fs.existsSync(DRAFTS) && fs.existsSync(path.join(DRAFTS, id, "profile.json")))
+    return { dir: path.join(DRAFTS, id), snap: path.join(DRAFTS, id, "snapshot"), draft: true, layout: "kit" };
+  const dir = path.join(KIT, "brands", id);
+  return { dir, snap: path.join(dir, "snapshot"), draft: false, layout: "kit" };
 }
+// A path a profile gives: beside the profile, or "snapshot/<path>" for a design-system file (its fonts, its motifs).
+const brandFile = (b, rel) => rel.startsWith("snapshot/") ? path.join(b.snap, rel.slice(9)) : path.join(b.dir, rel);
+// Where a design system read into the workspace came from (dsbrand.js install writes it): {url, version, title, installed}.
+function installRecord(id) { try { return JSON.parse(fs.readFileSync(path.join(DRAFTS, id, ".prism-install.json"), "utf8")); } catch { return null; } }
 // Every brand this kit can build in: [{id, dir, draft, shipped}], sorted by id.
 function brandList() {
   const ids = new Set(), list = d => (fs.existsSync(d) ? fs.readdirSync(d).filter(b => hasProfile(d, b)) : []);
@@ -25,27 +41,34 @@ function brandList() {
 const sha = p => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
 
 function load(id, opts = {}) {
-  const { dir, draft } = brandDir(id), snap = path.join(dir, "snapshot");
+  const where = brandDir(id), { dir, snap, draft, layout } = where;
   if (!fs.existsSync(path.join(dir, "profile.json"))) throw new Error(`no brand profile "${id}" in ${path.join(KIT, "brands")} or ${DRAFTS}`);
   const prof = JSON.parse(fs.readFileSync(path.join(dir, "profile.json"), "utf8"));
   const core = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
   const errors = [], warnings = [];
   if (draft) warnings.push(`draft: ${id} is built from ${dir}, not from a release; onboarding is not finished until the bundle ships`);
+  if ((prof.schema || 1) > SCHEMA) return { errors: [`${id}'s profile is schema ${prof.schema}; this Prism reads schema ${SCHEMA}: update Prism`], warnings };
 
-  // 1. The snapshot must be complete and unchanged, or the brand would be approximated.
+  // 1. Every pinned file must be present and unchanged, or the brand would be approximated. A brand read from its design system
+  // (D19) is the editors' current work: a changed data file (tokens, fonts, images, the digest) builds and warns until the
+  // brand is re-checked; changed code (a generator, ornaments, a site kit) stops the build, since it runs on every build.
+  const ds = layout === "design-system", code = new Set(Object.values(prof.generators || {}).map(g => g.script));
+  const changed = (what, f, isCode) => (ds && !isCode ? warnings : errors).push(ds ? `design system changed since this brand was checked: ${f}${isCode ? " (code: re-check the brand before building)" : ""}` : `${what} changed: ${f}`);
   for (const [f, h] of Object.entries(prof.snapshot.files)) {
+    // The design system's own index changes with every edit to it; its uploads are compared by their files' hashes instead.
+    if (ds && f === "design-system.json") continue;
     const p = path.join(snap, f);
-    if (!fs.existsSync(p)) errors.push(`snapshot file missing: ${f}`);
-    else if (sha(p) !== h) errors.push(`snapshot file changed: ${f}`);
+    if (!fs.existsSync(p)) errors.push(`${ds ? "design system" : "snapshot"} file missing: ${f}`);
+    else if (sha(p) !== h) changed("snapshot file", f, code.has(f));
   }
-  if (sha(path.join(dir, prof.digest.file)) !== prof.digest.sha256) errors.push(`digest changed: ${prof.digest.file}`);
+  if (sha(path.join(dir, prof.digest.file)) !== prof.digest.sha256) changed("digest", prof.digest.file, false);
   for (const [f, h] of Object.entries(prof.own || {})) {
     const p = path.join(dir, f);
-    if (!fs.existsSync(p)) errors.push(`brand file missing: ${f}`); else if (sha(p) !== h) errors.push(`brand file changed: ${f}`);
+    if (!fs.existsSync(p)) errors.push(`brand file missing: ${f}`); else if (sha(p) !== h) changed("brand file", f, /\.(js|html)$/.test(f));
   }
   for (const [f, h] of Object.entries((prof.office && prof.office.files) || {})) {
-    const p = path.join(dir, f);
-    if (!fs.existsSync(p)) errors.push(`office font missing: ${f}`); else if (sha(p) !== h) errors.push(`office font changed: ${f}`);
+    const p = brandFile(where, f);
+    if (!fs.existsSync(p)) errors.push(`office font missing: ${f}`); else if (sha(p) !== h) changed("office font", f, false);
   }
   if (errors.length) return { errors, warnings };
 
@@ -156,7 +179,7 @@ function load(id, opts = {}) {
   }
   // Every colour token in the design system, aliases resolved per theme, for the brand's own layers (--brand-<name>).
   const native = Object.fromEntries(Object.keys(colors).map(n => [n, Object.fromEntries(themes.map(t => [t, color(n, t)]))]));
-  return { components: prof.components || {}, brand: prof.id, name: prof.name, draft, themes, theme: themes[0], roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => path.join(dir, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
+  return { components: prof.components || {}, brand: prof.id, name: prof.name, draft, layout, source: ds ? installRecord(id) : null, themes, theme: themes[0], roles: out, native, options: prof.options || {}, layers: prof.layers || {}, ornamentsFile: prof.ornaments_module ? path.join(dir, prof.ornaments_module) : null, dir, snap, ornaments: prof.ornaments, icons: prof.icons, office: prof.office ? { ...prof.office, paths: Object.keys(prof.office.files || {}).map(f => brandFile(where, f)) } : null, content: prof.content || {}, m365: prof.m365 || null,
            library, libraryGroup: (prof.library && prof.library.group) || null, digest: path.join(dir, prof.digest.file), errors, warnings };
 }
 
@@ -207,9 +230,13 @@ function css(res) {
   return lines.join("\n") + "\n";
 }
 
-// The brand a piece uses when it names none: the one shipped profile marked "default": true (or the only brand shipped).
+// The brand a piece uses when it names none: the workspace's own choice (dsbrand.js install --default, from the person's or the
+// organization's default design system), else the one shipped profile marked "default": true (or the only brand shipped).
 // Drafts never count: a piece is only built in a draft brand when it names it.
+const DEFAULT_FILE = path.join(DRAFTS, ".default");
 function defaultBrand() {
+  let w = null; try { w = fs.readFileSync(DEFAULT_FILE, "utf8").trim(); } catch { }
+  if (w && /^[a-z0-9-]+$/.test(w)) { const b = brandDir(w); if (!b.draft && fs.existsSync(path.join(b.dir, "profile.json"))) return w; }
   const dir = path.join(KIT, "brands"), ids = fs.readdirSync(dir).filter(b => hasProfile(dir, b));
   const marked = ids.filter(b => JSON.parse(fs.readFileSync(path.join(dir, b, "profile.json"), "utf8")).default === true);
   if (marked.length === 1) return marked[0];
@@ -217,7 +244,7 @@ function defaultBrand() {
   throw new Error(`[brand] ${marked.length ? "more than one brand is" : "no brand is"} marked "default": true in kit/brands; name one with brand: in the front matter`);
 }
 
-module.exports = { load, css, defaultBrand, brandDir, brandList, libraryFile, DRAFTS, LIBRARY };
+module.exports = { load, css, defaultBrand, brandDir, brandList, brandFile, installRecord, libraryFile, DRAFTS, DEFAULT_FILE, LIBRARY, SCHEMA };
 
 if (require.main === module) {
   const a = process.argv.slice(2), id = a[0] === "default" ? defaultBrand() : a[0], opt = k => { const i = a.indexOf(k); return i > 0 ? a[i + 1] : null; };
@@ -235,5 +262,5 @@ if (require.main === module) {
   fs.writeFileSync(path.join(out, "resolved.json"), JSON.stringify(res, null, 1));
   fs.writeFileSync(path.join(out, "prism.css"), css(res));
   const unmapped = res.warnings.filter(w => w.startsWith("optional")).length, drift = res.warnings.filter(w => w.startsWith("design system changed")).length;
-  console.log(`[brand] ${res.name}${res.draft ? " (draft)" : ""}: ${Object.keys(res.roles).length} roles resolved${unmapped ? `, ${unmapped} optional unmapped` : ""}${drift ? `, ${drift} drift warning(s)` : ""} -> ${out}`);
+  console.log(`[brand] ${res.name}${res.draft ? " (draft)" : res.layout === "design-system" ? " (from its design system)" : ""}: ${Object.keys(res.roles).length} roles resolved${unmapped ? `, ${unmapped} optional unmapped` : ""}${drift ? `, ${drift} drift warning(s)` : ""} -> ${out}`);
 }

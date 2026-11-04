@@ -13,11 +13,13 @@ const args = process.argv.slice(2), opt = k => { const i = args.indexOf(k); retu
 const id = args.find((a, i) => !a.startsWith("--") && !["--out", "--format"].includes(args[i - 1])) || defaultBrand();
 const b = brandList().find(x => x.id === id);
 if (!b) { console.error(`[tutorial] no brand ${id}: run.sh brands lists them`); process.exit(2); }
-const own = path.join(b.dir, "tutorial"), dir = fs.existsSync(path.join(own, "sample.json")) ? own : path.join(__dirname, "tutorial");
+// The tutorial stays in the plugin (Ian, Nov 4): a brand read from its design system uses the sample bundled under its id, if any.
+const own = [path.join(b.dir, "tutorial"), path.join(__dirname, "brands", id, "tutorial")].find(d => fs.existsSync(path.join(d, "sample.json")));
+const dir = own || path.join(__dirname, "tutorial");
 const s = JSON.parse(fs.readFileSync(path.join(dir, "sample.json"), "utf8"));
 const name = JSON.parse(fs.readFileSync(path.join(b.dir, "profile.json"), "utf8")).name;
 const fx = s.fixed || null, abs = f => path.join(dir, f);
-const out = { brand: id, brand_name: name, sample: dir === own ? "brand" : "kit", dir, ...s, source: s.source.map(abs), project: null, created: false,
+const out = { brand: id, brand_name: name, sample: own ? "brand" : "kit", dir, ...s, source: s.source.map(abs), project: null, created: false,
   fixed: fx && { proof: abs(fx.proof), formats: Object.keys(fx.formats || {}), expect: fx.expect || {}, cleanup: fx.cleanup || [] } };
 
 const ws = opt("--out");
