@@ -107,7 +107,9 @@ function load(id, opts = {}) {
     if (r.kind === "color") { value = Object.fromEntries(themes.map(t => [t, color(native, t)])); if (!value[themes[0]]) value = null; }
     else if (r.kind === "font") {
       const stack = T.type.families[native];
-      if (stack) value = { stack, files: T.type.fonts.filter(f => f.family === firstFamily(stack)).map(f => ({ ...f, path: path.join(snap, f.file) })) };
+      if (stack) value = { stack, files: T.type.fonts.filter(f => f.family === firstFamily(stack)).map(f => ({ ...f, path: path.join(snap, f.file.includes("/") ? f.file : `fonts/${f.file}`) })) };
+      // A font the tokens name but the brand doesn't have would quietly print in a fallback face.
+      for (const f of (value && value.files) || []) if (!fs.existsSync(f.path)) errors.push(`font file missing: ${path.relative(snap, f.path)} (${f.family} ${f.weight})`);
     }
     else if (r.kind === "type") { const s = styles[native]; if (s) value = { ...s, stack: T.type.families[s.family] }; }
     else if (["space", "radius", "shadow"].includes(r.kind)) value = lists[native] ?? null;

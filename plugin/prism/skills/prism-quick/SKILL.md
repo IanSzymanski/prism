@@ -23,10 +23,17 @@ Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, 
 mkdir -p <slug>/source <slug>/formats <slug>/out
 [ -d .prism-kit ] || cp -r <this skill>/../prism-produce/kit .prism-kit
 nohup bash .prism-kit/run.sh setup <sheet|social|deck> > .prism-kit/setup.log 2>&1 &
+```
+
+<!-- claude-only -->
+While setup runs, bring brands in from the design systems the person can open, once per session (`../prism-produce/references/brands.md`). Then:
+<!-- /claude-only -->
+
+```bash
 node .prism-kit/resolve.js <brand> --out .prism/brand/<brand>
 ```
 
-The resolve line (`<brand>`: the one the user named, else `default`) checks the bundled brand snapshot; if it prints an error, stop and say what it printed, never approximate the brand. A `[brand] design system changed` line is only a warning. Setup for that output type runs in the background while you write; the build later waits for it if it is still going. It takes a second or two when the tools are already there. In the same call: save pasted text to `<slug>/source/pasted.md`; copy uploaded files into `source/`, converting Word and PDF to text beside them (`pandoc file.docx -t plain -o file.txt`, `pdftotext file.pdf`); normalise photos with `python3 .prism-kit/images.py <slug>/formats/images <photos>`. Look at each photo once with Read to spot identifiable people.
+The resolve line (`<brand>`: the one the user named, else `default`) checks the brand, bundled or read from its design system; if it prints an error, stop and say what it printed, never approximate the brand. A `[brand] design system changed` line is only a warning. Setup for that output type runs in the background while you write; the build later waits for it if it is still going. It takes a second or two when the tools are already there. In the same call: save pasted text to `<slug>/source/pasted.md`; copy uploaded files into `source/`, converting Word and PDF to text beside them (`pandoc file.docx -t plain -o file.txt`, `pdftotext file.pdf`); normalise photos with `python3 .prism-kit/images.py <slug>/formats/images <photos>`. Look at each photo once with Read to spot identifiable people.
 
 ## 2. Decide without asking
 

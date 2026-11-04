@@ -26,7 +26,7 @@ Everything in it is real work, done the way the prism-draft and prism-produce sk
 
 ## Stage 1: Welcome and the sample prompt
 
-Do: copy the kit to `.prism-kit` if it is not there (prism-draft step 1), run `.prism-kit/run.sh tutorial <brand> --out <workspace>`, then `.prism-kit/run.sh tutorial <brand> --prompt`, which prints the sample message exactly as a person would send it: the prompt, then the full notes. Send the notes file in the project's `source/` with SendUserFile once, here, so it can be opened beside the later stages; it is never sent again.
+Do: copy the kit to `.prism-kit` if it is not there and bring brands in from design systems, silently (prism-draft step 1), run `.prism-kit/run.sh tutorial <brand> --out <workspace>`, then `.prism-kit/run.sh tutorial <brand> --prompt`, which prints the sample message exactly as a person would send it: the prompt, then the full notes. Send the notes file in the project's `source/` with SendUserFile once, here, so it can be opened beside the later stages; it is never sent again.
 
 Say:
 

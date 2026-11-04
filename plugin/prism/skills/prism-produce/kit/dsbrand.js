@@ -11,9 +11,16 @@
 //          workspace's copy of the brand, in .prism/brands/<id>/, where builds read it. It replaces the bundled brand of the same
 //          id. --default makes it the brand a piece uses when it names none.
 // remove:  drops the workspace copy (and the workspace default, if it was this brand).
+// plan, seen: which design systems a session looks at, and what each listing showed (see below).
+// default, status: the workspace's default brand; what is installed, bundled and seen.
 // Usage: dsbrand.js pack <brand> <out> [--with-design-system]
 //        dsbrand.js install <folder> [--url URL] [--version V] [--title T] [--default] [--replace]
 //        dsbrand.js remove <brand>
+//        dsbrand.js plan [--default URL] [--all] <design system url>...
+//        dsbrand.js seen <design system url> <version> yes|no
+//        dsbrand.js want <folder>   (after reading project/prism/profile.json and project/tokens.json: the other paths to read)
+//        dsbrand.js default <brand> | --clear
+//        dsbrand.js status [--json]
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
 const R = require("./resolve.js");
 const a = process.argv.slice(2), cmd = a[0], opt = k => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : null; };
@@ -38,6 +45,13 @@ function checkFolder(prismDir) {
   }
   return problems;
 }
+
+// What this workspace knows about design systems: brands read from them (.prism/brands/<id>/.prism-install.json), and every design
+// system a session has looked at (.prism/brands/.seen.json: url -> {version, prism, id, at}).
+const SEEN = path.join(R.DRAFTS, ".seen.json");
+const readSeen = () => { try { return JSON.parse(fs.readFileSync(SEEN, "utf8")); } catch { return {}; } };
+function record(url, v) { const s = readSeen(); s[url] = { ...v, at: new Date().toISOString() }; fs.mkdirSync(R.DRAFTS, { recursive: true }); fs.writeFileSync(SEEN, JSON.stringify(s, null, 1) + "\n"); }
+const installs = () => R.brandList().filter(b => b.layout === "design-system").map(b => ({ id: b.id, ...(R.installRecord(b.id) || {}) }));
 
 // The digest is the Prism section of the brand book: the design system titles a section by its first # heading.
 function asSection(text) {
@@ -97,25 +111,106 @@ if (cmd === "install") {
   const target = path.join(R.DRAFTS, id);
   if (fs.existsSync(path.join(target, "profile.json")) && !a.includes("--replace"))
     die(`an onboarding draft of ${id} is in ${target}; finish it or remove it first (or pass --replace to drop it)`);
-  fs.rmSync(target, { recursive: true, force: true });
-  fs.mkdirSync(target, { recursive: true });
+  // The copy is staged and checked first: a design system that doesn't build never replaces a copy (or a bundled brand) that does.
+  const stage = fs.mkdtempSync(path.join(require("os").tmpdir(), "prism-install-")), staged = path.join(stage, "brands", id);
   // Everything the design system serves, as it lays it out, but what a clean-up moved aside and dot-files.
   for (const p of walk(root)) {
     const f = rel(root, p);
     if (f.startsWith("archived/") || f.split("/").some(s => s.startsWith("."))) continue;
-    fs.mkdirSync(path.dirname(path.join(target, f)), { recursive: true });
-    fs.copyFileSync(p, path.join(target, f));
+    fs.mkdirSync(path.dirname(path.join(staged, f)), { recursive: true });
+    fs.copyFileSync(p, path.join(staged, f));
   }
-  fs.writeFileSync(path.join(target, ".prism-install.json"), JSON.stringify({ url: opt("--url"), version: opt("--version"), title: opt("--title") || (prof.source && prof.source.title) || prof.name, installed: new Date().toISOString() }, null, 1) + "\n");
+  fs.writeFileSync(path.join(staged, ".prism-install.json"), JSON.stringify({ url: opt("--url"), version: opt("--version"), title: opt("--title") || (prof.source && prof.source.title) || prof.name, installed: new Date().toISOString() }, null, 1) + "\n");
+  const check = require("child_process").spawnSync("node", [path.join(__dirname, "resolve.js"), id, "--out", path.join(stage, "check")], { env: { ...process.env, PRISM_DRAFTS: path.join(stage, "brands") }, encoding: "utf8" });
+  if (check.status !== 0) {
+    const errs = (check.stderr || "").split("\n").filter(l => /^\[brand\]/.test(l) && !/cannot build/.test(l));
+    for (const e of errs) console.error(e);
+    fs.rmSync(stage, { recursive: true, force: true });
+    const missing = errs.some(e => /file missing: assets\//.test(e));
+    die(`${id} from this design system does not build, so it was not installed${fs.existsSync(target) || fs.existsSync(path.join(__dirname, "brands", id)) ? "; the copy builds use is unchanged" : ""}${missing ? ". Its images are uploads: run.sh ds assets <folder>, read them, run.sh ds place <folder>, then install again" : ""}`);
+  }
+  fs.rmSync(target, { recursive: true, force: true });
+  fs.cpSync(staged, target, { recursive: true });
+  fs.rmSync(stage, { recursive: true, force: true });
   if (a.includes("--default")) fs.writeFileSync(R.DEFAULT_FILE, id + "\n");
   const res = R.load(id);
   for (const w of res.warnings.filter(w => !w.startsWith("optional"))) console.warn(`[brand] ${w}`);
-  if (res.errors.length) {
-    for (const e of res.errors) console.error(`[brand] ${e}`);
-    const missing = res.errors.some(e => /file missing: assets\//.test(e));
-    die(`${id} was read into ${target} but does not build${missing ? "; its images are uploads: run.sh ds assets <folder>, read them, run.sh ds place <folder>, then install again" : ""}`);
-  }
+  if (opt("--url")) record(opt("--url"), { version: opt("--version"), prism: true, id });
   console.log(`[ds] ${res.name} (${id}) builds from its design system${opt("--version") ? `, version ${opt("--version")}` : ""}: ${Object.keys(res.roles).length} roles${a.includes("--default") ? "; it is this workspace's default brand" : ""} -> ${target}`);
+  process.exit(0);
+}
+
+// Which design systems a session looks at. Each look costs a call, so a session looks only at the ones that can matter: those
+// installed here (a new version to bring in), the person's or organization's default, the ones the bundled brands came from, ones
+// it has never seen, and ones not looked at for a week. One seen without a Prism folder this week is skipped until --all (the
+// person asked for a brand this workspace doesn't have).
+if (cmd === "plan") {
+  const urls = pos.slice(1), dflt = opt("--default"), seen = readSeen(), installed = installs();
+  if (!urls.length) die("usage: dsbrand.js plan [--default URL] [--all] <design system url>...", 2);
+  // The design systems the bundled brands came from: when its editors publish a Prism folder there, sessions pick it up at once.
+  const bundled = {};
+  for (const b of fs.readdirSync(path.join(__dirname, "brands"))) { try { const u = JSON.parse(fs.readFileSync(path.join(__dirname, "brands", b, "profile.json"), "utf8")).source.url; if (u) bundled[u] = b; } catch { } }
+  const WEEK = 7 * 24 * 3600 * 1000;
+  for (const u of urls) {
+    const inst = installed.find(x => x.url === u), s = seen[u];
+    const why = inst ? `installed here as ${inst.id}` : u === dflt ? "the default design system" : bundled[u] ? `the design system of the bundled ${bundled[u]}` : !s ? "not seen yet" : s.prism ? "has a Prism folder"
+      : Date.now() - Date.parse(s.at || 0) > WEEK ? "not seen for a week" : a.includes("--all") ? "asked for every design system" : null;
+    console.log(why ? `check ${u} (${why})` : `skip ${u} (no Prism folder when seen ${(s.at || "").slice(0, 10)})`);
+  }
+  process.exit(0);
+}
+
+// What a design system's file listing showed: its version, and whether project/prism/profile.json is in it. Says what to do next:
+// current <id> (this version is installed: nothing to read), read (a Prism brand, new or changed: read and install it), none
+// (not a Prism brand), or gone <id> (installed here, but its Prism folder has been taken out: remove the copy).
+if (cmd === "seen") {
+  const [, url, version, has] = pos;
+  if (!url || !version || !["yes", "no"].includes(has)) die("usage: dsbrand.js seen <design system url> <version> yes|no", 2);
+  const inst = installs().find(x => x.url === url);
+  record(url, { version, prism: has === "yes", id: inst ? inst.id : undefined });
+  if (has === "no") console.log(inst ? `gone ${inst.id}` : "none");
+  else console.log(inst && inst.version === version ? `current ${inst.id}` : "read");
+  process.exit(0);
+}
+
+// The rest of a brand to read, once its profile and tokens are in the folder: everything the profile pins (its Prism files, the
+// design system's files it was checked against) and the font files the tokens name, as project/ paths, one per line, without the
+// uploads (ds assets lists the ones the brand uses) or what the folder already has.
+if (cmd === "want") {
+  const [, folder] = pos;
+  if (!folder) die("usage: dsbrand.js want <folder>", 2);
+  const root = fs.existsSync(path.join(folder, "project")) ? path.join(folder, "project") : folder;
+  const pf = path.join(root, "prism", "profile.json");
+  if (!fs.existsSync(pf)) die(`no prism/profile.json in ${root}: read project/prism/profile.json and project/tokens.json first`);
+  const prof = JSON.parse(fs.readFileSync(pf, "utf8")), blobs = (prof.snapshot && prof.snapshot.blobs) || {};
+  const want = new Set([`prism/${prof.digest.file}`, "prism/packages.json", ...Object.keys(prof.own || {}).map(f => `prism/${f}`)]);
+  for (const f of Object.keys((prof.office && prof.office.files) || {})) want.add(f.startsWith("snapshot/") ? f.slice(9) : `prism/${f}`);
+  for (const f of Object.keys((prof.snapshot && prof.snapshot.files) || {})) want.add(f);
+  try { for (const f of JSON.parse(fs.readFileSync(path.join(root, "tokens.json"), "utf8")).type.fonts || []) if (f.file) want.add(f.file.includes("/") ? f.file : `fonts/${f.file}`); } catch { }
+  for (const f of [...want].sort()) if (!blobs[f] && !fs.existsSync(path.join(root, f))) console.log(`project/${f}`);
+  process.exit(0);
+}
+
+if (cmd === "default") {
+  const [, id] = pos;
+  if (a.includes("--clear")) { fs.rmSync(R.DEFAULT_FILE, { force: true }); console.log(`[ds] no workspace default; the default is ${R.defaultBrand()}`); process.exit(0); }
+  if (!id) die("usage: dsbrand.js default <brand> | --clear", 2);
+  const b = R.brandDir(id);
+  if (!fs.existsSync(path.join(b.dir, "profile.json"))) die(`no brand "${id}" (run.sh brands lists them)`);
+  if (b.draft) die(`${id} is an onboarding draft; a draft is never the default`);
+  fs.mkdirSync(R.DRAFTS, { recursive: true });
+  fs.writeFileSync(R.DEFAULT_FILE, id + "\n");
+  console.log(`[ds] ${id} is this workspace's default brand`);
+  process.exit(0);
+}
+
+if (cmd === "status") {
+  const out = { default: (() => { try { return R.defaultBrand(); } catch (e) { return null; } })(), from_design_systems: installs(), bundled: fs.readdirSync(path.join(__dirname, "brands")).filter(b => fs.existsSync(path.join(__dirname, "brands", b, "profile.json"))), seen: readSeen() };
+  if (a.includes("--json")) { console.log(JSON.stringify(out, null, 1)); process.exit(0); }
+  console.log(`default: ${out.default || "none"}`);
+  for (const i of out.from_design_systems) console.log(`${i.id}: from ${i.url || "a design system"}${i.version ? `, version ${i.version}` : ""}${i.installed ? `, read ${i.installed.slice(0, 10)}` : ""}`);
+  console.log(`bundled with the plugin: ${out.bundled.join(", ") || "none"}`);
+  const s = Object.entries(out.seen); if (s.length) console.log(`design systems seen: ${s.length} (${s.filter(([, v]) => v.prism).length} with a Prism folder)`);
   process.exit(0);
 }
 
@@ -129,4 +224,4 @@ if (cmd === "remove") {
   console.log(`[ds] removed the workspace copy of ${id}`);
   process.exit(0);
 }
-die("usage: dsbrand.js pack <brand> <out> [--with-design-system] | install <folder> [...] | remove <brand>", 2);
+die("usage: dsbrand.js pack | install | remove | plan | seen | default | status (see the top of dsbrand.js)", 2);

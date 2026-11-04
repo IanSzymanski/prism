@@ -146,6 +146,72 @@ ok(r.status === 0 && loadIn("prism").layout === "design-system", "--replace drop
 r = node(path.join(KIT, "onboard.js"), "update", "prism");
 ok(r.status === 1 && /prism is read from its design system/.test(r.stderr + r.stdout), `onboarding names a design-system brand in the way, not a draft: ${r.stderr}`);
 
+// 11. A design system that doesn't build never replaces a copy that does (or, with nothing installed, the bundled brand).
+const broken = path.join(TMP, "pack-broken");
+fs.cpSync(path.join(TMP, "pack-prism"), broken, { recursive: true });
+fs.rmSync(path.join(broken, "project", "tokens.json"));
+const before = fs.readFileSync(path.join(DRAFTS, "prism", "prism", "profile.json"), "utf8");
+r = node(path.join(KIT, "dsbrand.js"), "install", broken, "--url", "https://claude.ai/artifact/prism", "--version", "v2");
+ok(r.status === 1 && /does not build, so it was not installed; the copy builds use is unchanged/.test(r.stderr), `a broken design system is refused: ${r.stderr}`);
+ok(fs.readFileSync(path.join(DRAFTS, "prism", "prism", "profile.json"), "utf8") === before && loadIn("prism").errors.length === 0, "the working copy is untouched");
+node(path.join(KIT, "dsbrand.js"), "remove", "case-amplify");
+fs.cpSync(path.join(TMP, "pack-case-amplify"), path.join(TMP, "pack-ca-broken"), { recursive: true });
+fs.appendFileSync(path.join(TMP, "pack-ca-broken", "project", "prism", "ornaments.js"), "\n// edited outside Prism\n");
+r = node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-ca-broken"));
+ok(r.status === 1 && !fs.existsSync(path.join(DRAFTS, "case-amplify")) && loadIn("case-amplify").layout === "kit", "with nothing installed, a broken design system leaves the bundled brand in use");
+
+// 12. What a session looks at: installed brands, the default design system, ones never seen; one seen without a Prism folder is skipped.
+const U = n => `https://claude.ai/artifact/${n}`;
+fs.rmSync(path.join(DRAFTS, ".seen.json"), { force: true });
+node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-prism"), "--url", U("prism"), "--version", "v1");
+r = node(path.join(KIT, "dsbrand.js"), "plan", "--default", U("acme"), U("prism"), U("acme"), U("other"));
+ok(/check \S+prism \(installed here as prism\)/.test(r.stdout) && /check \S+acme \(the default design system\)/.test(r.stdout) && /check \S+other \(not seen yet\)/.test(r.stdout), `plan on a first run: ${r.stdout}`);
+ok(node(path.join(KIT, "dsbrand.js"), "seen", U("other"), "v7", "no").stdout.trim() === "none", "seen: no Prism folder is none");
+ok(node(path.join(KIT, "dsbrand.js"), "seen", U("prism"), "v1", "yes").stdout.trim() === "current prism", "seen: the installed version is current");
+ok(node(path.join(KIT, "dsbrand.js"), "seen", U("prism"), "v2", "yes").stdout.trim() === "read", "seen: a new version is read");
+ok(node(path.join(KIT, "dsbrand.js"), "seen", U("acme"), "v1", "yes").stdout.trim() === "read", "seen: a new Prism brand is read");
+r = node(path.join(KIT, "dsbrand.js"), "plan", U("prism"), U("other"));
+ok(/check \S+prism/.test(r.stdout) && /skip \S+other \(no Prism folder when seen/.test(r.stdout), `plan skips one seen without a Prism folder: ${r.stdout}`);
+ok(/check \S+other \(asked for every design system\)/.test(node(path.join(KIT, "dsbrand.js"), "plan", "--all", U("other")).stdout), "plan --all checks it again");
+ok(node(path.join(KIT, "dsbrand.js"), "seen", U("prism"), "v3", "no").stdout.trim() === "gone prism", "seen: an installed brand whose Prism folder was taken out is gone");
+// The design system a bundled brand came from is always looked at, so publishing its Prism folder takes effect at once.
+const caUrl = JSON.parse(fs.readFileSync(path.join(KIT, "brands", "case-amplify", "profile.json"), "utf8")).source.url;
+node(path.join(KIT, "dsbrand.js"), "seen", caUrl, "v1", "no");
+ok(/check \S+ \(the design system of the bundled case-amplify\)/.test(node(path.join(KIT, "dsbrand.js"), "plan", caUrl).stdout), "plan checks a bundled brand's design system even when it had no Prism folder");
+// One seen without a Prism folder more than a week ago is looked at again.
+const seenFile = path.join(DRAFTS, ".seen.json"), seenNow = JSON.parse(fs.readFileSync(seenFile, "utf8"));
+seenNow[U("other")].at = new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString(); fs.writeFileSync(seenFile, JSON.stringify(seenNow));
+ok(/check \S+other \(not seen for a week\)/.test(node(path.join(KIT, "dsbrand.js"), "plan", U("other")).stdout), "plan looks again after a week");
+
+// ds want: after the profile alone, the rest of the brand; after the tokens too, any font they name that the brand lacks.
+const wf = path.join(TMP, "want"), wroot = path.join(wf, "project");
+fs.mkdirSync(path.join(wroot, "prism"), { recursive: true });
+fs.copyFileSync(path.join(TMP, "pack-case-amplify", "project", "prism", "profile.json"), path.join(wroot, "prism", "profile.json"));
+let want = node(path.join(KIT, "dsbrand.js"), "want", wf).stdout.trim().split("\n");
+ok(want.includes("project/tokens.json") && want.includes("project/prism/ornaments.js") && want.includes("project/fonts/Inter-Medium.ttf") && want.includes("project/assets/Wave/wave-core.js"), `want lists the brand's files: ${want.join(" ")}`);
+ok(!want.some(w => /\.(png|svg)$/.test(w) && w.includes("/assets/")) && !want.includes("project/prism/profile.json"), "want leaves out uploads and what is already read");
+const T2 = JSON.parse(fs.readFileSync(path.join(TMP, "pack-case-amplify", "project", "tokens.json"), "utf8"));
+T2.type.fonts.push({ family: "Inter", file: "fonts/Inter-Bold.ttf", weight: "700" });
+fs.writeFileSync(path.join(wroot, "tokens.json"), JSON.stringify(T2));
+want = node(path.join(KIT, "dsbrand.js"), "want", wf).stdout.trim().split("\n");
+ok(want.includes("project/fonts/Inter-Bold.ttf") && !want.includes("project/tokens.json"), `after the tokens, want adds a font they name: ${want.join(" ")}`);
+// A font the tokens name but the brand doesn't have stops the build instead of printing in a fallback face.
+const caT = path.join(DRAFTS, "case-amplify", "tokens.json");
+if (!fs.existsSync(caT)) node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-case-amplify"));
+fs.writeFileSync(path.join(DRAFTS, "case-amplify", "tokens.json"), JSON.stringify(T2));
+res = loadIn("case-amplify");
+ok(res.errors.some(e => e === "font file missing: fonts/Inter-Bold.ttf (Inter 700)"), `a missing font stops the build: ${res.errors.join("; ")}`);
+node(path.join(KIT, "dsbrand.js"), "remove", "case-amplify");
+
+// 13. The workspace default by name, and the status a session reads.
+r = node(path.join(KIT, "dsbrand.js"), "default", "prism");
+ok(r.status === 0 && dflt(env) === "prism", `default <brand> sets the workspace default: ${r.stderr}`);
+ok(node(path.join(KIT, "dsbrand.js"), "default", "harbor-point").status === 1, "a draft can't be the default");
+const st = JSON.parse(node(path.join(KIT, "dsbrand.js"), "status", "--json").stdout);
+ok(st.default === "prism" && st.from_design_systems.some(x => x.id === "prism" && x.url === U("prism")) && st.bundled.includes("case-amplify") && st.seen[U("other")].prism === false, `status: ${JSON.stringify(st).slice(0, 300)}`);
+r = node(path.join(KIT, "dsbrand.js"), "default", "--clear");
+ok(r.status === 0 && dflt(env) === "case-amplify", "default --clear goes back to the bundled default");
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

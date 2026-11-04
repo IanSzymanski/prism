@@ -17,9 +17,14 @@ if (cmd === "assets") {
   // The photo library stays in the design system: pieces fetch the photos they use (library.js --need).
   let skip = opt("--skip");
   if (!skip && opt("--brand")) skip = (require("./resolve.js").load(opt("--brand")).libraryGroup) || null;
+  // A Prism brand read from its design system names its photo group in the profile it just read.
+  if (!skip && fs.existsSync(path.join(root, "prism", "profile.json"))) { try { skip = (JSON.parse(fs.readFileSync(path.join(root, "prism", "profile.json"), "utf8")).library || {}).group || null; } catch (e) { } }
   if (!skip && !a.includes("--all")) skip = "Photos";
-  const want = uploads.filter(u => a.includes("--all") || u.group !== skip), left = uploads.length - want.length;
-  console.log(`Read these ${want.length} uploads (${Math.round(want.reduce((s, u) => s + (u.size || 0), 0) / 1024)} KB) in one call, as paths${left ? `; the ${left} in "${skip}" stay in the design system` : ""}:`);
+  // A Prism brand needs only the uploads its profile pins (logos, the drawn rule, backgrounds), never the rest of the asset store.
+  let pinned = null;
+  if (!a.includes("--all") && fs.existsSync(path.join(root, "prism", "profile.json"))) { try { pinned = new Set(Object.keys(JSON.parse(fs.readFileSync(path.join(root, "prism", "profile.json"), "utf8")).snapshot.files || {})); } catch (e) { } }
+  const want = uploads.filter(u => a.includes("--all") || (pinned ? pinned.has(u.file) : u.group !== skip)), left = uploads.length - want.length;
+  console.log(`Read these ${want.length} uploads (${Math.round(want.reduce((s, u) => s + (u.size || 0), 0) / 1024)} KB) in one call, as paths${left ? `; the other ${left} ${pinned ? "are not the brand's" : `in "${skip}"`} and stay in the design system` : ""}:`);
   for (const u of want) console.log(u.blob);
   process.exit(0);
 }

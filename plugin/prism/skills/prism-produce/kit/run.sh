@@ -30,7 +30,7 @@ case "$cmd" in
   brands)  node "$KIT/brands.js" "$@" ;;
   library) node "$KIT/library.js" "$@" ;;
   # ds assets|place read a design system; ds pack|install|remove move a brand's Prism folder in and out of one (D19).
-  ds) case "${1:-}" in pack|install|remove) node "$KIT/dsbrand.js" "$@" ;; *) node "$KIT/ds.js" "$@" ;; esac ;;
+  ds) case "${1:-}" in pack|install|remove|plan|seen|want|default|status) node "$KIT/dsbrand.js" "$@" ;; *) node "$KIT/ds.js" "$@" ;; esac ;;
   packages) node "$KIT/packages.js" "$@" ;;
   state)   node "$KIT/state.js" "$@" ;;
   exports) node "$KIT/exports.js" "$@" ;;
