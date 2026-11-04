@@ -158,5 +158,34 @@ r = node(path.join(KIT, "packages.js"), "check", proj); ok(r.status === 0, `a sh
 write(path.join(proj, "formats", "one.md"), "---\ntitle: T\nlayout: poster\n---\n\n41% less time.\n");
 r = node(path.join(KIT, "packages.js"), "check", proj); ok(r.status === 1 && /one: layout poster is not one of this brand's sheet layouts/.test(r.stdout), `an unknown sheet layout is caught: ${r.stdout}`);
 
-fs.rmSync(TMP, { recursive: true, force: true });
-console.log(`layouts: ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);
+// 8. The photo-led cover's darkening (scrim.js): the same ramp as always when the photo is dark enough, and enough more under
+// each piece of text on a light photo that it reaches the target (4.8:1, so the baked JPEG and the print clear 4.5:1).
+const SC = require(path.join(KIT, "scrim.js")), bsSrc = fs.readFileSync(path.join(KIT, "build-sheet.js"), "utf8");
+ok(/require\("\.\/scrim\.js"\)\.inPage/.test(bsSrc) && /window\.prismScrim\.plan\(c, S, box, scrimColor, texts\)/.test(bsSrc), "the sheet build darkens the cover with scrim.js, measuring the text over it");
+ok(SC.BASE.length === 13 && SC.BASE[1].join() === "0.15,0" && SC.BASE[11][1] === 0.9 && SC.BASE[12].join() === "1,0.9" && Math.abs(SC.BASE[6][0] - 0.45) < 1e-9 && SC.BASE[6][1] === 0.45, "the ramp: clear to 15%, smooth to 90% at 75%, as before");
+const W3 = [255, 255, 255], K3 = [0, 0, 0];
+const a0 = SC.need(W3, W3, K3);
+ok(a0 > 0.4 && a0 < 0.7 && SC.contrast(W3, W3.map(v => (1 - a0) * v)) >= SC.TARGET, `white text on a white photo needs about half the darkening: ${a0}`);
+ok(SC.need(W3, [40, 40, 40], K3) === 0, "white text on a dark photo needs none");
+ok(SC.stops([{ top: 0.7, alpha: 0.3 }]).stops === SC.BASE && !SC.stops([{ top: 0.7, alpha: 0.3 }]).strengthened, "text the ramp already covers keeps the ramp exactly");
+const up = SC.stops([{ top: 0.3, alpha: a0 }]), at = y => up.stops.find(([p]) => p >= y)[1];
+ok(up.strengthened && at(0.3) >= a0 - 0.005 && at(0.1) === 0 && up.stops.every(([p, x], k) => !k || x >= up.stops[k - 1][1]), "high text on a light photo gets its darkening from just above it, the top stays clear, and it only ever darkens downward");
+(async () => {
+  try {
+    const { chromium } = require(require.resolve("playwright", { paths: [path.join(KIT, "node_modules"), KIT] }));
+    const browser = await chromium.launch({ ...(process.env.PRISM_CHROMIUM ? { executablePath: process.env.PRISM_CHROMIUM } : {}) });
+    const page = await browser.newPage();
+    await page.setContent("<body></body>"); await page.addScriptTag({ content: SC.inPage });
+    // A 600x400 cover painted one colour, with a label high up and a title under it, white text, a black scrim.
+    const run = fill => page.evaluate(fill => { const S = 2, cv = document.createElement("canvas"); cv.width = 1200; cv.height = 800; const c = cv.getContext("2d"); c.scale(S, S);
+      c.fillStyle = fill; c.fillRect(0, 0, 600, 400); const box = { left: 0, top: 0, right: 600, bottom: 400, width: 600, height: 400 };
+      const t = (top, h) => ({ box: { left: 40, right: 400, top, bottom: top + h }, color: "rgb(255, 255, 255)" });
+      return window.prismScrim.plan(c, S, box, [0, 0, 0], [t(110, 14), t(130, 60), t(320, 30)]); }, fill);
+    const light = await run("#fbfaf6"), dark = await run("#3a3a3a");
+    ok(light.strengthened && light.reached.length === 3 && light.reached.every(x => x >= SC.TARGET - 0.01), `on a light photo every piece of text reaches the target: ${JSON.stringify(light.reached)}`);
+    ok(!dark.strengthened && JSON.stringify(dark.stops) === JSON.stringify(SC.BASE) && dark.reached.every(x => x >= SC.TARGET), `on a dark photo the ramp is kept exactly: ${JSON.stringify(dark.reached)}`);
+    await browser.close();
+  } catch (e) { ok(false, `the in-page darkening could not run: ${e.message}`); }
+  fs.rmSync(TMP, { recursive: true, force: true });
+  console.log(`layouts: ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);
+})();

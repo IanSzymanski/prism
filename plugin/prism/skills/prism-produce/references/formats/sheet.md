@@ -85,7 +85,7 @@ A sheet's `layout:` picks what leads its first page: the title band, a photo, a 
 | Prism default layout | Front matter and markup it needs | Pick it when |
 |---|---|---|
 | `standard` | nothing | Nothing else clearly leads the piece |
-| `photo-led` | `image: images/<file>` (or `brand:<id>`; `image-focus: x% y%` optional): the cover photo, full width under the logo bar, with the title over it | A landscape photo that prints 6.5 in wide or more (images.md: hero) and carries the story. Never a client or minor without confirmed consent |
+| `photo-led` | `image: images/<file>` (or `brand:<id>`; `image-focus: x% y%` optional): the cover photo, full width under the logo bar, with the title over it (the build darkens the photo under the title as far as its text needs, so a light photo works too) | A landscape photo that prints 6.5 in wide or more (images.md: hero) and carries the story. Never a client or minor without confirmed consent |
 | `stat-first` | `stat: 41%` and `stat-label: less time on case notes, in four months`: one very large figure and what it measures, above the title | One number carries the piece. The figure and label come from content.md, written the same way (the number check reads them) |
 | `sidebar` | a `::: rail` block (stats, a short quote, the contact) anywhere in the body: the build puts it in a tinted rail beside the story | Three or more figures, or figures and a quote, that should stay in view beside the story |
 
