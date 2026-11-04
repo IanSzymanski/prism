@@ -70,7 +70,7 @@ Phosphor **Regular** (open source, MIT), 22px on cards, 20px in callouts, 18px i
 
 ## Logos
 
-The Prism logo: the wordmark "prism" (Bricolage Grotesque Bold, outlined) and the glyph, an inverted equilateral triangle cut at its edge midpoints: three corners in amber (top left), blue (top right) and red (bottom) around an open centre, one source split three ways. The glyph also works on its own. Files in `assets/Logos/`:
+The Prism logo, supplied by the brand owner: the wordmark "prism" and the glyph, an inverted triangle in three segments (amber, blue, red), one source split three ways. The glyph also works on its own. Files in `assets/Logos/`:
 
 | File | Use |
 |---|---|
@@ -85,12 +85,20 @@ The Prism logo: the wordmark "prism" (Bricolage Grotesque Bold, outlined) and th
 - **Glyph alone** where the name is already present or space is tight: content slides, carousel middle panels, social avatars, favicons, email footers. Minimum 16px tall; under 24px prefer the mono glyph on light grounds, where the colour glyph's amber is faint (2:1 on `bg`).
 - **Sizes**: 30px tall on a sheet masthead (22pt), 40px on title slides, 168px wide in email headers.
 - **Clear space**: half the glyph's height on every side.
-- Never recoloured, stretched, outlined or redrawn; never the colour glyph on `accent` or a hue fill (use mono-light there).
+- **Supplied artwork is final.** Never redrawn, re-typeset, re-spaced or "corrected", including to fix a crop in an output: a clipped logo in a build is a layout bug, fixed in the layout. Never recoloured, stretched or outlined; never the colour glyph on `accent` or a hue fill (use mono-light there).
 - The glyph's hues are this system's dark-theme `hue-1` (red), `hue-2` (amber) and `hue-4` (blue). The spectrum motif adds `hue-3` (green) as a fourth band; the logo has three.
 
 ## Test images
 
 `assets/Templates/`: flat sample scenes in the brand's neutrals, each labelled "Sample image", for building and testing outputs before real photos exist: landscape 3:2 (light and dark), portrait with a person 4:5 (for placement rules near people), square 1:1, wide 2:1 and a product screen 16:10. Never ship them as real photography.
+
+## Workflow mockups and diagrams
+
+`assets/Mockups/`: approved illustrative mockups of each workflow step and of Prism's features (co-op editing, packages, edit sync, revisions, claims, quick mode, brand switching), for any Prism material that explains how Prism works. Large type, simplified UI. Always captioned "Illustrative mockup."; the text inside them is sample content.
+
+`assets/Diagrams/`: approved how-it-works diagrams (workflow, one source to many formats, agents and gates, revisions, core and design systems, onboarding, setup, packages, co-op editing).
+
+Both groups are brand-neutral: they show Prism itself, never a client's design system. Details: each group's README.
 
 ## Fonts
 

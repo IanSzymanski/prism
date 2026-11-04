@@ -131,7 +131,7 @@ console.log(JSON.stringify({ p, focus: p && B.focus(p), written: p && B.focus(p,
     check("--need after fetching", r.returncode == 0 and "are fetched" in r.stdout, r.stdout)
     r = subprocess.run(["node", os.path.join(kit, "resolve.js"), "case-amplify", "--out", os.path.join(tmp, "res"), "--live", read("live-replaced", blob_id="1" * 32)], capture_output=True, text=True, env=lenv)
     check("a replaced library photo is drift", r.returncode == 0 and "library photo team-card" in r.stderr, r.stderr)
-    for bad, why in [({"file": "assets/Photos/not-there.jpg"}, "not in the design system this release pinned"), ({"file": photo, "_id": "Bad Id"}, "lowercase")]:
+    for bad, why in [({"file": "assets/Photos/not-there.jpg"}, "not in the design system this brand was checked against"), ({"file": photo, "_id": "Bad Id"}, "lowercase")]:
         lid = bad.pop("_id", "x")
         prof["library"]["images"] = {lid: bad}; json.dump(prof, open(pf, "w"), indent=1)
         r = subprocess.run(["node", os.path.join(kit, "resolve.js"), "case-amplify", "--out", os.path.join(tmp, "res")], capture_output=True, text=True, env=lenv)

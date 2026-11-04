@@ -18,12 +18,14 @@ function dropNumbers() {
   return n;
 }
 
-// A purple post or panel takes the dark text roles; the brand layer gives it its own ground (core falls back to the accent).
-function purpleAsDark() {
-  document.querySelectorAll(".post.purple").forEach(p => p.classList.add("dark"));
+// A vivid post or panel (the brand's strongest ground) takes the dark text roles; the brand layer gives it its own ground
+// (core falls back to the accent). `.purple` is its older name: both spellings carry both classes, so a piece written either
+// way builds the same and a brand layer that styles `.purple` still finds its posts.
+function vividAsDark() {
+  document.querySelectorAll(".post.vivid, .post.purple").forEach(p => p.classList.add("vivid", "purple", "dark"));
 }
 
-// What each post or panel is made of, read before purpleAsDark so a purple ground is told apart from a dark one.
+// What each post or panel is made of, read before vividAsDark so a vivid ground is told apart from a dark one.
 function summary() {
   const kind = el => el.matches(".num") || el.querySelector(":scope > .num") ? "num" : el.matches("h1, h2, h3") ? el.tagName.toLowerCase() :
     el.matches(".stats") ? "stats" : el.matches(".checks") ? "checks" : el.matches(".steps") ? "steps" : el.matches(".features") ? "cards" :
@@ -36,7 +38,7 @@ function summary() {
     const car = p.closest(".carousel"), sig = [...p.children].filter(c => !c.matches(".caption")).map(kind);
     return { id: p.id || "", carousel: car ? (car.id || "carousel") : null, n: car ? [...car.querySelectorAll(".post")].indexOf(p) + 1 : 0,
       cover: p.classList.contains("cover"), end: p.classList.contains("end"), story: p.classList.contains("story"), email: p.classList.contains("email"),
-      ground: p.classList.contains("purple") ? "purple" : p.classList.contains("dark") || p.classList.contains("photo-full") ? "dark" : "light",
+      ground: p.matches(".vivid, .purple") ? "vivid" : p.classList.contains("dark") || p.classList.contains("photo-full") ? "dark" : "light",
       sig: sig.filter((k, i) => k !== sig[i - 1]).join("+"), words: words(p),
       photos: [...p.querySelectorAll("img")].filter(i => !i.closest(".qr__code")).map(i => i.getAttribute("src")),
       stats: [...p.querySelectorAll(".stats li > strong:first-child")].map(s => s.textContent.trim()) };
@@ -60,8 +62,8 @@ function check(posts, on, statChars = 3) {
       else if (mid.length >= 3 && mid.every(p => p.sig === mid[0].sig)) out.push(`layout: all ${mid.length} posts have the same layout (${mid[0].sig}); vary them (a stat, a quote, a list)`);
     }
     if (on.includes("color")) {
-      if (c && list.length >= 5 && mid.length && mid.every(p => p.ground === mid[0].ground)) out.push(`color: every middle panel of ${c} is on the ${mid[0].ground} ground; make one ${mid[0].ground === "light" ? "dark or purple" : "light"}`);
-      else if (!c && mid.length >= 3 && mid.every(p => p.ground === mid[0].ground)) out.push(`color: all ${mid.length} posts are on the ${mid[0].ground} ground; mix in a ${mid[0].ground === "light" ? "dark or purple" : "light"} one`);
+      if (c && list.length >= 5 && mid.length && mid.every(p => p.ground === mid[0].ground)) out.push(`color: every middle panel of ${c} is on the ${mid[0].ground} ground; make one ${mid[0].ground === "light" ? "dark or vivid" : "light"}`);
+      else if (!c && mid.length >= 3 && mid.every(p => p.ground === mid[0].ground)) out.push(`color: all ${mid.length} posts are on the ${mid[0].ground} ground; mix in a ${mid[0].ground === "light" ? "dark or vivid" : "light"} one`);
       for (const r of runs(mid, p => p.ground, 3)) if (!(c && mid.every(p => p.ground === mid[0].ground)) && !(!c && mid.length >= 3 && mid.every(p => p.ground === mid[0].ground))) out.push(`color: ${r.map(name).join(", ")} are three ${r[0].ground} grounds in a row; change the middle one`);
     }
     if (on.includes("photo")) {
@@ -85,4 +87,4 @@ function check(posts, on, statChars = 3) {
   return [...new Set(out)];
 }
 
-module.exports = { dropCounters, dropNumbers, purpleAsDark, summary, check };
+module.exports = { dropCounters, dropNumbers, vividAsDark, summary, check };

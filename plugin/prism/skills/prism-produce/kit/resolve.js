@@ -46,7 +46,7 @@ function load(id, opts = {}) {
   const prof = JSON.parse(fs.readFileSync(path.join(dir, "profile.json"), "utf8"));
   const core = JSON.parse(fs.readFileSync(path.join(KIT, "roles.json"), "utf8")).roles;
   const errors = [], warnings = [];
-  if (draft) warnings.push(`draft: ${id} is built from ${dir}, not from a release; onboarding is not finished until the bundle ships`);
+  if (draft) warnings.push(`draft: ${id} is built from ${dir}, an onboarding draft; it is not in its design system until onboarding publishes it`);
   if ((prof.schema || 1) > SCHEMA) return { errors: [`${id}'s profile is schema ${prof.schema}; this Prism reads schema ${SCHEMA}: update Prism`], warnings };
 
   // 1. Every pinned file must be present and unchanged, or the brand would be approximated. A brand read from its design system
@@ -148,7 +148,7 @@ function load(id, opts = {}) {
   for (const [lid, e] of Object.entries((prof.library && prof.library.images) || {})) {
     if (!/^[a-z0-9-]+$/.test(lid)) { errors.push(`library image id "${lid}" must be lowercase letters, digits and hyphens`); continue; }
     const blob = e.file && prof.snapshot.blobs[e.file];
-    if (!blob) { errors.push(`library image ${lid}: ${e.file} is not in the design system this release pinned`); continue; }
+    if (!blob) { errors.push(`library image ${lid}: ${e.file} is not in the design system this brand was checked against`); continue; }
     const p = libraryFile(id, blob, e.file);
     library[lid] = { ...e, blob, path: fs.existsSync(p) ? p : null };
   }
@@ -165,19 +165,19 @@ function load(id, opts = {}) {
     for (const [f, h] of Object.entries(prof.snapshot.files)) {
       // Packages are read live from the design system on their own (packages.js --live), so a new one is not drift.
       if (f === "design-system.json" || f === "packages.json") continue;
-      if (blobs[f]) { if (liveBlobs[f] !== blobs[f]) warnings.push(`design system changed since this release: ${f} (${liveBlobs[f] ? "replaced" : "removed"})`); continue; }
+      if (blobs[f]) { if (liveBlobs[f] !== blobs[f]) warnings.push(`design system changed since this brand was checked: ${f} (${liveBlobs[f] ? "replaced" : "removed"})`); continue; }
       const p = path.join(L, f);
-      if (!fs.existsSync(p)) warnings.push(`design system changed since this release: ${f} (removed)`);
-      else if (sha(p) !== h) warnings.push(`design system changed since this release: ${f}`);
+      if (!fs.existsSync(p)) warnings.push(`design system changed since this brand was checked: ${f} (removed)`);
+      else if (sha(p) !== h) warnings.push(`design system changed since this brand was checked: ${f}`);
     }
     for (const [lid, e] of Object.entries(library)) if (liveBlobs[e.file] !== e.blob)
-      warnings.push(`design system changed since this release: library photo ${lid}, ${e.file} (${liveBlobs[e.file] ? "replaced" : "removed"}; it is not used until the brand is updated)`);
-    // Components the design system added since this release (a testimonial block, say): each one is for onboarding to add.
+      warnings.push(`design system changed since this brand was checked: library photo ${lid}, ${e.file} (${liveBlobs[e.file] ? "replaced" : "removed"}; it is not used until the brand is updated)`);
+    // Components the design system added since the brand was checked (a testimonial block, say): each one is for onboarding to add.
     const had = prof.source && prof.source.components, cdir = path.join(L, "components");
     if (had && fs.existsSync(cdir)) {
       const now = fs.readdirSync(cdir, { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name);
-      for (const c of now.filter(c => !had.includes(c))) warnings.push(`design system changed since this release: new component ${c}`);
-      for (const c of had.filter(c => !now.includes(c))) warnings.push(`design system changed since this release: component ${c} removed`);
+      for (const c of now.filter(c => !had.includes(c))) warnings.push(`design system changed since this brand was checked: new component ${c}`);
+      for (const c of had.filter(c => !now.includes(c))) warnings.push(`design system changed since this brand was checked: component ${c} removed`);
     }
   }
   // Every colour token in the design system, aliases resolved per theme, for the brand's own layers (--brand-<name>).

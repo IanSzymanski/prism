@@ -3,7 +3,7 @@
 // a blog post, a deck, a one-pager, the full PDF and an email). Core ships starters in packages.json; a brand's own are
 // made by its people and kept in its design system, as packages.json at its root (same shape), which adds packages or
 // replaces one by id (null removes a core one). Builds read the live design system when one was read (--live), else the
-// brand's saved copy in snapshot/. Each output is its own format file, formats/<id>.md.
+// copy saved with a bundled brand (snapshot/packages.json); a brand read from its design system has them in its Prism folder. Each output is its own format file, formats/<id>.md.
 // Usage: packages.js [list] [--brand B] [--live DIR] [--json]
 //        packages.js show <id> [--brand B] [--live DIR] [--json]
 //        packages.js use <project> <id> [--brand B] [--live DIR] [--drop a,b] [--add id:format] [--set output.key=value]...

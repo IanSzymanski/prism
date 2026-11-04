@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Lists a brand's image library: reusable photos from its design system that any piece can use as ![Caption](brand:<id>).
 // The photos are never bundled with Prism: a release pins each one's upload id, and a piece fetches only the photos it uses.
-// Usage: library.js <brand> [--live DIR] [--json]   (--live: also lists photos added to the design system since this release)
+// Usage: library.js <brand> [--live DIR] [--json]   (--live: also lists photos added to the design system since the brand was checked)
 //        library.js <brand> --need FILE|DIR ...      (the upload ids to read for the photos these files use and lack)
 //        library.js <brand> --take DIR               (keeps the photos a read saved, by upload id, for every build)
 const fs = require("fs"), path = require("path");
@@ -30,7 +30,7 @@ if (a.includes("--need")) {
 }
 
 if (a.includes("--take")) {
-  // A read by upload id is the photo this release pinned: it is kept as fetched. A photo saved by its design-system path
+  // A read by upload id is the photo the brand pinned: it is kept as fetched. A photo saved by its design-system path
   // (assets/<group>/<file>) is kept only when the index read with it still names the pinned upload.
   const dir = opt("--take") || "", L = dsRoot(dir);
   if (!fs.existsSync(dir)) { console.error(`[library] no folder ${dir}`); process.exit(1); }
@@ -45,7 +45,7 @@ if (a.includes("--take")) {
     if (!src && fs.existsSync(path.join(L, e.file))) {
       const r = idx && live(e.file);
       if (!idx) { refused.push(`brand:${n}: ${e.file} came without design-system.json, so it cannot be checked against the pinned upload; read it by its upload id (${e.blob})`); continue; }
-      if (!r || r.blob !== e.blob) { refused.push(`brand:${n}: ${e.file} was ${r ? "replaced" : "removed"} in the design system since this release; it is not used until the brand is updated`); continue; }
+      if (!r || r.blob !== e.blob) { refused.push(`brand:${n}: ${e.file} was ${r ? "replaced" : "removed"} in the design system since the brand was checked; it is not used until the brand is updated`); continue; }
       src = path.join(L, e.file);
     }
     if (!src) continue;
@@ -67,12 +67,12 @@ if (rows.length) {
   console.log("| Source | Shows | People | Orientation | Focus | Tags |\n|---|---|---|---|---|---|");
   for (const [n, e] of rows) console.log(`| brand:${n} | ${e.shows || ""} | ${e.people || "not recorded"} | ${e.orientation || ""} | ${e.focus || "centre"} | ${(e.tags || []).join(", ")} |`);
 }
-// Photos in the live design system's library group that this release has not pinned: copy them into the piece's images/ to use them.
+// Photos in the live design system's library group that the brand has not pinned: copy them into the piece's images/ to use them.
 const live = opt("--live");
 if (live && res.libraryGroup) {
   const L = dsRoot(live);
   const idx = fs.existsSync(path.join(L, "design-system.json")) ? JSON.parse(fs.readFileSync(path.join(L, "design-system.json"), "utf8")) : {};
   const pinned = new Set(Object.values(res.library).map(e => path.basename(e.file)));
   const extra = Object.entries(((idx.assetGroups || {})[res.libraryGroup] || {}).files || {}).filter(([f]) => !pinned.has(f));
-  for (const [f, r] of extra) console.log(`live only: assets/${res.libraryGroup}/${f} (not in this release; read upload ${r.blob} from the design system, then run.sh images on it to use it in this piece)`);
+  for (const [f, r] of extra) console.log(`live only: assets/${res.libraryGroup}/${f} (not pinned by the brand; read upload ${r.blob} from the design system, then run.sh images on it to use it in this piece)`);
 }
