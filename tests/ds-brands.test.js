@@ -143,8 +143,6 @@ r = node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-prism"));
 ok(r.status === 1 && /onboarding draft of prism/.test(r.stderr), "install refuses to overwrite an onboarding draft");
 r = node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-prism"), "--replace");
 ok(r.status === 0 && loadIn("prism").layout === "design-system", "--replace drops the draft for the design system's brand");
-r = node(path.join(KIT, "onboard.js"), "update", "prism");
-ok(r.status === 1 && /prism is read from its design system/.test(r.stderr + r.stdout), `onboarding names a design-system brand in the way, not a draft: ${r.stderr}`);
 
 // 11. A design system that doesn't build never replaces a copy that does (or, with nothing installed, the bundled brand).
 const broken = path.join(TMP, "pack-broken");
@@ -194,7 +192,11 @@ const T2 = JSON.parse(fs.readFileSync(path.join(TMP, "pack-case-amplify", "proje
 T2.type.fonts.push({ family: "Inter", file: "fonts/Inter-Bold.ttf", weight: "700" });
 fs.writeFileSync(path.join(wroot, "tokens.json"), JSON.stringify(T2));
 want = node(path.join(KIT, "dsbrand.js"), "want", wf).stdout.trim().split("\n");
-ok(want.includes("project/fonts/Inter-Bold.ttf") && !want.includes("project/tokens.json"), `after the tokens, want adds a font they name: ${want.join(" ")}`);
+ok(want.join() === "project/fonts/Inter-Bold.ttf", `after the tokens, want prints only the font they add (nothing the first pass asked for): ${want.join(" ")}`);
+// --fresh: what an earlier read of another version left in the folder is cleared, so it is read again for this version.
+fs.writeFileSync(path.join(wroot, "prism", "digest.md"), "# Prism\n\nan older version\n"); fs.writeFileSync(path.join(wf, "0123456789abcdef0123456789abcdef.png"), "x");
+want = node(path.join(KIT, "dsbrand.js"), "want", wf, "--fresh").stdout.trim().split("\n");
+ok(want.includes("project/prism/digest.md") && want.includes("project/tokens.json") && !fs.existsSync(path.join(wroot, "tokens.json")) && !fs.existsSync(path.join(wf, "0123456789abcdef0123456789abcdef.png")) && fs.existsSync(path.join(wroot, "prism", "profile.json")), "want --fresh keeps only the profile just read and lists the rest again");
 // A font the tokens name but the brand doesn't have stops the build instead of printing in a fallback face.
 const caT = path.join(DRAFTS, "case-amplify", "tokens.json");
 if (!fs.existsSync(caT)) node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-case-amplify"));
@@ -211,6 +213,68 @@ const st = JSON.parse(node(path.join(KIT, "dsbrand.js"), "status", "--json").std
 ok(st.default === "prism" && st.from_design_systems.some(x => x.id === "prism" && x.url === U("prism")) && st.bundled.includes("case-amplify") && st.seen[U("other")].prism === false, `status: ${JSON.stringify(st).slice(0, 300)}`);
 r = node(path.join(KIT, "dsbrand.js"), "default", "--clear");
 ok(r.status === 0 && dflt(env) === "case-amplify", "default --clear goes back to the bundled default");
+
+// 14. Onboarding publishes into the design system (D20). A new brand: drafted, then packed as the Prism folder to publish.
+const onboard = (...x) => node(path.join(KIT, "onboard.js"), ...x);
+r = onboard("start", "lumen", path.join(KIT, "brands", "prism", "snapshot"), "--name", "Lumen", "--url", U("lumen"));
+ok(r.status === 0, `onboard start: ${r.stderr}`);
+const pubLumen = path.join(TMP, "publish-lumen");
+r = onboard("pack", "lumen", pubLumen);
+ok(r.status === 1 && /not ready to leave this workspace yet/.test(r.stderr) && /stub/.test(r.stderr), `pack refuses an unfinished draft: ${r.stderr}`);
+fs.writeFileSync(path.join(DRAFTS, "lumen", "digest.md"), "# Lumen brand rules\n\n- One accent word per title.\n");
+node(path.join(KIT, "pin.js"), "lumen");
+r = onboard("pack", "lumen", pubLumen);
+ok(r.status === 0 && new RegExp(`publish \\d+ files into ${U("lumen").replace(/[/.]/g, "\\$&")} \\(project/prism/, nothing else\\)`).test(r.stdout), `onboard pack names the files and where they go: ${r.stdout}${r.stderr}`);
+const lumenFiles = walk(path.join(pubLumen, "project", "prism")).map(p => rel(path.join(pubLumen, "project", "prism"), p));
+ok(lumenFiles.includes("profile.json") && lumenFiles.includes("digest.md") && !lumenFiles.some(f => f.startsWith("source/") || f.startsWith("snapshot/")), `the packed folder holds the brand, not the draft's source or snapshot: ${lumenFiles.join(" ")}`);
+ok(fs.readFileSync(path.join(pubLumen, "project", "prism", "digest.md"), "utf8").startsWith("# Prism"), "the published digest is the Prism section");
+const lp = JSON.parse(fs.readFileSync(path.join(pubLumen, "project", "prism", "profile.json"), "utf8"));
+ok(!lp._onboarding && /published into the design system/.test(lp.m365.email.reviewed.note), "the published profile has no onboarding record and its palette is accepted by publishing");
+r = onboard("pack", "lumen", pubLumen);
+ok(r.status === 0, "packing again replaces the folder");
+ok(!/^remove /m.test(r.stdout), "a new brand removes nothing");
+// Read back from its design system, the new brand is changed with update, never started again.
+fs.cpSync(path.join(TMP, "pack-prism", "project"), path.join(TMP, "readback-lumen", "project"), { recursive: true });
+fs.rmSync(path.join(TMP, "readback-lumen", "project", "prism"), { recursive: true });
+fs.cpSync(path.join(pubLumen, "project", "prism"), path.join(TMP, "readback-lumen", "project", "prism"), { recursive: true });
+r = node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "readback-lumen"), "--url", U("lumen"), "--version", "v1", "--replace");
+ok(r.status === 0 && loadIn("lumen").layout === "design-system", `the published brand reads back and replaces its draft: ${r.stderr}`);
+r = onboard("start", "lumen", path.join(KIT, "brands", "prism", "snapshot"), "--force");
+ok(r.status === 1 && /lumen is already a brand in its design system: onboard\.js update lumen/.test(r.stderr), `start points a design-system brand at update: ${r.stderr}`);
+
+// A brand read from its design system: update drafts it from the copy this session read, says what changed, and packing names
+// the Prism files the change drops.
+node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "pack-prism"), "--url", U("prism"), "--version", "v5");
+const ptok = path.join(DRAFTS, "prism", "tokens.json"), PT = JSON.parse(fs.readFileSync(ptok, "utf8"));
+PT.color.tokens.find(t => t.name === "line").usage += " Also the table rule.";
+fs.writeFileSync(ptok, JSON.stringify(PT, null, 1));
+r = onboard("update", "prism");
+ok(r.status === 0 && /tokens\.json: changed since the brand was checked/.test(r.stdout), `update of a design-system brand needs no folder and names the token change: ${r.stdout.slice(0, 400)}${r.stderr}`);
+ok(/since the published version/.test(r.stdout) && !/component removed/.test(r.stdout), `components a session never read are not reported as removed: ${r.stdout.slice(0, 300)}`);
+const draftP = JSON.parse(fs.readFileSync(path.join(DRAFTS, "prism", "profile.json"), "utf8"));
+const fromDs = JSON.parse(fs.readFileSync(path.join(DRAFTS, "prism", ".from-design-system.json"), "utf8"));
+ok(fromDs.url === U("prism") && fromDs.version === "v5" && fromDs.files.includes("layers/blog.css"), "the draft records the design system and its Prism files beside it");
+ok(loadIn("prism").draft === true && loadIn("prism").layout === "kit", "the brand is a draft here until it is published and read back");
+fs.rmSync(path.join(DRAFTS, "prism", "layers", "blog.css"));
+delete draftP.layers.blog; fs.writeFileSync(path.join(DRAFTS, "prism", "profile.json"), JSON.stringify(draftP, null, 1));
+node(path.join(KIT, "pin.js"), "prism");
+const pubPrism = path.join(TMP, "publish-prism");
+r = onboard("pack", "prism", pubPrism);
+ok(r.status === 0 && /^remove project\/prism\/layers\/blog\.css$/m.test(r.stdout) && /remove 1 into/.test(r.stdout), `pack names the Prism file the change drops: ${r.stdout}${r.stderr}`);
+// Packing again (after a refused publish, say) still publishes to the same design system and still takes the file out.
+r = onboard("pack", "prism", pubPrism);
+ok(r.status === 0 && /^remove project\/prism\/layers\/blog\.css$/m.test(r.stdout) && r.stdout.includes(`into ${U("prism")}`), `a second pack keeps the design system and the removal: ${r.stdout.slice(-300)}${r.stderr}`);
+ok(!fs.existsSync(path.join(pubPrism, "project", "prism", ".from-design-system.json")), "where the draft came from is never published");
+ok(JSON.parse(fs.readFileSync(path.join(pubPrism, "project", "prism", "profile.json"), "utf8")).source.url === U("prism"), "the published profile names the design system it lives in");
+// Published and read back, the new version replaces the draft.
+fs.cpSync(path.join(TMP, "pack-prism", "project"), path.join(TMP, "readback-prism", "project"), { recursive: true });
+fs.rmSync(path.join(TMP, "readback-prism", "project", "prism"), { recursive: true });
+fs.cpSync(path.join(pubPrism, "project", "prism"), path.join(TMP, "readback-prism", "project", "prism"), { recursive: true });
+fs.writeFileSync(path.join(TMP, "readback-prism", "project", "tokens.json"), JSON.stringify(PT, null, 1));
+ok(node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "readback-prism"), "--url", U("prism"), "--version", "v6").status === 1, "reading it back over the draft needs --replace");
+r = node(path.join(KIT, "dsbrand.js"), "install", path.join(TMP, "readback-prism"), "--url", U("prism"), "--version", "v6", "--replace");
+res = loadIn("prism");
+ok(r.status === 0 && res.layout === "design-system" && !res.errors.length && !res.warnings.some(w => /design system changed/.test(w)), `the published brand reads back clean: ${r.stderr}${res.errors.join("; ")}${res.warnings.join("; ")}`);
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);

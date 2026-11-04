@@ -18,7 +18,7 @@
 //        dsbrand.js remove <brand>
 //        dsbrand.js plan [--default URL] [--all] <design system url>...
 //        dsbrand.js seen <design system url> <version> yes|no
-//        dsbrand.js want <folder>   (after reading project/prism/profile.json and project/tokens.json: the other paths to read)
+//        dsbrand.js want <folder> [--fresh]   (after reading project/prism/profile.json: the other paths to read; --fresh first)
 //        dsbrand.js default <brand> | --clear
 //        dsbrand.js status [--json]
 const fs = require("fs"), path = require("path"), crypto = require("crypto");
@@ -72,9 +72,9 @@ if (cmd === "pack") {
   const project = path.join(out, "project"), prism = path.join(project, "prism");
   if (fs.existsSync(prism)) die(`${prism} already exists; pack into an empty folder`);
   fs.mkdirSync(prism, { recursive: true });
-  // The brand's own files, as they are: everything beside the profile but the snapshot (the design system holds it) and the
-  // tutorial, which stays in the plugin (Ian, Nov 4).
-  const skip = new Set(["profile.json", "snapshot", "tutorial"]);
+  // The brand's own files, as they are: everything beside the profile but the snapshot (the design system holds it), an onboarding
+  // draft's source/, and the tutorial, which stays in the plugin (Ian, Nov 4).
+  const skip = new Set(["profile.json", "snapshot", "tutorial", "source"]);   // source/: an onboarding draft's copy of the design system
   for (const e of fs.readdirSync(b.dir, { withFileTypes: true })) if (!skip.has(e.name) && !e.name.startsWith(".")) fs.cpSync(path.join(b.dir, e.name), path.join(prism, e.name), { recursive: true });
   const prof = JSON.parse(fs.readFileSync(path.join(b.dir, "profile.json"), "utf8"));
   const digest = path.join(prism, prof.digest.file);
@@ -182,12 +182,24 @@ if (cmd === "want") {
   const root = fs.existsSync(path.join(folder, "project")) ? path.join(folder, "project") : folder;
   const pf = path.join(root, "prism", "profile.json");
   if (!fs.existsSync(pf)) die(`no prism/profile.json in ${root}: read project/prism/profile.json and project/tokens.json first`);
+  // The read tool saves every read of a design system into the same folder, so files from another version can still be there and
+  // would be taken for this one's. --fresh (the first pass for a new version) keeps only the profile just read.
+  if (a.includes("--fresh")) {
+    for (const p of walk(root)) if (rel(root, p) !== "prism/profile.json") fs.rmSync(p);
+    if (root !== folder) for (const e of fs.readdirSync(folder)) if (/^[0-9a-f]{32}(\.\w+)?$/.test(e)) fs.rmSync(path.join(folder, e));
+  }
   const prof = JSON.parse(fs.readFileSync(pf, "utf8")), blobs = (prof.snapshot && prof.snapshot.blobs) || {};
   const want = new Set([`prism/${prof.digest.file}`, "prism/packages.json", ...Object.keys(prof.own || {}).map(f => `prism/${f}`)]);
   for (const f of Object.keys((prof.office && prof.office.files) || {})) want.add(f.startsWith("snapshot/") ? f.slice(9) : `prism/${f}`);
   for (const f of Object.keys((prof.snapshot && prof.snapshot.files) || {})) want.add(f);
   try { for (const f of JSON.parse(fs.readFileSync(path.join(root, "tokens.json"), "utf8")).type.fonts || []) if (f.file) want.add(f.file.includes("/") ? f.file : `fonts/${f.file}`); } catch { }
-  for (const f of [...want].sort()) if (!blobs[f] && !fs.existsSync(path.join(root, f))) console.log(`project/${f}`);
+  // The first pass records what it asked for, so the second prints only what the tokens added (a path the design system doesn't
+  // have, such as an optional packages.json, is asked for once).
+  const asked = path.join(folder, ".prism-want.json"); let before = [];
+  if (a.includes("--fresh")) fs.rmSync(asked, { force: true }); else try { before = JSON.parse(fs.readFileSync(asked, "utf8")); } catch { }
+  const list = [...want].sort().filter(f => !blobs[f] && !fs.existsSync(path.join(root, f))).map(f => `project/${f}`);
+  for (const f of list.filter(f => !before.includes(f))) console.log(f);
+  fs.writeFileSync(asked, JSON.stringify([...new Set([...before, ...list])]));
   process.exit(0);
 }
 

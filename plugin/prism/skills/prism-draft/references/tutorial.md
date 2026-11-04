@@ -87,7 +87,7 @@ or give its Claude Design System link.
 <!-- claude-only -->
    It opens in design mode first as a lo-fi board; say "export" for the full styles. Start with `/prism-onboard` if you like.
 <!-- /claude-only -->
-4. Say **"done"** for the brand bundle. It goes to the Prism maintainer and ships with the next release; until then the brand works where it was made, as a draft (name it with `brand:` in a piece).
+4. Say **"done"** to publish the brand into its design system (you need edit access to it). Everyone who can open the design system gets the brand in their next session; until then it works where it was made, as a draft (name it with `brand:` in a piece).
 
 When a brand's design system changes, the same skill updates it and shows only what moved.
 
