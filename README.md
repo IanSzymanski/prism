@@ -133,7 +133,7 @@ node tests/components.test.js          # closing styles, new design-system compo
 node tests/packages.test.js            # packages: definitions, a piece's package, checks, claims, the zip
 node tests/layouts.test.js             # page layouts: the Prism defaults, brand layouts from a design system or a draft, the builds, format: and its old spelling
 node tests/qr.test.js                  # the QR block in every output
-node tests/sheet-modifiers.test.js     # sheet modifiers: title-area photo, fill: page, colophon: off, plain flows, rounded QR codes
+node tests/sheet-modifiers.test.js     # sheet modifiers: title-area photo, fill: page, colophon: off, plain flows, rounded QR codes, the closing card's QR column
 node tests/logo.test.js                # logo positions on any block
 node tests/card5x7.test.js             # 5x7 cards: sizes, sides, overflow, packages and design mode
 node tests/kit-small.test.js           # file tags, state paths, unbroken terms, PDF details, photo metadata, print copies

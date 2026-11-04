@@ -56,7 +56,9 @@ else (async () => {
   b = run("deck", "deck.md", "deck.pptx");
   ok(b.status === 0 && !/warn|left out/i.test(b.stderr), `deck with devices builds cleanly: ${b.stderr}`);
   const slide = n => spawnSync("unzip", ["-p", path.join(TMP, "deck.pptx"), `ppt/slides/slide${n}.xml`], { encoding: "utf8" }).stdout;
-  const pics = n => [...slide(n).matchAll(/<p:pic>[\s\S]*?<a:off x="(-?\d+)" y="(-?\d+)"\/>\s*<a:ext cx="(\d+)" cy="(\d+)"\/>/g)].map(m => m.slice(1).map(Number));
+  // The device pictures only, known by their alt text: a brand's footer logo (options.deck.footer) is a picture on every slide too.
+  const pics = n => [...slide(n).matchAll(/<p:pic>[\s\S]*?<\/p:pic>/g)].map(m => m[0]).filter(p => /descr="(Phone|Tablet|Laptop) screen"/.test(p))
+    .map(p => p.match(/<a:off x="(-?\d+)" y="(-?\d+)"\/>\s*<a:ext cx="(\d+)" cy="(\d+)"\/>/).slice(1).map(Number));
   const SW = 13.333 * 914400, inside = p => p[0] >= 0 && p[0] + p[2] <= SW + 9144;
   ok(!/descr="\//.test(slide(3)) && /descr="Laptop screen"/.test(slide(3)), "device pictures carry alt text, never a file path");
   ok(pics(2).length === 1 && inside(pics(2)[0]) && pics(2)[0][0] > 600000, "plain: one device on the left margin");
@@ -67,10 +69,15 @@ else (async () => {
   ok(R.length === 1 && Math.abs(R[0][0] + R[0][2] - SW) < 20000, "overset right: the tablet is cut at the right edge");
   ok(/OK/.test(run("verify", "deck.pptx").stdout), "the deck passes verify");
 
-  // 6. A film: frame=laptop sends core's frame as a record and tells Motion where the screen is.
+  // 6. A film: frame=laptop sends core's frame as a record and tells Motion where the screen is. Core's film behavior, as in
+  // motion.test.js: on a draft copy of the default brand without its own film settings (profile motion.film), which refuse
+  // the fixture's wave motif.
+  const CORE = path.join(TMP, "core-drafts"), DEF = require(path.join(KIT, "resolve.js")).defaultBrand();
+  fs.cpSync(path.join(KIT, "brands", DEF), path.join(CORE, DEF), { recursive: true });
+  { const pf = path.join(CORE, DEF, "profile.json"), pr = JSON.parse(fs.readFileSync(pf, "utf8")); delete pr.motion.film; fs.writeFileSync(pf, JSON.stringify(pr, null, 1)); }
   const fx = fs.readFileSync(path.join(ROOT, "fixtures", "motion.md"), "utf8").replace("::: {.draw .drop at=0.6}", "![](images/screen.png){.rise frame=laptop}\n\n::: {.draw .drop at=0.6}");
   fs.writeFileSync(path.join(TMP, "motion.md"), fx);
-  b = spawnSync("node", [path.join(KIT, "motion.js"), "brief", path.join(TMP, "motion.md"), "--out", path.join(TMP, "film")], { encoding: "utf8" });
+  b = spawnSync("node", [path.join(KIT, "motion.js"), "brief", path.join(TMP, "motion.md"), "--out", path.join(TMP, "film")], { encoding: "utf8", env: { ...process.env, PRISM_DRAFTS: CORE } });
   const brief = b.status === 0 ? fs.readFileSync(path.join(TMP, "film", "brief.md"), "utf8") : "";
   ok(b.status === 0 && fs.existsSync(path.join(TMP, "film", "records", "modules", "device-laptop.html.json")), `the film's laptop frame is a record: ${b.stderr}`);
   ok(/kit\.module\('device-laptop\.html'\)/.test(brief) && /left 8\.14%, top 3\.86%/.test(brief) && !/Motif `device-/.test(brief), "the brief places the screenshot in the frame's screen");

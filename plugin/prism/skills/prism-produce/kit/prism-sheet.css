@@ -295,12 +295,13 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .cta-card p:last-child{margin-bottom:0}
 /* A QR code in the closing card uses the card's padding, not its own body margin. */
 .cta-card > .qr{margin:0}
-/* options.sheet.cta_qr: beside-copy moves all of a closing card's copy into the column beside its code (sheet-checks.js), so
-   the copy sits flush left there whatever the brand's card does with its headings and paragraphs (centred, a measure).
-   Three classes, so these win over a brand layer's .cta-card and .cta-card.small rules. */
+/* A closing card's QR text column: the text written in the QR block, or all of the card's copy when options.sheet.cta_qr:
+   beside-copy moves it there (sheet-checks.js). Its headings and paragraphs sit flush in the column whatever the brand's card
+   does with them elsewhere (centred boxes, a measure), so a heading never starts indented from its label. A .center QR stacks
+   and keeps the card's centring. Four classes, so this wins over a brand layer's .cta-card and .cta-card.small rules. */
+.cta-card .qr:not(.center) .qr__text :is(h2,h3,p){margin-left:0;margin-right:0;max-width:none}
 .cta-card.qr-beside{text-align:left}
 .cta-card.qr-beside > .qr{column-gap:24pt}
-.cta-card.qr-beside .qr__text :is(h2,h3,p){margin-left:0;margin-right:0;max-width:none}
 .cta-card.small{margin:16pt 0 6pt;padding:17pt 24pt 15pt}
 .cta-card.x-small{margin:12pt 0 4pt;padding:11pt 18pt}
 /* Closing variants every brand has: the full-width card (default), a centred smaller card, and content only (no ground).
