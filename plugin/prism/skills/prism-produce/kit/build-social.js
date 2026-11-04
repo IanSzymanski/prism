@@ -70,9 +70,9 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   const SC = require("./social-checks.js"), checks = B.option("social.checks", []);
   if (B.option("social.numbers", true) === false) await page.evaluate(SC.dropNumbers);
   const summary = await page.evaluate(SC.summary);
-  // options.social.counter: false drops the "02 / 07" counters; a purple post takes the dark text roles.
+  // options.social.counter: false drops the "02 / 07" counters; a vivid post takes the dark text roles.
   if (B.option("social.counter", true) === false) await page.evaluate(SC.dropCounters);
-  await page.evaluate(SC.purpleAsDark);
+  await page.evaluate(SC.vividAsDark);
   // options.social.thread: false leaves out the brand's thread line along the foot of a carousel.
   if (await page.$(".carousel") && B.option("social.thread", true) !== false) {
     if (B.ornaments.thread) {

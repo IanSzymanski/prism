@@ -20,16 +20,16 @@ const SERIES = [];
 for (let i = 1; i <= 5 && B.has(`prism-color-chart-${i}`); i++) SERIES.push(hx(`prism-color-chart-${i}`));
 const needSeries = n => { if (n > SERIES.length) { console.error(`[deck] a chart has ${n} series and ${B.name} defines ${SERIES.length} chart colours (prism-color-chart-1 to -${SERIES.length}); cut the series or map more chart colours`); process.exit(1); } };
 // Placement rules for the brand's ornaments (profile generator rules), e.g. skip the title rule on media slides.
-// `.dark` and `.purple` slides: the on-dark roles for one slide (text, lines, emphasis, icons, card fills, chart colours).
+// `.dark` and `.vivid` slides (`.purple` is the vivid ground's older name): the on-dark roles for one slide (text, lines, emphasis, icons, card fills, chart colours).
 const BASE = { ...C }, has = n => B.has(n);
 const ON_DARK = { ink: C.inkOnDark, body: C.onDark, muted: hx("prism-color-text-muted", "dark"), line: has("prism-color-rule-on-dark") ? hx("prism-color-rule-on-dark") : hx("prism-color-rule", "dark"),
   accent: C.accentOnDark, icon: C.eyebrowOnDark, paper: hx("prism-color-dark-surface"), muteBar: hx("prism-color-text-faint", "dark"),
   grid: has("prism-color-rule-on-dark") ? hx("prism-color-rule-on-dark") : hx("prism-color-rule", "dark"), axis: hx("prism-color-text-muted", "dark") };
 let THEME = null;
-// On purple the accent would vanish, so emphasis, icons and highlighted bars take the eyebrow-on-dark colour.
+// On the vivid ground the accent would vanish, so emphasis, icons and highlighted bars take the eyebrow-on-dark colour.
 function setTheme(t) {
   THEME = t;
-  Object.assign(C, BASE, t ? ON_DARK : {}, t === "purple" ? { accent: C.eyebrowOnDark, accentOnDark: C.eyebrowOnDark } : {});
+  Object.assign(C, BASE, t ? ON_DARK : {}, t === "vivid" ? { accent: C.eyebrowOnDark, accentOnDark: C.eyebrowOnDark } : {});
 }
 const ORN_RULES = (B.res.roles["prism-generator-rule"] || { value: { rules: [] } }).value.rules || [];
 // Office copies of the brand fonts, named by the profile. Install them to edit or view decks in PowerPoint.
@@ -144,10 +144,11 @@ async function iconImage(name, hex) {
 const GROUNDS = B.ornaments.deckGrounds ? B.ornaments.deckGrounds({}, B) : { title: B.color("prism-color-surface"), dark: B.color("prism-color-dark-surface") };
 const WASH_CSS = GROUNDS.title, DARK_CSS = GROUNDS.dark;
 const DARK_TITLE_CSS = GROUNDS.titleDark || DARK_CSS;
-const PURPLE_CSS = GROUNDS.purple || B.color("prism-color-accent");
-const WASH = path.join(shared, `wash-${key(WASH_CSS)}.png`), DARK = path.join(shared, `dark-${key(DARK_CSS)}.png`), DARK_TITLE = path.join(shared, `dark-title-${key(DARK_TITLE_CSS)}.png`), PURPLE = path.join(shared, `purple-${key(PURPLE_CSS)}.png`);
+// The vivid ground: the brand's own (deckGrounds `vivid`, or `purple` from before the rename), else its accent.
+const VIVID_CSS = GROUNDS.vivid || GROUNDS.purple || B.color("prism-color-accent");
+const WASH = path.join(shared, `wash-${key(WASH_CSS)}.png`), DARK = path.join(shared, `dark-${key(DARK_CSS)}.png`), DARK_TITLE = path.join(shared, `dark-title-${key(DARK_TITLE_CSS)}.png`), VIVID = path.join(shared, `vivid-${key(VIVID_CSS)}.png`);
 async function backgrounds() {
-  if ([WASH, DARK, DARK_TITLE, PURPLE].every(f => fs.existsSync(f))) return;
+  if ([WASH, DARK, DARK_TITLE, VIVID].every(f => fs.existsSync(f))) return;
   const p = await (await browser()).newPage({ viewport: { width: 1920, height: 1080 } });
   const shot = async (css, name) => {
     await p.setContent(`<body style="margin:0"><div style="width:1920px;height:1080px;background:${css}"></div></body>`);
@@ -156,7 +157,7 @@ async function backgrounds() {
   await shot(WASH_CSS, WASH);
   await shot(DARK_CSS, DARK);
   if (DARK_TITLE !== DARK) await shot(DARK_TITLE_CSS, DARK_TITLE);
-  await shot(PURPLE_CSS, PURPLE);
+  await shot(VIVID_CSS, VIVID);
   await p.close();
 }
 
@@ -340,7 +341,7 @@ async function slideLogo(slide, at, dark) {
 // text, and its logo in the corner on every slide but the title. Without it: footer text left, number right, no logo.
 const FOOT = B.option("deck.footer", null);
 async function footer(slide, n, dark = false) {
-  // On dark and purple grounds the footer is in the sans face: small mono type doesn't hold up on dark.
+  // On dark and vivid grounds the footer is in the sans face: small mono type doesn't hold up on dark.
   const text = meta.footer ? plain(meta.footer) : B.name, num = String(n).padStart(2, "0"), st = { y: 6.95, h: 0.25, fontFace: FOOT && (dark || THEME) ? F.sans : F.mono, fontSize: 9, color: C.muted };
   if (FOOT) {
     const corner = FOOT.logo || "bottom-right", own = SLIDE_LOGO && SLIDE_LOGO.at === corner;
@@ -455,9 +456,9 @@ async function chartSlide(slide, blocks) {
     const blocks = div.c[1].filter(b => !(b.t === "Div" && b.c[0][1].includes("notes")));
     const notes = div.c[1].find(b => b.t === "Div" && b.c[0][1].includes("notes"));
     const slide = pres.addSlide();
-    const cls = div.c[0][1], theme = kind !== "title" && kind !== "closing" ? (cls.includes("purple") ? "purple" : cls.includes("dark") ? "dark" : null) : null;
+    const cls = div.c[0][1], theme = kind !== "title" && kind !== "closing" ? (cls.includes("vivid") || cls.includes("purple") ? "vivid" : cls.includes("dark") ? "dark" : null) : null;
     setTheme(theme);
-    slide.background = theme ? { path: theme === "purple" ? PURPLE : DARK } : { color: C.paper };
+    slide.background = theme ? { path: theme === "vivid" ? VIVID : DARK } : { color: C.paper };
     const logoAt = (div.c[0][2].find(([k]) => k === "logo") || [])[1];
     if (logoAt && kind === "title") console.warn(`[deck] slide ${n}: the title slide carries its own logo; logo="${logoAt}" left out`);
     await slideLogo(slide, kind === "title" ? null : logoAt, kind === "closing" || !!theme);

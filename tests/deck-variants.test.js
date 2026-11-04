@@ -1,4 +1,4 @@
-// Deck slide variations and the brand footer: .dark and .purple slides take the on-dark palette on their own ground, and a brand
+// Deck slide variations and the brand footer: .dark and .vivid slides take the on-dark palette on their own ground, and a brand
 // with options.deck.footer puts the slide number on the left and its logo bottom-right. Usage: node tests/deck-variants.test.js
 // (needs pandoc, the kit's Chromium and the deck tools; run.sh sets them up on first use)
 const fs = require("fs"), os = require("os"), path = require("path"), { spawnSync } = require("child_process");
@@ -24,7 +24,7 @@ ${brand ? `brand: ${brand}\n` : ""}---
 - **88%** done within a day
 ::::
 
-:::: {.slide .quote .purple}
+:::: {.slide .quote .vivid}
 > The note is still *mine*.
 >
 > [A caseworker (fictional)]{.cite}
@@ -63,11 +63,11 @@ for (const brand of [null, "prism"]) {
   const S = slides(pptx), B = require(path.join(KIT, "brand.js"))(md), hx = (n, t) => B.color(n, t).replace(/^#/, "").toUpperCase();
   const label = brand || "default brand";
   ok(S.length === 5, `${label}: five slides (${S.length})`);
-  ok(bgImage(S[1]) && bgImage(S[2]), `${label}: the dark and purple slides sit on a ground image`);
+  ok(bgImage(S[1]) && bgImage(S[2]), `${label}: the dark and vivid slides sit on a ground image`);
   ok(!bgImage(S[3]), `${label}: a plain slide keeps the plain surface`);
   ok(colors(S[1]).has(hx("prism-color-text-strong", "dark")) || colors(S[1]).has("FFFFFF"), `${label}: the dark slide's text takes the on-dark ink`);
   ok(!colors(S[1]).has(hx("prism-color-text-strong")), `${label}: no light-ground ink on the dark slide`);
-  ok(colors(S[2]).has(hx("prism-color-eyebrow-on-dark")) && !colors(S[2]).has(hx("prism-color-accent")), `${label}: emphasis on purple takes the eyebrow-on-dark colour, never the accent`);
+  ok(colors(S[2]).has(hx("prism-color-eyebrow-on-dark")) && !colors(S[2]).has(hx("prism-color-accent")), `${label}: emphasis on the vivid ground takes the eyebrow-on-dark colour, never the accent`);
   ok(colors(S[3]).has(hx("prism-color-text-strong")) && colors(S[3]).has(hx("prism-color-accent")), `${label}: the palette is restored after a themed slide (light ink and the accent again)`);
   const foot = B.option("deck.footer", null);
   if (foot) {
@@ -83,7 +83,10 @@ for (const brand of [null, "prism"]) {
 
 // The format card documents the variations and the footer.
 const card = fs.readFileSync(path.join(KIT, "..", "references", "formats", "deck.md"), "utf8");
-ok(/\.dark/.test(card) && /\.purple/.test(card) && /options\.deck\.footer/.test(card), "deck.md documents .dark, .purple and the brand footer");
+ok(/\.dark/.test(card) && /\.vivid/.test(card) && /`\.purple`, the older name, still works/.test(card) && /options\.deck\.footer/.test(card), "deck.md documents .dark, .vivid (and .purple as its older name) and the brand footer");
+// .purple, the vivid ground's older name, still sets a slide on it, and a brand's deckGrounds may still name it purple.
+const deckSrc = fs.readFileSync(path.join(KIT, "build-deck.js"), "utf8");
+ok(/cls\.includes\("vivid"\) \|\| cls\.includes\("purple"\) \? "vivid"/.test(deckSrc) && /GROUNDS\.vivid \|\| GROUNDS\.purple \|\|/.test(deckSrc), "a .purple slide is read as vivid, and deckGrounds' purple still counts");
 
 if (!process.env.KEEP) fs.rmSync(TMP, { recursive: true, force: true }); else console.log(TMP);
 console.log(`${pass} passed, ${fail} failed`);

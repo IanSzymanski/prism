@@ -16,11 +16,11 @@ local function role(n, fallback, theme)
   return v
 end
 local INK, BODY, HAIR, PAPER, HOT, DEEP, SERIES
--- Bars fade into the page or fill solid (the brand's options.charts.bars); on a dark or purple ground they are always solid,
+-- Bars fade into the page or fill solid (the brand's options.charts.bars); on a dark or vivid ground they are always solid,
 -- since that ground is a gradient or image no fade could match.
 local BARS_FLAT = os.getenv("PRISM_CHART_BARS") ~= "gradient"
 local FLAT = BARS_FLAT
--- The chart's colors for its ground: light (the page), dark, or purple (dark, with highlights in the on-dark eyebrow
+-- The chart's colors for its ground: light (the page), dark, or vivid (dark, with highlights in the on-dark eyebrow
 -- color, since the accent would vanish into the ground).
 local function palette(ground)
   local d = ground ~= "light" and "dark" or nil
@@ -28,7 +28,7 @@ local function palette(ground)
   INK, BODY, PAPER = role("TEXT_STRONG", nil, d), role("TEXT", nil, d), d and role("DARK_SURFACE") or role("SURFACE")
   HAIR = d and role("TEXT_MUTED", nil, d) or role("RULE")
   HOT, DEEP = role("ACCENT_STRONG", "ACCENT", d), role("ACCENT", nil, d)
-  if ground == "purple" then HOT, DEEP = role("EYEBROW_ON_DARK", "ACCENT", d), role("EYEBROW_ON_DARK", "ACCENT", d) end
+  if ground == "vivid" then HOT, DEEP = role("EYEBROW_ON_DARK", "ACCENT", d), role("EYEBROW_ON_DARK", "ACCENT", d) end
   -- Categorical order from the brand's chart roles: chart-1 always, then as many of 2-5 as the brand defines (no color is made up).
   SERIES = { role("CHART_1", nil, d) }
   for i = 2, 5 do if not os.getenv("PRISM_COLOR_CHART_" .. i) then break end; table.insert(SERIES, role("CHART_" .. i, nil, d)) end
@@ -325,8 +325,8 @@ local function chart(el, ctx)
   return pandoc.RawBlock("html", '<figure class="prism-chart prism-chart--' .. spec.type .. on .. '"' .. style .. '>' .. svg .. cap .. "</figure>")
 end
 
--- Charts take their context from the fences around them: a .carousel draws larger text; a .dark or .purple block (a post,
--- panel or card) draws on-dark colors.
+-- Charts take their context from the fences around them: a .carousel draws larger text; a .dark or .vivid block (a post,
+-- panel or card) draws on-dark colors. `.purple` is the vivid ground's older name.
 local function walk(blocks, ctx)
   return blocks:walk({
     traverse = "topdown",
@@ -334,7 +334,7 @@ local function walk(blocks, ctx)
     Div = function(el)
       local c, cl = { text = ctx.text, ground = ctx.ground }, el.classes
       if cl:includes("carousel") then c.text = CAROUSEL_TEXT end
-      if cl:includes("purple") then c.ground = "purple" elseif cl:includes("dark") then c.ground = "dark" end
+      if cl:includes("vivid") or cl:includes("purple") then c.ground = "vivid" elseif cl:includes("dark") then c.ground = "dark" end
       if c.text == ctx.text and c.ground == ctx.ground then return nil end
       el.content = walk(el.content, c)
       return el, false

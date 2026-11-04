@@ -1,5 +1,9 @@
 /* Case Amplify sheet layer: its masthead wash, wave headings and stop, and the dark closing card. Loaded after prism-sheet.css. */
 
+/* Running text in Inter with ss01 and cv11 on (the design system's body type). The Inter files the brand carries have neither
+   feature yet, so this changes nothing until it carries ones that do. */
+body{font-feature-settings:"ss01","cv11"}
+
 .prism-mast{
   background:radial-gradient(90% 100% at 50% 0%,var(--prism-color-wash) 0%,var(--prism-color-surface) 100%) no-repeat;
 }
@@ -49,8 +53,3 @@ hr{height:46px;background:var(--own-asset-rule-stop) center / auto no-repeat}
 /* No title or heading ends on one word, and no paragraph leaves one word on its last line (the build checks what is left). */
 .prism-mast h1,h2,h3{text-wrap:balance}
 p,li{text-wrap:pretty}
-
-/* A closing card's QR code sits beside all its copy (options.sheet.cta_qr: beside-copy moves the copy in beside it). */
-.cta-card.qr-beside{text-align:left}
-.cta-card.qr-beside > .qr{margin:0;column-gap:24pt}
-.cta-card.qr-beside h2,.cta-card.qr-beside h3,.cta-card.qr-beside p{margin-left:0;margin-right:0;max-width:none}

@@ -26,7 +26,6 @@ html{background:var(--prism-color-surface);-webkit-print-color-adjust:exact;prin
 body{
   margin:0;padding:0 var(--page-x);background:var(--prism-color-surface);color:var(--prism-color-text);
   font:var(--prism-type-body);
-  font-feature-settings:"ss01","cv11";
   -webkit-font-smoothing:antialiased;
   orphans:3;widows:3;
 }
@@ -296,6 +295,12 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .cta-card p:last-child{margin-bottom:0}
 /* A QR code in the closing card uses the card's padding, not its own body margin. */
 .cta-card > .qr{margin:0}
+/* options.sheet.cta_qr: beside-copy moves all of a closing card's copy into the column beside its code (sheet-checks.js), so
+   the copy sits flush left there whatever the brand's card does with its headings and paragraphs (centred, a measure).
+   Three classes, so these win over a brand layer's .cta-card and .cta-card.small rules. */
+.cta-card.qr-beside{text-align:left}
+.cta-card.qr-beside > .qr{column-gap:24pt}
+.cta-card.qr-beside .qr__text :is(h2,h3,p){margin-left:0;margin-right:0;max-width:none}
 .cta-card.small{margin:16pt 0 6pt;padding:17pt 24pt 15pt}
 .cta-card.x-small{margin:12pt 0 4pt;padding:11pt 18pt}
 /* Closing variants every brand has: the full-width card (default), a centred smaller card, and content only (no ground).
@@ -324,7 +329,7 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
 .prism-chart .base{stroke:var(--prism-color-rule);stroke-width:1}
 .prism-chart .marker{stroke:var(--prism-color-text-strong);stroke-width:1;stroke-dasharray:3 3}
 .prism-chart--donut svg,.prism-chart--hbar svg{max-width:92%}
-/* On a dark or purple ground (prism-charts.lua draws its bars and lines in the on-dark colors): the on-dark text and rules. */
+/* On a dark or vivid ground (prism-charts.lua draws its bars and lines in the on-dark colors): the on-dark text and rules. */
 .prism-chart--on-dark .tick{fill:var(--prism-color-text-muted-dark)}
 .prism-chart--on-dark .lab,.prism-chart--on-dark .note,.prism-chart--on-dark .legend{fill:var(--prism-color-text-dark)}
 .prism-chart--on-dark .val,.prism-chart--on-dark .rowlab,.prism-chart--on-dark .big{fill:var(--prism-color-text-strong-dark)}
