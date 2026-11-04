@@ -4,9 +4,11 @@ Build: `run.sh email formats/html-email.md out/html-email`. The whole email, not
 
 The build writes `<tag>.html` (inline styles, plus one small `<style>` block for phones, which can't be inline), `<tag>.txt` (the plain-text part), `images/` (2x, compressed, each `<tag>-<name>`), `<tag>-images.zip` (the images, uploaded beside the HTML in Zoho Campaigns) and `<tag>-preview.png` (desktop and phone, light and dark, plus a simulated Outlook dark view).
 
+`format: email` marks the file as an HTML email (`layout: email` still works: it is the old spelling).
+
 ```markdown
 ---
-layout: email
+format: email
 template: announcement          # announcement | newsletter | letter
 subject: How one agency cut documentation time by 41%
 preheader: Four months, no added staff. An illustrative case study.

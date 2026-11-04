@@ -71,7 +71,7 @@ W("sheet", "---\ntitle: One\n---\n\n## 94% approved\n"); W("case-study", "---\nt
 W("html-email", "---\nlayout: email\nsubject: S\n---\n\nHello 41%.\n");
 r = pk("check", proj); ok(r.status === 0, `a complete package checks OK: ${r.stdout}`);
 W("social", "---\ntitle: S\n---\n\n" + post("a")); W("html-email", "---\nsubject: S\n---\n");
-r = pk("check", proj); ok(r.status === 1 && /social: 1 posts, the package asks for 2/.test(r.stdout) && /needs layout: email/.test(r.stdout), `wrong counts and layouts are caught: ${r.stdout}`);
+r = pk("check", proj); ok(r.status === 1 && /social: 1 posts, the package asks for 2/.test(r.stdout) && /needs format: email/.test(r.stdout), `wrong counts and layouts are caught: ${r.stdout}`);
 W("social", "---\ntitle: S\n---\n\n" + post("a") + post("b")); W("html-email", "---\nlayout: email\nsubject: S\n---\n\nHello 41%.\n");
 
 // 5. Built: page counts against the package, and nothing missing.

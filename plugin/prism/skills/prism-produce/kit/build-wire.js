@@ -60,6 +60,11 @@ a.wlink{color:inherit;text-decoration:underline;text-decoration-color:#7DA2D6}
 .wmeta-t{margin:0;font:700 34px/1.3 system-ui,sans-serif;color:#1C1C24}
 .wmeta-e{margin:0;font:600 12px/1.3 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6A6A73}
 .wmeta-s{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#1C1C24}
+.wlayout{padding:10px 14px;border-radius:6px;background:#EEF3FB;border:1px solid #C9D8EF;font:500 13px/1.45 system-ui,sans-serif;color:#2F4A73}
+.wlayout b{font-weight:700}
+.wlead{display:flex;align-items:flex-end;gap:20px;padding-bottom:12px;border-bottom:1px solid #DADAE0}
+.wlead-n{margin:0;font:700 88px/0.9 system-ui,sans-serif;color:#1C1C24}
+.wlead-l{margin:0;font:400 17px/1.3 system-ui,sans-serif;color:#3A3A40;max-width:24ch}
 .wstamp{display:inline-block;padding:4px 8px;border-radius:4px;background:#EAF6EF;font:600 11px/1 ui-monospace,Menlo,monospace;color:#2C7A4B;letter-spacing:.06em}
 .wdiv{height:2px;background:#D6D6DB;margin:8px 0}`;
 // Website pages only: headings and eyebrows on the right, mirrored ornaments, centered titles.
@@ -81,6 +86,9 @@ function wireOne(md, B) {
   const fm = /^---\n([\s\S]*?)\n---\n?/.exec(src);
   const meta = {};
   for (const l of (fm ? fm[1] : "").split("\n")) { const m = /^([\w-]+):\s*(.*)$/.exec(l); if (m) meta[m[1]] = m[2].replace(/\s+#.*$/, "").replace(/^["']|["']$/g, ""); }
+  // `format:` names the output's shape (brochure, 5x7, email, web); `layout:` names a page layout, or is the old spelling of format:.
+  const fmt = (() => { try { return require("./layouts.js").pick(meta); } catch (e) { return { format: meta.format || null, layout: null }; } })();
+  const format = fmt.format === "sheet" ? null : fmt.format;
   let body = fm ? src.slice(fm[0].length) : src;
   // A carousel wraps its panels in one outer fence: keep that fence aside so its panels become blocks that can move.
   let wrapOpen = "", wrapClose = "";
@@ -146,10 +154,10 @@ function wireOne(md, B) {
     const has = k => c.includes("." + k);
     if (has("slide")) return { w: 1280, h: 720, k: 816 / 1280, z: 1, kind: "slide", label: (c.find(x => !/^\.(slide|no-rule|flip)$/.test(x)) || ".content").slice(1) };
     // 5x7 card sides at real size (96 px to the inch), the split back as two columns.
-    if (has("side") && meta.layout === "5x7") { const land = meta.orientation === "landscape";
+    if (has("side") && format === "5x7") { const land = meta.orientation === "landscape";
       return { w: land ? 672 : 480, h: land ? 480 : 672, k: 1, z: 0.78, kind: "side", label: [has("back") ? "back" : "front", ...c.map(x => x.slice(1)).filter(x => /^(cover|statement|split|mailer|dark|glow-bottom)$/.test(x))].join(" "), cols: has("split") ? 2 : 1,
         glow: has("glow-bottom") && !has("dark") && !(land && has("cover")) }; }
-    if (has("panel") && meta.layout === "brochure") { const n = has("full") ? 3 : has("wide") ? 2 : 1;
+    if (has("panel") && format === "brochure") { const n = has("full") ? 3 : has("wide") ? 2 : 1;
       return { w: 352 * n, h: 816, k: 1, z: 0.78, kind: "panel", label: (c.find(x => /^\.(flap|back|cover|wide|full)$/.test(x)) || ".inside").slice(1), cols: n }; }
     if (has("panel")) return { w: 1080, h: 1350, k: 0.42, z: 1, kind: "panel", label: has("cover") ? "cover" : has("end") ? "end" : "panel", tight: true };
     if (has("post")) {
@@ -215,12 +223,12 @@ function wireOne(md, B) {
     const lg = (/^:{3,}.*\blogo="([\w-]+)"/.exec(first) || [])[1];
     const wrap = (label, html, cls = "") => `<div data-block="${id}" class="wb${cls ? " " + cls : ""}">${tag(lg ? `${label} · logo ${lg}` : label)}${html}</div>`;
     let m;
-    if ((m = /^(#{1,4})\s+(.*)$/.exec(first)) && b.split("\n").length === 1) return heading(m[1].length, m[2], id, !framed && meta.layout !== "email");
+    if ((m = /^(#{1,4})\s+(.*)$/.exec(first)) && b.split("\n").length === 1) return heading(m[1].length, m[2], id, !framed && format !== "email");
     if ((m = /^:{3,}\s*\{?\s*\.?([\w-]+)/.exec(first))) {
       const cls = m[1], classes = first.match(/\.[\w-]+/g) || [`.${cls}`];
       const kind = cls === "hero-image" ? "hero image" : cls === "cta-card" ? (classes.includes(".plain") ? "closing (content only)" : classes.includes(".bleed-band") ? "closing band, foot of the side" : classes.includes(".centered") ? "closing card, centred" : "closing card") : cls;
       if (["stats", "features", "checks", "flow", "cards"].includes(cls)) {
-        const items = listItems(inner), cols = cls === "checks" ? 1 : cls === "cards" ? 2 : cls === "features" ? (meta.layout === "email" ? 1 : classes.includes(".three") ? 3 : 2) : Math.min(items.length, 5);
+        const items = listItems(inner), cols = cls === "checks" ? 1 : cls === "cards" ? 2 : cls === "features" ? (format === "email" ? 1 : classes.includes(".three") ? 3 : 2) : Math.min(items.length, 5);
         return wrap(`${kind} ×${items.length}${cls === "flow" && classes.includes(".plain") ? ", no rules" : ""}`, `<div class="wrow" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr))">${items.map((t, i) =>
           `<div data-item="${id}.${i}" class="wi"><p class="wx">${inline(t)}</p></div>`).join("")}</div>`);
       }
@@ -270,7 +278,7 @@ function wireOne(md, B) {
   const shown = [], hidden = [];
   blocks.forEach((b, i) => (/^\[\^[^\]]+\]:/.test(b) || /^:{3,}\s*page-break/.test(b) ? hidden : shown).push({ id: `b${String(i).padStart(2, "0")}`, md: b }));
   // Website pages: sides alternate the way the build places them (build-web.js sides), so the board shows the page's zigzag.
-  const isWeb = meta.layout === "web", webSide = {};
+  const isWeb = format === "web", webSide = {};
   if (isWeb) {
     const seq = shown.map(b => { const f = b.md.split("\n")[0];
       return { kind: /^##\s/.test(f) && !/\{[^}]*\.center\b/.test(f) ? "heading" : /^:{3,}\s*\{?\s*\.?media\b/.test(f) ? "media" : "other", pin: (/\{[^}]*\.(left|right)\b/.exec(f) || [])[1] }; });
@@ -280,18 +288,31 @@ function wireOne(md, B) {
   }
   // Frames sit in a wrapping row (a brochure reads as its two printed sides, posts as a grid); sheets and blogs flow in one column.
   const framed = shown.some(b => frameOf(b.md.split("\n")[0]));
-  const isEmail = meta.layout === "email";
+  const isEmail = format === "email";
   // A sheet's title-area photo (mast-image) sits beside the title, eyebrow and subtitle, as printed; it is drawn, not read back.
-  const mastImage = h => !meta["mast-image"] || framed || meta.layout ? h : `<div style="display: grid; grid-template-columns: ${esc(meta["mast-split"] || "1fr 1fr")}; gap: 20px; align-items: center">` +
+  const mastImage = h => !meta["mast-image"] || framed || format ? h : `<div style="display: grid; grid-template-columns: ${esc(meta["mast-split"] || "1fr 1fr")}; gap: 20px; align-items: center">` +
     `<div style="display: flex; flex-direction: column; gap: 18px; min-width: 0">${h}</div><div data-wire-tag="">${imgBox(meta["mast-image-alt"], meta["mast-image"], 180)}</div></div>`;
+  // Sheets: a note naming this sheet's layout and the others the brand has (the person asks in chat to see one), then the
+  // layout's lead: the cover photo of a photo-led sheet, or the large figure of a stat-first one (edited like the title).
+  function sheetLayout() {
+    if (framed || format || !meta.title || /^(type|slug):/m.test(fm ? fm[0] : "")) return "";
+    let all = {}; try { all = require("./layouts.js").load(B.id, "sheet"); } catch (e) { return ""; }
+    const cur = fmt.layout && all[fmt.layout] ? fmt.layout : "standard", L = all[cur], others = Object.keys(all).filter(k => k !== cur);
+    const note = `<div data-wire-tag="" class="wlayout">Layout: <b>${esc(L.name)}</b>${others.length ? ` · Other layouts: ${others.map(k => esc(all[k].name)).join(", ")}. Ask in chat to see this sheet in one.` : ""}</div>`;
+    const image = meta.image || L.front.image, stat = meta.stat || L.front.stat;
+    if (L.base === "photo-led" && image) { const ph = imgSrc(image);
+      return note + `<div data-wire-tag="" class="wimg${ph ? " has-photo" : ""}" style="height: 300px">${ph}<span style="position: relative">Cover photo: ${esc(image)}</span></div>`; }
+    if (L.base === "stat-first" && stat) return note + `<div class="wlead"><div data-block="meta.stat" class="wp"><p class="wlead-n">${inline(stat)}</p></div><div data-block="meta.stat-label" class="wp"><p class="wlead-l">${inline(meta["stat-label"] || L.front["stat-label"] || "")}</p></div></div>`;
+    return note;
+  }
   const full = framed ? " wfull" : "";
   const head = (stamp ? `<div data-wire-tag="" class="${full.trim()}"><span class="wstamp">${esc(stamp)}</span></div>` : "") + (isEmail
     ? `<div data-block="meta.inbox" class="wb wnote">${tag("inbox: subject and preheader")}` + ["subject", "preheader"].filter(k => meta[k]).map(k =>
       `<div data-item="meta.${k}"><p class="wx${k === "subject" ? " wstrong" : ""}"${k === "preheader" ? ' style="font-size: 14px"' : ""}>${inline(meta[k])}</p></div>`).join("") + `</div>`
-    : mastImage([["title", "t"], ["eyebrow", "e"], ["subtitle", "s"]].filter(([k]) => meta[k]).map(([k, c]) =>
+    : sheetLayout() + mastImage([["title", "t"], ["eyebrow", "e"], ["subtitle", "s"]].filter(([k]) => meta[k]).map(([k, c]) =>
       `<div data-block="meta.${k}" class="wp${full}"><p class="wmeta-${c}">${inline(meta[k])}</p></div>`).join("")));
   const inner = head + shown.map(b => render(b.md, b.id)).join("\n");
-  const W = isEmail ? 744 : !framed ? 816 : meta.layout === "brochure" ? 1200 : shown.some(b => /\.slide\b|\.email\b/.test(b.md.split("\n")[0])) ? 960 : 1140;
+  const W = isEmail ? 744 : !framed ? 816 : format === "brochure" ? 1200 : shown.some(b => /\.slide\b|\.email\b/.test(b.md.split("\n")[0])) ? 960 : 1140;
   const page = h => `<div data-wire-root="" class="wr ${framed ? "wr-frames" : "wr-flow"}" style="width: ${W}px; height: ${h}">\n${inner}\n</div>`;
   const css = CSS + (isWeb ? "\n" + WEB_CSS : "") + (W_.css ? "\n" + W_.css : "");
   const name = meta.pagetitle || (meta.title || meta.subject || path.basename(md, ".md")).replace(/\*/g, "");

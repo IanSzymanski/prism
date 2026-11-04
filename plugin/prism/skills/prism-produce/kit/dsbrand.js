@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Brands that live in their design systems (D19). A brand's Prism files sit in its design system at project/prism/ (profile.json,
-// digest.md, layers/, ornaments.js, office/, own/, web/, packages.json); the design system's own tokens.json, fonts/ and assets/ are
+// digest.md, layers/, ornaments.js, office/, own/, web/, layouts/, packages.json); the design system's own tokens.json, fonts/ and assets/ are
 // the source, so there is no snapshot. Organization sharing lets everyone use the brand; only the design system's editors and
 // owners can change it.
 //

@@ -18,6 +18,7 @@ const fs = require("fs"), path = require("path"), { execFileSync } = require("ch
 const { defaultBrand, brandDir } = require("./resolve.js");
 const { tagFor, kebab } = require("./naming.js");
 const { numbers } = require("./check-numbers.js");
+const L = require("./layouts.js");
 
 const KIT = __dirname;
 const FORMATS = ["sheet", "brochure", "5x7", "deck", "social", "email", "html-email", "carousel", "blog"];
@@ -205,11 +206,17 @@ else if (cmd === "check") {
   for (const o of pkg.outputs) {
     const f = path.join(proj, "formats", o.id + ".md");
     if (!fs.existsSync(f)) { problems.push(`${o.id}: formats/${o.id}.md is missing`); continue; }
-    const md = fs.readFileSync(f, "utf8"), layout = fmKey(md, "layout");
-    if (o.format === "html-email" && layout !== "email") problems.push(`${o.id}: an html-email format file needs layout: email`);
-    if (o.format === "brochure" && layout !== "brochure") problems.push(`${o.id}: a brochure format file needs layout: brochure`);
-    if (o.format === "5x7" && layout !== "5x7") problems.push(`${o.id}: a 5x7 format file needs layout: 5x7`);
-    if (o.format === "sheet" && layout) problems.push(`${o.id}: a sheet has no layout: (found ${layout})`);
+    // `format:` names the shape (`layout: email|brochure|5x7` is its old spelling); a sheet's `layout:` is a page layout the brand has.
+    const md = fs.readFileSync(f, "utf8");
+    let fl = { format: null, layout: null }; try { fl = L.pick({ format: fmKey(md, "format"), layout: fmKey(md, "layout") }); } catch (e) { problems.push(`${o.id}: ${e.message.replace(/^\[layouts\] /, "")}`); }
+    const shape = fl.format === "sheet" ? null : fl.format;
+    for (const [fmtId, want] of [["html-email", "email"], ["brochure", "brochure"], ["5x7", "5x7"]])
+      if (o.format === fmtId && shape !== want) problems.push(`${o.id}: a${fmtId === "html-email" ? "n" : ""} ${fmtId} format file needs format: ${want}`);
+    if (o.format === "sheet" && shape) problems.push(`${o.id}: a sheet has no format: (found ${shape})`);
+    if (o.format === "sheet" && !shape && fl.layout) {
+      let all = {}; try { all = L.load(fmKey(md, "brand") || brandOf(proj), "sheet"); } catch (e) { }
+      if (!all[fl.layout]) problems.push(`${o.id}: layout ${fl.layout} is not one of this brand's sheet layouts (${Object.keys(all).join(", ")})`);
+    }
     if (o.format === "deck" && !/^:{3,}\s*\{[^}]*\.slide\b/m.test(md)) problems.push(`${o.id}: no slides`);
     if (COUNTS.posts.includes(o.format)) {
       const c = socialCounts(md), want = { posts: o.posts || 0, stories: o.stories || 0 };

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Markdown email (layout: email) -> email-safe HTML. Usage: node build-email.js formats/html-email.md out/html-email
+// Markdown email (format: email, or its old spelling layout: email) -> email-safe HTML. Usage: node build-email.js formats/html-email.md out/html-email
 // Writes <tag>.html (inline CSS; one small <style> block for dark mode and phones, which can't be inline),
 // <tag>.txt (plain-text part), images/ (2x, compressed, each named <tag>-...), <tag>-images.zip (uploaded beside the HTML in Zoho Campaigns),
 // <tag>-preview.png (desktop and phone, light and dark, simulated Outlook dark) and .prism-build.json (checked by verify.py).

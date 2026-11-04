@@ -42,7 +42,7 @@ ok(pk("use", proj, "--new", "Mailer", "--add", "card:5x7", "--set", "card.pages=
 r = pk("use", proj, "--new", "Mailer", "--add", "card:5x7", "--set", "card.pages=2");
 ok(r.status === 0, `a two-page 5x7 output is fine: ${r.stderr}`);
 fs.writeFileSync(path.join(proj, "formats", "card.md"), "---\ntitle: T\n---\n\nText.\n");
-r = pk("check", proj); ok(r.status !== 0 && /card: a 5x7 format file needs layout: 5x7/.test(r.stdout), `layout is checked: ${r.stdout}`);
+r = pk("check", proj); ok(r.status !== 0 && /card: a 5x7 format file needs format: 5x7/.test(r.stdout), `layout is checked: ${r.stdout}`);
 fs.writeFileSync(path.join(proj, "formats", "card.md"), "---\nlayout: 5x7\n---\n\nText.\n");
 r = pk("check", proj); ok(r.status === 0 && /^OK/m.test(r.stdout), `a 5x7 format file checks OK: ${r.stdout}`);
 
