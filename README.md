@@ -1,163 +1,97 @@
 # Prism
 
-Prism turns raw material (notes, transcripts, documents, photos) into proofed, on-brand files. The words are written and approved once, in `content.md`; every output is laid out from them by a fixed build kit, in whichever brand the piece names, so nothing drifts and no number appears that isn't in the approved words.
+**Prism turns raw material into finished, on-brand marketing files: one-pagers, brochures, cards, decks, social posts, emails, web pages and animated films, all from one set of approved words.** It runs inside Claude as a plugin.
 
-It ships as a Claude plugin built from this repository. **This is 1.2.0** (1.0.0 was the first release) (a zip of the plugin is attached to each release in the GitHub Releases section; `.github/workflows/release.yml` builds it). `HANDOFF.md` holds the working notes, standing rules and design decisions; the backlog lives in the pinned Prism Backlog artifact it links. The ChatGPT edition is deprecated and frozen (`chatgpt/`).
+Give it notes, a call transcript, a document or a few photos. Prism asks only what it doesn't know, drafts the words, has them reviewed and stops for your approval. Then it lays the approved words out in every format you ask for, in your brand, checks every number against what you approved, and hands back finished files. Change a fact once and every file updates. Move a block on the design canvas and only that file changes.
 
-## What it makes
+## The problem it solves
 
-| Output | Build | File |
-|---|---|---|
-| Sheet (one-pager, brief, case study, white paper) | `run.sh sheet` | Letter PDF, plus an optional white print copy (`--print`) |
-| Brochure | `run.sh sheet` with `layout: brochure` | Letter trifold PDF, two sides of three panels |
-| 5x7 card (postcard, invitation, mailer) | `run.sh sheet` with `layout: 5x7` | 5 × 7 in PDF, front and optional back, portrait or landscape, optional bleed |
-| Deck | `run.sh deck` | Editable 16:9 PowerPoint with native charts; the brand's Office fonts come as a pack (`run.sh fonts`) |
-| Social posts, stories, carousels, email headers | `run.sh social` | PNGs plus `captions.md`; stories are checked against the app's safe area |
-| Blog post | `run.sh blog` | Header PNG, chart PNGs, `post.md` and `post.html` |
-| HTML email | `run.sh email` | HTML, an images zip, plain text, light and dark previews |
-| Website illustration | `run.sh illustration` | An animated UI mockup of one feature for a website feature page: the single HTML block (dark and light) for the site, a bench page that previews it live, finished-frame PNGs at desktop and phone width and a strip of the motion. `run.sh illustration bench OUT.html A.md B.md` lays several out as a feature page |
-| Website page | `run.sh web` | A whole page for the brand's WordPress site: the block markup to paste into a draft (the brand's site kit, or plain WordPress blocks for a brand without one), `page.json` (template and page settings, search fields, image slots, photos to upload) and the photos. `run.sh web compare A.html B.html` lists every block that differs between two saved pages |
-| Animated film | `run.sh motion brief` | A brief Claude Motion makes the film from; Prism checks and renders the film it made; Export on the film's page saves the MP4. Techniques: stat story, kinetic type and UI walkthrough (`run.sh motion gaps` lists what a walkthrough still needs from the person) |
-| Package | `run.sh packages` | A set of outputs from one piece (such as a case study package), delivered as one zip |
+Marketing content is written once and then rebuilt by hand for every channel, and that is where things go wrong:
 
-Every block format the outputs share (stats, charts, flows, quotes, media rows, galleries, QR codes, logo positions, brand components, device mockups) is described in `plugin/prism/skills/prism-produce/references/formats/`, one card per output plus `components.md`.
+- **Facts drift.** The deck says 41%, the post says 40%, the email rounds to "nearly half". Every copy is a chance to change a number nobody checked.
+- **Brands slip.** Files made in five tools by five people look like five companies. Consistency depends on who has the template and the time.
+- **Review comes too late.** Words are approved on finished designs, so a wording fix means redoing every layout.
+- **AI drafts make things up.** A helpful number or quote that was never in the source ends up in print.
+- **Brand changes wait on someone.** A new brand, a new layout or a new set of outputs means waiting for a designer or a tool update.
 
-**Device mockups** (core): `![](images/app.png){device=phone|tablet|laptop}` puts a screenshot in a phone, tablet or laptop frame (`tone="light"` for silver, `.landscape` to turn a phone or tablet). Sheets, brochures, cards and posts draw the frame as vector; decks place framed PNGs and add **overset** media slides (`.overset-left`, `.overset-right`: the picture runs off that edge) and **layers** (a laptop with a phone in front, each its own picture); films take `frame=phone|tablet|laptop`. `run.sh devices render SHOT OUT.png --device laptop` makes one on its own.
+Prism's answer:
 
-**UI walkthroughs** (`technique: walkthrough`): a product film rebuilt from the person's screenshots, which are layout guides (`{.screen}`) rather than pictures: an opening title, the app building in, numbered steps with a collapsing step card, actions (`.click`, `.fill`, `.choose`, `.focus`, `.open`, `.toast` and more) that run one after another, and an end card with a recap of the steps. Hand-offs follow the screens: the same screen keeps its chrome, a desktop-to-phone change reframes, and the brief carries the house rules for walkthrough videos (pacing, zoom, focus scrim, typing speed, nothing overset). `run.sh motion gaps` turns what's missing (screenshots, demo or real data, the call to action, assumed details) into interview questions; the needed ones stop the brief.
-
-**Website pages** (`layout: web`): the format file is Prism Markdown (`::: hero`, `## heading` sections, `::: media`, `::: features`, `:::: band`, `::: cta-card`, `::: faq`). The build adds the spacers, the brand's page end and the sides (headings and media rows alternate down the page), so moving sections in design mode keeps the zigzag. Core (`build-web.js`, `web-blocks.js`) parses, checks, names image slots and writes `page.json`; the blocks come from the brand's site kit (profile `web.renderer`, Case Amplify's in `kit/brands/case-amplify/web/`), else core's plain WordPress blocks. Every build parses its markup with WordPress's own block parser (no stray text, no repeated block id). The site bridge that would create drafts from `page.json` is specified in `docs/wordpress-bridge.md` and not built yet.
-
-**Motion holds** grow with the words on screen: after its last entrance lands, every scene holds a second for every 20 characters it shows (3 s at least, 12 s at most). `read:` in a film's front matter changes the rate; `hold=` on a scene sets one by hand.
+- **One approved source.** The words live in one file, `content.md`, approved before anything is designed. Every output is laid out from it, and the build refuses any number that isn't in it.
+- **A fixed build kit, not freehand design.** Every file is built by the same kit in the brand's own fonts, colors, logos and components, so a sheet, a deck and a post from the same piece look like they belong together.
+- **Proof before design.** The words are reviewed and approved first, in a shared doc, with every claim listed beside its source.
+- **Brands owned by their teams.** A brand lives in its own Claude Design System. Its editors add and change it, including its layouts and output packages, and everyone in the organization who can open it gets the change in their next session, with no plugin update.
 
 ## How a piece is made
 
-1. **Draft** (`prism-draft`): an interview asks only what it doesn't know (audience, length, outputs, photos); `/prism-interview` asks everything up front. A writer agent produces `content.md` and a `claims.md` ledger; a reviewer agent flags claims and brand issues without rewriting.
-2. **Proof:** the words open in a Claude Doc (content, claims, reviewer flags as comments), or as the two files. Approval is a hard stop: nothing is designed before it.
-3. **Produce** (`prism-produce`): one formatter agent per output writes `formats/<format>.md`; then a number check, design mode, build, preview, `verify`, delivery.
-4. **Revise:** wording and facts go into `content.md` and are patched into every format file; layout changes touch one output. Every edit is vetted (`run.sh vet`).
+1. **Draft.** Attach your material and say what you need: "draft this into a case study, I want a sheet, a deck and three posts." An interview asks only what's missing (audience, length, outputs, photos); skip anything and answer later. A writer drafts the words with a claims ledger, and a reviewer flags claims and brand issues without rewriting.
+2. **Proof.** The words open in a Claude Doc, with the claims on their own tab and every reviewer flag as a comment. Edit, comment or reply in chat, and say "approve" when the words are right. Nothing is designed before this.
+3. **Produce.** Each output is laid out by its own formatter and opens in **design mode**: a plain wireframe on a Claude Design canvas where you drag blocks and slides into order, delete what should go and retype text. Say "done" and Prism builds the real files in the brand's styles, checks every number, previews and verifies them, and sends them back.
+4. **Revise.** Reply with a change or upload an edited file. Wording, facts and numbers go into the approved words and flow into every output, keeping your layouts. Layout changes touch only the one output. Every edit is checked before it is rebuilt.
 
 Also:
 
-- **Quick mode** (`prism-quick`): one output in one pass, no questions and no proof stop; the reply lists every claim to check.
-- **Design mode:** a plain wireframe of each output on a Claude Design canvas; drag, delete and edit there, say "done", and the changes go back into the Markdown and rebuild.
-- **Co-op mode:** the owner invites teammates to the proof doc and canvas; their `@claude` requests are applied by the owner's Prism; only the owner approves and exports (`plugin/prism/skills/prism-produce/references/coop.md`).
-- **Brands:** `prism-onboard` (or `/prism-onboard`) maps a design system onto Prism's roles, shows it on a swatch sheet and publishes it into the design system's `prism/` folder (editors only), so no release is needed; a design system Prism can't publish into still gets a bundle for a release.
-- **Tutorial:** `/prism-tutorial` is a guided walkthrough on a sample piece in the default brand (another with `/prism-tutorial in the <brand> brand`): the sample prompt and notes, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, then the same words as a deck, a carousel or an animated film, with why each stage is there, what can be done in it and how it is shared, and a pause after each one (`prism-draft/references/walkthrough.md`). `/prism-tutorial rundown` gives the overview, and a topic (`/prism-tutorial design mode`) just that part.
+- **Quick mode.** "Quick one-pager from these notes" makes one output in one pass, with no questions and no proof stop, and lists every claim to check afterwards.
+- **Co-op mode.** Invite teammates to the proof doc and the design canvas. They edit by hand or ask `@claude` in comments, your Prism does the work, and only you approve and export.
+- **Packages.** A set bundle of outputs from one piece, such as a case study package (a sheet, a deck, posts and an email), delivered as one zip. Teams define their own.
 
-## Layout
+## What it makes
+
+| Output | What you get |
+|---|---|
+| One sheet | A Letter PDF: one-pagers, briefs, case studies and white papers, with photos, charts, figures, steps and QR codes. A white print copy on request. |
+| Brochure | A Letter trifold PDF, two sides of three panels. |
+| 5x7 card | A 5 × 7 in PDF: postcards, invitations and mailers, front and back, portrait or landscape. |
+| Deck | An editable 16:9 PowerPoint with native charts, and the brand's fonts as a pack. |
+| Social posts and stories | PNGs for square, portrait and wide posts and 1080 × 1920 stories, with their captions. |
+| Carousel | PNG panels and a caption. |
+| Email header | Header images at 2x, light, dark and photo-split, with subject lines. |
+| HTML email | Newsletters, announcements and letters that hold up in Outlook and dark mode, with images, plain text and previews. |
+| Blog post | A header image, chart images and the post text for WordPress. |
+| Website page | A whole page for the brand's WordPress site, as block markup to paste into a draft, with its settings and photos. |
+| Website illustration | An animated UI mockup of one feature for a website feature page. |
+| Animated film | Short films made with Claude Motion from a direction script, checked line by line; a walkthrough film rebuilds the product from your screenshots. |
+
+Logos, QR codes and device mockups (a screenshot in a phone, tablet or laptop) can go on any block in any format. Every photo is cropped around its focal point and stripped of location and camera details.
+
+## Brands and layouts
+
+A brand is a **Claude Design System** with a small Prism folder inside it: how the design system's colors, fonts, type, spacing and logos map onto Prism, the brand's writing rules, and its own layouts and packages. Sharing and editing rights come from the design system itself: everyone who can open it can make pieces in the brand, and only its editors and owners can change it.
+
+- **Add a brand.** Say "add a brand" (or run `/prism-onboard`) with a design system's link. Prism maps it without changing the design system, shows the result on a swatch sheet, and on "done" publishes the brand into the design system. Everyone who can open it has the brand in their next session.
+- **Page layouts.** Every brand can use Prism's default layouts: a sheet led by its title, a full-width photo, one big figure, or a side rail of figures and a quote. A brand can also have layouts of its own. Prism picks the one that fits the content, or you name one ("lead with the photo").
+- **Save an arrangement as a layout.** An editor can arrange a sheet in design mode and say "save this as a layout". The order of its blocks becomes a reusable layout, and later pieces in it follow the same order.
+- **Updates.** When a design system changes, the next session reads the new version in, and the onboarding skill's update shows what moved for the brand and publishes it.
+
+Two brands come bundled with the plugin: Case Amplify (the default) and Prism's own.
+
+## Get started
+
+1. Download `prism-<version>.zip` from [Releases](https://github.com/IanSzymanski/prism/releases) and add it as a plugin in the Claude app.
+2. Run **`/prism-tutorial`**. It makes a fictional sample case study from start to finish (the interview, the draft, the proof, design mode, the export), then turns the same words into a deck, a carousel or a film, explaining each stage and pausing so you can try it. `/prism-tutorial rundown` gives a short overview instead.
+3. Try it on your own material:
+   - "Draft this into a case study. I want a sheet, a brochure and three posts."
+   - "Draft this into a case study package, but skip the deck."
+   - "Quick one sheet from these notes, for supervisors, ending on a demo invite."
+   - "Make a 5x7 card inviting partners to the open house: photo on the front, a mailer back."
+   - "Also make a 15-second animated film of the results for Instagram stories."
+   - "Turn this into a landing page for the site."
+
+Start with `/prism-interview` to answer every question up front.
+
+## What you need
+
+- Claude with plugins. Builds run in Claude's own environment; the kit installs what each output needs the first time it is built.
+- **Claude Docs** for the proof doc (without it you get the words and claims as files).
+- **Claude Design** for design mode and for brands (a Claude Design System per brand).
+- **Claude Motion** for animated films (Team and Enterprise plans).
+
+## This repository
 
 | Path | What |
 |---|---|
-| `plugin/prism/` | The plugin: skills `prism-draft`, `prism-produce`, `prism-quick`, `prism-onboard`; agents `prism-writer`, `prism-reviewer`, `prism-formatter`; commands `/prism-interview`, `/prism-onboard`, `/prism-tutorial` |
-| `plugin/prism/skills/prism-produce/kit/` (below: `kit/`) | The build kit every output goes through, copied into a workspace as `.prism-kit` |
-| `kit/run.sh` | The one entry point for every build and tool (below) |
-| `kit/roles.json` | Core's role vocabulary: what a brand must or may map |
-| `kit/brands/<id>/` | One brand: `profile.json`, a pinned `snapshot/` of its design system, `layers/*.css`, `ornaments.js`, `digest.md`, Office fonts, brand-owned files |
-| `kit/motion-techniques.json` | The motion vocabulary: techniques, layouts, classes, transitions, backdrops, frames and the hold rule |
-| `kit/packages.json` | Core packages (brands add their own in their design system) |
-| `kit/tutorial/` | The walkthrough's neutral sample piece (`sample.json`, fictional notes); a brand's own sample is `kit/brands/<id>/tutorial/`, with fixed files (draft, proof comments, approved words, layouts) so every run shows the same doc, flags and boards |
-| `kit/devices.js` | Phone, tablet and laptop mockups |
-| `fixtures/` | One sample per output type, used for every regression build |
-| `guide/` | The user guide, built as a sheet |
-| `tests/` | The test suites (below), `diff-builds.py`, the frozen `reference-0.13.1/` sources and the `f15/` co-op test kit |
-| `tools/` | `build.py` (stamps the version, checks the tutorial, zips the plugin into `dist/`), `check-tutorial.py`, `pin-profile.js`, `add-brand.py`, `brand-art/` |
-| `fonttools/` | `add_arrows.py`, which added ← → ↑ ↓ to the kit fonts |
-| `chatgpt/` | **Deprecated.** The frozen ChatGPT edition builder; not updated or built |
+| `plugin/prism/` | The plugin: its skills, agents, commands and the build kit. `plugin/prism/README.md` is the guide that ships with it. |
+| `fixtures/`, `tests/` | One sample of every output, used for regression builds, and the test suites. |
+| `guide/` | The user guide, built as a sheet. |
+| `tools/` | Release and maintenance tools (`build.py` stamps a version and zips the plugin). |
 
-Brands today: run `run.sh brands` (it marks the default and lists onboarding drafts). A piece picks one with `brand:` in its front matter. Core never names a brand: a brand's identifying words live in its profile's `identity.terms`, and `tests/core-brand-free.test.py` keeps them out of core.
-
-## Requirements
-
-Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations, WordPress's block parser for website pages, which need no browser); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
-
-## Build
-
-```bash
-# The plugin zip into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
-python3 tools/build.py 1.3.0
-
-# One output, from a workspace with the kit copied in
-cp -r plugin/prism/skills/prism-produce/kit .prism-kit
-bash .prism-kit/run.sh sheet fixtures/sheet-paperwork-brief.md out/brief.pdf      # --print adds the white print copy
-bash .prism-kit/run.sh sheet fixtures/brochure.md out/brochure.pdf
-bash .prism-kit/run.sh sheet fixtures/5x7.md out/card.pdf
-bash .prism-kit/run.sh deck fixtures/deck.md out/deck.pptx
-bash .prism-kit/run.sh social fixtures/carousel.md out/carousel                  # also social.md, stories.md, email.md
-bash .prism-kit/run.sh blog fixtures/blog.md out/blog
-bash .prism-kit/run.sh email fixtures/html-email-newsletter.md out/newsletter
-bash .prism-kit/run.sh illustration fixtures/illustration.md out/illustration       # also illustration-notes.md, illustration-full.md
-bash .prism-kit/run.sh illustration bench out/bench.html fixtures/illustration-full.md fixtures/illustration.md fixtures/illustration-notes.md
-bash .prism-kit/run.sh web fixtures/web.md out/web                                # tests/web/vocational-rehabilitation.md is the live page's round trip
-bash .prism-kit/run.sh web compare tests/web/vocational-rehabilitation.original.html out/web/<tag>-blocks.html
-bash .prism-kit/run.sh motion brief fixtures/motion.md --out out/motion           # then link, check and render the film
-bash .prism-kit/run.sh motion gaps fixtures/motion-walkthrough.md                 # a walkthrough's questions for the person
-bash .prism-kit/run.sh devices render shot.png out/shot-laptop.png --device laptop
-bash .prism-kit/run.sh verify out/brief.pdf                                       # deliver only on OK
-```
-
-The other `run.sh` commands:
-
-| Command | What |
-|---|---|
-| `check` | Numbers in a format file that aren't in `content.md` |
-| `vet` | Fixes numbering and slips after an edit, flags what needs a look, lists changed passages (`--was`, `--fix`) |
-| `preview` | A contact sheet of built outputs (PDF pages, slides, PNGs) for a visual check |
-| `images` | Normalises uploaded photos and finds each one's focal point |
-| `library` | The brand's reusable photos (`brand:<id>` in Markdown) |
-| `fonts` | The PowerPoint font pack sent with a deck |
-| `tag` | The naming rule for exported files (`<slug>-<output>-v<version>`) |
-| `wire`, `wire-diff` | Design mode: boards and canvas, then reading edits back into the Markdown |
-| `state` | A piece's state between sessions: canvas, versions, exports, co-op owner and invitees |
-| `exports` | The Exports page for co-op invitees |
-| `packages` | List, use, check, claim-check and zip packages |
-| `layouts` | A brand's page layouts for a format (`--brand`, `--format sheet`, `--json`): the Prism default layouts every brand can use and the brand's own, with what each needs and when to pick it. `layouts save <id> <format file> --brand B --name --use --when` makes a brand layout from a sheet someone arranged (its body as slots, into an onboarding draft); `layouts check <format file>` says where a sheet departs from its layout's slots |
-| `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in (`ds assets`, `ds place`), move a brand's Prism folder in and out of its design system (`ds pack`, `ds install`, `ds remove`), and bring brands in each session (`ds plan`, `ds seen`, `ds want`, `ds default`, `ds status`) |
-| `onboard` | Add or update a brand (`start`, `map`, `report`, `pack` to publish into the design system, `bundle` for a release, `update`) |
-| `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--prompt` prints the full sample message the person is shown, `--approve` and `--format <name>` put a sample's fixed approved words and layouts in place, `--json`) |
-| `devices` | Device mockups: `list`, `render`, `svg`, `html` |
-| `setup` | Install a part's tools up front |
-
-To build a fixture in another brand, add `brand: <id>` to its front matter.
-
-## Test
-
-```bash
-node tests/resolve.test.js             # the default profile equals the 0.13.1 kit's values
-node tests/brands.test.js              # core holds no brand; every brand resolves and its ornaments draw
-node tests/roles.test.js               # optional roles fall back, a required-only brand resolves, the profile's build theme
-node tests/drafts.test.js              # onboarding drafts build like shipped brands, say so, and are never the default
-node tests/ds-brands.test.js           # brands in their design systems: pack, install, the same build, drift, the workspace default
-node tests/onboard.test.js             # onboarding: draft from a design system, map, bundle, update (publishing: ds-brands)
-node tests/components.test.js          # closing styles, new design-system components noticed, components from the interview
-node tests/packages.test.js            # packages: definitions, a piece's package, checks, claims, the zip
-node tests/layouts.test.js             # page layouts: the Prism defaults, brand layouts from a design system or a draft, the builds, format: and its old spelling, slots (save, check, the swatch), the cover's darkening
-node tests/qr.test.js                  # the QR block in every output
-node tests/sheet-modifiers.test.js     # sheet modifiers: title-area photo, fill: page, colophon: off, plain flows, rounded QR codes, the closing card's QR column
-node tests/logo.test.js                # logo positions on any block
-node tests/card5x7.test.js             # 5x7 cards: sizes, sides, overflow, packages and design mode
-node tests/kit-small.test.js           # file tags, state paths, unbroken terms, PDF details, photo metadata, print copies
-node tests/motion.test.js              # motion: the language, holds, the brief, the film check, walkthroughs and their gaps
-node tests/devices.test.js             # device mockups: geometry, sheets, overset and layered deck slides, films
-node tests/deck-variants.test.js       # decks: dark and vivid slides, the brand footer (number left, logo right)
-node tests/illustration.test.js        # website illustrations: parsing, the block, the brand's look, motion, phone, the bench
-node tests/web.test.js                 # website pages: sections and sides, the site kit byte for byte, the VR round trip, slots, page.json, checks, core blocks
-node tests/social-checks.test.js       # posts and carousels: counters, point numbers, the thread, the vivid ground, the word, layout, color, photo and stat checks
-python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
-python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op, website page sides
-python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete
-python3 tests/readme.test.py           # this README still names every run.sh command and test suite
-python3 tests/core-brand-free.test.py  # no brand is named in core; defaults come from the profiles
-```
-
-**Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.
-
-**Keep this README current:** a new `run.sh` command, output, test suite or user-facing feature updates this file and `plugin/prism/README.md` in the same change. `tests/readme.test.py` fails when a command or test suite is missing here.
-
-## Brands
-
-A brand is a Claude Design System plus a Prism profile. The profile maps core roles to the design system's own names and ships with a pinned snapshot, so builds never need access to the design system. Each profile's `url` is its live design system.
-
-A brand sets its own sheet defaults in its profile's `options.sheet`: `byline: false` (no author and date under the title), `colophon: false` (no closing line; `colophon: on` in a format file brings it back), `cta_qr: "beside-copy"` (a closing card's QR beside all of its copy) and `checks: ["orphans", "variety"]` (`sheet-checks.js`: titles and headings never end on one word, paragraphs that do are reported, and sections that keep using the same format are reported). Case Amplify turns all of them on.
-
-After changing any file in a brand folder, run `node tools/pin-profile.js <brand>`, then the resolve and brands tests. Prism's own artwork is generated: `python3 tools/brand-art/prism.py <design system project dir> <out dir>` (the brand's `snapshot/` works as the project dir).
+To build, test or release Prism, see [DEVELOPING.md](DEVELOPING.md). `HANDOFF.md` holds the working notes and design decisions.

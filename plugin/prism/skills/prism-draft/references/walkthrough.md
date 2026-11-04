@@ -1,5 +1,5 @@
 # Prism guided walkthrough: one sample piece, start to finish
-<!-- walkthrough-reviewed: 1.3 -->
+<!-- walkthrough-reviewed: 2.0 -->
 
 Run this when someone types `/prism-tutorial` with no topic, or asks to be walked through Prism ("show me how it works", "walk me through it", "guided tutorial"). It makes a real sample piece with the real skills, stage by stage: the prompt and source material, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, and then the same approved words exported again as other formats. At every stage, say **why the stage is there**, **what the person can do in it**, and **how it is shared**, then pause so they can try it before moving on.
 
@@ -86,7 +86,7 @@ Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays 
 Say:
 
 - **Why it's here:** layout decisions (what goes first, what stays, which block is a chart and which a quote) are easiest to make by looking and dragging. The canvas is a plain wireframe, the real words in the real order with the brand's components sketched in grey, so the conversation stays about structure. Its styling is never exported: the files are always built by the kit in the brand's own styles.
-- **What you can do:** retype any text or a link's address (in its blue chip); drag a block (or a whole slide or post) into a new order; delete what should go; or ask in chat ("make the results a chart", "use a calendar icon on the second card", "move the quote to page one"). Photos can be added at any point. Every change is read back into the Markdown, vetted and reported. The sample's `try design` suggestions are good first moves.
+- **What you can do:** retype any text or a link's address (in its blue chip); drag a block (or a whole slide or post) into a new order; delete what should go; or ask in chat ("make the results a chart", "use a calendar icon on the second card", "move the quote to page one"). Photos can be added at any point. Every change is read back into the Markdown, vetted and reported. The note at the top of the board names the sheet's page layout and the brand's others; ask to see it in one ("lead with the photo"). Someone who can edit the brand's design system can save an arrangement they like as one of the brand's layouts, so later pieces follow it. The sample's `try design` suggestions are good first moves.
 - **Sharing:** invite people with Share on the canvas. They can rearrange, edit and review the layout with you. You are the one who says "done".
 - Nothing is built until **"done"**. Say it when the layout is right.
 
