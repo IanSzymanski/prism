@@ -390,7 +390,8 @@ h2 + .stats ul,.stats.flush ul{border-top:0;padding-top:2pt;margin-top:0}
    (:where), so a brand layout's .layout-<id> rules, loaded last, win over them. */
 
 /* Photo-led: the photo runs edge to edge under the logo bar; the title sits over its lower part. The darkening toward the
-   bottom is baked into the photo's pixels by the build (.prism-cover__img), so the text reads on any photo. */
+   bottom is baked into the photo's pixels by the build (.prism-cover__img, scrim.js), deeper under any text a light photo
+   would leave faint, so the text reads on any photo. */
 .layout-photo-led .prism-mast{display:grid;padding-top:.42in;margin-bottom:24pt}
 .layout-photo-led .prism-mast__bar{margin-bottom:.28in}
 .layout-photo-led .prism-cover{display:block;grid-area:2/1;margin:0 calc(var(--page-x) * -1);height:4.1in;break-inside:avoid;border-radius:0;box-shadow:none;padding:0}

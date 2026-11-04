@@ -290,8 +290,9 @@ function wireOne(md, B) {
   const framed = shown.some(b => frameOf(b.md.split("\n")[0]));
   const isEmail = format === "email";
   // A sheet's title-area photo (mast-image) sits beside the title, eyebrow and subtitle, as printed; it is drawn, not read back.
-  const mastImage = h => !meta["mast-image"] || framed || format ? h : `<div style="display: grid; grid-template-columns: ${esc(meta["mast-split"] || "1fr 1fr")}; gap: 20px; align-items: center">` +
-    `<div style="display: flex; flex-direction: column; gap: 18px; min-width: 0">${h}</div><div data-wire-tag="">${imgBox(meta["mast-image-alt"], meta["mast-image"], 180)}</div></div>`;
+  // The wrappers are groups (data-wire-group), so wire_diff reads the title blocks inside them as themselves.
+  const mastImage = h => !meta["mast-image"] || framed || format ? h : `<div data-wire-group="" style="display: grid; grid-template-columns: ${esc(meta["mast-split"] || "1fr 1fr")}; gap: 20px; align-items: center">` +
+    `<div data-wire-group="" style="display: flex; flex-direction: column; gap: 18px; min-width: 0">${h}</div><div data-wire-tag="">${imgBox(meta["mast-image-alt"], meta["mast-image"], 180)}</div></div>`;
   // Sheets: a note naming this sheet's layout and the others the brand has (the person asks in chat to see one), then the
   // layout's lead: the cover photo of a photo-led sheet, or the large figure of a stat-first one (edited like the title).
   function sheetLayout() {
@@ -302,7 +303,7 @@ function wireOne(md, B) {
     const image = meta.image || L.front.image, stat = meta.stat || L.front.stat;
     if (L.base === "photo-led" && image) { const ph = imgSrc(image);
       return note + `<div data-wire-tag="" class="wimg${ph ? " has-photo" : ""}" style="height: 300px">${ph}<span style="position: relative">Cover photo: ${esc(image)}</span></div>`; }
-    if (L.base === "stat-first" && stat) return note + `<div class="wlead"><div data-block="meta.stat" class="wp"><p class="wlead-n">${inline(stat)}</p></div><div data-block="meta.stat-label" class="wp"><p class="wlead-l">${inline(meta["stat-label"] || L.front["stat-label"] || "")}</p></div></div>`;
+    if (L.base === "stat-first" && stat) return note + `<div data-wire-group="" class="wlead"><div data-block="meta.stat" class="wp"><p class="wlead-n">${inline(stat)}</p></div><div data-block="meta.stat-label" class="wp"><p class="wlead-l">${inline(meta["stat-label"] || L.front["stat-label"] || "")}</p></div></div>`;
     return note;
   }
   const full = framed ? " wfull" : "";

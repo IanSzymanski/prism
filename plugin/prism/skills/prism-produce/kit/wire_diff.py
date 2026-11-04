@@ -37,7 +37,11 @@ class Wire(HTMLParser):
         elif "data-wire-tag" in a: self.skip += 1; mark = "tag"
         # A link's address chip: kept apart from the block's text, compared on its own.
         elif "data-url" in a and self.cur is not None: self.url = []; mark = "url"
-        elif self.in_root and self.cur is None and len([s for s in self.stack if s[1] == "root"]) and self.stack and self.stack[-1][1] == "root":
+        # A group (data-wire-group: the stat-first lead, the title beside its photo) only holds blocks side by side: its blocks
+        # read back as themselves, and nothing else in it is a block.
+        elif "data-wire-group" in a and self.in_root and self.cur is None: mark = "group"
+        # Anything else straight inside the board is a block the person added on the canvas.
+        elif self.in_root and self.cur is None and self.stack and self.stack[-1][1] == "root":
             self.cur = {"id": None, "text": [], "items": [], "links": [], "look": []}; mark = "block"
         # The block's look: every class and style inside it, so a restyle on the canvas can be reported as not carried.
         if self.cur is not None and tag not in INLINE and (a.get("class") or a.get("style")):

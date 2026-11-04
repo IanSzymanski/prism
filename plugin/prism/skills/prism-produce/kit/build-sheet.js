@@ -165,11 +165,13 @@ async function prepareImages([printScale, ground, fadeOn, scrimColor]) {
       c.globalCompositeOperation = "destination-in"; c.fillStyle = g; c.fillRect(0, 0, W, H);
     }
     if (scrimmed(i)) {
-      // Clear at the top, then a smooth ramp from 15% to 75% of the height up to 90%, so a light photo still carries white text.
+      // Clear at the top, then darker toward the bottom (scrim.js): the same ramp on every cover, and more under any text a
+      // light photo would leave too faint (each piece of text over the photo reaches 4.5:1).
       const [r, gg, b] = scrimColor, s = c.createLinearGradient(0, 0, 0, H);
-      s.addColorStop(0, `rgba(${r},${gg},${b},0)`); s.addColorStop(0.15, `rgba(${r},${gg},${b},0)`);
-      for (let k = 1; k <= 10; k++) { const t = k / 10; s.addColorStop(0.15 + 0.6 * t, `rgba(${r},${gg},${b},${(0.9 * t * t * (3 - 2 * t)).toFixed(3)})`); }
-      s.addColorStop(1, `rgba(${r},${gg},${b},0.9)`);
+      const texts = [...document.querySelectorAll(".prism-mast__title *")].filter(e => [...e.childNodes].some(n => n.nodeType === 3 && n.data.trim()))
+        .map(e => ({ box: e.getBoundingClientRect(), color: getComputedStyle(e).color }));
+      const p = window.prismScrim.plan(c, S, box, scrimColor, texts);
+      for (const [at, al] of p.stops) s.addColorStop(at, `rgba(${r},${gg},${b},${al})`);
       c.fillStyle = s; c.fillRect(0, 0, W, H);
     }
     // Room for the shadow: it reaches 12px up, 32px sideways and 50px down, so the canvas only grows that far.
@@ -229,6 +231,7 @@ function scrimRgb() { let h = "#000000"; try { h = B.color("prism-color-dark-dee
   if (B.option("sheet.cta_qr", "") === "beside-copy") await page.evaluate(require("./sheet-checks.js").qrBesideCopy);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
+  await page.addScriptTag({ content: require("./scrim.js").inPage });
   const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false), scrimRgb()]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Logos inside blocks: the on-dark logo on dark grounds.

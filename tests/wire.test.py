@@ -183,6 +183,23 @@ try:
     check("exports: a deck is listed, not hosted", "x-deck-v4.pptx" in page and "can't be hosted here; ask Ian" in page and "x-deck-v4.pptx" in r.stdout, r.stdout)
     check("exports: too-large files are listed, not hosted", "too large to host here" in page and "x-big.zip" in r.stdout, r.stdout)
     check("exports: titled and versioned", "<title>Test piece files</title>" in page and "v4 · " in page and "by Ian" in page, page[:400])
+
+    # A stat-first sheet (its figure and label side by side) and a sheet with a title-area photo (the title beside it): the
+    # wrappers are groups, so an untouched board reads back unchanged and an edit inside one comes back as that block's edit.
+    shutil.copy(os.path.join(ROOT, "plugin", "prism", "skills", "prism-produce", "kit", "brands", "case-amplify", "tutorial", "images", "cedar-hollow-hero.jpg"), os.path.join(tmp, "hero.jpg"))
+    for name, fm in [("statlead", "layout: stat-first\nstat: 2 days\nstat-label: from referral to first visit\n"), ("mastphoto", "mast-image: hero.jpg\n")]:
+        open(os.path.join(tmp, f"{name}.md"), "w").write(f"---\ntitle: Intake in *two days*\npagetitle: T\nsubtitle: How one team cut the wait.\n{fm}---\n\n## What it does\n\nA short paragraph.\n")
+        r = run("wire", f"{name}.md", "--out", f"wire-{name}", cwd=tmp)
+        wd = os.path.join(tmp, f"wire-{name}", name); board = os.path.join(wd, f"{name}.dc.html")
+        check(f"{name}: the board builds", r.returncode == 0 and os.path.exists(board), r.stderr)
+        if not os.path.exists(board): continue
+        html = open(board).read()
+        r = subprocess.run([sys.executable, os.path.join(KIT, "wire_diff.py"), wd, board], capture_output=True, text=True)
+        check(f"{name}: an untouched board has no changes", r.stdout.strip() == "No changes.", r.stdout)
+        old, new, block = ("2 days", "3 days", "meta.stat") if name == "statlead" else ("How one team cut the wait.", "How one team cut the wait in half.", "meta.subtitle")
+        open(os.path.join(tmp, f"{name}-edited.dc.html"), "w").write(html.replace(f">{old}<", f">{new}<", 1))
+        r = subprocess.run([sys.executable, os.path.join(KIT, "wire_diff.py"), wd, os.path.join(tmp, f"{name}-edited.dc.html")], capture_output=True, text=True)
+        check(f"{name}: an edit inside the group comes back as {block}", re.search(rf"EDITED\s+{re.escape(block)}\s+was: {re.escape(old)}\s+now: {re.escape(new)}", r.stdout) and "REMOVED" not in r.stdout and "ADDED" not in r.stdout, r.stdout)
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
