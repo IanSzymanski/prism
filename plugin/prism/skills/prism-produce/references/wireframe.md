@@ -50,6 +50,7 @@ A publish refused because the canvas has a newer version (someone saved since yo
 3. Bring the canvas in line with what was delivered: run the wire command for every exported format with `--stamp "Exported v<content version> · <date>"` and publish. The canvas now shows exactly what the files show, with the stamp at the top of each board.
 4. From now on the session is in its exported state (`state show` says so): every later change request, from chat or the canvas, is pulled, applied, vetted, exported again and delivered without waiting for another "done", and the boards are republished with the new stamp. Read back as usual, with the files sent.
 5. When the person ends design mode ("close design mode", "we're finished"), `state <slug> close`.
+6. A sheet arranged here can become one of the brand's layouts ("save this as a layout"): the skill's step 3 says when to offer it, and the onboarding skill's "A brand layout" (from a sheet) does it. The saved slots are this board's blocks, in its order: `layouts.js` splits a sheet into blocks the same way the board does.
 
 ## Speed (measured, 0.16)
 

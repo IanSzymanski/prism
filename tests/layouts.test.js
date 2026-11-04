@@ -158,6 +158,49 @@ r = node(path.join(KIT, "packages.js"), "check", proj); ok(r.status === 0, `a sh
 write(path.join(proj, "formats", "one.md"), "---\ntitle: T\nlayout: poster\n---\n\n41% less time.\n");
 r = node(path.join(KIT, "packages.js"), "check", proj); ok(r.status === 1 && /one: layout poster is not one of this brand's sheet layouts/.test(r.stdout), `an unknown sheet layout is caught: ${r.stdout}`);
 
+// 9. Slots (M15): a brand layout may hold the body's order. A sheet's blocks become slots (words left out, a run of one block a
+// repeating slot), `check` says where a sheet departs from them, `save` makes a layout from a sheet into an onboarding draft
+// only, the listing carries the slots, and the swatch draws a slotted layout from them.
+const LY = require(path.join(KIT, "layouts.js"));
+const arranged = "---\ntitle: T\n---\n\n## At a glance\n\n::: stats\n- **41%** less time\n- **94%** approved\n- **2 days** to a visit\n:::\n\nOne paragraph of text here.\n\nAnother paragraph of text, a little longer than the first one.\n\n> A short quote.\n>\n> [Name, Role]{.cite}\n\n::::: {.cta-card .small}\n[Next]{.eyebrow}\n\n## Book a demo\n\nOne line.\n:::::\n";
+const sl = LY.slotsOf(arranged);
+ok(sl.map(x => x.block).join(" | ") === "## heading | ::: {.stats} | paragraph | quote | ::: {.cta-card .small}" && sl[1].holds === "3 items" && sl[2].repeat === "1-2" && /with who said it/.test(sl[3].holds) && /1 heading, 1 label, 1 paragraph/.test(sl[4].holds), `a sheet's body as slots: ${JSON.stringify(sl)}`);
+ok(!JSON.stringify(sl).includes("41%") && !JSON.stringify(sl).includes("demo"), "slots leave the words out");
+ok(LY.check(arranged, { slots: sl }).length === 0, "a sheet follows the slots made from it");
+const moved = arranged.replace("> A short quote.\n>\n> [Name, Role]{.cite}\n\n", "").replace("## At a glance", "> A short quote.\n>\n> [Name, Role]{.cite}\n\n## At a glance");
+const mv = LY.check(moved, { slots: sl });
+ok(mv.length === 2 && /block 1 \(quote\) is out of place: the layout has it at slot 4/.test(mv[0]) && /slot 4 \(quote.*\) is empty/.test(mv[1]), `one moved block is one line, and its slot shows empty: ${JSON.stringify(mv)}`);
+const noStats = arranged.replace(/::: stats[\s\S]*?:::\n\n/, "");
+ok(/slot 2 \(::: \{\.stats\}: 3 items\) is empty/.test(LY.check(noStats, { slots: sl }).join()) && !LY.check(noStats, { slots: sl.map((x, i) => i === 1 ? { ...x, optional: true } : x) }).length, "a missing slot is reported, unless it is optional");
+const three = arranged.replace("One paragraph of text here.", "One paragraph.\n\nAnd a third paragraph.");
+ok(/has no slot|after|out of place/.test(LY.check(three, { slots: sl }).join()) && !LY.check(three, { slots: sl.map((x, i) => i === 2 ? { ...x, repeat: "1-3" } : x) }).length, "a slot takes no more than its repeat");
+ok(/::: \{\.stats\}|:::: \{\.stats\}/.test(LY.sample(sl[1])) && /^## /.test(LY.sample(sl[0])), "the swatch has a sample for each slot");
+// Validation: a slot is {block, holds, optional?, repeat?}.
+write(path.join(aLay, "bad-slots.json"), { name: "Bad", use: "x", slots: [{ block: "paragraph" }] });
+r = run("layouts", "--brand", "acme"); ok(r.status !== 0 && /slots\[0\]: no holds/.test(r.stderr), `a slot without holds is refused: ${r.stderr}`);
+write(path.join(aLay, "bad-slots.json"), { name: "Bad", use: "x", slots: [{ block: "paragraph", holds: "a paragraph", repeat: "3-1" }] });
+r = run("layouts", "--brand", "acme"); ok(r.status !== 0 && /repeat is a count or a range/.test(r.stderr), "a backward range is refused");
+fs.rmSync(path.join(aLay, "bad-slots.json"));
+// save: into an onboarding draft, from a sheet set in a layout; never into a design-system copy or the plugin's copy.
+const src = path.join(TMP, "arranged.md"); write(src, arranged.replace("title: T\n", "title: T\nlayout: photo-led\nimage: images/cover.svg\nhero: small\nmast-split: 2fr 1fr\n"));
+r = run("layouts", "save", "case-brief", src, "--brand", "acme", "--name", "Case brief", "--use", "Figures, then the story, a quote, a small closing card.", "--when", "A case study with figures and a quote.");
+const saved = (() => { try { return JSON.parse(fs.readFileSync(path.join(aLay, "case-brief.json"), "utf8")); } catch { return null; } })();
+ok(r.status === 0 && saved && saved.base === "photo-led" && saved.front.hero === "small" && saved.front["mast-split"] === "2fr 1fr" && !saved.front.image && saved.slots.length === 5, `save keeps the base and how the page is set, never its content: ${r.stdout}${r.stderr}`);
+ok(/5 slots/.test(r.stdout) && /publish layouts\/sheet\/case-brief\.json/.test(r.stdout), "save says what it wrote and what comes next");
+r = run("layouts", "save", "case-brief", src, "--brand", "acme", "--name", "x", "--use", "x", "--when", "x"); ok(r.status !== 0 && /already has a layout case-brief; --replace/.test(r.stderr), "save never overwrites without --replace");
+r = run("layouts", "save", "x", src, "--brand", "prism", "--name", "x", "--use", "x", "--when", "x"); ok(r.status !== 0 && /no onboarding draft here \(this is the copy read from its design system\)/.test(r.stderr), `save refuses the copy read from a design system: ${r.stderr}`);
+r = spawnSync("bash", [path.join(KIT, "run.sh"), "layouts", "save", "x", src, "--brand", "prism", "--name", "x", "--use", "x", "--when", "x"], { env: { ...process.env, PRISM_DRAFTS: path.join(TMP, "none") }, encoding: "utf8" });
+ok(r.status !== 0 && /the plugin's own copy/.test(r.stderr), "save refuses the plugin's own copy");
+ok(json(run("layouts", "--brand", "acme", "--json"))["case-brief"].slots.length === 5, "the listing gives formatters the slots");
+// check, from the command line.
+const follows = path.join(TMP, "follows.md"); write(follows, arranged.replace("title: T\n", "title: T\nbrand: acme\nlayout: case-brief\nimage: images/cover.svg\n"));
+ok(run("layouts", "check", follows).status === 0, "check: a sheet that follows its layout");
+const departs = path.join(TMP, "departs.md"); write(departs, moved.replace("title: T\n", "title: T\nbrand: acme\nlayout: case-brief\nimage: images/cover.svg\n"));
+r = run("layouts", "check", departs); ok(r.status === 1 && /departs from layout case-brief/.test(r.stdout) && /out of place/.test(r.stdout), `check: where a sheet departs: ${r.stdout}`);
+// The design-mode board and the layout split a sheet the same way.
+ok(/require\("\.\/layouts\.js"\)\.blocks/.test(fs.readFileSync(path.join(KIT, "build-wire.js"), "utf8")), "design mode splits a sheet with the same blocks as slots");
+fs.rmSync(path.join(aLay, "case-brief.json"));
+
 // 8. The photo-led cover's darkening (scrim.js): the same ramp as always when the photo is dark enough, and enough more under
 // each piece of text on a light photo that it reaches the target (4.8:1, so the baked JPEG and the print clear 4.5:1).
 const SC = require(path.join(KIT, "scrim.js")), bsSrc = fs.readFileSync(path.join(KIT, "build-sheet.js"), "utf8");
