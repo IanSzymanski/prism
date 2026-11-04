@@ -18,7 +18,7 @@ There is no preview image: the page's look comes from the site's theme. The layo
 
 ```yaml
 ---
-layout: web
+format: web
 title: Faster intake for Harbor Point    # the page's title in WordPress
 slug: faster-intake                      # its address; keep it once the page is live
 post: 0                                  # the page's WordPress id once it exists (block ids start with it); 0 for a new page
@@ -29,6 +29,8 @@ description: One or two sentences for search results, about 155 characters.
 keyphrase: faster intake                 # the focus keyphrase
 ---
 ```
+
+`layout: web` still works: it is the old spelling of `format: web`.
 
 ## The page
 

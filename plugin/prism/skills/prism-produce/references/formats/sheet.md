@@ -16,6 +16,7 @@ date: September 2026
 contact: example.com                                # closing line, left (default: the brand's contact line)
 legal: Fictional organization, people and figures   # closing line, right (required when figures: illustrative)
 hero: small                                         # optional: small | x-small title area for tight pages
+layout: stat-first                                  # optional: a page layout (see "Layouts"); none is standard
 ---
 ```
 
@@ -76,6 +77,49 @@ In this order, stopping as soon as it fits on one page:
 4. Cut content: a supporting sentence, then a table or chart, then a whole section. Never shrink type any other way.
 
 A title-area photo (`mast-image`) takes less height than a hero image or a media row. `fill: page` is the last step, once the content fits: it spreads the sections down the page.
+
+## Layouts
+
+A sheet's `layout:` picks what leads its first page: the title band, a photo, a figure or a rail. A layout is an arrangement of the sheet's parts, not a look: a colour, size or closing style is never a layout. `run.sh layouts --brand <brand>` lists the layouts this brand has, in the order to try them: its own first (brand layouts), then the Prism default layouts it keeps, `standard` last. No `layout:` means `standard`.
+
+| Prism default layout | Front matter and markup it needs | Pick it when |
+|---|---|---|
+| `standard` | nothing | Nothing else clearly leads the piece |
+| `photo-led` | `image: images/<file>` (or `brand:<id>`; `image-focus: x% y%` optional): the cover photo, full width under the logo bar, with the title over it | A landscape photo that prints 6.5 in wide or more (images.md: hero) and carries the story. Never a client or minor without confirmed consent |
+| `stat-first` | `stat: 41%` and `stat-label: less time on case notes, in four months`: one very large figure and what it measures, above the title | One number carries the piece. The figure and label come from content.md, written the same way (the number check reads them) |
+| `sidebar` | a `::: rail` block (stats, a short quote, the contact) anywhere in the body: the build puts it in a tinted rail beside the story | Three or more figures, or figures and a quote, that should stay in view beside the story |
+
+```markdown
+---
+title: How *Harbor Point* got its afternoons back
+layout: stat-first
+stat: 41%
+stat-label: less time on case notes, in four months
+hero: small
+---
+```
+
+```markdown
+::: rail
+### At a glance
+
+::: stats
+- **41%** less time on case notes
+- **94%** of drafts approved
+:::
+
+> Our afternoons are ours again.
+>
+> [Dana Ruiz, Program lead]{.cite}
+:::
+```
+
+**Brand layouts.** A brand can have layouts of its own, as many as it needs (the listing names the brand under `from`). Each says what it is for (`use`), when to pick it (`when`) and what it needs, like the defaults, and builds on one of them (`base`): a brand layout on `photo-led` needs the cover photo too. It may set front matter defaults (a smaller title area, say) and its own styles; anything the format file's front matter sets wins over its defaults. A brand layout with a default's id replaces that default for the brand, and a brand can switch a default off, so use only what the listing shows.
+
+- **Picking:** read content.md and images.md, then go down the brand's list (its own layouts before the Prism defaults) and take the first whose "when" fits the content and whose needs the piece has; else `standard`. Never invent a layout. Say which one in your reply, with the reason in a few words.
+- **One-pagers:** every layout fits on one page with "Fitting a one-pager". `hero: small` and `x-small` also shrink the cover photo and the lead figure. Photo-led takes the most room: cut harder.
+- In a photo-led sheet the hero photo is the cover: don't repeat it as a `::: hero-image`, and leave out `mast-image` (it goes with `standard`). In a stat-first sheet the lead figure can stay in the stats row below only if the row has other figures too.
+- The build stops on a layout this brand doesn't have, or one missing what it needs.
 
 ## Shape
 

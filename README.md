@@ -111,6 +111,7 @@ The other `run.sh` commands:
 | `state` | A piece's state between sessions: canvas, versions, exports, co-op owner and invitees |
 | `exports` | The Exports page for co-op invitees |
 | `packages` | List, use, check, claim-check and zip packages |
+| `layouts` | A brand's page layouts for a format (`--brand`, `--format sheet`, `--json`): the Prism default layouts every brand can use and the brand's own, with what each needs and when to pick it |
 | `brands`, `resolve`, `palette`, `swatch`, `pin`, `ds` | Brands: list them, resolve a profile's roles, the email and Office palette, the swatch sheet, re-pin after a change, read a design system in (`ds assets`, `ds place`), move a brand's Prism folder in and out of its design system (`ds pack`, `ds install`, `ds remove`), and bring brands in each session (`ds plan`, `ds seen`, `ds want`, `ds default`, `ds status`) |
 | `onboard` | Add or update a brand (`start`, `map`, `report`, `pack` to publish into the design system, `bundle` for a release, `update`) |
 | `tutorial` | The walkthrough's sample piece in a brand (`--out <workspace>` sets it up, `--prompt` prints the full sample message the person is shown, `--approve` and `--format <name>` put a sample's fixed approved words and layouts in place, `--json`) |
@@ -130,6 +131,7 @@ node tests/ds-brands.test.js           # brands in their design systems: pack, i
 node tests/onboard.test.js             # onboarding: draft from a design system, map, bundle, update (publishing: ds-brands)
 node tests/components.test.js          # closing styles, new design-system components noticed, components from the interview
 node tests/packages.test.js            # packages: definitions, a piece's package, checks, claims, the zip
+node tests/layouts.test.js             # page layouts: the Prism defaults, brand layouts from a design system or a draft, the builds, format: and its old spelling
 node tests/qr.test.js                  # the QR block in every output
 node tests/sheet-modifiers.test.js     # sheet modifiers: title-area photo, fill: page, colophon: off, plain flows, rounded QR codes
 node tests/logo.test.js                # logo positions on any block

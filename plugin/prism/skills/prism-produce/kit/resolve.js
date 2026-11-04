@@ -50,8 +50,9 @@ function load(id, opts = {}) {
   if ((prof.schema || 1) > SCHEMA) return { errors: [`${id}'s profile is schema ${prof.schema}; this Prism reads schema ${SCHEMA}: update Prism`], warnings };
 
   // 1. Every pinned file must be present and unchanged, or the brand would be approximated. A brand read from its design system
-  // (D19) is the editors' current work: a changed data file (tokens, fonts, images, the digest) builds and warns until the
-  // brand is re-checked; changed code (a generator, ornaments, a site kit) stops the build, since it runs on every build.
+  // (D19) is the editors' current work: a changed data file (tokens, fonts, images, the digest, layers, brand layouts) builds
+  // and warns until the brand is re-checked; changed code (a generator, ornaments, a site kit) stops the build, since it runs
+  // on every build.
   const ds = layout === "design-system", code = new Set(Object.values(prof.generators || {}).map(g => g.script));
   const changed = (what, f, isCode) => (ds && !isCode ? warnings : errors).push(ds ? `design system changed since this brand was checked: ${f}${isCode ? " (code: re-check the brand before building)" : ""}` : `${what} changed: ${f}`);
   for (const [f, h] of Object.entries(prof.snapshot.files)) {

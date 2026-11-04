@@ -38,8 +38,9 @@ module.exports = function brand(md, forceId) {
     // Whether the brand has a role at all (mapped or derived); for optional assets such as the logo on dark grounds.
     has: n => !!res.roles[n],
     // Fills {{role}} and {{role@theme}} in a stylesheet (|uri encodes for data URIs) and returns the filled copy's path.
-    stylesheet(file) {
-      const out = path.join(dir, (file.startsWith(res.dir) ? "brand-" : "") + path.basename(file));
+    // `name` names the copy when its file name alone could clash (a brand layout's CSS beside a layer of the same name).
+    stylesheet(file, name) {
+      const out = path.join(dir, name || (file.startsWith(res.dir) ? "brand-" : "") + path.basename(file));
       const s = fs.readFileSync(file, "utf8").replace(/\{\{((?:prism|own)-[\w-]+)(?:@(\w+))?(\|uri)?\}\}/g, (_, n, t, u) => { const v = B.color(n, t); return u ? encodeURIComponent(v) : v; });
       fs.writeFileSync(out, s);
       return out;

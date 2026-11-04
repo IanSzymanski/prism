@@ -219,7 +219,10 @@ function build(md) {
   const B = require("./brand.js")(md), S = settings(B);
   const doc = parse(fs.readFileSync(md, "utf8")), meta = doc.meta;
   const errors = [...doc.errors], warns = [];
-  if (meta.layout && meta.layout !== "web") errors.push(`layout: ${meta.layout} (a website page is layout: web)`);
+  // `format: web` (or its old spelling, `layout: web`) names a website page; it has no page layouts.
+  let fl = { format: null, layout: null }; try { fl = require("./layouts.js").pick(meta); } catch (e) { errors.push(e.message.replace(/^\[layouts\] /, "")); }
+  if (fl.format && fl.format !== "web") errors.push(`format: ${fl.format} (a website page is format: web)`);
+  if (fl.layout) errors.push(`layout: ${fl.layout} (a website page has no page layouts; its format is format: web)`);
   const icons = JSON.parse(fs.readFileSync(B.icons.paths, "utf8"));
   // An icon is a Phosphor name, with an optional weight ("calendar-check-fill"); otherwise the brand's weight.
   const icon = (v, where) => {

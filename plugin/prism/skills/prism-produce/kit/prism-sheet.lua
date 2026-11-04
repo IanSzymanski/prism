@@ -192,9 +192,25 @@ local function card(doc)
   return doc
 end
 
+-- Sidebar layout: every ::: rail block goes into one rail beside the story; closing cards stay full width below both.
+local function sidebar(doc)
+  local rail, main, after = pandoc.List({}), pandoc.List({}), pandoc.List({})
+  for _, b in ipairs(doc.blocks) do
+    if b.t == "Div" and b.classes:includes("rail") then rail:extend(b.content)
+    elseif b.t == "Div" and b.classes:includes("cta-card") then after:insert(b)
+    else main:insert(b) end
+  end
+  doc.blocks = pandoc.List({ pandoc.Div({ pandoc.Div(rail, { class = "prism-rail" }), pandoc.Div(main, { class = "prism-main" }) }, { class = "prism-split" }) })
+  doc.blocks:extend(after)
+  return doc
+end
+
+-- `format: 5x7` (or its old spelling, `layout: 5x7`) is a card; a sheet's page layout comes from the builder (prism-layout-base).
 -- Brochures: every three panel slots become one printed side (outside first, then inside). A `.wide` panel takes two, a `.full` panel all three.
 function Pandoc(doc)
-  if doc.meta.layout and pandoc.utils.stringify(doc.meta.layout) == "5x7" then return card(doc) end
+  local fmt = doc.meta.format or doc.meta.layout
+  if fmt and pandoc.utils.stringify(fmt) == "5x7" then return card(doc) end
+  if doc.meta["prism-layout-base"] and pandoc.utils.stringify(doc.meta["prism-layout-base"]) == "sidebar" then return sidebar(doc) end
   local out, side, n = pandoc.List({}), pandoc.List({}), 0
   local function flush()
     if #side > 0 then

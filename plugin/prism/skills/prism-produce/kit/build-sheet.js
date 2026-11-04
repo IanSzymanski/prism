@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Markdown -> sheet, brochure or 5x7 card PDF in the document's brand. Usage: node build-sheet.js sheet.md [out.pdf] [--html] [--print]
 const { execFileSync } = require("child_process");
-const path = require("path"), fs = require("fs");
+const path = require("path"), fs = require("fs"), os = require("os");
 const { chromium } = require("playwright");
 
 const args = process.argv.slice(2);
@@ -11,9 +11,23 @@ const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.j
 const html = md.replace(/\.md$/, ".sheet.html");
 // --print: the same piece on a plain white page, so office printers don't tint the sheet; the glow and tinted blocks stay.
 const printCopy = args.includes("--print"), surface = printCopy ? "#FFFFFF" : B.color("prism-color-surface");
-// `layout: brochure` in the front matter builds a Letter trifold, `layout: 5x7` a two-sided 5 x 7 in card; both print at true size in panels.
-const layout = ((/^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(md, "utf8").replace(/\r\n/g, "\n")) || [, ""])[1].match(/^layout:\s*["']?([\w-]+)/m) || [])[1];
-const brochure = layout === "brochure", card = layout === "5x7", panels = brochure || card;
+// `format: brochure` in the front matter builds a Letter trifold, `format: 5x7` a two-sided 5 x 7 in card; both print at true size
+// in panels. `layout: brochure` and `layout: 5x7` are the old spelling. Any other `layout:` is a page layout (layouts.js).
+const L = require("./layouts.js"), source = fs.readFileSync(md, "utf8").replace(/\r\n/g, "\n");
+const stop = m => { console.error("[sheet] " + String(m).replace(/^\[layouts\] /, "")); process.exit(1); };
+let picked; try { picked = L.pick(L.front(source)); } catch (e) { stop(e.message); }
+const format = picked.format || "sheet";
+if (!["sheet", "brochure", "5x7"].includes(format)) stop(`format: ${format} is not built by run.sh sheet (it builds sheet, brochure and 5x7)`);
+const brochure = format === "brochure", card = format === "5x7", panels = brochure || card;
+// A page layout is one this brand has (a Prism default or the brand's own), with what it needs. A brand layout's `front` values
+// are front matter defaults under the file's own; its base (photo-led, stat-first, sidebar or standard) gives the structure.
+let lay = null;
+if (picked.layout) {
+  let all; try { all = L.load(B.id, format); } catch (e) { stop(e.message); }
+  lay = all[picked.layout];
+  if (!lay) stop(`no layout "${picked.layout}" for ${B.id}${panels ? ` in a ${format}` : ""}; layouts: ${Object.keys(all).join(", ")} (run.sh layouts --brand ${B.id})`);
+}
+const layFront = lay ? Object.fromEntries(Object.entries(lay.front).map(([k, v]) => [k, String(v)])) : {};
 // A card's page: 5 x 7 in, or 7 x 5 with `orientation: landscape`, plus 1/8 in on every edge with `bleed: true`.
 const cardFm = (/^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(md, "utf8").replace(/\r\n/g, "\n")) || [, ""])[1];
 const cardBleed = /^bleed:\s*(true|yes)\s*$/m.test(cardFm) ? 0.25 : 0, cardLand = /^orientation:\s*landscape\s*$/m.test(cardFm);
@@ -21,11 +35,25 @@ const cardSize = `${(cardLand ? 7 : 5) + cardBleed}in ${(cardLand ? 5 : 7) + car
 // PDF details (title, author, subject, keywords, language): the format file's front matter, then content.md's, then the brand.
 const front = f => { const m = fs.existsSync(f) && /^---\n([\s\S]*?)\n---/.exec(fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n")), o = {};
   for (const l of (m ? m[1] : "").split("\n")) { const k = /^([\w-]+):\s*(.*?)\s*(#.*)?$/.exec(l); if (k && k[2]) o[k[1]] = k[2].replace(/^["']|["']$/g, ""); } return o; };
-const fm = { ...front(path.join(path.dirname(md), "..", "content.md")), ...front(md) };
+const fm = { ...front(path.join(path.dirname(md), "..", "content.md")), ...layFront, ...front(md) };
 // Sheet modifiers from the format file's front matter (sheets only): a photo in the title area, filling the page, no footer line.
-const own = front(md), off = v => /^(false|no|off)$/i.test(String(v || "").trim());
-const sheetVars = [];
+const own = { ...layFront, ...front(md) }, off = v => /^(false|no|off)$/i.test(String(v || "").trim());
+const sheetVars = [], base = lay ? lay.base : "standard";
+if (lay) { const miss = L.missing(lay, own, source); if (miss.length) stop(`layout ${picked.layout} needs ${miss.map(L.needText).join(" and ")}`); }
 if (!panels) {
+  // A named page layout: layout-<base> on the body (and layout-<id> for a brand layout), the title block wrapped so a layout can
+  // place it, the cover photo of a photo-led sheet (resolved like a title-area photo) and the lead figure of a stat-first one.
+  // A sheet with no layout: is built exactly as before.
+  if (lay) sheetVars.push("prism-layout-class=" + [`layout-${base}`, ...(picked.layout !== base ? [`layout-${picked.layout}`] : [])].join(" "));
+  if (base !== "standard") sheetVars.push("prism-mast-title=true");
+  if (base !== "standard" && own["mast-image"]) stop(`mast-image goes with the standard layout; layout ${picked.layout} leads with its own ${base === "photo-led" ? "cover photo (image:)" : base === "stat-first" ? "figure" : "rail"}`);
+  if (base === "photo-led") {
+    let file; try { file = B.src(own.image, path.dirname(md)); } catch (e) { stop(`image: ${own.image}: ${e.message.replace(/^\[brand\] /, "")}`); }
+    const focus = B.focus(file, own["image-focus"]);
+    sheetVars.push("prism-cover=" + (/^[a-z]+:/i.test(file) ? file : "file://" + file));
+    if (focus) sheetVars.push("prism-cover-focus=" + focus.replace(/[^\d.%\s]/g, ""));
+  }
+  if (base === "stat-first") sheetVars.push("prism-lead=true");
   if (own["mast-image"]) {
     const file = B.src(own["mast-image"], path.dirname(md)), split = own["mast-split"], focus = B.focus(file, own["mast-focus"]);
     sheetVars.push("prism-mast-src=" + (/^[a-z]+:/i.test(file) ? file : "file://" + file), "prism-mast-alt=" + String(own["mast-image-alt"] || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"));
@@ -46,6 +74,9 @@ const info = {
   lang: fm.lang || B.content.lang || "en-US",
 };
 
+// A brand layout's front matter defaults go in as a metadata file: the file's own front matter wins over it.
+let layMeta = null;
+if (lay && Object.keys(lay.front).length) { layMeta = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "prism-layout-")), "front.json"); fs.writeFileSync(layMeta, JSON.stringify(lay.front)); }
 try { execFileSync("pandoc", [md, "-s", "--template", path.join(here, card ? "prism-5x7.html" : brochure ? "prism-brochure.html" : "prism-sheet.html"),
   "--css", "file://" + B.icons.css,
   "--css", "file://" + B.css, "--css", "file://" + css, ...(panels ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-brochure.css"))] : []),
@@ -53,14 +84,18 @@ try { execFileSync("pandoc", [md, "-s", "--template", path.join(here, card ? "pr
   ...(card ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-5x7.css"))] : []),
   // The brand's presentation layers come last, so they style core's structure.
   ...[B.layer("sheet"), panels ? B.layer("brochure") : null, card ? B.layer("5x7") : null].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
+  // A brand layout's own CSS, after the brand's layers, only in that layout.
+  ...(lay && lay.cssFile ? ["--css", "file://" + B.stylesheet(lay.cssFile, `brand-layout-${format}-${picked.layout}.css`)] : []),
+  ...(layMeta ? ["--metadata-file", layMeta] : []), ...(base === "sidebar" && !panels ? ["-M", "prism-layout-base=sidebar"] : []),
   "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "--wrap=none",
   "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, ...(card ? ["-V", "card-size=" + cardSize] : []), ...sheetVars.flatMap(v => ["-V", v]), "--resource-path", path.dirname(md), "-o", html], { env: B.env(), stdio: ["ignore", "inherit", "pipe"] }); }
 // A filter's own message (a 5x7 card with three sides) is the whole story; pandoc's stack trace is not.
 catch (e) { const m = /\d+: (5x7: .*)/.exec(String(e.stderr || "")); if (!m) throw e; console.error("[sheet] " + m[1]); process.exit(1); }
+finally { if (layMeta) fs.rmSync(path.dirname(layMeta), { recursive: true, force: true }); }
 
 // Runs inside the page: tags image orientation, checks print resolution, and bakes fade and shadow
 // into solid pixels on the background colour (PDF viewers blend transparency inconsistently).
-async function prepareImages([printScale, ground, fadeOn]) {
+async function prepareImages([printScale, ground, fadeOn, scrimColor]) {
   const imgs = [...document.images].filter(i => !i.closest(".prism-mast__bar, .prism-inlogo"));
   await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
   const shape = r => r > 1.15 ? "landscape" : r < 0.87 ? "portrait" : "square";
@@ -103,7 +138,9 @@ async function prepareImages([printScale, ground, fadeOn]) {
     if (dpi < 150 && !/\.svg(\?|$)/i.test(i.getAttribute("src") || "")) warnings.push(`low resolution: ${i.getAttribute("src")} prints at ${Math.round(dpi)} dpi (aim for 200+)`);
   }
   const bg = el => { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor; if (c && c !== "rgba(0, 0, 0, 0)" && c !== "transparent") return c; } return ground; };
-  for (const i of imgs.filter(i => i.naturalWidth && ((fadeOn && i.classList.contains("fade")) || i.classList.contains("shadow")))) {
+  // A photo-led cover darkens toward its bottom so the title over it reads; baked like the fade.
+  const scrimmed = i => i.classList.contains("prism-cover__img") && document.body.classList.contains("layout-photo-led");
+  for (const i of imgs.filter(i => i.naturalWidth && ((fadeOn && i.classList.contains("fade")) || i.classList.contains("shadow") || scrimmed(i)))) {
     const box = i.getBoundingClientRect(), W = box.width, H = box.height, S = 3;
     const cs = getComputedStyle(i), radius = parseFloat(cs.borderTopLeftRadius) || 0;
     const a = document.createElement("canvas"); a.width = Math.round(W * S); a.height = Math.round(H * S);
@@ -127,6 +164,14 @@ async function prepareImages([printScale, ground, fadeOn]) {
       for (let k = 1; k <= 10; k++) { const t = k / 10; g.addColorStop(start + (1 - start) * t, `rgba(0,0,0,${1 - t * t * (3 - 2 * t)})`); }
       c.globalCompositeOperation = "destination-in"; c.fillStyle = g; c.fillRect(0, 0, W, H);
     }
+    if (scrimmed(i)) {
+      // Clear at the top, then a smooth ramp from 15% to 75% of the height up to 90%, so a light photo still carries white text.
+      const [r, gg, b] = scrimColor, s = c.createLinearGradient(0, 0, 0, H);
+      s.addColorStop(0, `rgba(${r},${gg},${b},0)`); s.addColorStop(0.15, `rgba(${r},${gg},${b},0)`);
+      for (let k = 1; k <= 10; k++) { const t = k / 10; s.addColorStop(0.15 + 0.6 * t, `rgba(${r},${gg},${b},${(0.9 * t * t * (3 - 2 * t)).toFixed(3)})`); }
+      s.addColorStop(1, `rgba(${r},${gg},${b},0.9)`);
+      c.fillStyle = s; c.fillRect(0, 0, W, H);
+    }
     // Room for the shadow: it reaches 12px up, 32px sideways and 50px down, so the canvas only grows that far.
     const hasShadow = i.classList.contains("shadow"), T = hasShadow ? 14 : 0, X = hasShadow ? 32 : 0, B = hasShadow ? 52 : 0;
     const f = document.createElement("canvas"); f.width = Math.round((W + 2 * X) * S); f.height = Math.round((H + T + B) * S);
@@ -144,6 +189,8 @@ async function prepareImages([printScale, ground, fadeOn]) {
     d.drawImage(a, X * S, T * S);
     // A card's faded cover goes in as PNG: JPEG leaves the fade's tail a few levels off the paper.
     i.src = onWash || (fadeOn && i.classList.contains("fade") && i.closest(".c57 .cover")) ? f.toDataURL("image/png") : f.toDataURL("image/jpeg", 0.9);
+    // The cover keeps its frame (it fills the photo area edge to edge); everything else takes the baked canvas's size.
+    if (scrimmed(i)) { await i.decode(); continue; }
     Object.assign(i.style, { width: `calc(100% + ${2 * X}px)`, height: "auto", maxWidth: "none", margin: `${-T}px ${-X}px ${-B}px`, borderRadius: "0", objectFit: "fill", aspectRatio: "auto" });
     await i.decode();
   }
@@ -165,6 +212,9 @@ function stamp(file, ver) {
   fs.appendFileSync(file, obj + tail, "latin1");
 }
 
+// The brand's deepest dark, as RGB, for the photo-led scrim (black when the brand has none).
+function scrimRgb() { let h = "#000000"; try { h = B.color("prism-color-dark-deep") || h; } catch (e) { } const m = /^#?([0-9a-f]{6})/i.exec(h); return m ? [0, 2, 4].map(k => parseInt(m[1].slice(k, k + 2), 16)) : [0, 0, 0]; }
+
 (async () => {
   const browser = await chromium.launch({ args: ["--allow-file-access-from-files"], ...(process.env.PRISM_CHROMIUM ? { executablePath: process.env.PRISM_CHROMIUM } : {}) });
   // Viewport matches the printed layout width (Letter at 90%, or a trifold at 100%), so images are measured at their real size.
@@ -179,7 +229,7 @@ function stamp(file, ver) {
   if (B.option("sheet.cta_qr", "") === "beside-copy") await page.evaluate(require("./sheet-checks.js").qrBesideCopy);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
   await page.addScriptTag({ content: require("./focus.js").inPage });
-  const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false)]);
+  const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false), scrimRgb()]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Logos inside blocks: the on-dark logo on dark grounds.
   warnings.push(...await page.evaluate(require("./inlogo.js").pick));

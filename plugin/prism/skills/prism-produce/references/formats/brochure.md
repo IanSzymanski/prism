@@ -1,15 +1,17 @@
 # Brochure (Letter trifold PDF, two sides, three panels each)
 
-Build: `run.sh sheet formats/brochure.md out/<tag>.pdf` (tag: see Naming in SKILL.md). The `layout: brochure` line switches the sheet builder to landscape Letter at true size. Output is two pages: page 1 the outside, page 2 the inside. Print double-sided, flip on the short edge. Also read components.md.
+Build: `run.sh sheet formats/brochure.md out/<tag>.pdf` (tag: see Naming in SKILL.md). The `format: brochure` line switches the sheet builder to landscape Letter at true size. Output is two pages: page 1 the outside, page 2 the inside. Print double-sided, flip on the short edge. Also read components.md.
 
 ## Front matter
 
 ```yaml
 ---
 pagetitle: Harbor Point brochure     # plain text: PDF title
-layout: brochure
+format: brochure
 ---
 ```
+
+`layout: brochure` still works: it is the old spelling of `format: brochure`.
 
 No title, masthead or footer: the cover panel carries them.
 

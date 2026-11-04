@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One entry point for every build: ./run.sh sheet|deck|social|blog|email|illustration|web|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|tutorial <args>
+# One entry point for every build: ./run.sh sheet|deck|social|blog|email|illustration|web|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|layouts|state|exports|palette|swatch|pin|onboard|tutorial <args>
 # Runs the setup a build needs the first time it is used, so no separate setup step is required.
 KIT="$(cd "$(dirname "$0")" && pwd)"
 cmd="$1"; shift
@@ -32,6 +32,7 @@ case "$cmd" in
   # ds assets|place read a design system; ds pack|install|remove move a brand's Prism folder in and out of one (D19).
   ds) case "${1:-}" in pack|install|remove|plan|seen|want|default|status) node "$KIT/dsbrand.js" "$@" ;; *) node "$KIT/ds.js" "$@" ;; esac ;;
   packages) node "$KIT/packages.js" "$@" ;;
+  layouts) node "$KIT/layouts.js" "$@" ;;
   state)   node "$KIT/state.js" "$@" ;;
   exports) node "$KIT/exports.js" "$@" ;;
   palette) node "$KIT/palette.js" "$@" ;;
@@ -40,5 +41,5 @@ case "$cmd" in
   onboard) node "$KIT/onboard.js" "$@" ;;
   tutorial) node "$KIT/tutorial.js" "$@" ;;
   setup)   bash "$KIT/setup.sh" "$@" ;;
-  *) echo "usage: run.sh sheet|deck|social|blog|email|illustration|web|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|state|exports|palette|swatch|pin|onboard|tutorial|wire|wire-diff|setup <args>"; exit 2 ;;
+  *) echo "usage: run.sh sheet|deck|social|blog|email|illustration|web|motion|devices|tag|check|preview|images|verify|fonts|vet|resolve|brands|library|ds|packages|layouts|state|exports|palette|swatch|pin|onboard|tutorial|wire|wire-diff|setup <args>"; exit 2 ;;
 esac

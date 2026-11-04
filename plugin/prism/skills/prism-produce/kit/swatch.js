@@ -2,7 +2,8 @@
 // Swatch sheet: maps a brand onto Prism. Part one is the mapping, in the swatch's own neutral format (system fonts, black and
 // grey): every core role with the design system's own name and value, ornaments by place, Office fonts, the email palette and
 // its checks, unused design-system tokens and unmapped roles. Part two is one sample of every sheet layout, built in the brand
-// through the normal sheet builder. Usage: swatch.js <brand> OUT.pdf   (also writes OUT-layouts.md, which design mode can open)
+// through the normal sheet builder. Part three is a one-pager in each page layout the brand has (layouts.js: the Prism default
+// layouts it keeps and its own). Usage: swatch.js <brand> OUT.pdf   (also writes OUT-layouts.md, which design mode can open)
 const fs = require("fs"), path = require("path"), { execFileSync } = require("child_process");
 const { chromium } = require("playwright");
 const KIT = __dirname;
@@ -151,6 +152,28 @@ const mdPath = base + "-layouts.md", layPdf = base + "-layouts.pdf";
 fs.writeFileSync(mdPath, md.join("\n"));
 execFileSync("node", [path.join(KIT, "build-sheet.js"), mdPath, layPdf], { stdio: "inherit" });
 
+// ---------- Part three: a one-pager in each page layout but standard (part two is standard) ----------
+let pageLayouts = {};
+try { pageLayouts = require("./layouts.js").load(id, "sheet"); } catch (e) { console.warn(`[swatch] page layouts left out: ${e.message}`); }
+const layoutPdfs = Object.entries(pageLayouts).filter(([k]) => k !== "standard").map(([k, v]) => {
+  const needs = new Set(v.needs), f = `${base}-layout-${k}.md`, out = `${base}-layout-${k}.pdf`;
+  const q = JSON.stringify;   // a brand's own words, quoted so YAML takes them as they are
+  const page = ["---", `brand: ${id}`, `title: ${q(`The *${v.name}* layout`)}`, `pagetitle: ${q(`${B.name} ${v.name} layout`)}`, "doctype: Swatch sheet",
+    `eyebrow: ${q(`Prism swatch · ${v.from === "core" ? "Prism default layout" : "brand layout"} · ${k}`)}`, `subtitle: ${q(v.use)}`, `legal: Generated from ${where}`, `layout: ${k}`,
+    ...(v.front.hero ? [] : ["hero: x-small"]),
+    ...(needs.has("image") && !v.front.image ? ["image: prism:placeholder"] : []), ...(needs.has("stat") && !v.front.stat ? ["stat: 41%"] : []),
+    ...(needs.has("stat-label") && !v.front["stat-label"] ? ["stat-label: sample figure, what it measures"] : []), "---", "",
+    ...(needs.has("rail") ? ["::: rail", "### At a glance", "", "::: stats", "- **41%** sample figure one", "- **94%** sample figure two", ":::", "", "> A short sample quote.", ">", "> [Name, Role]{.cite}", ":::", ""] : []),
+    "## When to use it", "", v.when || "When the content suits it.", "",
+    "::: features", "- []{.icon .ph-shield-check} **Sample one** One sentence about it.", "- []{.icon .ph-clock} **Sample two** One sentence about it.", ":::", "",
+    "## A second section", "", "Running text in the layout's main column, so its measure and spacing show.", "",
+    "::: {.cta-card .x-small}", `[${B.name}]{.eyebrow}`, "", "## The closing card", "", "One sentence for the close.", ":::", ""];
+  fs.writeFileSync(f, page.join("\n"));
+  execFileSync("node", [path.join(KIT, "build-sheet.js"), f, out], { stdio: "inherit" });
+  fs.unlinkSync(f);
+  return out;
+});
+
 (async () => {
   const browser = await chromium.launch({ ...(process.env.PRISM_CHROMIUM ? { executablePath: process.env.PRISM_CHROMIUM } : {}) });
   const page = await browser.newPage();
@@ -160,7 +183,7 @@ execFileSync("node", [path.join(KIT, "build-sheet.js"), mdPath, layPdf], { stdio
   await browser.close();
   fs.unlinkSync(mapHtml);
   // One file: the mapping, then the layout samples (pikepdf, which the sheet build already uses).
-  execFileSync("python3", ["-c", "import pikepdf,sys\no=pikepdf.Pdf.new()\nfor f in sys.argv[2:]: o.pages.extend(pikepdf.Pdf.open(f).pages)\no.save(sys.argv[1])", out, mapPdf, layPdf]);
-  fs.unlinkSync(mapPdf); fs.unlinkSync(layPdf);
-  console.log(`swatch: ${core.length - unmapped.length}/${core.length} roles mapped${unmapped.length ? `, ${unmapped.length} unmapped` : ""}; ${out}; layouts in ${mdPath}`);
+  execFileSync("python3", ["-c", "import pikepdf,sys\no=pikepdf.Pdf.new()\nfor f in sys.argv[2:]: o.pages.extend(pikepdf.Pdf.open(f).pages)\no.save(sys.argv[1])", out, mapPdf, layPdf, ...layoutPdfs]);
+  for (const f of [mapPdf, layPdf, ...layoutPdfs]) fs.unlinkSync(f);
+  console.log(`swatch: ${core.length - unmapped.length}/${core.length} roles mapped${unmapped.length ? `, ${unmapped.length} unmapped` : ""}; ${out}; layouts in ${mdPath}${layoutPdfs.length ? `; a page in each of ${Object.keys(pageLayouts).filter(k => k !== "standard").join(", ")}` : ""}`);
 })();
