@@ -164,10 +164,12 @@ const layoutPdfs = Object.entries(pageLayouts).filter(([k]) => k !== "standard")
     ...(needs.has("image") && !v.front.image ? ["image: prism:placeholder"] : []), ...(needs.has("stat") && !v.front.stat ? ["stat: 41%"] : []),
     ...(needs.has("stat-label") && !v.front["stat-label"] ? ["stat-label: sample figure, what it measures"] : []), "---", "",
     ...(needs.has("rail") ? ["::: rail", "### At a glance", "", "::: stats", "- **41%** sample figure one", "- **94%** sample figure two", ":::", "", "> A short sample quote.", ">", "> [Name, Role]{.cite}", ":::", ""] : []),
+    // A layout with slots draws its own body, slot by slot; any other gets the same short sample.
+    ...(v.slots ? v.slots.flatMap(x => [require("./layouts.js").sample(x), ""]) : [
     "## When to use it", "", v.when || "When the content suits it.", "",
     "::: features", "- []{.icon .ph-shield-check} **Sample one** One sentence about it.", "- []{.icon .ph-clock} **Sample two** One sentence about it.", ":::", "",
     "## A second section", "", "Running text in the layout's main column, so its measure and spacing show.", "",
-    "::: {.cta-card .x-small}", `[${B.name}]{.eyebrow}`, "", "## The closing card", "", "One sentence for the close.", ":::", ""];
+    "::: {.cta-card .x-small}", `[${B.name}]{.eyebrow}`, "", "## The closing card", "", "One sentence for the close.", ":::", ""])];
   fs.writeFileSync(f, page.join("\n"));
   execFileSync("node", [path.join(KIT, "build-sheet.js"), f, out], { stdio: "inherit" });
   fs.unlinkSync(f);

@@ -98,25 +98,9 @@ function wireOne(md, B) {
   const board = path.basename(md).replace(/\.md$/, "") + ".dc.html";
   const W_ = (B.ornaments && B.ornaments.wire) || {};
 
-  // Split the body into top-level blocks, keeping each block's exact Markdown so moves can be applied mechanically.
-  function chunks(text) {
-    const lines = text.split("\n"), out = [];
-    let cur = [], fence = 0, code = false;
-    const flush = () => { if (cur.length && cur.some(l => l.trim())) out.push(cur.join("\n").trim()); cur = []; };
-    for (const l of lines) {
-      if (!fence && !code && /^```/.test(l)) { flush(); code = true; cur.push(l); continue; }
-      if (code) { cur.push(l); if (/^```\s*$/.test(l)) { code = false; flush(); } continue; }
-      // Fenced divs nest (pandoc closes the innermost open one), so count depth rather than matching colons.
-      const f = /^(:{3,})\s*(\S.*)?$/.exec(l);
-      if (f && f[2] && !fence) { flush(); fence = 1; cur.push(l); continue; }
-      if (fence) { cur.push(l); if (f) fence += f[2] ? 1 : -1; if (!fence) flush(); continue; }
-      if (!l.trim()) { flush(); continue; }
-      if (/^: /.test(l) && out.length && /^\|/.test(out[out.length - 1])) { out[out.length - 1] += "\n\n" + l; continue; }
-      cur.push(l);
-    }
-    flush();
-    return out;
-  }
+  // Split the body into top-level blocks, keeping each block's exact Markdown so moves can be applied mechanically. layouts.js
+  // splits the same way, so a layout saved from this sheet has the board's blocks as its slots.
+  const chunks = require("./layouts.js").blocks;
   const blocks = chunks(body);
 
   // A library photo shows from a copy of its upload on the canvas, so it needs no fetch here: its focus is in the library entry.

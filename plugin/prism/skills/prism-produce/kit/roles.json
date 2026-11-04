@@ -204,116 +204,132 @@
    "description": "Chart series 5."
   },
   {
-   "role": "prism-color-header-light-1",
+   "role": "prism-color-gradient-light-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 1.",
-   "fallback": "prism-color-surface"
+   "description": "The brand's 'light' gradient, stop 1: films' glow ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-surface",
+   "was": "prism-color-header-light-1"
   },
   {
-   "role": "prism-color-header-light-2",
+   "role": "prism-color-gradient-light-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 2.",
-   "fallback": "prism-color-wash"
+   "description": "The brand's 'light' gradient, stop 2: films' glow ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-wash",
+   "was": "prism-color-header-light-2"
   },
   {
-   "role": "prism-color-header-light-3",
+   "role": "prism-color-gradient-light-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 3.",
-   "fallback": "prism-color-tint"
+   "description": "The brand's 'light' gradient, stop 3: films' glow ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-tint",
+   "was": "prism-color-header-light-3"
   },
   {
-   "role": "prism-color-header-light-4",
+   "role": "prism-color-gradient-light-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'light' gradient stop 4.",
-   "fallback": "prism-color-accent"
+   "description": "The brand's 'light' gradient, stop 4: films' glow ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-accent",
+   "was": "prism-color-header-light-4"
   },
   {
-   "role": "prism-color-header-mist-1",
+   "role": "prism-color-gradient-mist-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 1.",
-   "fallback": "prism-color-header-light-1"
+   "description": "The brand's 'mist' gradient, stop 1: films' mist ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-gradient-light-1",
+   "was": "prism-color-header-mist-1"
   },
   {
-   "role": "prism-color-header-mist-2",
+   "role": "prism-color-gradient-mist-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 2.",
-   "fallback": "prism-color-header-light-2"
+   "description": "The brand's 'mist' gradient, stop 2: films' mist ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-gradient-light-2",
+   "was": "prism-color-header-mist-2"
   },
   {
-   "role": "prism-color-header-mist-3",
+   "role": "prism-color-gradient-mist-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 3.",
-   "fallback": "prism-color-header-light-3"
+   "description": "The brand's 'mist' gradient, stop 3: films' mist ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-gradient-light-3",
+   "was": "prism-color-header-mist-3"
   },
   {
-   "role": "prism-color-header-mist-4",
+   "role": "prism-color-gradient-mist-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'mist' gradient stop 4.",
-   "fallback": "prism-color-header-light-4"
+   "description": "The brand's 'mist' gradient, stop 4: films' mist ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-gradient-light-4",
+   "was": "prism-color-header-mist-4"
   },
   {
-   "role": "prism-color-header-deep-1",
+   "role": "prism-color-gradient-deep-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 1.",
-   "fallback": "prism-color-dark-deep"
+   "description": "The brand's 'deep' gradient, stop 1: films' night ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-dark-deep",
+   "was": "prism-color-header-deep-1"
   },
   {
-   "role": "prism-color-header-deep-2",
+   "role": "prism-color-gradient-deep-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 2.",
-   "fallback": "prism-color-dark-surface"
+   "description": "The brand's 'deep' gradient, stop 2: films' night ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-dark-surface",
+   "was": "prism-color-header-deep-2"
   },
   {
-   "role": "prism-color-header-deep-3",
+   "role": "prism-color-gradient-deep-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 3.",
-   "fallback": "prism-color-dark-surface"
+   "description": "The brand's 'deep' gradient, stop 3: films' night ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-dark-surface",
+   "was": "prism-color-header-deep-3"
   },
   {
-   "role": "prism-color-header-deep-4",
+   "role": "prism-color-gradient-deep-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'deep' gradient stop 4.",
-   "fallback": "prism-color-accent"
+   "description": "The brand's 'deep' gradient, stop 4: films' night ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-accent",
+   "was": "prism-color-header-deep-4"
   },
   {
-   "role": "prism-color-header-vivid-1",
+   "role": "prism-color-gradient-vivid-1",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 1.",
-   "fallback": "prism-color-accent"
+   "description": "The brand's 'vivid' gradient, stop 1: films' vivid ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-accent",
+   "was": "prism-color-header-vivid-1"
   },
   {
-   "role": "prism-color-header-vivid-2",
+   "role": "prism-color-gradient-vivid-2",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 2.",
-   "fallback": "prism-color-accent-strong"
+   "description": "The brand's 'vivid' gradient, stop 2: films' vivid ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-accent-strong",
+   "was": "prism-color-header-vivid-2"
   },
   {
-   "role": "prism-color-header-vivid-3",
+   "role": "prism-color-gradient-vivid-3",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 3.",
-   "fallback": "prism-color-dark-surface"
+   "description": "The brand's 'vivid' gradient, stop 3: films' vivid ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-dark-surface",
+   "was": "prism-color-header-vivid-3"
   },
   {
-   "role": "prism-color-header-vivid-4",
+   "role": "prism-color-gradient-vivid-4",
    "kind": "color",
    "required": false,
-   "description": "Blog header 'vivid' gradient stop 4.",
-   "fallback": "prism-color-dark-deep"
+   "description": "The brand's 'vivid' gradient, stop 4: films' vivid ground, and a brand's own art (blog headers, grounds).",
+   "fallback": "prism-color-dark-deep",
+   "was": "prism-color-header-vivid-4"
   },
   {
    "role": "prism-font-serif",

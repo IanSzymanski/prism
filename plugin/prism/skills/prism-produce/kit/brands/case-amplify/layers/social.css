@@ -30,8 +30,8 @@
 
 /* Purple ground: the brand's vivid header gradient with a glow from the bottom right; dark text roles (build-social.js). */
 .post.dark.purple,.carousel .post.dark.purple{background:
-  radial-gradient(70% 60% at 100% 100%,rgb(from var(--prism-color-header-vivid-4) r g b / .8) 0%,rgb(from var(--prism-color-header-vivid-4) r g b / 0) 100%),
-  linear-gradient(135deg,var(--prism-color-header-vivid-1) 0%,var(--prism-color-header-vivid-2) 45%,var(--prism-color-header-vivid-3) 100%)}
+  radial-gradient(70% 60% at 100% 100%,rgb(from var(--prism-color-gradient-vivid-4) r g b / .8) 0%,rgb(from var(--prism-color-gradient-vivid-4) r g b / 0) 100%),
+  linear-gradient(135deg,var(--prism-color-gradient-vivid-1) 0%,var(--prism-color-gradient-vivid-2) 45%,var(--prism-color-gradient-vivid-3) 100%)}
 .post.dark.purple h2 em,.post.dark.purple h1 em,.post.dark.purple blockquote em{color:var(--prism-color-eyebrow-on-dark)}
 .post.dark.purple .num,.post.dark.purple .stats li strong{color:var(--prism-color-surface)}
 

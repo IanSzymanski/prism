@@ -110,37 +110,37 @@
     },
     "glow": {
       "gradient": [
-        "prism-color-header-light-1",
-        "prism-color-header-light-2",
-        "prism-color-header-light-3",
-        "prism-color-header-light-4"
+        "prism-color-gradient-light-1",
+        "prism-color-gradient-light-2",
+        "prism-color-gradient-light-3",
+        "prism-color-gradient-light-4"
       ],
       "say": "the brand's light gradient"
     },
     "mist": {
       "gradient": [
-        "prism-color-header-mist-1",
-        "prism-color-header-mist-2",
-        "prism-color-header-mist-3",
-        "prism-color-header-mist-4"
+        "prism-color-gradient-mist-1",
+        "prism-color-gradient-mist-2",
+        "prism-color-gradient-mist-3",
+        "prism-color-gradient-mist-4"
       ],
       "say": "the brand's mist gradient"
     },
     "night": {
       "gradient": [
-        "prism-color-header-deep-1",
-        "prism-color-header-deep-2",
-        "prism-color-header-deep-3",
-        "prism-color-header-deep-4"
+        "prism-color-gradient-deep-1",
+        "prism-color-gradient-deep-2",
+        "prism-color-gradient-deep-3",
+        "prism-color-gradient-deep-4"
       ],
       "say": "the brand's deep gradient"
     },
     "vivid": {
       "gradient": [
-        "prism-color-header-vivid-1",
-        "prism-color-header-vivid-2",
-        "prism-color-header-vivid-3",
-        "prism-color-header-vivid-4"
+        "prism-color-gradient-vivid-1",
+        "prism-color-gradient-vivid-2",
+        "prism-color-gradient-vivid-3",
+        "prism-color-gradient-vivid-4"
       ],
       "say": "the brand's vivid gradient"
     }

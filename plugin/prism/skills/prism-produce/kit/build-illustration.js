@@ -23,7 +23,7 @@ function settings(B) {
   const a = (h, x) => `rgba(${rgb(h).join(",")},${x})`;
   const paper = c("prism-color-surface"), ink = c("prism-color-text-strong"), acc = c("prism-color-accent");
   const onDark = has("prism-color-eyebrow-on-dark") ? c("prism-color-eyebrow-on-dark") : paper;
-  const hdr = (t, i) => has(`prism-color-header-${t}-${i}`) ? c(`prism-color-header-${t}-${i}`) : (t === "deep" ? c("prism-color-dark-surface") : paper);
+  const hdr = (t, i) => has(`prism-color-gradient-${t}-${i}`) ? c(`prism-color-gradient-${t}-${i}`) : (t === "deep" ? c("prism-color-dark-surface") : paper);
   const core = {
     prefix: "prism-ill", feature_prefix: "prism-ill-", start: "top 75%", script_attrs: {}, boot: {},
     seconds: { tile: 5, wide: 5, tall: 5, full: 6 }, max_words: 14, never: [], rules: [],

@@ -54,6 +54,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 - One export: format it yourself, following the same rules as the prism-formatter agent and its card.
 - Two or more: run one **prism-formatter** agent per export, in parallel. Pass each: format name, mode `create`, and absolute paths of content.md, `references/formats/<format>.md`, `references/formats/components.md`, the brand digest (its `digest` path from `.prism-kit/run.sh brands --json`), the brand's own components (`components` from the same listing; omit when empty), for a sheet the brand's page layouts (`.prism-kit/run.sh layouts --brand <brand> --json`), and the target `formats/<format>.md`.
 - **Package outputs:** the format name is the output's `format`, the target is `formats/<output id>.md`, and each formatter also gets that output's brief and counts from package.json. When every format file is written, `.prism-kit/run.sh packages check <slug>` must print OK (every file there, the right number of posts and stories, email and brochure layouts) before anything opens or builds; fix what it lists in that format file.
+- **A sheet in a layout with slots** (its `layout:` has `slots` in the listing): `.prism-kit/run.sh layouts check formats/<file>.md` must say it follows them before anything opens or builds; send what it lists back to that sheet's formatter (patch mode).
 - Before formatting: copy the project's `images/` folder (with its `.focus.json`) into `formats/images/`. Pass every formatter the output of `.prism-kit/run.sh library <brand>`. Where a piece needs a photo it doesn't have, use a fitting photo from the brand's image library (`![](brand:<id>)`); only when none fits, write the brand's test image, `![](prism:placeholder)` (light grounds) or `![](prism:placeholder-dark)` (dark); the build fills them from the brand, with neutral ones when it has none. Logos are `![](prism:logo)` and `![](prism:logo-on-dark)`. Pass the path of `images.md` to every formatter when it exists.
 
 <!-- claude-only -->
@@ -128,6 +129,9 @@ For each format file:
   - `formats/<format>.md`: the editable source for that output. For social it holds both the image text and the caption; edit it and ask for a rebuild rather than editing captions.md.
 - Message: one line per output, what each formatter cut, and any check the build could not fix. Remind deck users once that decks need the brand's Office fonts installed to present; the first time a deck is delivered, make the pack with `.prism-kit/run.sh fonts out/<brand>-fonts.zip <brand>` and send it.
 - Say how revisions work: reply with changes, or upload an edited content.md or format file.
+<!-- claude-only -->
+- **Save the arrangement as a layout:** when someone arranged a sheet on the canvas and this session's read of the brand's design system said they can edit it (the read says writer), offer once, in one line, to save that arrangement as one of the brand's layouts so later pieces follow it. On yes, or when anyone asks for it, follow the onboarding skill's "A brand layout", from a sheet. Someone who can't edit the design system can't save one: say only its editors and owners can, and offer to send them the layout file.
+<!-- /claude-only -->
 
 ## 4. Revisions: route every edit to one of two lanes
 
