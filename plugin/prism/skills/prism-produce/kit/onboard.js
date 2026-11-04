@@ -440,7 +440,7 @@ if (cmd === "start") {
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`[onboard] ${prof.name}: bundle ${out} (${final.mapped.length} roles mapped, ${final.unmapped.length} unmapped). Hand it to the maintainer; it ships with the next release.`);
 } else if (cmd === "update") {
-  // A shipped brand whose design system (or core's email client rules) changed: a draft copy with the new snapshot and the same
+  // A brand whose design system (or core's email client rules) changed, bundled or read from its design system: a draft with the new snapshot and the same
   // mapping, and a list of what moved, so only the changes are reviewed. Without a design system it re-checks the email palette.
   const id = a[1], fromDs = !!id && R.brandDir(id).layout === "design-system", dir = draftDir(id || "");
   let src = a[2] && !a[2].startsWith("--") ? a[2] : null, shipped = path.join(KIT, "brands", id || ""), was = null;
@@ -493,15 +493,15 @@ if (cmd === "start") {
     if (fromDs && prof.snapshot.files["tokens.json"] && sha(path.join(root, "tokens.json")) !== prof.snapshot.files["tokens.json"])
       changes.push("tokens.json: changed since the brand was checked (the report lists any role that no longer resolves; the swatch shows the rest)");
     for (const f of walk(path.join(root, "fonts")).map(p => path.relative(root, p).split(path.sep).join("/"))) if (!prof.snapshot.files[f]) changes.push(`${f}: new font file`);
-    if (!prof.snapshot.files["packages.json"] && fs.existsSync(path.join(root, "packages.json"))) changes.push("packages.json: new (the brand's own packages; the saved copy updates with this release)");
+    if (!prof.snapshot.files["packages.json"] && fs.existsSync(path.join(root, "packages.json"))) changes.push("packages.json: new (the brand's own packages; the brand carries it from this update)");
     const keepFiles = assetsUsed(prof).filter(f => fs.existsSync(path.join(root, f)));
     snapshotFrom(dir, root, { ...prof, roles: Object.fromEntries(Object.entries(prof.roles).filter(([, v]) => !/^assets\//.test(v) || keepFiles.includes(v))), generators: Object.fromEntries(Object.entries(prof.generators || {}).filter(([, g]) => keepFiles.includes(g.script))) });
-    // Components the design system added or dropped since this release: each new one is an interview (when, how often, rules).
+    // Components the design system added or dropped since the brand was checked: each new one is an interview (when, how often, rules).
     // A session reads a brand from its design system without its components/ (it doesn't need them), so they are compared only
     // when the folder has them.
     const nowComps = dsComponents(root), had = prof.source && prof.source.components, compared = fs.existsSync(path.join(root, "components"));
     if (!compared) { }
-    else if (!had) { if (nowComps.length) changes.push(`design-system components (this release never recorded them; ask which are new to Prism): ${nowComps.join(", ")}`); }
+    else if (!had) { if (nowComps.length) changes.push(`design-system components (the brand never recorded them; ask which are new to Prism): ${nowComps.join(", ")}`); }
     else {
       for (const c of nowComps.filter(c => !had.includes(c))) changes.push(`new design-system component: ${c} (components/${c}/README.md): interview and add it (prism-onboard, "A new component")`);
       for (const c of had.filter(c => !nowComps.includes(c))) changes.push(`design-system component removed: ${c}${Object.keys(prof.components || {}).length ? " (check the brand's components that came from it)" : ""}`);

@@ -9,7 +9,7 @@
 title: How *Harbor Point* got its afternoons back
 subtitle: One or two sentences under the title.
 audience: Operations leads at mid-size clinics
-brand: <id>              # optional; a profile in kit/brands/. Default: the brand marked default (run.sh brands)
+brand: <id>              # optional; a brand run.sh brands lists (from its design system, or bundled). Default: the one it marks default
 exports: [sheet, brochure, 5x7, deck, social, email, html-email, carousel, blog]
 package: case-study      # optional; a package from run.sh packages. exports then lists its output ids
 figures: real            # real | illustrative

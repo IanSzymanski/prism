@@ -5,62 +5,62 @@
    "files": {
     "prism-logo.svg": {
      "name": "prism-logo.svg",
-     "blob": "48a9990454f72ecde5abda18aeb23fe2",
-     "size": 2845,
+     "blob": "7be9090ee3a50566a6af5855f64676a5",
+     "size": 3795,
      "type": "image/svg+xml"
     },
     "prism-logo-light.svg": {
      "name": "prism-logo-light.svg",
-     "blob": "5abf299510143f1add85f677b6c408ef",
-     "size": 2845,
+     "blob": "1c87621af216fa6517699b3695daf458",
+     "size": 3780,
      "type": "image/svg+xml"
     },
     "prism-logo-mono.svg": {
      "name": "prism-logo-mono.svg",
-     "blob": "06bce44379c328c003f312b3e785bd75",
-     "size": 2845,
+     "blob": "4879d37b022d1f8b282a25e1bc72c381",
+     "size": 3795,
      "type": "image/svg+xml"
     },
     "prism-logo-mono-light.svg": {
      "name": "prism-logo-mono-light.svg",
-     "blob": "8d528d5e5cb5c1fe1b196d64f506845a",
-     "size": 2845,
+     "blob": "79e9608fa5d20414d4b4978ba9506d8b",
+     "size": 3771,
      "type": "image/svg+xml"
     },
     "prism-glyph.svg": {
      "name": "prism-glyph.svg",
-     "blob": "9b86094c2a7f515a6ac48d9935881fd9",
-     "size": 337,
+     "blob": "8fd12cbf4b10311a7a807454a56a1bcf",
+     "size": 535,
      "type": "image/svg+xml"
     },
     "prism-glyph-mono.svg": {
      "name": "prism-glyph-mono.svg",
-     "blob": "6293390d5938cb494a3a6e498c390413",
-     "size": 337,
+     "blob": "ef273c331c09f680c5bc5a7708b00b93",
+     "size": 535,
      "type": "image/svg+xml"
     },
     "prism-glyph-mono-light.svg": {
      "name": "prism-glyph-mono-light.svg",
-     "blob": "6ea09c35c391ed6f30b98ab1b476b0d1",
-     "size": 337,
+     "blob": "f3ff870c90e0460cb84a4b06aa8306c7",
+     "size": 526,
      "type": "image/svg+xml"
     },
     "prism-logo.png": {
      "name": "prism-logo.png",
-     "blob": "ac2ca18f5cd06653199f185de2693191",
-     "size": 29189,
+     "blob": "d96fccff76dbfe92fb3bfd99a30a6a76",
+     "size": 20619,
      "type": "image/png"
     },
     "prism-logo-light.png": {
      "name": "prism-logo-light.png",
-     "blob": "47ec0e3f874483ccb92b648b94185097",
-     "size": 23244,
+     "blob": "aa64aa57e1de5eebc0a64df5646f27ac",
+     "size": 19458,
      "type": "image/png"
     },
     "prism-glyph.png": {
      "name": "prism-glyph.png",
-     "blob": "ae239b91b6748028b577ba0890cfb9ba",
-     "size": 10167,
+     "blob": "6012a18e889c61f04a89fe0138b78bb0",
+     "size": 12370,
      "type": "image/png"
     }
    },
@@ -178,6 +178,183 @@
      "type": "image/png"
     }
    }
+  },
+  "Mockups": {
+   "name": "Mockups",
+   "tile": "l",
+   "order": [
+    "mock-interview.png",
+    "mock-proof.png",
+    "mock-produce.png",
+    "mock-design.png",
+    "mock-deliver.png",
+    "mock-coop-docs.png",
+    "mock-coop-design.png",
+    "mock-package-picker.png",
+    "mock-package-design.png",
+    "mock-sync-edit.png",
+    "mock-revision-patch.png",
+    "mock-claims.png",
+    "mock-quick-mode.png",
+    "mock-brand-switch.png"
+   ],
+   "files": {
+    "mock-interview.png": {
+     "name": "mock-interview.png",
+     "blob": "819700514d928d675edb83b48485d202",
+     "size": 89507,
+     "type": "image/png"
+    },
+    "mock-proof.png": {
+     "name": "mock-proof.png",
+     "blob": "11542197bc488faf4d9e5ed4374a97ee",
+     "size": 95966,
+     "type": "image/png"
+    },
+    "mock-produce.png": {
+     "name": "mock-produce.png",
+     "blob": "f5b052847dae2d3e87a1082bf30b2b9f",
+     "size": 71072,
+     "type": "image/png"
+    },
+    "mock-design.png": {
+     "name": "mock-design.png",
+     "blob": "ce695e5a3221c83f056adb4326da73b4",
+     "size": 45906,
+     "type": "image/png"
+    },
+    "mock-deliver.png": {
+     "name": "mock-deliver.png",
+     "blob": "5d6cc596837e785e9c08b0f79013d7a3",
+     "size": 51284,
+     "type": "image/png"
+    },
+    "mock-coop-docs.png": {
+     "name": "mock-coop-docs.png",
+     "blob": "253a57a58fe88be01ebebb7790638061",
+     "size": 101746,
+     "type": "image/png"
+    },
+    "mock-coop-design.png": {
+     "name": "mock-coop-design.png",
+     "blob": "27ce65c12e4f5a031f15c66083dce8fb",
+     "size": 67034,
+     "type": "image/png"
+    },
+    "mock-package-picker.png": {
+     "name": "mock-package-picker.png",
+     "blob": "6f23fa67bd372a800f95b5495c705580",
+     "size": 103772,
+     "type": "image/png"
+    },
+    "mock-package-design.png": {
+     "name": "mock-package-design.png",
+     "blob": "fa668457e263529ece9797d3fd47151a",
+     "size": 54506,
+     "type": "image/png"
+    },
+    "mock-sync-edit.png": {
+     "name": "mock-sync-edit.png",
+     "blob": "1890911eefc740cdd7a4e70df947901c",
+     "size": 77247,
+     "type": "image/png"
+    },
+    "mock-revision-patch.png": {
+     "name": "mock-revision-patch.png",
+     "blob": "92cf10be38da893efe93a954f8420634",
+     "size": 106935,
+     "type": "image/png"
+    },
+    "mock-claims.png": {
+     "name": "mock-claims.png",
+     "blob": "fec9d93e7a51a62f3ffd00750dca1637",
+     "size": 92089,
+     "type": "image/png"
+    },
+    "mock-quick-mode.png": {
+     "name": "mock-quick-mode.png",
+     "blob": "fe48ed223eaec905298e5b5d9e436fd4",
+     "size": 82652,
+     "type": "image/png"
+    },
+    "mock-brand-switch.png": {
+     "name": "mock-brand-switch.png",
+     "blob": "7d56771f87efb6298d4ff554cc28563b",
+     "size": 59010,
+     "type": "image/png"
+    }
+   }
+  },
+  "Diagrams": {
+   "name": "Diagrams",
+   "tile": "l",
+   "order": [
+    "dg-workflow.png",
+    "dg-one-source.png",
+    "dg-agents.png",
+    "dg-revise.png",
+    "dg-core-brand.png",
+    "dg-onboard.png",
+    "dg-install.png",
+    "dg-packages.png",
+    "dg-coop.png"
+   ],
+   "files": {
+    "dg-workflow.png": {
+     "name": "dg-workflow.png",
+     "blob": "b80127d8092f4e08baafada43ad07141",
+     "size": 79767,
+     "type": "image/png"
+    },
+    "dg-one-source.png": {
+     "name": "dg-one-source.png",
+     "blob": "707c224303faa6603ead904f0cc122c5",
+     "size": 81706,
+     "type": "image/png"
+    },
+    "dg-agents.png": {
+     "name": "dg-agents.png",
+     "blob": "25a9fe2023f9a24f6a7e1e48ccfa0ade",
+     "size": 65660,
+     "type": "image/png"
+    },
+    "dg-revise.png": {
+     "name": "dg-revise.png",
+     "blob": "8054b0d3bde82060b5fc1b5138f3ba42",
+     "size": 73038,
+     "type": "image/png"
+    },
+    "dg-core-brand.png": {
+     "name": "dg-core-brand.png",
+     "blob": "967616fcb066fa787e498a60b2b75ee3",
+     "size": 86577,
+     "type": "image/png"
+    },
+    "dg-onboard.png": {
+     "name": "dg-onboard.png",
+     "blob": "6aea78573b8d0b99373ff1093f6b8f2c",
+     "size": 92924,
+     "type": "image/png"
+    },
+    "dg-install.png": {
+     "name": "dg-install.png",
+     "blob": "d0097eedf209a48e9db6475f5fc6c4ef",
+     "size": 56969,
+     "type": "image/png"
+    },
+    "dg-packages.png": {
+     "name": "dg-packages.png",
+     "blob": "2f4131ea58a6193589ccb26974894041",
+     "size": 84480,
+     "type": "image/png"
+    },
+    "dg-coop.png": {
+     "name": "dg-coop.png",
+     "blob": "712c14de3824a8cf91ee0e4dfec84f11",
+     "size": 77043,
+     "type": "image/png"
+    }
+   }
   }
  },
  "blobs": {},
@@ -192,13 +369,15 @@
  "groups": [
   "Logos",
   "Spectrum",
-  "Templates"
+  "Templates",
+  "Mockups",
+  "Diagrams"
  ],
  "lastChange": {
-  "by": "Claude",
-  "at": "2026-10-05T19:15:49Z",
-  "via": "Claude.ai",
-  "note": "Prism as its own brand: redrawn logos and fan, source band and closing panel instead of a wash and dark card, background image retired, test images added."
+  "by": "Ian",
+  "at": "2026-10-07T21:28:41Z",
+  "via": "Claude (Cowork)",
+  "note": "Added nine feature mockups to Mockups (co-op editing, packages, sync edit, revisions, claims, quick mode, brand switch) and a new Diagrams group of nine how-it-works diagrams. All brand-neutral."
  },
  "layout": "files",
  "libraries": [],

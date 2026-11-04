@@ -27,7 +27,7 @@ if (cmd === "assets") {
   // --brand B --used: an update reads only the images the brand already uses (its pinned files), not the whole asset store.
   if (!pinned && opt("--brand") && a.includes("--used")) { try { const b = require("./resolve.js").brandDir(opt("--brand")); pinned = new Set(Object.keys(JSON.parse(fs.readFileSync(path.join(b.dir, "profile.json"), "utf8")).snapshot.files || {})); } catch (e) { } }
   const want = uploads.filter(u => a.includes("--all") || (pinned ? pinned.has(u.file) : u.group !== skip)), left = uploads.length - want.length;
-  console.log(`Read these ${want.length} uploads (${Math.round(want.reduce((s, u) => s + (u.size || 0), 0) / 1024)} KB) in one call, as paths${left ? `; the other ${left} ${pinned ? "are not the brand's" : `in "${skip}"`} and stay in the design system` : ""}:`);
+  console.log(`Read these ${want.length} uploads (${Math.round(want.reduce((s, u) => s + (u.size || 0), 0) / 1024)} KB) in one call, as paths${left ? (pinned ? `; the other ${left} are not the brand's and stay in the design system` : `; the ${left} in "${skip}" stay in the design system`) : ""}:`);
   for (const u of want) console.log(u.blob);
   process.exit(0);
 }

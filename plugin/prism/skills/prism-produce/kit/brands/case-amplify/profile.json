@@ -8,7 +8,7 @@
   "url": "https://claude.ai/artifact/MP9SjqKoJECgCoSWyQNG3m",
   "title": "Case Amplify",
   "snapshot_taken": "2026-10-28",
-  "_note": "Optional live source. Builds always use snapshot/; the live system is only compared against it.",
+  "_note": "The design system this brand comes from. This bundled copy builds from snapshot/; a session that reads the design system builds from its Prism folder instead.",
   "components": [
    "BandFlow",
    "Button",

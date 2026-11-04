@@ -29,11 +29,11 @@ ok(JSON.stringify(prof().source.components) === JSON.stringify(["Callout", "Stat
 fs.mkdirSync(path.join(ds, "components", "Testimonial")); fs.writeFileSync(path.join(ds, "components", "Testimonial", "README.md"), "# Testimonial\n");
 delete require.cache[require.resolve(path.join(KIT, "resolve.js"))];
 const live = require(path.join(KIT, "resolve.js")).load("acme", { live: ds });
-ok(live.warnings.includes("design system changed since this release: new component Testimonial"), `the live check reports a new component: ${live.warnings.filter(w => /component/.test(w)).join("; ")}`);
+ok(live.warnings.includes("design system changed since this brand was checked: new component Testimonial"), `the live check reports a new component: ${live.warnings.filter(w => /component/.test(w)).join("; ")}`);
 const shipped = path.join(TMP, "prism-ds"); fs.cpSync(path.join(KIT, "brands", "prism", "snapshot"), shipped, { recursive: true });
 fs.mkdirSync(path.join(shipped, "components", "Testimonial"), { recursive: true }); fs.writeFileSync(path.join(shipped, "components", "Testimonial", "README.md"), "# T\n");
 const up = onboard("update", "prism", shipped);
-ok(up.status === 0 && /design-system components \(this release never recorded them; ask which are new to Prism\): Testimonial/.test(up.stdout), "an update lists components a release never recorded");
+ok(up.status === 0 && /design-system components \(the brand never recorded them; ask which are new to Prism\): Testimonial/.test(up.stdout), "an update lists components the brand never recorded");
 ok(JSON.stringify(JSON.parse(fs.readFileSync(path.join(DRAFTS, "prism", "profile.json"), "utf8")).source.components) === '["Testimonial"]', "the update records them");
 
 // 3. A component from the interview: use, when, how often, rules, formats; listed for formatters and in the report.
