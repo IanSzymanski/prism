@@ -35,6 +35,7 @@ const build = (md, ...a) => { const pdf = md.replace(/\.md$/, ".pdf"), r = run("
 // 1. Core CSS: the modifiers exist and use roles, not colours.
 const css = fs.readFileSync(path.join(KIT, "prism-sheet.css"), "utf8");
 ok(/\.flow\.plain li\{border-top:0/.test(css), "core has plain flow steps");
+ok(/\.prism-mast h1,h2,h3\{text-wrap:balance\}/.test(css) && /\np,li\{text-wrap:pretty\}/.test(css), "every brand's headings balance and its paragraphs keep their last word company (core, on by default)");
 ok(/\.qr\.rounded [^{]*\{border-radius:var\(--prism-radius-button\)/.test(css), "rounded QR codes take the brand's button radius");
 ok(/\.cta-card > \.qr\{margin:0\}/.test(css), "a QR code in the closing card adds no margin of its own");
 ok(/\.cta-card \.qr:not\(\.center\) \.qr__text :is\(h2,h3,p\)\{margin-left:0;margin-right:0;max-width:none\}/.test(css), "a closing card's QR text column sits flush, whatever the brand's card does with its headings");
