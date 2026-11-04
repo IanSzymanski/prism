@@ -37,6 +37,7 @@ const css = fs.readFileSync(path.join(KIT, "prism-sheet.css"), "utf8");
 ok(/\.flow\.plain li\{border-top:0/.test(css), "core has plain flow steps");
 ok(/\.qr\.rounded [^{]*\{border-radius:var\(--prism-radius-button\)/.test(css), "rounded QR codes take the brand's button radius");
 ok(/\.cta-card > \.qr\{margin:0\}/.test(css), "a QR code in the closing card adds no margin of its own");
+ok(/\.cta-card \.qr:not\(\.center\) \.qr__text :is\(h2,h3,p\)\{margin-left:0;margin-right:0;max-width:none\}/.test(css), "a closing card's QR text column sits flush, whatever the brand's card does with its headings");
 ok(/\.prism-mast__grid\{[^}]*grid-template-columns:var\(--mast-split,1fr 1fr\)/.test(css), "the title area splits text and photo, 1fr 1fr by default");
 
 // 2. Every modifier on, in the default brand (which fades photos): one page, photo in the title area, no closing line.
@@ -90,6 +91,20 @@ ok(!numbers("---\nmast-focus: 50% 30%\nmast-split: 3fr 2fr\n---\nText.").size, "
 const lib = fs.readFileSync(path.join(KIT, "library.js"), "utf8");
 ok(/\^mast-image:/.test(lib), "the library fetch finds a mast-image library photo");
 
-if (!process.env.KEEP) fs.rmSync(TMP, { recursive: true, force: true }); else console.log(TMP);
-console.log(`${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
+// 7. A QR written with its own text in a full-size closing card, in the default brand (whose card centres its heading and
+// paragraphs with a measure): the label, heading and paragraph start at the same left edge of the column.
+const col = build(sheet("qrcol", "", `## Why it matters\n\nA short paragraph.\n\n::::: cta-card\n::: {.qr url="https://example.com"}\n[See it](#){.eyebrow}\n\n## Find out *more* about it\n\nVisit example.com for a short demo and a sample of the notes it drafts.\n:::\n:::::\n`));
+(async () => {
+  try {
+    const { chromium } = require(require.resolve("playwright", { paths: [path.join(KIT, "node_modules"), KIT] }));
+    const browser = await chromium.launch({ ...(process.env.PRISM_CHROMIUM ? { executablePath: process.env.PRISM_CHROMIUM } : {}) });
+    const page = await browser.newPage({ viewport: { width: 1000, height: 1400 } });
+    await page.goto("file://" + path.join(TMP, "qrcol.sheet.html"));
+    const lefts = await page.evaluate(() => [".eyebrow", "h2", "p:not(.eyebrow)"].map(s => document.querySelector(`.cta-card .qr__text ${s}`)).map(e => e && Math.round(e.getBoundingClientRect().left)));
+    ok(col.r.status === 0 && lefts.every(x => x !== null) && new Set(lefts).size === 1, `a closing card's QR text sits flush: label, heading and paragraph at one left edge: ${JSON.stringify(lefts)}`);
+    await browser.close();
+  } catch (e) { ok(false, `the closing card's QR column could not be measured: ${e.message}`); }
+  if (!process.env.KEEP) fs.rmSync(TMP, { recursive: true, force: true }); else console.log(TMP);
+  console.log(`${pass} passed, ${fail} failed`);
+  process.exit(fail ? 1 : 0);
+})();

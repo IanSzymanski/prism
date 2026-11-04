@@ -55,7 +55,8 @@ if (pageReady) {
 
     const dk = path.join(TMP, "deck.md");
     fs.writeFileSync(dk, '---\nbrand: case-amplify\ntitle: D\nfooter: F\n---\n\n:::: {.slide .title}\n::::\n\n:::: {.slide .content logo="bottom-right"}\n## A\n\n- x\n::::\n\n:::: {.slide .closing logo="top"}\n## End\n\nexample.com\n::::\n');
-    const d = run("node", [path.join(KIT, "build-deck.js"), dk, path.join(TMP, "deck.pptx")]);
+    // Through run.sh, which puts the kit's deck modules (pptxgenjs, sharp) on the path, however this test was started.
+    const d = run("bash", [path.join(KIT, "run.sh"), "deck", dk, path.join(TMP, "deck.pptx")]);
     const xml = d.status === 0 ? run("unzip", ["-p", path.join(TMP, "deck.pptx"), "ppt/slides/slide2.xml"]).stdout : "";
     ok(d.status === 0 && /descr="Case Amplify"/.test(xml), `a deck slide carries the logo it asks for: ${d.stderr.slice(0, 200)}`);
 
@@ -71,7 +72,7 @@ if (pageReady) {
 function finish() {
   const w = path.join(TMP, "w.md");
   fs.writeFileSync(w, '---\ntitle: W\n---\n\n::: {.callout logo="top-right"}\nText.\n:::\n');
-  const r = run("node", [path.join(KIT, "build-wire.js"), w, "--out", path.join(TMP, "wire")]);
+  const r = run("bash", [path.join(KIT, "run.sh"), "wire", w, "--out", path.join(TMP, "wire")]);
   const board = r.status === 0 ? fs.readFileSync(path.join(TMP, "wire", "w", "w.dc.html"), "utf8") : "";
   ok(/callout · logo top-right/.test(board), "design mode names the logo on the block's label");
   fs.rmSync(TMP, { recursive: true, force: true });
