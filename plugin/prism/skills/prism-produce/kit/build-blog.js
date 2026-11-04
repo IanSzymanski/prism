@@ -44,7 +44,7 @@ const motif = meta.header || (isSeries ? "series" : hasImg ? (meta.type === "fea
 function coreHeaderArt() {
   const BY_TYPE = { features: "deep", impact: "deep", changelog: "deep", insights: "mist" };
   const tone = ["light", "mist", "deep", "vivid"].includes(meta.tone) ? meta.tone : (BY_TYPE[meta.type] || "light");
-  const stop = i => B.color(`prism-color-header-${tone}-${i}`), ang = between(0, 360) * Math.PI / 180, gx = between(10, 90), gy = pick([between(-30, 10), between(90, 130)]);
+  const stop = i => B.color(`prism-color-gradient-${tone}-${i}`), ang = between(0, 360) * Math.PI / 180, gx = between(10, 90), gy = pick([between(-30, 10), between(90, 130)]);
   const under = `<svg class="bh-art" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs>
 <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="${W / 2 - Math.cos(ang) * W * .6}" y1="${H / 2 - Math.sin(ang) * H * .6}" x2="${W / 2 + Math.cos(ang) * W * .6}" y2="${H / 2 + Math.sin(ang) * H * .6}"><stop offset="0" stop-color="${stop(1)}"/><stop offset=".55" stop-color="${stop(2)}"/><stop offset="1" stop-color="${stop(3)}"/></linearGradient>
 <radialGradient id="glow" gradientUnits="userSpaceOnUse" cx="${W * gx / 100}" cy="${H * gy / 100}" r="${W * between(0.7, 1)}"><stop offset="0" stop-color="${stop(4)}" stop-opacity=".55"/><stop offset="1" stop-color="${stop(4)}" stop-opacity="0"/></radialGradient></defs>

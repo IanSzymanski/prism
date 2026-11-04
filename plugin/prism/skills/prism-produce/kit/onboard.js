@@ -75,7 +75,7 @@ const SYN = {
   "shadow-lift": ["shadow-lift", "shadow"], "shadow-sheet": ["shadow-sheet"], "shadow-screen": ["shadow-screen"],
 };
 for (let i = 1; i <= 5; i++) SYN[`color-chart-${i}`] = [`series-${i}`, `chart-${i}`, `data-${i}`, `viz-${i}`];
-for (const t of ["light", "mist", "deep", "vivid"]) for (let i = 1; i <= 4; i++) SYN[`color-header-${t}-${i}`] = [`header-${t}-${i}`];
+for (const t of ["light", "mist", "deep", "vivid"]) for (let i = 1; i <= 4; i++) SYN[`color-gradient-${t}-${i}`] = [`gradient-${t}-${i}`, `header-${t}-${i}`];
 // When no name fits, a token's own usage note can: used only when exactly one token's note matches.
 const USAGE = { "color-accent": /\bbrand (hue|colou?r)\b|\bprimary brand\b/i, "color-accent-strong": /highlight gradient/i, "color-eyebrow-on-dark": /eyebrow on dark/i,
   "color-text-on-photo": /over (the )?(dark fade of a )?.*photo/i, "color-wash": /\bwash\b/i, "type-eyebrow-on-dark": /eyebrow on (the )?dark/i };

@@ -98,7 +98,7 @@ delete require.cache[require.resolve(path.join(KIT, "brand.js"))];
 const Bq = require(path.join(KIT, "brand.js"))(null, "squid"), lay = Bq.layer("sheet");
 ok(lay && /cta-card\{background:/.test(fs.readFileSync(lay, "utf8")), "a brand without layers gets core's default closing card");
 ok(require(path.join(KIT, "brand.js"))(null, "case-amplify").layer("sheet").includes("brand-"), "a brand's own layer wins over core's default");
-ok(Bq.res.roles["prism-color-header-deep-1"] && Bq.res.roles["prism-color-header-vivid-4"], "blog header colours fall back to the brand's own");
+ok(Bq.res.roles["prism-color-gradient-deep-1"] && Bq.res.roles["prism-color-gradient-vivid-4"], "the gradient colours fall back to the brand's own");
 
 // 8. Brand components: listed for formatters and drawn on the swatch.
 q = sp(); q.components = { "closing-band": { use: "A quieter close.", markup: "::: {.cta-card .band}", formats: ["sheet"], sample: "::: {.cta-card .band}\n## Close\n:::" } };
@@ -138,6 +138,23 @@ ok(R2.load("onetheme").roles["prism-color-dark-surface"].from === "prism-color-t
 const short = run("report", "squid").stdout, long = run("report", "squid", "--full").stdout;
 ok(short.split("\n").length < long.split("\n").length && /matched by the same name; the rest, to check:/.test(short), "the report is short by default, full with --full");
 ok(!/\*\*Outputs\*\*/.test(fs.readFileSync(path.join(KIT, "..", "..", "prism-onboard", "SKILL.md"), "utf8")), "onboarding no longer asks about outputs");
+
+// 9. Renamed roles (roles.json `was`): the 16 gradient stops were prism-color-header-*. A profile and a layer written with the
+// old names (a brand published before the rename) still build: the old name maps the new role, B.color and B.has answer to
+// it, the CSS carries it, and nothing lists a role twice. No core file names an old role.
+const renamed = roles.filter(r => r.was);
+ok(renamed.length === 16 && renamed.every(r => /^prism-color-gradient-(light|mist|deep|vivid)-[1-4]$/.test(r.role) && r.was === r.role.replace("gradient", "header")) && renamed.every(r => !byName[r.was]), "the gradient stops are renamed, each with its old name");
+fs.cpSync(path.join(KIT, "brands", "case-amplify"), path.join(DRAFTS, "case-amplify"), { recursive: true });
+{ const f = path.join(DRAFTS, "case-amplify", "profile.json"), p = JSON.parse(fs.readFileSync(f, "utf8"));
+  p.roles = Object.fromEntries(Object.entries(p.roles).map(([k, v]) => [k.replace("prism-color-gradient-", "prism-color-header-"), v])); fs.writeFileSync(f, JSON.stringify(p, null, 1)); }
+delete require.cache[require.resolve(path.join(KIT, "resolve.js"))]; delete require.cache[require.resolve(path.join(KIT, "brand.js"))];
+const RS = require(path.join(KIT, "resolve.js")), old = RS.load("case-amplify"), Bo = require(path.join(KIT, "brand.js"))(null, "case-amplify");
+ok(!old.errors.length && old.roles["prism-color-gradient-vivid-4"] && old.roles["prism-color-gradient-vivid-4"].native === "header-vivid-4", `a profile with the old names maps the new roles: ${old.errors.join("; ")}`);
+ok(Bo.has("prism-color-header-vivid-4") && Bo.color("prism-color-header-vivid-4") === Bo.color("prism-color-gradient-vivid-4"), "the old name answers B.has and B.color with the same colour");
+ok(/--prism-color-header-vivid-4:#/.test(RS.css(old)) && /--prism-color-gradient-vivid-4:#/.test(RS.css(old)), "the CSS carries both names");
+ok(!Object.keys(old.roles).some(k => k.includes("-header-")) && Object.keys(old.aliases).length === 16, "the old names are aliases, never listed as roles");
+const coreFiles = fs.readdirSync(KIT).filter(f => /\.(js|json|css|lua|py|html)$/.test(f) && f !== "roles.json");
+ok(!coreFiles.some(f => /prism-color-header-|color-header-\$\{/.test(fs.readFileSync(path.join(KIT, f), "utf8"))), "no core file names an old gradient role");
 
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);

@@ -55,8 +55,8 @@ module.exports = {
     radial-gradient(55% 110% at 0% 100%,${rgbA("own-color-dark-glow-2", ".85")} 0%,${rgbA("own-color-dark-glow-2", "0")} 100%),
     linear-gradient(180deg,${B.color("prism-color-dark-deep")} 0%,${B.color("prism-color-dark-surface")} 45%,${B.color("own-color-dark-high")} 100%)`,
       // The full purple slide: the vivid header gradient, with its brightest tone glowing from the bottom right.
-      purple: `radial-gradient(60% 90% at 100% 100%,${rgbA("prism-color-header-vivid-4", ".8")} 0%,${rgbA("prism-color-header-vivid-4", "0")} 100%),
-    linear-gradient(135deg,${B.color("prism-color-header-vivid-1")} 0%,${B.color("prism-color-header-vivid-2")} 45%,${B.color("prism-color-header-vivid-3")} 100%)`,
+      purple: `radial-gradient(60% 90% at 100% 100%,${rgbA("prism-color-gradient-vivid-4", ".8")} 0%,${rgbA("prism-color-gradient-vivid-4", "0")} 100%),
+    linear-gradient(135deg,${B.color("prism-color-gradient-vivid-1")} 0%,${B.color("prism-color-gradient-vivid-2")} 45%,${B.color("prism-color-gradient-vivid-3")} 100%)`,
     };
   },
 
@@ -68,7 +68,7 @@ module.exports = {
       spontaneous: ["light", "mist", "deep", "vivid"], impact: ["deep", "vivid", "mist"], changelog: ["deep"],
     };
     const tone = meta.tone || pick(TONES_BY_TYPE[meta.type] || TONES_BY_TYPE.educational);
-    const hdr = (t, i) => B.color(`prism-color-header-${t}-${i}`);
+    const hdr = (t, i) => B.color(`prism-color-gradient-${t}-${i}`);
     const TONES = { stops: [1, 2, 3].map(i => hdr(tone, i)), deep: hdr(tone, 4) };
     const ang = between(0, 360), glowX = between(10, 90), glowY = pick([between(-30, 10), between(90, 130)]);
     const defs = `<linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="${W / 2 - Math.cos(ang * Math.PI / 180) * W * .6}" y1="${H / 2 - Math.sin(ang * Math.PI / 180) * H * .6}" x2="${W / 2 + Math.cos(ang * Math.PI / 180) * W * .6}" y2="${H / 2 + Math.sin(ang * Math.PI / 180) * H * .6}">
