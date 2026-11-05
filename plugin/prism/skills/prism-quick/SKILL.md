@@ -49,7 +49,7 @@ The resolve line (`<brand>`: the one the user named, else `default`) checks the 
 
 `<slug>/formats/<format>.md`. Rules that still apply:
 
-- Read the brand's rules once, its `digest` from `.prism-kit/run.sh brands --json` (claims, voice, visual); every one applies. For a one-pager, `.prism-kit/run.sh layouts --brand <brand>` lists its page layouts: take one as the sheet card's "Layouts" says, or none. The same listing's `components` are the brand's own blocks (a closing band, a quote banner): use one where it fits.
+- Read the brand's rules once, its `digest` from `.prism-kit/run.sh brands --json` (claims, voice, visual); every one applies. A reference skill the digest names (a brand manifest) is never loaded in quick mode: the digest is its short version, and the claims list after the file covers the rest. For a one-pager, `.prism-kit/run.sh layouts --brand <brand>` lists its page layouts: take one as the sheet card's "Layouts" says, or none. The same listing's `components` are the brand's own blocks (a closing band, a quote banner): use one where it fits.
 - No number, quote or result that isn't in the source.
 - `{.no-rule}` on a `##` that sits right on top of a photo of a person.
 

@@ -23,6 +23,8 @@ This skill never builds files. Designed outputs are built only by prism-produce 
 
 This is steps 1–4 of the content process. It ends at a human proofing stop. Formatting and building happen in the `prism-produce` skill, never here.
 
+A digest that names a reference skill (a brand manifest) means it for the writer and reviewer agents, which load it themselves: never load it in this conversation, where the digest's own rules (its short version) apply.
+
 References (read before starting): `references/content-spec.md` and the brand's rules, its `digest` from `.prism-kit/run.sh brands --json` (`<brand>` from the request or content.md `brand:`, else the default brand; `.prism-kit/run.sh brands` lists the brands and marks the default, with its default audience).
 
 ## Running the subagents

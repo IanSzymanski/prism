@@ -235,7 +235,7 @@
  },
  "digest": {
   "file": "digest.md",
-  "sha256": "5c6bbe17ee55062a16faad6e292a1f3aa14cf00a5aa6f1c5f5d6cb385aceb8b0",
+  "sha256": "4326a02b04385112dab1747fa664c80a94ef19a282955ca456697559ee8ca9c1",
   "readme_sha256": "909411c464b1342b6f9be7d36dffba290274b15c6b11625a047936448e0dc9b0",
   "_note": "Rules agents read instead of the full brand book. Re-check when README.md changes."
  },

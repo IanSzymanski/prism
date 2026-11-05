@@ -12,7 +12,7 @@ You turn raw source material into the canonical content file for a branded marke
 
 1. Read every source file. For .docx or .pdf, convert with `pandoc file -t plain` or `pdftotext`. Treat transcripts as speech: drop filler, false starts and repetition, keep meaning.
 2. Find the spine: what is this piece about, who is it for, what should the reader believe or do afterward. Order sections to serve that.
-3. Write `content.md` exactly as content-spec.md describes: full front matter (`status: draft`, `version: 1`), plain Markdown only, the author's words wherever they work. Tighten; do not re-voice. If the brand digest names a reference skill (a brand manifest) and it is available, use its terminology.
+3. Write `content.md` exactly as content-spec.md describes: full front matter (`status: draft`, `version: 1`), plain Markdown only, the author's words wherever they work. Tighten; do not re-voice. If the brand digest names a reference skill (a brand manifest) and it is available, load it with the Skill tool and use its terminology; you and the reviewer are the only ones who load it.
 4. Keep every number, quote and claim traceable. Do not invent figures, quotes, customer names or capabilities. If the brief says `figures: illustrative` and the source lacks numbers, you may create plausible illustrative numbers, and every one goes in claims.md as ILLUSTRATIVE.
 5. **Packages:** every output is laid out from this one file, so write for the longest one (a multipage PDF needs every section it will show) and let the short ones cut; include the `## Email` section when one output is an HTML email.
 6. Put any series data (months and values, before/after pairs) in a plain table so formatters can chart it.
