@@ -69,7 +69,7 @@ Brands today: run `run.sh brands` (it marks the default and lists onboarding dra
 
 ## Requirements
 
-Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations, WordPress's block parser for website pages, which need no browser); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
+Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations, WordPress's block parser for website pages, which need no browser); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`), and run the kit's scripts directly, so they need the module path `run.sh` works out: after `run.sh setup all`, set `KIT` to the kit's absolute path and source `kit/env.sh` and `kit/kitenv.sh` (CI does this), or have a global Playwright.
 
 ## Build
 
@@ -162,4 +162,4 @@ A brand is a Claude Design System plus a Prism folder inside it (`project/prism/
 
 A brand sets its own sheet defaults in its profile's `options.sheet`: `byline: false` (no author and date under the title), `colophon: false` (no closing line; `colophon: on` in a format file brings it back), `cta_qr: "beside-copy"` (a closing card's QR beside all of its copy) and `checks: ["orphans", "variety"]` (`sheet-checks.js`: titles and headings never end on one word, paragraphs that do are reported, and sections that keep using the same format are reported). Case Amplify turns all of them on.
 
-After changing any file in a brand folder, run `node tools/pin-profile.js <brand>`, then the resolve and brands tests. Prism's own artwork is generated: `python3 tools/brand-art/prism.py <design system project dir> <out dir>` (the brand's `snapshot/` works as the project dir).
+After changing any file in a brand folder, run `node tools/pin-profile.js <brand>`, then the resolve and brands tests. Every font a brand ships travels with its license (the SIL Open Font License requires it): beside the font, or in the brand's `licenses/` (or `snapshot/licenses/`) folder; renamed Office copies say they are Modified Versions in `office/OFL.txt`. `run.sh fonts` puts the licenses in the deck font pack, and `tests/brands.test.js` fails a font without one. Prism's own artwork is generated: `python3 tools/brand-art/prism.py <design system project dir> <out dir>` (the brand's `snapshot/` works as the project dir).
