@@ -146,7 +146,7 @@ node tests/social-checks.test.js       # posts and carousels: counters, point nu
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op, website page sides
 python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete
-python3 tests/readme.test.py           # DEVELOPING.md still names every run.sh command and test suite; README.md points here
+python3 tests/readme.test.py           # DEVELOPING.md still names every run.sh command and test suite; README.md points here; agent copies match
 python3 tests/core-brand-free.test.py  # no brand is named in core; defaults come from the profiles
 ```
 

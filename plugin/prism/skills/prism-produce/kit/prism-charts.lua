@@ -55,9 +55,25 @@ local function parse(text)
       k = trim(k)
       if KEYS[k] then spec[k] = v
       else
+        -- A thousands separator (1,200 or 1,234,567) is part of its number; series are split at the other commas.
+        local held, n = v, 1
+        while n > 0 do held, n = held:gsub("(%d),(%d%d%d)%f[%D]", "%1\1%2") end
         local vals = {}
-        for n in v:gmatch("[^,]+") do table.insert(vals, { s = trim(n), n = tonumber((trim(n):gsub("[^%d%.%-]", ""))) }) end
+        for n in held:gmatch("[^,]+") do
+          local s = trim(n:gsub("\1", ","))
+          table.insert(vals, { s = s, n = tonumber((s:gsub("[^%d%.%-]", ""))) })
+        end
         table.insert(rows, { label = k, vals = vals })
+      end
+    end
+  end
+  -- One value per row unless the chart names its series: "2023: 1,2" would otherwise plot 1 and drop the rest.
+  if not spec.series then
+    for _, r in ipairs(rows) do
+      if #r.vals > 1 then
+        local shown = {}
+        for _, x in ipairs(r.vals) do table.insert(shown, x.s) end
+        error("chart: row \"" .. r.label .. "\" has " .. #r.vals .. " values (" .. table.concat(shown, " | ") .. "); write one number per row (1200 or 1,200), or name the series with series: A, B")
       end
     end
   end

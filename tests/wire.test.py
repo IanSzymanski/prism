@@ -138,6 +138,20 @@ try:
     check("diff: confirmed removals are applied", r.returncode == 0 and open(fmt).read() != orig, (r.returncode, r.stdout[-300:]))
     open(fmt, "w").write(orig)
 
+    # C1: a chat edit made after the board was built is never overwritten by reading the board back.
+    chat = orig.replace("here is what changed this month.", "here is what changed this month, in brief.", 1)
+    check("C1: the fixture has the sentence the chat edit changes", chat != orig)
+    open(fmt, "w").write(chat)
+    r = diff(os.path.join(tmp, "edited.dc.html"), "--apply", fmt)
+    check("C1: a move read back onto a file edited since its board stops", r.returncode == 3 and "changed after its board was built" in r.stdout and open(fmt).read() == chat, (r.returncode, r.stdout[-300:]))
+    r = diff(os.path.join(tmp, "styled.dc.html"), "--apply", fmt)
+    check("C1: no block moved or removed: the file is left exactly as it is", r.returncode == 0 and "nothing to rewrite" in r.stdout and open(fmt).read() == chat, (r.returncode, r.stdout[-300:]))
+    check("C1: the board's copy is still written for vet --was", os.path.exists(os.path.join(w, "source.md")))
+    open(fmt, "w").write(orig)
+    r = diff(os.path.join(tmp, "edited.dc.html"), "--apply", fmt)
+    check("C1: an unchanged file takes the move", r.returncode == 0 and "wrote " in r.stdout and open(fmt).read() != orig, (r.returncode, r.stdout[-300:]))
+    open(fmt, "w").write(orig)
+
     # Design state: canvas version, pull check, export record, pending changes.
     p = os.path.join(tmp, "piece"); os.makedirs(os.path.join(p, "formats")); os.makedirs(os.path.join(p, "wire", "sheet"))
     open(os.path.join(p, "content.md"), "w").write('---\ntitle: X\nversion: 3\nchanges:\n  - "v2 · canvas: moved"\n  - "v3 · chat: reworded"\n---\nBody\n')

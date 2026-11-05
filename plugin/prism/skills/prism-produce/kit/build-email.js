@@ -81,7 +81,7 @@ const items = s => s.split(/\n(?=\s*(?:-|\d+\.)\s)/).map(x => x.replace(/^\s*(?:
 // ---------- inline ----------
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const links = [];
-const href = u => { const r = restore(u); if (!/^(https:\/\/|mailto:|tel:|\uE000|\$|\{\{|\*\||%%)/.test(u) || /^https?:\/\/(example\.com|#)?$/.test(r)) say(`link needs a full https address: "${r}"`);
+const href = u => { if (/^(javascript|vbscript|data):/i.test(String(u).replace(/[\s\x00-\x1f]/g, ""))) { say(`link removed: "${u}" is not an address`); u = "#"; } const r = restore(u); if (!/^(https:\/\/|mailto:|tel:|\uE000|\$|\{\{|\*\||%%)/.test(u) || /^https?:\/\/(example\.com|#)?$/.test(r)) say(`link needs a full https address: "${r}"`);
   if (/^http:\/\//.test(u)) say(`link is not https: ${r}`); links.push(r); return esc(u); };
 const UNBROKEN = BR.unbroken.length ? new RegExp(`(?<![\\w-])(?:[\\w]+-)*(?:${[...BR.unbroken].sort((a, b) => b.length - a.length)
   .map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+")).join("|")})(?:-[\\w]+)*(?![\\w])`, "gi") : null;

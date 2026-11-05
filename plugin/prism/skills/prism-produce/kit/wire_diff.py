@@ -9,7 +9,7 @@ A board that can't be read back safely stops with exit 3 and changes nothing: on
 that would remove more than half the blocks (pass --confirm-removals once the person has said those cuts are meant).
 Usage: wire_diff.py wire/<format>/ edited-<format>.dc.html [--apply formats/sheet.md] [--confirm-removals]
 After --apply it runs vet.py --fix on the result; apply the EDITED lines, then run vet again with --was wire/source.md."""
-import difflib, json, os, re, sys
+import difflib, hashlib, json, os, re, subprocess, sys
 from html.parser import HTMLParser
 
 INLINE = {"b", "strong", "em", "i"}
@@ -149,23 +149,36 @@ def main():
         if b["id"] in ided and b["look"] != o["look"]:
             report.append(f"NOT CARRIED {b['id']} {label(b, 30)} styling changed on the canvas (colour, size, font or spacing); boards never carry styling: ask in chat for a layout change")
     print("\n".join(report) if report else "No changes.")
+    if not apply_to: return
+    # The board's own copy of the file, for vet --was, whatever happens next.
+    base = os.path.join(wire_dir, "source.md")
+    open(base, "w", encoding="utf8").write(snap["frontMatter"] + "\n" + "\n\n".join(([snap["wrapOpen"]] if snap.get("wrapOpen") else []) + [x["md"] for x in snap["blocks"]] + ([snap["wrapClose"]] if snap.get("wrapClose") else [])))
+    # --apply carries only moved and removed blocks; with neither, the file is left exactly as it is.
+    if not removed and kept_before == order_after:
+        print(f"nothing to rewrite in {apply_to}: no block moved or was removed" + ("; apply the lines above yourself" if report else ""))
+        return
+    # The file changed after its board was built (a chat edit not yet on the canvas): rewriting it from the board's snapshot
+    # would undo that edit, so nothing is written (C1).
+    if snap.get("sourceHash") and os.path.exists(apply_to):
+        now = hashlib.sha256(open(apply_to, "rb").read()).hexdigest()
+        if now != snap["sourceHash"]:
+            print(f"STOP     {apply_to} changed after its board was built, so rewriting it from the board would undo that change.\n"
+                  f"         Nothing was written. Make the changes listed above in {apply_to} by hand, then republish its board.")
+            sys.exit(3)
     # Most of the piece gone at once is far likelier a broken save than an edit: the person confirms before it is applied.
-    if apply_to and len(before) >= 3 and len(removed) * 2 > len(before) and "--confirm-removals" not in args:
+    if len(before) >= 3 and len(removed) * 2 > len(before) and "--confirm-removals" not in args:
         print(f"STOP     {len(removed)} of {len(before)} blocks would be removed. Nothing was applied. Ask the person whether those cuts are meant;\n"
               f"         if they are, run again with --confirm-removals, else republish the last good board ({board}).")
         sys.exit(3)
-    if apply_to:
-        mdmap = {x["id"]: x["md"] for x in snap["blocks"]}
-        parts = [mdmap[i] for i in order_after if i in mdmap]
-        if snap.get("wrapOpen"): parts = [snap["wrapOpen"]] + parts + [snap["wrapClose"]]
-        parts += [h["md"] for h in snap["hidden"]]
-        open(apply_to, "w", encoding="utf8").write(snap["frontMatter"] + "\n" + "\n\n".join(parts) + "\n")
-        print(f"wrote {apply_to}: blocks in the new order, removed blocks dropped; apply the EDITED lines yourself")
-        # Vet the result straight away: numbering after a move, headings split from their text, notes, doubled words.
-        base = os.path.join(wire_dir, "source.md")
-        open(base, "w", encoding="utf8").write(snap["frontMatter"] + "\n" + "\n\n".join(([snap["wrapOpen"]] if snap.get("wrapOpen") else []) + [x["md"] for x in snap["blocks"]] + ([snap["wrapClose"]] if snap.get("wrapClose") else [])))
-        print("\n-- vet --", flush=True)
-        os.system(f'python3 "{os.path.join(os.path.dirname(os.path.abspath(__file__)), "vet.py")}" "{apply_to}" --fix')
+    mdmap = {x["id"]: x["md"] for x in snap["blocks"]}
+    parts = [mdmap[i] for i in order_after if i in mdmap]
+    if snap.get("wrapOpen"): parts = [snap["wrapOpen"]] + parts + [snap["wrapClose"]]
+    parts += [h["md"] for h in snap["hidden"]]
+    open(apply_to, "w", encoding="utf8").write(snap["frontMatter"] + "\n" + "\n\n".join(parts) + "\n")
+    print(f"wrote {apply_to}: blocks in the new order, removed blocks dropped; apply the EDITED lines yourself")
+    # Vet the result straight away: numbering after a move, headings split from their text, notes, doubled words.
+    print("\n-- vet --", flush=True)
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "vet.py"), apply_to, "--fix"])
 
 
 def prev_id(blocks, b):
