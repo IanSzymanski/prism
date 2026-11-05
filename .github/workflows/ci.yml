@@ -1,0 +1,54 @@
+# Runs the test suites on every push to main and every pull request; the slow ones (website illustrations, WordPress's own
+# block library) run nightly and on demand (Actions > CI > Run workflow).
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "23 9 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      FULL: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: System tools (pandoc 3.1.3, poppler)
+        run: sudo apt-get update -q && sudo apt-get install -y -q pandoc poppler-utils
+      - name: Python packages
+        run: python3 -m pip install -q pymupdf pillow pikepdf
+      - name: Chromium for the kit's pinned Playwright
+        run: npx --yes "playwright@$(node -p "require('./plugin/prism/skills/prism-produce/kit/package.json').dependencies.playwright")" install --with-deps chromium
+      - name: Kit setup
+        run: bash plugin/prism/skills/prism-produce/kit/run.sh setup all
+      - name: WordPress block library (full runs)
+        if: env.FULL == 'true'
+        run: |
+          npm install --prefix "$RUNNER_TEMP/wp" --no-audit --no-fund --silent @wordpress/blocks @wordpress/block-library jsdom global-jsdom
+          echo "PRISM_WP_MODULES=$RUNNER_TEMP/wp/node_modules" >> "$GITHUB_ENV"
+      - name: Test suites
+        run: |
+          slow="illustration.test.js"
+          failed=""
+          for t in tests/*.test.js tests/*.test.py; do
+            n="$(basename "$t")"
+            if [ "$FULL" != true ] && [[ " $slow " == *" $n "* ]]; then echo "::notice::skipped $n (runs nightly)"; continue; fi
+            echo "::group::$n"
+            case "$t" in *.js) node "$t" ;; *.py) python3 "$t" ;; esac || failed="$failed $n"
+            echo "::endgroup::"
+          done
+          [ -z "$failed" ] || { echo "::error::failed:$failed"; exit 1; }

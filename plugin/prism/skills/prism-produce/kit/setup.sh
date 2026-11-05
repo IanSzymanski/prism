@@ -58,8 +58,10 @@ if launch; then say "chromium ok"
 elif [ -d mods/chromium/node_modules/@sparticuz ] && sparticuz && launch; then say "chromium ok (npm build)"
 else
   unset PRISM_CHROMIUM
-  say "no working Chromium; trying a Playwright download"
-  t 120 npx --yes playwright install chromium >/dev/null 2>&1 || true
+  # The browser build for the Playwright that loads (the kit's pinned one, else a global one), never the newest.
+  PWV="$(node -p "require('playwright/package.json').version" 2>/dev/null)"
+  say "no working Chromium; trying a Playwright ${PWV:-} download"
+  t 120 npx --yes "playwright${PWV:+@$PWV}" install chromium >/dev/null 2>&1 || true
   if ! launch; then
     say "installing @sparticuz/chromium"
     inst chromium @sparticuz/chromium@141

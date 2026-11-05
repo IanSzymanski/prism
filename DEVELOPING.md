@@ -150,6 +150,8 @@ python3 tests/readme.test.py           # DEVELOPING.md still names every run.sh 
 python3 tests/core-brand-free.test.py  # no brand is named in core; defaults come from the profiles
 ```
 
+**CI** (`.github/workflows/ci.yml`) runs every suite on each pull request and push to main, with the kit set up as a workspace would (`run.sh setup all`); the website illustration suite and the check of core blocks with WordPress's own block library (`PRISM_WP_MODULES`) run nightly and from **Actions > CI > Run workflow**.
+
 **Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.
 
 **Keep the docs current:** a new `run.sh` command, output or test suite updates this file in the same change, and a user-facing feature updates `README.md` and `plugin/prism/README.md` too. `tests/readme.test.py` fails when a command or test suite is missing here, or an output is missing from the plugin README.
