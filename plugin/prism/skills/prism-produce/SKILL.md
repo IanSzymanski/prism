@@ -64,6 +64,8 @@ As soon as the format files exist, open the canvas with one board per format fil
 
 **Motion outputs never open on the canvas:** a film is reviewed on its own page, so go straight to `references/film.md` for them while the other outputs open here. **Illustrations** don't open on the canvas either: their layout is reviewed live on the bench, so build them straight away (step 2). **Website pages** open like a sheet: one flowing board with the sections in order, headings and media rows drawn on the sides the build will give them.
 
+**When design mode can't open** (no Artifact tool in this session, no Design type in the quickstart, or the canvas publish fails or is refused), say so in one line, note it in log.md and go straight to step 2: the files build as for "just build it". Never say a canvas is open when it isn't, and never hold the files back waiting for one; `state <slug> show` keeps saying design mode was not opened, and "design mode" later tries again.
+
 Go straight to step 2 instead in quick mode, when the person asked for the files without design mode ("just build it", "skip design mode"), or when the session is unattended. "Design mode", "open the canvas" or "edit visually" later opens it for whatever exists, and the design session rules apply from then on.
 
 <!-- /claude-only -->
@@ -113,7 +115,7 @@ Classify each requested change before touching files. Tell the user the lane in 
 
 **Content lane** (wording, facts, numbers, quotes, adding or removing a point):
 
-1. Edit content.md (or take the uploaded one, keeping `content.v<n>.md`). When the piece has a proof doc (its link is in log.md), make the same change in the doc's Content tab, and in its Claims tab when a claim changed, so the doc always shows the current words; never send content.md or claims.md as files instead. Bump `version` and add one line per change to the `changes:` list in its front matter (`"v<n> · <what changed>"`), layout changes included. Log the diff.
+1. Edit content.md (or take the uploaded one, keeping `content.v<n>.md`). When the piece has a proof doc (its link is in log.md), make the same change in the doc's Content tab (its `Title:` and `Subtitle:` lines for a new title or subtitle), and in its Claims tab when a claim changed, so the doc always shows the current words; never send content.md or claims.md as files instead. Bump `version` and add one line per change to the `changes:` list in its front matter (`"v<n> · <what changed>"`), layout changes included. Log the diff.
 2. If numbers, quotes or claims changed, run **prism-reviewer** on the changed sections and update claims.md. Show new flags; for anything beyond a typo, get the user's OK before continuing (the proof stop applies to changes too).
 3. Patch every existing format file: run **prism-formatter** in mode `patch` per format (parallel when several), passing the change. Never regenerate from scratch; that would discard layout the user already approved.
 4. Number check, rebuild all affected formats, preview, deliver.
@@ -143,7 +145,7 @@ Classify each requested change before touching files. Tell the user the lane in 
 <!-- claude-only -->
 **Design session** (from opening design mode until it is closed). The canvas and the Markdown are one piece of work. Until the first "done" nothing is built; after it, every change is exported again straight away (`state <slug> show` says which of the two the session is in):
 
-1. **Before the first "done": no files.** Never build, preview or deliver a PDF, PPTX or PNG, whatever the request sounds like ("make slide 4 cards", "change the headline"). A request in chat is an edit to the session, not a build order.
+1. **Before the first "done": no files.** Never build, preview or deliver a PDF, PPTX or PNG for a request that changes the piece ("make slide 4 cards", "change the headline"): a request in chat is an edit to the session, not a build order. An explicit ask for the files themselves ("send me the PDF", "export it", "build it now") is a "done". End every reply before the first export with: Say **done** to export.
 2. **Every request starts with a pull check.** List the canvas's files and run `state <slug> pull-needed --version <id>`; on `pull`, read the boards back and run `wire-diff --apply` ("Read the edits back" in `references/wireframe.md`), so what the person already changed on the canvas is kept and never overwritten by a republish. On `skip`, nobody saved the canvas since your last publish: go straight on.
 3. **Then apply the request** through its lane (a layout change such as "make this slide cards" edits the format file; a wording or link change goes into content.md and every format file). A different icon ("use a calendar icon on the second card") is a layout change: swap the `ph-` name in the format file. Vet the result.
 4. **Record everything in content.md.** Bump `version`, keep the previous file as `content.v<n>.md`, and add the round to the `changes:` list in its front matter: one line per change, canvas edits and chat requests alike, layout included (content.md is where the person looks for what changed; formatters ignore this field; `state show` lists the lines since each format's last export):
