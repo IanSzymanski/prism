@@ -321,6 +321,8 @@ function main() {
   }
   const md = args[0];
   if (!md) { console.error("usage: build-web.js formats/web.md [outdir] | compare original.html generated.html"); process.exit(2); }
+  // The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+  require("./check-numbers.js").gate(md, "web");
   const o = build(md);
   report(o);
   if (o.errors.length) process.exit(1);

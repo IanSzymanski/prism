@@ -50,7 +50,7 @@ Also:
 | Path | What |
 |---|---|
 | `plugin/prism/` | The plugin: skills `prism-draft`, `prism-produce`, `prism-quick`, `prism-onboard`; agents `prism-writer`, `prism-reviewer`, `prism-formatter`; commands `/prism-interview`, `/prism-onboard`, `/prism-tutorial` |
-| `plugin/prism/skills/prism-produce/kit/` (below: `kit/`) | The build kit every output goes through, copied into a workspace as `.prism-kit` |
+| `plugin/prism/skills/prism-produce/kit/` (below: `kit/`) | The build kit every output goes through, synced into a workspace as `.prism-kit` by `kit/sync.sh` (every skill runs it once per session, so a plugin update reaches existing workspaces) |
 | `kit/run.sh` | The one entry point for every build and tool (below) |
 | `kit/roles.json` | Core's role vocabulary: what a brand must or may map |
 | `kit/brands/<id>/` | One brand: `profile.json`, a pinned `snapshot/` of its design system, `layers/*.css`, `ornaments.js`, `digest.md`, Office fonts, brand-owned files |
@@ -69,7 +69,7 @@ Brands today: run `run.sh brands` (it marks the default and lists onboarding dra
 
 ## Requirements
 
-Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations, WordPress's block parser for website pages, which need no browser); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`).
+Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` runs `setup.sh` the first time an output type is built and installs what that build needs (pandoc, Chromium, pptxgenjs, sharp, pikepdf, the Office fonts, GSAP for illustrations, WordPress's block parser for website pages, which need no browser); `run.sh setup all` does it up front. Tests also use PyMuPDF (`pip install pymupdf`), and run the kit's scripts directly, so they need the module path `run.sh` works out: after `run.sh setup all`, set `KIT` to the kit's absolute path and source `kit/env.sh` and `kit/kitenv.sh` (CI does this), or have a global Playwright.
 
 ## Build
 
@@ -77,8 +77,8 @@ Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` ru
 # The plugin zip into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
 python3 tools/build.py 2.0.0
 
-# One output, from a workspace with the kit copied in
-cp -r plugin/prism/skills/prism-produce/kit .prism-kit
+# One output, from a workspace with the kit synced in (sync.sh copies it, and replaces an older or edited copy)
+bash plugin/prism/skills/prism-produce/kit/sync.sh .prism-kit
 bash .prism-kit/run.sh sheet fixtures/sheet-paperwork-brief.md out/brief.pdf      # --print adds the white print copy
 bash .prism-kit/run.sh sheet fixtures/brochure.md out/brochure.pdf
 bash .prism-kit/run.sh sheet fixtures/5x7.md out/card.pdf
@@ -100,7 +100,7 @@ The other `run.sh` commands:
 
 | Command | What |
 |---|---|
-| `check` | Numbers in a format file that aren't in `content.md` |
+| `check` | Numbers in a format file that aren't in `content.md`, sign, percent, currency and scale included. Every build runs the same check on a format file in a piece (`<piece>/formats/`) and refuses strays; a number that is not a claim goes in the format file's front matter as `allow-numbers: [...]` |
 | `vet` | Fixes numbering and slips after an edit, flags what needs a look, lists changed passages (`--was`, `--fix`) |
 | `preview` | A contact sheet of built outputs (PDF pages, slides, PNGs) for a visual check |
 | `images` | Normalises uploaded photos and finds each one's focal point |
@@ -146,9 +146,11 @@ node tests/social-checks.test.js       # posts and carousels: counters, point nu
 python3 tests/assets.test.py           # focal points, crop markup, the brand image library, photo metadata
 python3 tests/wire.test.py             # design mode: boards, canvas, read-back, state, co-op, website page sides
 python3 tests/tutorial.test.py         # the tutorial and walkthrough still describe every command, format, skill and stage; samples complete
-python3 tests/readme.test.py           # DEVELOPING.md still names every run.sh command and test suite; README.md points here
+python3 tests/readme.test.py           # DEVELOPING.md still names every run.sh command and test suite; README.md points here; agent copies match
 python3 tests/core-brand-free.test.py  # no brand is named in core; defaults come from the profiles
 ```
+
+**CI** (`.github/workflows/ci.yml`) runs every suite on each pull request and push to main, with the kit set up as a workspace would (`run.sh setup all`); the website illustration suite and the check of core blocks with WordPress's own block library (`PRISM_WP_MODULES`) run nightly and from **Actions > CI > Run workflow**.
 
 **Regression rule:** before a change, build every fixture (and the guide) with the current kit; after it, build again and run `python3 tests/diff-builds.py BEFORE AFTER`. PDFs and PNGs are compared pixel by pixel, decks by slide XML and media, text outputs line by line. Two runs of an unchanged kit differ by nothing, so any reported difference is real and needs a reason.
 
@@ -160,4 +162,4 @@ A brand is a Claude Design System plus a Prism folder inside it (`project/prism/
 
 A brand sets its own sheet defaults in its profile's `options.sheet`: `byline: false` (no author and date under the title), `colophon: false` (no closing line; `colophon: on` in a format file brings it back), `cta_qr: "beside-copy"` (a closing card's QR beside all of its copy) and `checks: ["orphans", "variety"]` (`sheet-checks.js`: titles and headings never end on one word, paragraphs that do are reported, and sections that keep using the same format are reported). Case Amplify turns all of them on.
 
-After changing any file in a brand folder, run `node tools/pin-profile.js <brand>`, then the resolve and brands tests. Prism's own artwork is generated: `python3 tools/brand-art/prism.py <design system project dir> <out dir>` (the brand's `snapshot/` works as the project dir).
+After changing any file in a brand folder, run `node tools/pin-profile.js <brand>`, then the resolve and brands tests. Every font a brand ships travels with its license (the SIL Open Font License requires it): beside the font, or in the brand's `licenses/` (or `snapshot/licenses/`) folder; renamed Office copies say they are Modified Versions in `office/OFL.txt`. `run.sh fonts` puts the licenses in the deck font pack, and `tests/brands.test.js` fails a font without one. Prism's own artwork is generated: `python3 tools/brand-art/prism.py <design system project dir> <out dir>` (the brand's `snapshot/` works as the project dir).

@@ -4,7 +4,8 @@ PDF: kit stamp in the file properties, and only the brand's fonts (plus Phosphor
 Social, email or carousel folder: every PNG matches the fingerprint the build recorded.
 Website page folder: the block markup, page.json and every photo to upload match the build's fingerprints.
 HTML email folder: the tagged HTML, plain text, images zip and every image match the build's fingerprints.
-Every kind: no photo in it carries GPS (location) data."""
+Every kind: no photo in it carries GPS (location) data; the brand is the one the file records (--brand says which one it
+should be); and when the piece's content.md has moved on from the version the file was built from, it fails: rebuild."""
 import hashlib, json, os, re, sys, zipfile
 
 
@@ -14,8 +15,10 @@ from photometa import gps_in, gps_in_image
 
 KIT = os.path.dirname(os.path.abspath(__file__))
 args = sys.argv[1:]
-BRAND = args[args.index("--brand") + 1] if "--brand" in args else default_brand()
+EXPECT = args[args.index("--brand") + 1] if "--brand" in args else None
 if "--brand" in args: i = args.index("--brand"); del args[i:i + 2]
+if not args:
+    print("usage: verify.py [--brand ID] FILE_OR_FOLDER [...]  (deliver only what it reports as OK)"); sys.exit(2)
 
 
 def brand_fonts(bid):
@@ -27,8 +30,34 @@ def brand_fonts(bid):
     return {r: first(f"prism-font-{r}") for r in ("serif", "sans", "mono")}, set((prof.get("office") or {}).get("fonts", {}).values())
 
 
-FAMILIES, DECK_FONTS = brand_fonts(BRAND)
-PDF_FONTS = tuple(FAMILIES.values()) + ("Phosphor",)
+_fonts = {}
+def fonts_of(bid):
+    if bid not in _fonts: _fonts[bid] = brand_fonts(bid)
+    return _fonts[bid]
+
+
+def stamped(bid, version, path):
+    """The brand to check against and the problems with what the file records: another brand than --brand asks for,
+    or a content version content.md has since moved on from."""
+    errs = []
+    if EXPECT and bid and bid != EXPECT:
+        errs.append(f"built in the {bid} brand, not {EXPECT}: put brand: {EXPECT} in content.md (or the format file) and rebuild")
+    now = content_version(path)
+    if version and now and str(version) != str(now):
+        errs.append(f"built from content v{version}, but content.md is v{now} now: rebuild")
+    return (bid or EXPECT or default_brand()), errs
+
+
+def content_version(path):
+    """The version in the content.md of the piece an output sits in (<piece>/out/...), or None."""
+    d = os.path.abspath(path if os.path.isdir(path) else os.path.dirname(path))
+    for _ in range(3):
+        f = os.path.join(d, "content.md")
+        if os.path.exists(f):
+            m = re.search(r'^version:\s*["\']?v?(\d+)', open(f, encoding="utf8").read().split("\n---", 1)[0], re.M)
+            return m.group(1) if m else None
+        d = os.path.dirname(d)
+    return None
 GPS = "photo carries GPS location data (normalise it with run.sh images and rebuild)"
 IMAGES = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
@@ -43,6 +72,11 @@ def pdf(path):
     info = s[s.rfind(" obj", 0, at):s.find("endobj", at)] if at >= 0 else ""
     missing = [k for k in ("Title", "Author") if not re.search(rf"/{k}\s*[(<](?!\)|>)", info)]
     if missing: errs.append("PDF details missing: " + ", ".join(missing) + " (rebuild with this kit)")
+    bm, cm = re.search(r"/PrismBrand\s*\(([\w-]+)\)", info), re.search(r"/PrismContent\s*\((\d+)\)", info)
+    bid, more = stamped(bm and bm.group(1), cm and cm.group(1), path)
+    errs += more
+    FAMILIES = fonts_of(bid)[0]
+    PDF_FONTS = tuple(FAMILIES.values()) + ("Phosphor",)
     fonts = {re.sub(r"^[A-Z]{6}\+", "", f) for f in re.findall(r"/FontName\s*/([^\s/<>\[\]()]+)", s)}
     other = sorted(f for f in fonts if not f.startswith(PDF_FONTS))
     if other: errs.append("non-brand fonts: " + ", ".join(other))
@@ -58,6 +92,10 @@ def pptx(path):
         core = z.read("docProps/core.xml").decode("utf8", "ignore")
         if not re.search(r">Prism \d", core):
             errs.append("not built by the Prism kit (no kit stamp)")
+        bm, cm = re.search(r">Prism [^<]*· brand ([\w-]+)", core), re.search(r">Prism [^<]*· content v(\d+)", core)
+        bid, more = stamped(bm and bm.group(1), cm and cm.group(1), path)
+        errs += more
+        DECK_FONTS = fonts_of(bid)[1]
         faces = set()
         for n in z.namelist():
             # Slides and charts are what people see; masters and themes keep PowerPoint's unused defaults.
@@ -76,9 +114,16 @@ def folder(path):
         return ["not built by the Prism kit (no .prism-build.json)"]
     data = json.load(open(stamp))
     rec, errs = data["images"], []
+    _, errs = stamped(data.get("brand"), data.get("content"), path)
     for f in sorted(x for x in os.listdir(path) if x.endswith(".png")):
         h = hashlib.sha256(open(os.path.join(path, f), "rb").read()).hexdigest()
         if rec.get(f) != h: errs.append(f"{f} was not made by this build")
+    # Every image the build made is still there, and no other image sits beside them (C5).
+    for f in sorted(rec):
+        if not os.path.exists(os.path.join(path, f)): errs.append(f"{f} is missing")
+    known = set(rec) | set(data.get("files") or {})
+    for f in sorted(x for x in os.listdir(path) if x.lower().endswith(IMAGES) and not x.endswith(".png") and x not in known):
+        errs.append(f"{f} was not made by this build")
     # HTML email: the HTML, plain text, zip and every image are fingerprinted, so a hand edit shows up here.
     for f, want in (data.get("files") or {}).items():
         p = os.path.join(path, f)

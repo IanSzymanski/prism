@@ -14,20 +14,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # The version reaches the scripts only through env and must be a plain x.y.z, so no input can run as shell.
       - name: Check the version is stamped
+        env:
+          VERSION: ${{ inputs.version }}
         run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "version must be x.y.z, not: $VERSION"; exit 1; }
           stamped="$(cat plugin/prism/skills/prism-produce/kit/VERSION)"
-          [ "$stamped" = "${{ inputs.version }}" ] || { echo "kit/VERSION says $stamped, not ${{ inputs.version }}: run tools/build.py ${{ inputs.version }} and merge first"; exit 1; }
+          [ "$stamped" = "$VERSION" ] || { echo "kit/VERSION says $stamped, not $VERSION: run tools/build.py $VERSION and merge first"; exit 1; }
       - name: Build the plugin zip
-        run: python3 tools/build.py "${{ inputs.version }}"
+        env:
+          VERSION: ${{ inputs.version }}
+        run: python3 tools/build.py "$VERSION"
       - name: Nothing changed while building
         run: git diff --exit-code
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          SHA: ${{ github.sha }}
         run: |
           # A version's own notes (.github/release-notes/<version>.md) go above the standing install notes.
           notes=.github/release-notes.md
-          if [ -f ".github/release-notes/${{ inputs.version }}.md" ]; then cat ".github/release-notes/${{ inputs.version }}.md" .github/release-notes.md > /tmp/notes.md; notes=/tmp/notes.md; fi
-          gh release create "v${{ inputs.version }}" "dist/prism-${{ inputs.version }}.zip" \
-            --target "${{ github.sha }}" --title "Prism ${{ inputs.version }}" --notes-file "$notes"
+          if [ -f ".github/release-notes/$VERSION.md" ]; then cat ".github/release-notes/$VERSION.md" .github/release-notes.md > /tmp/notes.md; notes=/tmp/notes.md; fi
+          gh release create "v$VERSION" "dist/prism-$VERSION.zip" \
+            --target "$SHA" --title "Prism $VERSION" --notes-file "$notes"

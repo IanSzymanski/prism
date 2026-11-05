@@ -28,7 +28,8 @@ function used() {
 const files = layout === "design-system" ? used() : walk(snap).map(p => rel(snap, p)).sort();
 prof.snapshot.files = Object.fromEntries(files.map(f => [f, sha(path.join(snap, f))]));
 prof.snapshot.blobs = Object.fromEntries(Object.entries(idx.assetGroups || {}).flatMap(([g, v]) => Object.entries(v.files || {}).map(([f, r]) => [`assets/${g}/${f}`, r.blob])));
-if (prof.office && fs.existsSync(path.join(dir, "office"))) prof.office.files = Object.fromEntries(walk(path.join(dir, "office")).sort().map(p => [rel(dir, p), sha(p)]));
+// Only the font files: a license or readme beside them (office/OFL.txt) travels with them but is not a font.
+if (prof.office && fs.existsSync(path.join(dir, "office"))) prof.office.files = Object.fromEntries(walk(path.join(dir, "office")).filter(p => /\.(ttf|otf)$/i.test(p)).sort().map(p => [rel(dir, p), sha(p)]));
 // Office fonts taken straight from the snapshot (no office/ folder) keep their names and take fresh hashes.
 else if (prof.office && prof.office.files) prof.office.files = Object.fromEntries(Object.keys(prof.office.files).filter(f => fs.existsSync(brandFile(where, f))).map(f => [f, sha(brandFile(where, f))]));
 // Every brand-owned file beside the profile (ornaments, layers, own assets, site kit, brand layouts; digest excluded), pinned

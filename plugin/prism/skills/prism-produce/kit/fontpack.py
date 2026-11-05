@@ -5,7 +5,7 @@ import glob, json, os, sys, zipfile
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from brandpath import brand_dir, brand_file, default_brand
+from brandpath import brand_dir, brand_file, default_brand, snapshot_dir
 
 KIT = os.path.dirname(os.path.abspath(__file__))
 out = sys.argv[1]
@@ -20,10 +20,17 @@ Install every font in this folder before opening or presenting a {prof["name"]} 
 {", ".join(sorted(set(names.values())))} are the brand fonts, named for Office.
 Without them PowerPoint swaps in other fonts and slides reflow.
 
-All fonts are under the SIL Open Font License.
+All fonts are under the SIL Open Font License; its text, with each font's copyright, is in licenses/.
 """
+fonts = sorted(brand_file(brand, p) for p in prof["office"].get("files", {}))
+# The font license travels with every copy (OFL condition 2): license files beside the fonts and in the brand's licenses/.
+licenses = sorted({os.path.abspath(f) for d in {os.path.dirname(f) for f in fonts} | {os.path.join(brand_dir(brand), "licenses"), os.path.join(snapshot_dir(brand), "licenses")}
+                   for f in glob.glob(os.path.join(d, "*")) if os.path.isfile(f) and os.path.basename(f).upper().startswith(("OFL", "LICENSE", "LICENCE"))})
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     z.writestr("README.txt", README)
-    for f in sorted(brand_file(brand, p) for p in prof["office"].get("files", {})):
+    for f in fonts:
         z.write(f, f"{folder}/{os.path.basename(f)}")
-print(f"wrote {out}")
+    for f in licenses:
+        z.write(f, f"{folder}/licenses/{os.path.basename(f)}")
+if not licenses: print(f"[fonts] no license text found for {brand}'s fonts: add the fonts' OFL.txt beside them or in the brand's licenses/ folder")
+print(f"wrote {out}" + (f" ({len(licenses)} license file{'s' if len(licenses) != 1 else ''})" if licenses else ""))

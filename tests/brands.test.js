@@ -44,4 +44,23 @@ ok(P.icons.weight === "regular" && C.icons.weight === "light", "icon weight foll
 ok(!P.res.roles["prism-asset-dark-surface"] && !!C.res.roles["prism-asset-dark-surface"], "the dark-card image is Case Amplify's only");
 ok(/Templates\/sample-landscape/.test(P.asset("prism-asset-placeholder")), "Prism's placeholders are its own test images");
 ok(fs.readFileSync(path.join(KIT, "brands", "prism", "layers", "sheet.css"), "utf8").includes("data-n"), "Prism's sections are numbered by hue");
+// 4. Font licenses (B3): every font the kit ships travels with its license, beside it or in its brand's licenses/ folder,
+// and a brand's PowerPoint font pack carries them too.
+const isLicense = f => /^(OFL|LICEN[CS]E)/i.test(f);
+const licensedDir = d => fs.existsSync(d) && fs.readdirSync(d).some(isLicense);
+const fontsIn = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.isDirectory() ? (["node_modules", "mods", "cache"].includes(e.name) ? [] : fontsIn(path.join(d, e.name))) : /\.(ttf|otf|woff2?)$/i.test(e.name) ? [path.join(d, e.name)] : []);
+for (const f of fontsIn(KIT)) {
+  const rel = path.relative(KIT, f), m = /^brands\/([^/]+)\//.exec(rel);
+  const homes = [path.dirname(f), ...(m ? [path.join(KIT, "brands", m[1], "licenses"), path.join(KIT, "brands", m[1], "snapshot", "licenses")] : [])];
+  ok(homes.some(licensedDir), `${rel} ships with its license`);
+}
+for (const b of brands) {
+  const prof = JSON.parse(fs.readFileSync(path.join(KIT, "brands", b, "profile.json"), "utf8"));
+  if (!prof.office || !prof.office.files) continue;
+  const zip = path.join(require("os").tmpdir(), `prism-fonts-${b}-${process.pid}.zip`);
+  const r = require("child_process").spawnSync("python3", [path.join(KIT, "fontpack.py"), zip, b], { encoding: "utf8" });
+  const list = r.status === 0 ? require("child_process").spawnSync("python3", ["-c", "import sys,zipfile;print('\\n'.join(zipfile.ZipFile(sys.argv[1]).namelist()))", zip], { encoding: "utf8" }).stdout : "";
+  ok(/\/licenses\/(OFL|LICEN)/i.test(list), `${b}'s font pack carries the fonts' license: ${r.stdout}${r.stderr}`);
+  fs.rmSync(zip, { force: true });
+}
 console.log(`${pass} passed, ${fail} failed (${brands.length} brands, ${coreFiles.length} core files)`); process.exit(fail ? 1 : 0);

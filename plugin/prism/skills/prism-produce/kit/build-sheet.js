@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // Markdown -> sheet, brochure or 5x7 card PDF in the document's brand. Usage: node build-sheet.js sheet.md [out.pdf] [--html] [--print]
-const { execFileSync } = require("child_process");
+const { execFileSync, spawnSync } = require("child_process");
 const path = require("path"), fs = require("fs"), os = require("os");
 const { chromium } = require("playwright");
 
 const args = process.argv.slice(2);
 const md = path.resolve(args.find(a => a.endsWith(".md")));
 const pdf = path.resolve(args.find(a => a.endsWith(".pdf")) || md.replace(/\.md$/, ".pdf"));
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "sheet");
 const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.join(here, "prism-sheet.css"));
 const html = md.replace(/\.md$/, ".sheet.html");
 // --print: the same piece on a plain white page, so office printers don't tint the sheet; the glow and tinted blocks stay.
@@ -76,8 +78,14 @@ const info = {
 
 // A brand layout's front matter defaults go in as a metadata file: the file's own front matter wins over it.
 let layMeta = null;
+// pandoc with its errors captured (a filter's own message is the whole story) and the safety filter's notes passed on.
+function pandocSafe(args) {
+  const r = spawnSync("pandoc", args, { env: B.env(), encoding: "utf8", stdio: ["ignore", "inherit", "pipe"], maxBuffer: 1 << 26 });
+  for (const l of String(r.stderr || "").split("\n")) if (l.startsWith("[safe]")) console.warn(l);
+  if (r.status !== 0) { const e = new Error(r.error ? r.error.message : `pandoc failed:\n${String(r.stderr || "").trim()}`); e.stderr = r.stderr; throw e; }
+}
 if (lay && Object.keys(lay.front).length) { layMeta = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "prism-layout-")), "front.json"); fs.writeFileSync(layMeta, JSON.stringify(lay.front)); }
-try { execFileSync("pandoc", [md, "-s", "--template", path.join(here, card ? "prism-5x7.html" : brochure ? "prism-brochure.html" : "prism-sheet.html"),
+try { pandocSafe([md, "-s", "--template", path.join(here, card ? "prism-5x7.html" : brochure ? "prism-brochure.html" : "prism-sheet.html"),
   "--css", "file://" + B.icons.css,
   "--css", "file://" + B.css, "--css", "file://" + css, ...(panels ? ["--css", "file://" + B.stylesheet(path.join(here, "prism-brochure.css"))] : []),
   // Cards reuse the brochure's narrow-panel styles, then size them.
@@ -87,10 +95,10 @@ try { execFileSync("pandoc", [md, "-s", "--template", path.join(here, card ? "pr
   // A brand layout's own CSS, after the brand's layers, only in that layout.
   ...(lay && lay.cssFile ? ["--css", "file://" + B.stylesheet(lay.cssFile, `brand-layout-${format}-${picked.layout}.css`)] : []),
   ...(layMeta ? ["--metadata-file", layMeta] : []), ...(base === "sidebar" && !panels ? ["-M", "prism-layout-base=sidebar"] : []),
-  "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "--wrap=none",
-  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, ...(card ? ["-V", "card-size=" + cardSize] : []), ...sheetVars.flatMap(v => ["-V", v]), "--resource-path", path.dirname(md), "-o", html], { env: B.env(), stdio: ["ignore", "inherit", "pipe"] }); }
+  "--lua-filter", path.join(here, "prism-safe.lua"), "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "--wrap=none",
+  "-V", "prism-logo=file://" + B.asset("prism-asset-logo"), "-V", "brand-name=" + B.name, "-V", "brand-contact=" + (B.content.contact || ""), "-V", "lang=" + info.lang, ...(card ? ["-V", "card-size=" + cardSize] : []), ...sheetVars.flatMap(v => ["-V", v]), "--resource-path", path.dirname(md), "-o", html]); }
 // A filter's own message (a 5x7 card with three sides) is the whole story; pandoc's stack trace is not.
-catch (e) { const m = /\d+: (5x7: .*)/.exec(String(e.stderr || "")); if (!m) throw e; console.error("[sheet] " + m[1]); process.exit(1); }
+catch (e) { const m = /\d+: ((?:5x7|chart): .*)/.exec(String(e.stderr || "")); if (!m) throw e; console.error("[sheet] " + m[1]); process.exit(1); }
 finally { if (layMeta) fs.rmSync(path.dirname(layMeta), { recursive: true, force: true }); }
 
 // Runs inside the page: tags image orientation, checks print resolution, and bakes fade and shadow
@@ -207,7 +215,7 @@ function stamp(file, ver) {
   const tr = s.slice(s.lastIndexOf("trailer"));
   const size = +/\/Size\s+(\d+)/.exec(tr)[1], root = /\/Root\s+(\d+\s+\d+\s+R)/.exec(tr)[1];
   const prev = +/startxref\s+(\d+)/.exec(s.slice(s.lastIndexOf("startxref")))[1];
-  const fields = [["Title", info.title], ["Author", info.author], ["Subject", info.subject], ["Keywords", info.keywords.join(", ")], ["Creator", `Prism ${ver}`], ["Producer", "Skia/PDF via prism-kit"]];
+  const fields = [["Title", info.title], ["Author", info.author], ["Subject", info.subject], ["Keywords", info.keywords.join(", ")], ["Creator", `Prism ${ver}`], ["PrismBrand", B.id], ["PrismContent", require("./naming.js").contentVersion(md) || ""], ["Producer", "Skia/PDF via prism-kit"]];
   const obj = `\n${size} 0 obj\n<<${fields.filter(([, v]) => v).map(([k, v]) => `/${k} ${pdfString(v)}`).join("\n")}>>\nendobj\n`;
   const at = buf.length + 1, xref = buf.length + Buffer.byteLength(obj, "latin1");
   const tail = `xref\n${size} 1\n${String(at).padStart(10, "0")} 00000 n \ntrailer\n<</Size ${size + 1}\n/Root ${root}\n/Info ${size} 0 R\n/Prev ${prev}>>\nstartxref\n${xref}\n%%EOF\n`;
@@ -230,8 +238,8 @@ function scrimRgb() { let h = "#000000"; try { h = B.color("prism-color-dark-dee
   // options.sheet.cta_qr: "beside-copy" (sheets, brochures and cards) puts a closing card's code beside all of its copy (eyebrow, heading and text), not just its last line.
   if (B.option("sheet.cta_qr", "") === "beside-copy") await page.evaluate(require("./sheet-checks.js").qrBesideCopy);
   // The photo fade is a brand treatment (options.images.fade); a brand without it shows photos as they are.
-  await page.addScriptTag({ content: require("./focus.js").inPage });
-  await page.addScriptTag({ content: require("./scrim.js").inPage });
+  await page.evaluate(require("./focus.js").inPage);
+  await page.evaluate(require("./scrim.js").inPage);
   const warnings = await page.evaluate(prepareImages, [panels ? 1 : 0.9, surface, B.option("images.fade", false), scrimRgb()]);
   for (const n of missingIcons) warnings.push(`no Phosphor icon "${n}"`);
   // Logos inside blocks: the on-dark logo on dark grounds.

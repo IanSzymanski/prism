@@ -6,6 +6,8 @@ const { chromium } = require("playwright");
 
 const here = __dirname;
 const md = path.resolve(process.argv[2]);
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "social");
 const outDir = path.resolve(process.argv[3] && !process.argv[3].startsWith("--") ? process.argv[3] : path.join(path.dirname(md), path.basename(md, ".md")));
 // Exported files carry the piece tag (slug, output, version) so posts from different pieces never mix.
 const { tagFor, named } = require("./naming.js");
@@ -57,7 +59,7 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   "--css", "file://" + B.css, "--css", "file://" + B.stylesheet(path.join(here, "prism-sheet.css")),
   "--css", "file://" + B.stylesheet(path.join(here, "prism-social.css")),
   ...[B.layer("sheet"), B.layer("social")].filter(Boolean).flatMap(f => ["--css", "file://" + f]),
-  "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"),
+  "--lua-filter", path.join(here, "prism-safe.lua"), "--lua-filter", path.join(here, "prism-sheet.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"),
   "--wrap=none", "--resource-path", path.dirname(md), "-o", html], { env: B.env() });
 
 (async () => {
@@ -81,7 +83,7 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
     }
   }
   // Photo crops centre on their focal points.
-  await page.addScriptTag({ content: require("./focus.js").inPage });
+  await page.evaluate(require("./focus.js").inPage);
   await page.evaluate(() => window.prismFocus());
   // Logos inside blocks: the on-dark logo on dark grounds.
   for (const w of await page.evaluate(require("./inlogo.js").pick)) console.warn("[social] " + w);
@@ -134,8 +136,10 @@ execFileSync("pandoc", [md, "-s", "--template", path.join(here, "prism-social.ht
   // Build stamp checked by verify.py: the kit version and a fingerprint of every image this build wrote.
   const sha = f => require("crypto").createHash("sha256").update(fs.readFileSync(f)).digest("hex");
   const pngs = fs.readdirSync(outDir).filter(f => f.endsWith(".png"));
-  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(),
-    images: Object.fromEntries(pngs.map(f => [f, sha(path.join(outDir, f))])) }, null, 1));
+  // The captions are fingerprinted with the images, so a hand edit to either shows up in verify.
+  const texts = fs.readdirSync(outDir).filter(f => f.endsWith("-captions.md"));
+  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(), brand: B.id, content: require("./naming.js").contentVersion(md),
+    images: Object.fromEntries(pngs.map(f => [f, sha(path.join(outDir, f))])), files: Object.fromEntries(texts.map(f => [f, sha(path.join(outDir, f))])) }, null, 1));
   await browser.close();
   fs.unlinkSync(html);
   console.log(`wrote ${posts.length} images and ${named(TAG, "captions", ".md")} (${TAG}-*) to ${outDir}`);

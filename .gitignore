@@ -9,6 +9,7 @@ plugin/prism/skills/prism-produce/kit/mods/
 plugin/prism/skills/prism-produce/kit/env.sh
 plugin/prism/skills/prism-produce/kit/.ready-*
 plugin/prism/skills/prism-produce/kit/.setup.lock
+plugin/prism/skills/prism-produce/kit/.launch-error
 
 # Scratch files builders leave beside a source
 *.sheet.html

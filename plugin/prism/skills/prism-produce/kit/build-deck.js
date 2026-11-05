@@ -9,6 +9,8 @@ const { chromium } = require("playwright");
 const here = __dirname;
 const md = path.resolve(process.argv[2]);
 const out = path.resolve(process.argv[3] || md.replace(/\.md$/, ".pptx"));
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "deck");
 
 // Brand values from the profile, as PowerPoint hex (no #). Solid colours only, as in prism-sheet.css.
 const B = require("./brand.js")(md), hx = (n, t) => B.color(n, t).replace(/^#/, "");
@@ -38,7 +40,7 @@ const F = B.office.fonts;
 const SW = 13.333, SH = 7.5, MX = 0.75, CW = SW - 2 * MX;
 
 // ---------- Markdown -> pandoc AST ----------
-const ast = JSON.parse(execFileSync("pandoc", [md, "-t", "json", "--lua-filter", path.join(__dirname, "prism-unbroken.lua")], { maxBuffer: 1 << 26, env: B.env() }).toString());
+const ast = JSON.parse(execFileSync("pandoc", [md, "-t", "json", "--lua-filter", path.join(__dirname, "prism-safe.lua"), "--lua-filter", path.join(__dirname, "prism-unbroken.lua")], { maxBuffer: 1 << 26, env: B.env() }).toString());
 const meta = {};
 for (const [k, v] of Object.entries(ast.meta)) meta[k] = v.t === "MetaInlines" ? v.c : v.c;
 
@@ -86,8 +88,12 @@ function parseChart(text) {
     if (!m) continue;
     const k = m[1].trim();
     if (KEYS.has(k)) spec[k] = m[2];
-    else rows.push({ label: k, vals: m[2].split(",").map(s => ({ s: s.trim(), n: parseFloat(s.replace(/[^\d.\-]/g, "")) })) });
+    // A thousands separator (1,200 or 1,234,567) is part of its number; series are split at the other commas.
+    else rows.push({ label: k, vals: m[2].split(/,(?!\d{3}(?!\d))/).map(s => ({ s: s.trim(), n: parseFloat(s.replace(/[^\d.\-]/g, "")) })) });
   }
+  // One value per row unless the chart names its series: "2023: 1,2" would otherwise plot 1 and drop the rest.
+  const multi = spec.series ? null : rows.find(r => r.vals.length > 1);
+  if (multi) { console.error(`[deck] chart: row "${multi.label}" has ${multi.vals.length} values (${multi.vals.map(v => v.s).join(" | ")}); write one number per row (1200 or 1,200), or name the series with series: A, B`); process.exit(1); }
   return { spec, rows };
 }
 function highlighted(spec, rows) {
@@ -441,7 +447,9 @@ async function chartSlide(slide, blocks) {
   pres.title = plain(meta.pagetitle || meta.title || []);
   pres.company = B.name;
   // Build stamp checked by verify.py.
-  pres.subject = "Prism " + fs.readFileSync(path.join(here, "VERSION"), "utf8").trim();
+  // It names the brand and the content version too, which verify reads.
+  const cv = require("./naming.js").contentVersion(md);
+  pres.subject = "Prism " + fs.readFileSync(path.join(here, "VERSION"), "utf8").trim() + " · brand " + B.id + (cv ? " · content v" + cv : "");
   pres.theme = { headFontFace: F.serif, bodyFontFace: F.sans };
 
   const slides = ast.blocks.filter(b => b.t === "Div" && b.c[0][1].includes("slide"));

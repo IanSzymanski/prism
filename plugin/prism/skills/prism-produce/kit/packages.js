@@ -6,7 +6,8 @@
 // copy saved with a bundled brand (snapshot/packages.json); a brand read from its design system has them in its Prism folder. Each output is its own format file, formats/<id>.md.
 // Usage: packages.js [list] [--brand B] [--live DIR] [--json]
 //        packages.js show <id> [--brand B] [--live DIR] [--json]
-//        packages.js use <project> <id> [--brand B] [--live DIR] [--drop a,b] [--add id:format] [--set output.key=value]...
+//        packages.js use <project> <id> [--brand B] [--live DIR] [--drop a,b] [--add id:format] [--set output.key=value]... [--reset]
+//                         (the same package again changes the piece's own set and keeps earlier changes; --reset starts over)
 //        packages.js use <project> --new "<name>" --add id:format... [--set ...]   (a one-off set for this piece only)
 //        packages.js save <id> OUT.json [--from <project> | --base <package>] [--name N] [--use U] [--asks a,b] [--piece P]
 //                         [--length L] [--drop/--add/--set ...] [--remove]   (the design system's packages.json with <id> added,
@@ -17,7 +18,7 @@
 const fs = require("fs"), path = require("path"), { execFileSync } = require("child_process");
 const { defaultBrand, brandDir } = require("./resolve.js");
 const { tagFor, kebab } = require("./naming.js");
-const { numbers } = require("./check-numbers.js");
+const { numbers, strays: straysIn } = require("./check-numbers.js");
 const L = require("./layouts.js");
 
 const KIT = __dirname;
@@ -162,17 +163,29 @@ else if (cmd === "show") {
 }
 
 else if (cmd === "use") {
-  const drop = opts("--drop").flatMap(x => x.split(",")), add = opts("--add"), sets = opts("--set"), oneOff = opt("--new");
-  const proj = project(args[0]), brand = brandOf(proj);
+  const drop = opts("--drop").flatMap(x => x.split(",")), add = opts("--add"), sets = opts("--set"), oneOff = opt("--new"), reset = flag("--reset");
+  const brandFlag = opt("--brand");
+  // The project folder is enough: a package is often chosen in the interview, before content.md is written (C14).
+  const proj = path.resolve(args[0] || die("usage: packages.js use <project> <id> | --new <name>"));
+  if (!fs.existsSync(proj)) die(`no project folder ${proj}`);
+  const pf = path.join(proj, "package.json"), prev = fs.existsSync(pf) ? JSON.parse(fs.readFileSync(pf, "utf8")) : null;
+  const cm = path.join(proj, "content.md"), written = fs.existsSync(cm) ? fmKey(fs.readFileSync(cm, "utf8"), "brand") : null;
   // A one-off set is made for this piece only; saving it for everyone goes through `save` and the design system.
   const id = oneOff ? kebab(oneOff) : args[1] || die("usage: packages.js use <project> <id> | --new <name>");
-  const all = oneOff ? {} : load(brand, live), base = oneOff ? { name: oneOff, outputs: [], from: "this piece" } : all[id];
+  // The same package again changes this piece's own set, so earlier changes stay (C14); another package, --new or
+  // --reset starts from the definition.
+  const keep = !!(prev && prev.package === id && !oneOff && !reset);
+  const brand = brandFlag || written || (keep && prev.brand) || defaultBrand();
+  const all = oneOff || keep ? {} : load(brand, live);
+  const base = keep ? prev : oneOff ? { name: oneOff, outputs: [], from: "this piece" } : all[id];
   if (!base) die(`no package "${id}"; packages: ${Object.keys(all).join(", ")}`);
   const outputs = base.outputs.map(o => ({ ...o })), changes = applyChanges(id, outputs, drop, add, sets);
   const errs = validate(id, { ...base, outputs }); if (errs.length) die(errs.map(x => "[packages] " + x).join("\n"));
-  const rec = { package: id, name: base.name, brand, from: base.from, piece: base.piece || null, length: base.length || null, outputs, changes };
-  fs.writeFileSync(path.join(proj, "package.json"), JSON.stringify(rec, null, 1) + "\n");
-  console.log(`package.json written: ${base.name}${changes.length ? ` (${changes.join("; ")})` : ""}`);
+  const rec = { package: id, name: base.name, brand, from: base.from, piece: base.piece || null, length: base.length || null, outputs,
+    changes: [...(keep ? prev.changes || [] : []), ...changes] };
+  fs.writeFileSync(pf, JSON.stringify(rec, null, 1) + "\n");
+  console.log(`package.json ${keep ? "changed" : "written"}: ${base.name}${changes.length ? ` (${changes.join("; ")})` : ""}${keep && prev.changes && prev.changes.length ? `; earlier changes kept (${prev.changes.join("; ")})` : ""}`);
+  if (!written && !brandFlag && !(keep && prev.brand)) console.log(`brand: ${brand} (the default; pass --brand for another)`);
   for (const o of outputs) console.log(`- ${line(o)}`);
   console.log(`content.md front matter:\npackage: ${id}\nexports: [${outputs.map(o => o.id).join(", ")}]`);
 }
@@ -241,11 +254,12 @@ else if (cmd === "claims") {
   // others don't make. The table says which outputs carry each claims.md row (by its numbers), so a change to one claim
   // can be followed into every output that states it.
   const proj = project(args[0]), pkg = piecePackage(proj), content = fs.readFileSync(path.join(proj, "content.md"), "utf8");
-  const known = numbers(content), outs = {}, strays = {};
+  const outs = {}, strays = {};
   for (const o of pkg.outputs) {
     const f = path.join(proj, "formats", o.id + ".md"); if (!fs.existsSync(f)) continue;
-    outs[o.id] = numbers(fs.readFileSync(f, "utf8"));
-    const s = [...outs[o.id]].filter(n => !known.has(n)); if (s.length) strays[o.id] = s;
+    const text = fs.readFileSync(f, "utf8"); outs[o.id] = numbers(text);
+    // The same rule the builds use: sign, percent, currency and scale count, and allow-numbers is honoured.
+    const s = straysIn(content, text).map(t => t.raw); if (s.length) strays[o.id] = s;
   }
   const cf = path.join(proj, "claims.md"), rows = [];
   if (fs.existsSync(cf)) for (const l of fs.readFileSync(cf, "utf8").split("\n")) {

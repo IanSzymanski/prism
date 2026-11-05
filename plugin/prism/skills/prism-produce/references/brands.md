@@ -2,7 +2,7 @@
 
 A brand's Prism files live in its own Claude Design System, in `project/prism/` beside the design system's tokens, fonts and images. Anyone in the organization who can open the design system can use the brand; only its editors and owners can change it. A session brings the brands it can reach into the workspace (`.prism/brands/<id>/`), where every build reads them; a brand read from its design system replaces the copy bundled with the plugin. Brands bundled with the plugin keep working without any of this.
 
-Do this once per session, right after the kit is copied to `.prism-kit`, before reading `run.sh brands`. Say nothing about it unless something below says to.
+Do this once per session, right after the kit is synced to `.prism-kit`, before reading `run.sh brands`. Say nothing about it unless something below says to.
 
 1. **List the design systems** the person can open: the Artifact tool's list with `type: "Design System"` and `scope: "all"`. Note the row marked as the person's or the organization's default, if any. None listed, or the list fails: stop here.
 2. **Plan.** `bash .prism-kit/run.sh ds plan [--default <default's link>] <every listed link>`. It says `check` or `skip` for each: it looks only at the brands installed here, the default, the design systems the bundled brands came from, and design systems it hasn't seen this week. When the person names a brand that neither `run.sh brands` nor this session has, run it again with `--all`.

@@ -41,7 +41,22 @@ r = pk("use", proj, "case-study", "--drop", "deck", "--set", "social.posts=3", "
 const rec = JSON.parse(fs.readFileSync(path.join(proj, "package.json"), "utf8"));
 ok(r.status === 0 && !rec.outputs.some(o => o.id === "deck") && rec.outputs.find(o => o.id === "social").posts === 3 && rec.outputs.some(o => o.id === "carousel" && o.format === "carousel"), `use applies drop, set and add: ${r.stderr}`);
 ok(/exports: \[social, story, blog, sheet, case-study, html-email, carousel\]/.test(r.stdout) && /package: case-study/.test(r.stdout), "use prints the front matter lines");
-ok(pk("use", proj, "case-study", "--set", "deck.pages=2").status === 2, "a count that doesn't fit the format is refused");
+ok(pk("use", proj, "case-study", "--reset", "--set", "deck.pages=2").status === 2, "a count that doesn't fit the format is refused");
+// C14: the same package again keeps the piece's earlier changes; --reset starts from the definition.
+r = pk("use", proj, "case-study", "--set", "sheet.pages=1");
+let again = JSON.parse(fs.readFileSync(path.join(proj, "package.json"), "utf8"));
+ok(r.status === 0 && again.outputs.find(o => o.id === "social").posts === 3 && !again.outputs.some(o => o.id === "deck") && again.outputs.some(o => o.id === "carousel")
+  && again.changes.length === 4 && /earlier changes kept/.test(r.stdout), `a second use keeps posts=3, no deck and the carousel: ${r.stdout}${r.stderr}`);
+r = pk("use", proj, "case-study", "--reset");
+again = JSON.parse(fs.readFileSync(path.join(proj, "package.json"), "utf8"));
+ok(r.status === 0 && again.outputs.some(o => o.id === "deck") && !again.outputs.some(o => o.id === "carousel") && !again.changes.length, `--reset starts from the definition: ${r.stderr}`);
+pk("use", proj, "case-study", "--drop", "deck", "--set", "social.posts=3", "--add", "carousel");
+// A package chosen before content.md exists, in the brand named for the piece.
+const early = path.join(TMP, "early-piece"); fs.mkdirSync(early);
+r = pk("use", early, "case-study", "--brand", "acme");
+ok(r.status === 0 && JSON.parse(fs.readFileSync(path.join(early, "package.json"), "utf8")).brand === "acme", `use works before content.md, with --brand: ${r.stdout}${r.stderr}`);
+r = pk("use", early, "case-study", "--set", "social.posts=1");
+ok(r.status === 0 && JSON.parse(fs.readFileSync(path.join(early, "package.json"), "utf8")).brand === "acme", `a later change keeps the piece's brand: ${r.stderr}`);
 r = pk("use", proj, "case-study", "--set", "case-study.pages=4"); ok(r.status === 0 && JSON.parse(fs.readFileSync(path.join(proj, "package.json"), "utf8")).outputs.find(o => o.id === "case-study").pages === 4 && !/min_pages/.test(fs.readFileSync(path.join(proj, "package.json"), "utf8").split('"case-study"')[2] || ""), "pages replaces min_pages");
 // A one-off set for this piece only, and saving a set for the design system (Prism never changes the design system itself).
 r = pk("use", proj, "--new", "Webinar recap", "--add", "social", "--set", "social.posts=2", "--add", "recap:sheet", "--set", "recap.pages=1");
@@ -94,7 +109,7 @@ r = pk("check", proj, "--built"); ok(r.status === 0, `a built package checks OK:
 r = pk("claims", proj, "--json"); let c = JSON.parse(r.stdout);
 ok(r.status === 0 && c.claims.find(x => x.n === 1).in.includes("blog") && c.claims.find(x => x.n === 2).in.join() === "sheet" && c.claims.find(x => x.n === 3).in === null, `claims are traced to outputs: ${r.stdout.slice(0, 300)}`);
 W("deck", "---\ntitle: D\n---\n\n:::: {.slide .stats}\n## 38% less\n::::\n");
-r = pk("claims", proj); ok(r.status === 1 && /deck: 38 not in content\.md/.test(r.stdout), `an edit in one output that changes a claim is caught: ${r.stdout}`);
+r = pk("claims", proj); ok(r.status === 1 && /deck: 38% not in content\.md/.test(r.stdout), `an edit in one output that changes a claim is caught: ${r.stdout}`);
 W("deck", "---\ntitle: D\n---\n\n:::: {.slide .title}\n::::\n");
 
 // 7. One zip: a folder per output, the guides left out, a contents list; refused while an output is unbuilt.

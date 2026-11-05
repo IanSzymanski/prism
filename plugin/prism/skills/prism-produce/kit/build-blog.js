@@ -7,6 +7,8 @@ const { chromium } = require("playwright");
 
 const here = __dirname;
 const md = path.resolve(process.argv[2]);
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "blog");
 const B = require("./brand.js")(md);
 const outDir = path.resolve(process.argv[3] && !process.argv[3].startsWith("--") ? process.argv[3] : path.join(path.dirname(md), "blog"));
 const { tagFor, named } = require("./naming.js");
@@ -63,7 +65,7 @@ const layer = motif === "image" ? `<img class="bh-image ${side}" src="${imgUrl}"
   : motif === "screen" ? `<div class="bh-shot" style="--x:${between(0.18, 0.3) * W}px;--y:${between(140, 220)}px"><img src="${imgUrl}"></div>`
   : motif === "series" ? `<div class="bh-series"><div class="bh-series-name">${plain(meta.series || "Changelog")}</div>${meta.release ? `<div class="bh-series-line">${plain(meta.release)}</div>` : ""}</div>` : "";
 const headHtml = path.join(outDir, ".header.html");
-fs.writeFileSync(headHtml, `<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="file://${B.css}"><link rel="stylesheet" href="file://${B.stylesheet(path.join(here, "prism-sheet.css"))}"><link rel="stylesheet" href="file://${B.stylesheet(path.join(here, "prism-blog.css"))}">${[B.layer("sheet"), B.layer("blog")].filter(Boolean).map(f => `<link rel="stylesheet" href="file://${f}">`).join("")}
+fs.writeFileSync(headHtml, `<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="script-src 'none'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'"><link rel="stylesheet" href="file://${B.css}"><link rel="stylesheet" href="file://${B.stylesheet(path.join(here, "prism-sheet.css"))}"><link rel="stylesheet" href="file://${B.stylesheet(path.join(here, "prism-blog.css"))}">${[B.layer("sheet"), B.layer("blog")].filter(Boolean).map(f => `<link rel="stylesheet" href="file://${f}">`).join("")}
 <body class="prism-blog"><div class="bh ${motif} ${art.classes}${art.dark ? " on-dark" : ""}">${art.under}${layer}${art.over}</div></body>`);
 
 // Charts: the ```chart blocks become PNGs in the brand chart style (caption left to the CMS), and the post links them as images.
@@ -79,7 +81,7 @@ if (charts.length) {
   fs.writeFileSync(tmp, charts.map(c => c[0]).join("\n\n"));
   chartHtml = path.join(outDir, ".charts.html");
   execFileSync("pandoc", [tmp, "-s", "--metadata", "pagetitle=charts", "--css", "file://" + B.css, "--css", "file://" + B.stylesheet(path.join(here, "prism-sheet.css")),
-    "--lua-filter", path.join(here, "prism-charts.lua"), "-o", chartHtml], { env: B.env() });
+    "--lua-filter", path.join(here, "prism-safe.lua"), "--lua-filter", path.join(here, "prism-charts.lua"), "-o", chartHtml], { env: B.env() });
   fs.unlinkSync(tmp);
 }
 
@@ -89,7 +91,7 @@ if (charts.length) {
   await page.goto("file://" + headHtml, { waitUntil: "networkidle" });
   const missing = await page.evaluate(() => [...document.images].filter(i => !i.naturalWidth).map(i => decodeURI(i.src)));
   for (const m of missing) console.warn(`[blog] missing image: ${m}`);
-  await page.addScriptTag({ content: require("./focus.js").inPage });
+  await page.evaluate(require("./focus.js").inPage);
   await page.evaluate(() => window.prismFocus());
   await (await page.$(".bh")).screenshot({ path: path.join(outDir, named(TAG, "header", ".png")) });
 
@@ -108,13 +110,13 @@ if (charts.length) {
   const fields = ["title", "author", "role", "type", "excerpt", "tags"].filter(k => meta[k]).map(k => `${k}: ${k === "title" ? plain(meta[k]) : meta[k]}`);
   fs.writeFileSync(path.join(outDir, named(TAG, "post", ".md")), `---\n${fields.join("\n")}\n---\n\n${postMd.trim()}\n`);
   fs.writeFileSync(path.join(outDir, ".body.md"), postMd.trim() + "\n");
-  execFileSync("pandoc", [path.join(outDir, ".body.md"), "-f", "markdown-yaml_metadata_block", "-t", "html", "--wrap=none", "--lua-filter", path.join(here, "prism-unbroken.lua"), "-o", path.join(outDir, named(TAG, "post", ".html"))], { env: B.env() });
+  execFileSync("pandoc", [path.join(outDir, ".body.md"), "-f", "markdown-yaml_metadata_block", "-t", "html", "--wrap=none", "--lua-filter", path.join(here, "prism-safe.lua"), "--lua-filter", path.join(here, "prism-unbroken.lua"), "-o", path.join(outDir, named(TAG, "post", ".html"))], { env: B.env() });
   fs.unlinkSync(path.join(outDir, ".body.md"));
 
   // Build stamp checked by verify.py, as for social images.
   const sha = f => crypto.createHash("sha256").update(fs.readFileSync(f)).digest("hex");
   const pngs = fs.readdirSync(outDir).filter(f => f.endsWith(".png"));
-  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(),
+  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(), brand: B.id, content: require("./naming.js").contentVersion(md),
     images: Object.fromEntries(pngs.map(f => [f, sha(path.join(outDir, f))])) }, null, 1));
   console.log(`wrote ${named(TAG, "header", ".png")} (${motif}, ${tone}), ${charts.length} chart image${charts.length === 1 ? "" : "s"}, ${named(TAG, "post", ".md")} and .html to ${outDir}`);
 })();

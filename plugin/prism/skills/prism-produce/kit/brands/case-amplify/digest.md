@@ -1,6 +1,6 @@
 # Case Amplify brand rules for content
 
-The Case Amplify Product and Marketing Manifest (version 0.12, October 26, 2026) is the source of truth for what Case Amplify is, what it does, how it is described and what may be claimed. It is part of the Case Amplify design system (its Manifest sections) and, when the `caseamplify-manifest` skill is available, that skill: load it. Where the manifest and the brand book overlap, the manifest governs the words and the brand book governs the visuals. These rules are the short version and apply either way.
+The Case Amplify Product and Marketing Manifest (version 0.12, October 26, 2026) is the source of truth for what Case Amplify is, what it does, how it is described and what may be claimed. It is part of the Case Amplify design system (its Manifest sections) and the `caseamplify-manifest` skill, which the writer and reviewer agents load when it is available (nothing else loads it). Where the manifest and the brand book overlap, the manifest governs the words and the brand book governs the visuals. These rules are the short version and apply either way.
 
 ## Product and message
 

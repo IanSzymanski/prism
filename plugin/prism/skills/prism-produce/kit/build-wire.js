@@ -326,7 +326,8 @@ renderVals() { return {}; }
 </body>
 </html>
 `);
-    fs.writeFileSync(path.join(outDir, "wire.json"), JSON.stringify({ source: path.basename(md), board, frontMatter: fm ? fm[0] : "", wrapOpen, wrapClose, meta,
+    // sourceHash: the format file as the board shows it, so reading the board back never overwrites a later edit (C1).
+    fs.writeFileSync(path.join(outDir, "wire.json"), JSON.stringify({ source: path.basename(md), sourceHash: require("crypto").createHash("sha256").update(src).digest("hex"), board, frontMatter: fm ? fm[0] : "", wrapOpen, wrapClose, meta,
       blocks: shown.map(b => ({ id: b.id, md: b.md, text: plainOf(b.md.replace(/^:{3,}.*$/gm, "").replace(/^```[\s\S]*?```$/m, (m) => (/caption:\s*(.*)/.exec(m) || [, ""])[1])) })),
       hidden: hidden.map(b => ({ id: b.id, md: b.md })), size: { w: W, h: H } }, null, 1));
     console.log(`wrote ${board} (${W}×${H}, ${shown.length} blocks) and wire.json to ${outDir}`);

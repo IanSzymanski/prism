@@ -13,17 +13,26 @@ function projectOf(formatFile) {
   return path.basename(path.dirname(path.resolve(formatFile))) === "formats" ? path.dirname(path.dirname(path.resolve(formatFile))) : null;
 }
 
+// content.md's front matter of the piece a format file belongs to ("" when it has none: quick mode, fixtures).
+function contentFront(formatFile) {
+  const proj = projectOf(formatFile), f = proj && path.join(proj, "content.md");
+  return f && fs.existsSync(f) ? fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n").split(/\n---\s*\n/)[0] : "";
+}
+// The content version a format file is built from, or null.
+function contentVersion(formatFile) { const m = /^version:\s*["']?v?(\d+)/m.exec(contentFront(formatFile)); return m ? m[1] : null; }
+// The brand content.md names, or null.
+function contentBrand(formatFile) { const m = /^brand:\s*["']?([\w-]+)/m.exec(contentFront(formatFile)); return m ? m[1] : null; }
+
 function tagFor(formatFile, meta = {}) {
   const proj = projectOf(formatFile);
   const output = kebab(meta.output || path.basename(formatFile, ".md"));
   const slug = kebab(meta.slug || (proj ? path.basename(proj) : "") || meta.title || "piece");
   // Quick mode has no content.md, so its tag has no version.
-  let version = meta.version;
-  if (!version && proj && fs.existsSync(path.join(proj, "content.md"))) { const m = /^version:\s*["']?v?(\d+)/m.exec(fs.readFileSync(path.join(proj, "content.md"), "utf8").replace(/\r\n/g, "\n").split(/\n---\s*\n/)[0]); if (m) version = m[1]; }
+  const version = meta.version || contentVersion(formatFile);
   return [slug, output, version ? "v" + String(version).replace(/^v/i, "") : ""].filter(Boolean).join("-");
 }
 
 const named = (tag, part, ext) => `${tag}${part ? "-" + kebab(part) : ""}${ext}`;
 
-module.exports = { tagFor, named, kebab };
+module.exports = { tagFor, named, kebab, contentVersion, contentBrand };
 if (require.main === module) console.log(tagFor(process.argv[2]));
