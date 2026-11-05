@@ -168,8 +168,8 @@ Read `../prism-produce/references/formats/5x7.md`. Front `.cover` when there is 
    For social, email and carousel, the build line is instead:
    ```bash
    .prism-kit/run.sh social <slug>/formats/<format>.md <slug>/out/<format> && cat <slug>/out/<format>/*-captions.md
-   For a deck: `.prism-kit/run.sh deck <slug>/formats/deck.md <slug>/out/$(.prism-kit/run.sh tag <slug>/formats/deck.md).pptx`. Every exported file starts with the piece tag (`<slug>-<output>-v<version>`) so pieces never mix.
    ```
+   For a deck: `.prism-kit/run.sh deck <slug>/formats/deck.md <slug>/out/$(.prism-kit/run.sh tag <slug>/formats/deck.md).pptx`. Every exported file starts with the piece tag (`<slug>-<output>-v<version>`) so pieces never mix.
    If the build prints `setup: MISSING ...`, tell the user which tool is unavailable and stop. Never mark setup as done by hand.
    A brand library photo (`brand:<id>`) is fetched before the build: `.prism-kit/run.sh library <brand> --need <slug>/formats/`, read the upload ids it prints in one call (the Artifact tool, the brand's `design_system` link, `paths`), then `.prism-kit/run.sh library <brand> --take <the folder the read names>`. If that fails, use `prism:placeholder` instead and say so.
 2. Fix only hard failures, then rebuild once:
@@ -181,7 +181,7 @@ Read `../prism-produce/references/formats/5x7.md`. Front `.cover` when there is 
 4. `.prism-kit/run.sh verify <built file or image folder>` (it reads the brand the file was built in; `--brand <brand>` confirms the one it should be). Deliver only on `OK`; on `FAIL`, rebuild through `run.sh`.
 5. Send the PDF (or the PNGs and the captions file, or the PPTX) and the format file with SendUserFile.
 6. Message, short:
-   - one line on what it is, then one line per file saying what it is for (the file roles listed under "3. Deliver" in the prism-produce skill);
+   - one line on what it is, then one line per file saying what it is for: the PDF, PPTX or PNGs are the finished piece; the captions file is the post copy to paste with each image (email header: the subject line and preheader); `formats/<format>.md` is the editable source (for social it holds the image text and the caption: edit it and ask for a rebuild rather than editing the captions file);
    - **"Quick mode: not proofed."** Then every number, quote and capability claim in the piece, as a short numbered list, so the user can check them in one read;
    - how to revise: reply with changes, or say "full proof" for the normal process.
 
