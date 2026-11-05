@@ -59,6 +59,8 @@ fs.copyFileSync(path.join(ROOT, "fixtures", "images", "harbor-phone.png"), path.
 fs.writeFileSync(path.join(proj, "formats", "images", ".focus.json"), JSON.stringify({ "visit.png": "40% 30%" }));
 const src = fs.readFileSync(FIX, "utf8").replace("![A caseworker reviewing a stack of paperwork late in the day.](prism:placeholder){slot=workload}", "![A caseworker on a home visit.](images/visit.png)")
   .replace(/^(template|seo-title|description|keyphrase): .*\n/gm, "").replace("post: 0\n", "post: 0\ntemplate: inner\nseo-title: Reduce Caseworker Burnout | Test\ndescription: A short description.\nkeyphrase: caseworker burnout\nparent: 12\n");
+// content.md holds the page's words, as a piece's does, so the build's number check finds every number approved.
+write("piece/content.md", "---\ntitle: Piece\nversion: 3\nstatus: approved\n---\n\n" + src.replace(/^---\n[\s\S]*?\n---\n/, ""));
 const fmt = write("piece/formats/web.md", src), out = path.join(proj, "out", "web");
 let r = run(["web", fmt, out]);
 ok(r.status === 0, `run.sh web builds: ${r.stderr}`);

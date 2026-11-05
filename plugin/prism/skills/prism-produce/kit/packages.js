@@ -18,7 +18,7 @@
 const fs = require("fs"), path = require("path"), { execFileSync } = require("child_process");
 const { defaultBrand, brandDir } = require("./resolve.js");
 const { tagFor, kebab } = require("./naming.js");
-const { numbers } = require("./check-numbers.js");
+const { numbers, strays: straysIn } = require("./check-numbers.js");
 const L = require("./layouts.js");
 
 const KIT = __dirname;
@@ -254,11 +254,12 @@ else if (cmd === "claims") {
   // others don't make. The table says which outputs carry each claims.md row (by its numbers), so a change to one claim
   // can be followed into every output that states it.
   const proj = project(args[0]), pkg = piecePackage(proj), content = fs.readFileSync(path.join(proj, "content.md"), "utf8");
-  const known = numbers(content), outs = {}, strays = {};
+  const outs = {}, strays = {};
   for (const o of pkg.outputs) {
     const f = path.join(proj, "formats", o.id + ".md"); if (!fs.existsSync(f)) continue;
-    outs[o.id] = numbers(fs.readFileSync(f, "utf8"));
-    const s = [...outs[o.id]].filter(n => !known.has(n)); if (s.length) strays[o.id] = s;
+    const text = fs.readFileSync(f, "utf8"); outs[o.id] = numbers(text);
+    // The same rule the builds use: sign, percent, currency and scale count, and allow-numbers is honoured.
+    const s = straysIn(content, text).map(t => t.raw); if (s.length) strays[o.id] = s;
   }
   const cf = path.join(proj, "claims.md"), rows = [];
   if (fs.existsSync(cf)) for (const l of fs.readFileSync(cf, "utf8").split("\n")) {

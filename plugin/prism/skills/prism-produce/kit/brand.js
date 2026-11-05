@@ -8,7 +8,9 @@ const UNBROKEN = ["SOC 1", "SOC 2", "SOC 3", "SOC 2 Type I", "SOC 2 Type II", "H
 
 module.exports = function brand(md, forceId) {
   const text = md && fs.existsSync(md) ? fs.readFileSync(md, "utf8") : "";
-  const fm = /^---\n([\s\S]*?)\n---/.exec(text), id = forceId || ((fm && /^brand:\s*([\w-]+)/m.exec(fm[1])) || [])[1] || defaultBrand();
+  // The format file's brand:, else the one content.md names (a brand switched for the whole piece, C7), else the default.
+  const fm = /^---\n([\s\S]*?)\n---/.exec(text);
+  const id = forceId || ((fm && /^brand:\s*([\w-]+)/m.exec(fm[1])) || [])[1] || (md && require("./naming.js").contentBrand(md)) || defaultBrand();
   if (cache[id]) return cache[id];
   const res = load(id);
   if (res.errors.length) { for (const e of res.errors) console.error(`[brand] ${e}`); console.error(`[brand] ${id}: cannot build; never approximate the brand`); process.exit(1); }

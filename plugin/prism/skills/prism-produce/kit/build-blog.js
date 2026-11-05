@@ -7,6 +7,8 @@ const { chromium } = require("playwright");
 
 const here = __dirname;
 const md = path.resolve(process.argv[2]);
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "blog");
 const B = require("./brand.js")(md);
 const outDir = path.resolve(process.argv[3] && !process.argv[3].startsWith("--") ? process.argv[3] : path.join(path.dirname(md), "blog"));
 const { tagFor, named } = require("./naming.js");
@@ -114,7 +116,7 @@ if (charts.length) {
   // Build stamp checked by verify.py, as for social images.
   const sha = f => crypto.createHash("sha256").update(fs.readFileSync(f)).digest("hex");
   const pngs = fs.readdirSync(outDir).filter(f => f.endsWith(".png"));
-  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(),
+  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(), brand: B.id, content: require("./naming.js").contentVersion(md),
     images: Object.fromEntries(pngs.map(f => [f, sha(path.join(outDir, f))])) }, null, 1));
   console.log(`wrote ${named(TAG, "header", ".png")} (${motif}, ${tone}), ${charts.length} chart image${charts.length === 1 ? "" : "s"}, ${named(TAG, "post", ".md")} and .html to ${outDir}`);
 })();

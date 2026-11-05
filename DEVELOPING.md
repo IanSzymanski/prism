@@ -100,7 +100,7 @@ The other `run.sh` commands:
 
 | Command | What |
 |---|---|
-| `check` | Numbers in a format file that aren't in `content.md` |
+| `check` | Numbers in a format file that aren't in `content.md`, sign, percent, currency and scale included. Every build runs the same check on a format file in a piece (`<piece>/formats/`) and refuses strays; a number that is not a claim goes in the format file's front matter as `allow-numbers: [...]` |
 | `vet` | Fixes numbering and slips after an edit, flags what needs a look, lists changed passages (`--was`, `--fix`) |
 | `preview` | A contact sheet of built outputs (PDF pages, slides, PNGs) for a visual check |
 | `images` | Normalises uploaded photos and finds each one's focal point |

@@ -109,7 +109,7 @@ r = pk("check", proj, "--built"); ok(r.status === 0, `a built package checks OK:
 r = pk("claims", proj, "--json"); let c = JSON.parse(r.stdout);
 ok(r.status === 0 && c.claims.find(x => x.n === 1).in.includes("blog") && c.claims.find(x => x.n === 2).in.join() === "sheet" && c.claims.find(x => x.n === 3).in === null, `claims are traced to outputs: ${r.stdout.slice(0, 300)}`);
 W("deck", "---\ntitle: D\n---\n\n:::: {.slide .stats}\n## 38% less\n::::\n");
-r = pk("claims", proj); ok(r.status === 1 && /deck: 38 not in content\.md/.test(r.stdout), `an edit in one output that changes a claim is caught: ${r.stdout}`);
+r = pk("claims", proj); ok(r.status === 1 && /deck: 38% not in content\.md/.test(r.stdout), `an edit in one output that changes a claim is caught: ${r.stdout}`);
 W("deck", "---\ntitle: D\n---\n\n:::: {.slide .title}\n::::\n");
 
 // 7. One zip: a folder per output, the guides left out, a contents list; refused while an output is unbuilt.

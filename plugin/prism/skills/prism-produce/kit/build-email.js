@@ -10,6 +10,8 @@ const { chromium } = require("playwright");
 
 const here = __dirname;
 const md = path.resolve(process.argv[2]);
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "email");
 const outDir = path.resolve(process.argv[3] && !process.argv[3].startsWith("--") ? process.argv[3] : path.join(path.dirname(md), "html-email"));
 const { tagFor, named } = require("./naming.js");
 const BR = require("./brand.js")(md), ORN = BR.ornaments, ORNE = { stat_rule: BR.option("email.stat_rule", false), quote_bar: BR.option("email.quote_bar", false) }, PAL = require("./palette.js"), M = PAL.forBrand(BR);
@@ -494,7 +496,7 @@ ${footRows || meta.note ? `<table role="presentation" width="100%" cellpadding="
   const sha = f => crypto.createHash("sha256").update(fs.readFileSync(f)).digest("hex");
   const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => e.name.startsWith(".") ? [] : e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
   const files = walk(outDir);
-  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(), format: "html-email", main: OUT.html,
+  fs.writeFileSync(path.join(outDir, ".prism-build.json"), JSON.stringify({ kit: fs.readFileSync(path.join(here, "VERSION"), "utf8").trim(), format: "html-email", main: OUT.html, brand: BR.id, content: require("./naming.js").contentVersion(md),
     images: Object.fromEntries(files.filter(f => path.dirname(f) === outDir && f.endsWith(".png")).map(f => [path.basename(f), sha(f)])),
     files: Object.fromEntries(files.map(f => [path.relative(outDir, f), sha(f)])) }, null, 1));
 

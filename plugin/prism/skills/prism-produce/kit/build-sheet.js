@@ -7,6 +7,8 @@ const { chromium } = require("playwright");
 const args = process.argv.slice(2);
 const md = path.resolve(args.find(a => a.endsWith(".md")));
 const pdf = path.resolve(args.find(a => a.endsWith(".pdf")) || md.replace(/\.md$/, ".pdf"));
+// The number check: a format file in a piece builds only with content.md's numbers (check-numbers.js).
+require("./check-numbers.js").gate(md, "sheet");
 const here = __dirname, B = require("./brand.js")(md), css = B.stylesheet(path.join(here, "prism-sheet.css"));
 const html = md.replace(/\.md$/, ".sheet.html");
 // --print: the same piece on a plain white page, so office printers don't tint the sheet; the glow and tinted blocks stay.
@@ -213,7 +215,7 @@ function stamp(file, ver) {
   const tr = s.slice(s.lastIndexOf("trailer"));
   const size = +/\/Size\s+(\d+)/.exec(tr)[1], root = /\/Root\s+(\d+\s+\d+\s+R)/.exec(tr)[1];
   const prev = +/startxref\s+(\d+)/.exec(s.slice(s.lastIndexOf("startxref")))[1];
-  const fields = [["Title", info.title], ["Author", info.author], ["Subject", info.subject], ["Keywords", info.keywords.join(", ")], ["Creator", `Prism ${ver}`], ["Producer", "Skia/PDF via prism-kit"]];
+  const fields = [["Title", info.title], ["Author", info.author], ["Subject", info.subject], ["Keywords", info.keywords.join(", ")], ["Creator", `Prism ${ver}`], ["PrismBrand", B.id], ["PrismContent", require("./naming.js").contentVersion(md) || ""], ["Producer", "Skia/PDF via prism-kit"]];
   const obj = `\n${size} 0 obj\n<<${fields.filter(([, v]) => v).map(([k, v]) => `/${k} ${pdfString(v)}`).join("\n")}>>\nendobj\n`;
   const at = buf.length + 1, xref = buf.length + Buffer.byteLength(obj, "latin1");
   const tail = `xref\n${size} 1\n${String(at).padStart(10, "0")} 00000 n \ntrailer\n<</Size ${size + 1}\n/Root ${root}\n/Info ${size} 0 R\n/Prev ${prev}>>\nstartxref\n${xref}\n%%EOF\n`;

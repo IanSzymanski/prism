@@ -94,6 +94,46 @@ if (fs.existsSync(path.join(KIT, ".ready-sheet"))) {
   ok(r.stdout.startsWith(path.join(dst, "mods")) && !/READY/.test(r.stdout) && /MARKED/.test(r.stdout), `NODE_PATH comes from the kit's place and markers are stamped: ${r.stdout}${r.stderr}`);
 }
 
+// 6. The number check (C4): sign, percent, currency and scale count; point numbers, counters and the file's version don't;
+// shown attributes do; allow-numbers lets a listed number through.
+{
+  const { strays } = require(path.join(KIT, "check-numbers.js"));
+  const content = "---\ntitle: T\nversion: 7\n---\n\nTime on notes fell 40% in 2024. Staff saved 1,200 hours. Budget: $1.2 million. Reach: 40 countries.\n\n| Month | Hours |\n|---|---|\n| Jan | 14 |\n";
+  const cases = [
+    ["a fall written with a minus", "[−40%]{.stat}", []], ["40% from 40 countries", "## 40% more", []], ["$40M from a plain 40", "::: stat\n$40M\n:::", ["$40M"]],
+    ["a bare chart value (unit: %)", "```chart\nunit: %\nJan: 40\n```", []], ["1,200 and 1200", "Saved 1,200 hours, or 1200.", []],
+    ["$1.2M from $1.2 million", "[$1.2M]{.stat}", []], ["1,2 is two numbers, not 12", "Rows 1,2", ["1", "2"]], ["a new number", "We served 987654 people.", ["987654"]],
+    ["a shown note", ':::: {.post note="87% faster"}\nText\n::::', ["87%"]], ["a counter note", ':::: {.post note="02 / 07"}\nText\n::::', []],
+    ["a point number", "## [07]{.num} Seventh", []], ["content.md's version is not a claim", "7 new staff", ["7"]],
+    ["a percent content.md doesn't have", "14% of time", ["14%"]], ["both ends of a range", "From 2019-2024", ["2019"]],
+    ["allow-numbers", '---\nallow-numbers: ["2026", "$40M"]\n---\n\n© 2026, $40M', []], ["full-width digits", "９８７", ["987"]],
+  ];
+  for (const [name, fmt, want] of cases) { const got = strays(content, fmt).map(t => t.raw); ok(JSON.stringify(got) === JSON.stringify(want), `number check, ${name}: ${got.join(", ") || "none"}`); }
+}
+
+// 7. Builds refuse strays in a piece (C4); outputs record their brand and content version, which verify reads (C5, C7).
+if (fs.existsSync(path.join(KIT, ".ready-sheet"))) {
+  const piece = path.join(TMP, "harbor"), fmts = path.join(piece, "formats"), out = path.join(piece, "out");
+  fs.mkdirSync(fmts, { recursive: true }); fs.mkdirSync(out);
+  fs.writeFileSync(path.join(piece, "content.md"), "---\ntitle: Harbor\nbrand: prism\nversion: 3\n---\n\nTime on notes fell 41%.\n");
+  const sheet = path.join(fmts, "sheet.md"), pdf = path.join(out, "s.pdf");
+  fs.writeFileSync(sheet, "---\ntitle: Harbor\n---\n\n## One\n\n[41%]{.stat} and 987654 people.\n");
+  r = run("bash", [path.join(KIT, "run.sh"), "sheet", sheet, pdf]);
+  ok(r.status === 1 && /987654/.test(r.stderr) && /allow-numbers/.test(r.stderr) && !fs.existsSync(pdf), `a stray stops the build: ${r.stderr}`);
+  fs.writeFileSync(sheet, "---\ntitle: Harbor\n---\n\n## One\n\n[41%]{.stat} less time on notes.\n");
+  r = run("bash", [path.join(KIT, "run.sh"), "sheet", sheet, pdf]);
+  ok(r.status === 0, `content.md's brand builds the sheet: ${r.stderr}`);
+  r = run("python3", [path.join(KIT, "verify.py"), pdf]);
+  ok(r.status === 0, `verify reads the brand from the file, no --brand needed: ${r.stdout}`);
+  r = run("python3", [path.join(KIT, "verify.py"), "--brand", "case-amplify", pdf]);
+  ok(r.status === 1 && /built in the prism brand, not case-amplify/.test(r.stdout), `another brand is named: ${r.stdout}`);
+  fs.writeFileSync(path.join(piece, "content.md"), "---\ntitle: Harbor\nbrand: prism\nversion: 4\n---\n\nTime on notes fell 41%.\n");
+  r = run("python3", [path.join(KIT, "verify.py"), pdf]);
+  ok(r.status === 1 && /built from content v3, but content.md is v4/.test(r.stdout), `an older content version fails: ${r.stdout}`);
+  r = run("python3", [path.join(KIT, "verify.py")]);
+  ok(r.status === 2, "verify with nothing to check is a usage error");
+} else console.log("skipped the build gate and verify stamps: run `run.sh setup sheet` first");
+
 fs.rmSync(TMP, { recursive: true, force: true });
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

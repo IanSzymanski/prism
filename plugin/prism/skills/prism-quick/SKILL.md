@@ -178,7 +178,7 @@ Read `../prism-produce/references/formats/5x7.md`. Front `.cover` when there is 
    - a one-pager on two pages: `hero: x-small` and `{.cta-card .x-small}`; still two, cut the last section;
    - `[deck] slide N ... may not fit` or `[sheet] brochure ... runs past the panel bottom` or `[sheet] 5x7 ... past the bottom edge`: shorten that text.
 3. One quick look: `.prism-kit/run.sh preview <slug>/out/preview.png <built file>` and look at the image once (for a deck only when LibreOffice, `soffice`, is installed). Fix only clipped or overlapping text or an empty page, then rebuild once. No second review round.
-4. `.prism-kit/run.sh verify <built file or image folder>` (add `--brand <brand>` when the piece is not in the default brand). Deliver only on `OK`; on `FAIL`, rebuild through `run.sh`.
+4. `.prism-kit/run.sh verify <built file or image folder>` (it reads the brand the file was built in; `--brand <brand>` confirms the one it should be). Deliver only on `OK`; on `FAIL`, rebuild through `run.sh`.
 5. Send the PDF (or the PNGs and the captions file, or the PPTX) and the format file with SendUserFile.
 6. Message, short:
    - one line on what it is, then one line per file saying what it is for (the file roles listed under "3. Deliver" in the prism-produce skill);
