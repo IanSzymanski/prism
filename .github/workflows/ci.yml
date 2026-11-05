@@ -34,7 +34,14 @@ jobs:
       - name: Chromium for the kit's pinned Playwright
         run: npx --yes "playwright@$(node -p "require('./plugin/prism/skills/prism-produce/kit/package.json').dependencies.playwright")" install --with-deps chromium
       - name: Kit setup
-        run: bash plugin/prism/skills/prism-produce/kit/run.sh setup all
+        run: |
+          KIT="$PWD/plugin/prism/skills/prism-produce/kit"
+          bash "$KIT/run.sh" setup all
+          # Tests run the kit's scripts directly, not through run.sh, so they get the module path run.sh works out
+          # (the tools setup installed into the kit) and anything setup remembered for this machine.
+          . "$KIT/env.sh"; . "$KIT/kitenv.sh"
+          echo "NODE_PATH=$NODE_PATH" >> "$GITHUB_ENV"
+          [ -z "$PRISM_CHROMIUM" ] || echo "PRISM_CHROMIUM=$PRISM_CHROMIUM" >> "$GITHUB_ENV"
       - name: WordPress block library (full runs)
         if: env.FULL == 'true'
         run: |
