@@ -30,7 +30,7 @@ This skill never builds a piece. It builds only the swatch sheet and its boards.
 ## 1. Set up
 
 - Create `onboarding-<id>/` (`<id>`: the brand name in lowercase kebab-case) for the swatch and its boards.
-- Copy `../prism-produce/kit` to `.prism-kit` beside it if it is not there yet, then `bash .prism-kit/run.sh setup sheet` (the swatch needs it).
+- Bring the kit beside it up to date, `bash <this skill>/../prism-produce/kit/sync.sh .prism-kit` (it copies the kit the first time and replaces an older copy after a plugin update), then `bash .prism-kit/run.sh setup sheet` (the swatch needs it).
 <!-- claude-only -->
 - Bring brands in from the design systems the person can open (`../prism-produce/references/brands.md`), so a brand already in its design system is found.
 <!-- /claude-only -->

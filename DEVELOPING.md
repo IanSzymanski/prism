@@ -50,7 +50,7 @@ Also:
 | Path | What |
 |---|---|
 | `plugin/prism/` | The plugin: skills `prism-draft`, `prism-produce`, `prism-quick`, `prism-onboard`; agents `prism-writer`, `prism-reviewer`, `prism-formatter`; commands `/prism-interview`, `/prism-onboard`, `/prism-tutorial` |
-| `plugin/prism/skills/prism-produce/kit/` (below: `kit/`) | The build kit every output goes through, copied into a workspace as `.prism-kit` |
+| `plugin/prism/skills/prism-produce/kit/` (below: `kit/`) | The build kit every output goes through, synced into a workspace as `.prism-kit` by `kit/sync.sh` (every skill runs it once per session, so a plugin update reaches existing workspaces) |
 | `kit/run.sh` | The one entry point for every build and tool (below) |
 | `kit/roles.json` | Core's role vocabulary: what a brand must or may map |
 | `kit/brands/<id>/` | One brand: `profile.json`, a pinned `snapshot/` of its design system, `layers/*.css`, `ornaments.js`, `digest.md`, Office fonts, brand-owned files |
@@ -77,8 +77,8 @@ Node 20+, Python 3.10+, pandoc, and Chromium through Playwright. `kit/run.sh` ru
 # The plugin zip into dist/ (version stamped everywhere; never pass --help: the first argument is the version)
 python3 tools/build.py 2.0.0
 
-# One output, from a workspace with the kit copied in
-cp -r plugin/prism/skills/prism-produce/kit .prism-kit
+# One output, from a workspace with the kit synced in (sync.sh copies it, and replaces an older or edited copy)
+bash plugin/prism/skills/prism-produce/kit/sync.sh .prism-kit
 bash .prism-kit/run.sh sheet fixtures/sheet-paperwork-brief.md out/brief.pdf      # --print adds the white print copy
 bash .prism-kit/run.sh sheet fixtures/brochure.md out/brochure.pdf
 bash .prism-kit/run.sh sheet fixtures/5x7.md out/card.pdf

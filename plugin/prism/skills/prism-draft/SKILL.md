@@ -31,7 +31,7 @@ Use the named agent (prism-writer, prism-reviewer, prism-formatter) when it is i
 
 - Work in the session workspace. Create `<slug>/` (short kebab-case name from the topic) with `source/`, `formats/`, `out/`.
 - Save every raw input unchanged into `source/`: uploaded files by copy, pasted text as `source/pasted-<n>.md`, transcripts as-is. Audio is not accepted; ask for a transcript (phone dictation, Teams/Zoom/Otter transcript) if audio is all there is.
-- Copy `../prism-produce/kit` to `<workspace>/.prism-kit` if it is not there yet (the image and library commands below use it).
+- Bring the workspace's kit up to date: `bash <this skill>/../prism-produce/kit/sync.sh <workspace>/.prism-kit` (the image and library commands below use it). It copies the kit the first time and replaces an older copy after a plugin update; it prints a `kit:` line only when it did either, and nothing needs saying about it.
 <!-- claude-only -->
 - Once per session, bring brands in from the design systems the person can open (`../prism-produce/references/brands.md`), before reading `run.sh brands`.
 <!-- /claude-only -->

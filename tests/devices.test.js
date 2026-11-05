@@ -33,12 +33,12 @@ ok(/data-focus="20% 40%"/.test(D.html("a.png", { device: "laptop", focus: "20% 4
 ok(/is-landscape/.test(D.html("a.png", { device: "tablet", landscape: true, tone: "light" })), "a turned tablet says so");
 
 // 3. A framed PNG: the frame's size, transparent outside the body, the screenshot inside the screen.
-const sharpOk = spawnSync("bash", ["-c", `. "${KIT}/env.sh" 2>/dev/null; node -e "require('sharp')"`]).status === 0;
+const sharpOk = spawnSync("bash", ["-c", `. "${KIT}/env.sh" 2>/dev/null; KIT="${KIT}"; . "${KIT}/kitenv.sh"; node -e "require('sharp')"`]).status === 0;
 if (!sharpOk) console.log("skip: sharp is not installed (run.sh setup deck), so PNG and build checks are skipped");
 else (async () => {
   const r = run("devices", "render", SHOT, path.join(TMP, "laptop.png"), "--device", "laptop", "--width", "1720");
   ok(r.status === 0 && /1720×1036/.test(r.stdout), `render writes the frame's size: ${r.stdout}${r.stderr}`);
-  const px = spawnSync("bash", ["-c", `. "${KIT}/env.sh"; node -e "require('sharp')(process.argv[1]).raw().toBuffer({resolveWithObject:true}).then(({data,info})=>{const a=(x,y)=>data[(y*info.width+x)*4+3];console.log(info.channels,a(2,1030),a(860,500))})" "${path.join(TMP, "laptop.png")}"`], { encoding: "utf8" }).stdout.trim().split(" ").map(Number);
+  const px = spawnSync("bash", ["-c", `. "${KIT}/env.sh" 2>/dev/null; KIT="${KIT}"; . "${KIT}/kitenv.sh"; node -e "require('sharp')(process.argv[1]).raw().toBuffer({resolveWithObject:true}).then(({data,info})=>{const a=(x,y)=>data[(y*info.width+x)*4+3];console.log(info.channels,a(2,1030),a(860,500))})" "${path.join(TMP, "laptop.png")}"`], { encoding: "utf8" }).stdout.trim().split(" ").map(Number);
   ok(px[0] === 4 && px[1] === 0 && px[2] === 255, `transparent beside the base, solid on the screen: ${px}`);
   ok(run("devices", "render", SHOT, path.join(TMP, "x.png"), "--device", "watch").status === 1, "render refuses an unknown device");
 

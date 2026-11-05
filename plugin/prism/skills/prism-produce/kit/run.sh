@@ -4,9 +4,15 @@
 KIT="$(cd "$(dirname "$0")" && pwd)"
 cmd="$1"; shift
 case "$cmd" in sheet|social|blog|email|wire|swatch) part=sheet ;; illustration) part=illustration ;; web) part=web ;; deck|devices) part=deck ;; motion) [ "$1" = render ] && part=sheet || part="" ;; *) part="" ;; esac
-if [ -n "$part" ] && [ ! -f "$KIT/.ready-$part" ]; then bash "$KIT/setup.sh" "$part" || exit 1; fi
 [ -f "$KIT/env.sh" ] && . "$KIT/env.sh"
-[ -n "$NODE_PATH" ] || export NODE_PATH="$KIT/node_modules:$(npm root -g 2>/dev/null)"
+. "$KIT/kitenv.sh"
+# Tools set up by an earlier setup that are gone now (a browser in a cleared /tmp, a pandoc that went away): set up again.
+if [ -n "$part" ] && prism_ready "$part"; then
+  if { [ -n "$PRISM_CHROMIUM" ] && [ ! -x "$PRISM_CHROMIUM" ]; } || { [ "$part" = sheet ] && ! command -v pandoc >/dev/null; }; then
+    rm -f "$KIT"/.ready-*; sed -i.bak '/PRISM_CHROMIUM/d' "$KIT/env.sh" 2>/dev/null; rm -f "$KIT/env.sh.bak"; unset PRISM_CHROMIUM
+  fi
+fi
+if [ -n "$part" ] && ! prism_ready "$part"; then bash "$KIT/setup.sh" "$part" || exit 1; . "$KIT/env.sh"; . "$KIT/kitenv.sh"; fi
 case "$cmd" in
   sheet)   node "$KIT/build-sheet.js" "$@" ;;
   deck)    node "$KIT/build-deck.js" "$@" ;;

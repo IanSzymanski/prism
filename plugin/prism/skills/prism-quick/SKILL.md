@@ -21,7 +21,7 @@ Every designed branded file (one sheet, one-sheeter, one-pager, flyer, handout, 
 
 ```bash
 mkdir -p <slug>/source <slug>/formats <slug>/out
-[ -d .prism-kit ] || cp -r <this skill>/../prism-produce/kit .prism-kit
+bash <this skill>/../prism-produce/kit/sync.sh .prism-kit
 nohup bash .prism-kit/run.sh setup <sheet|social|deck> > .prism-kit/setup.log 2>&1 &
 ```
 
