@@ -1,5 +1,5 @@
 # Prism tutorial: how to use the plugin
-<!-- tutorial-reviewed: 2.0 -->
+<!-- tutorial-reviewed: 2.1 -->
 
 Give this rundown when someone asks how to use Prism ("how does this work", "tutorial", "what can you do"). Present it in your own words, short and scannable: a two-line intro, then the sections below as brief headed lists. When they ask about one part ("how does design mode work", "tell me about quick mode"), give only that section, in a little more depth. Never invent features; everything Prism does is in this file. End by offering a next step that fits: "Paste some notes and say 'draft this into a one-pager'", try quick mode, or the guided walkthrough (`/prism-tutorial` with no topic, in `walkthrough.md`), which makes a sample piece through every stage.
 
@@ -27,14 +27,14 @@ Prism turns raw material (notes, a transcript, a document, photos) into proofed,
 3. **Draft and review.** A writer produces `content.md` (the words) and `claims.md` (every number, quote and claim with its source). A reviewer flags anything uncertain; it never rewrites your copy.
 4. **Proof.**
 <!-- claude-only -->
-   The draft opens in a Claude Doc: edit the words directly, reply to the reviewer's "Check:" comments, or describe changes in chat. A Claims tab lists every claim.
+   The draft opens in a Claude Doc: edit the words directly (the title and subtitle lines at the top too), reply to the reviewer's "Check:" comments, or describe changes in chat. A Claims tab lists every claim.
 <!-- /claude-only -->
    Reply with changes, or edit content.md and upload it. Say **"approve"** when the words are right. Approval is refused while flags remain open, unless you say "keep it as is". Nothing is designed before this.
 5. **Produce.** Name the outputs ("produce a sheet and a carousel") or let the ones from the interview start on their own. One formatter per output lays out the approved words.
 <!-- claude-only -->
-6. **Design mode.** A wireframe of every format opens on a Claude Design canvas: the real words, real icons, link addresses in blue chips, the brand's touches sketched in grey. Retype text, drag blocks or slides into a new order, delete what should go, or describe changes in chat. Say **"done"** and the files are exported in the brand styles, and the canvas updates to match. After that, every change you ask for is exported again straight away. Say "just build it" to skip design mode.
+6. **Design mode.** A wireframe of every format opens on a Claude Design canvas: the real words, real icons, link addresses in blue chips, the brand's touches sketched in grey. Retype text, drag blocks or slides into a new order, delete what should go, or describe changes in chat. Say **"done"** and the files are exported in the brand styles, and the canvas updates to match. Asking for the files themselves ("send me the PDF") counts as "done". After that, every change you ask for is exported again straight away. Say "just build it" to skip design mode; where the canvas can't open, Prism says so and builds the files.
 <!-- /claude-only -->
-7. **Delivery.** Every file is number-checked against the approved words, built, previewed and brand-verified before it reaches you, with a note of what each formatter had to cut.
+7. **Delivery.** Every file is number-checked against the approved words, built, previewed and brand-verified before it reaches you, with a note of what each formatter had to cut. A build stops on any number that isn't in the approved words, and each file records the brand and the version of the words it was built from.
 
 ## Packages
 
