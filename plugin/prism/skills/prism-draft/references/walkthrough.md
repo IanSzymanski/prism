@@ -1,5 +1,5 @@
 # Prism guided walkthrough: one sample piece, start to finish
-<!-- walkthrough-reviewed: 2.0 -->
+<!-- walkthrough-reviewed: 2.1 -->
 
 Run this when someone types `/prism-tutorial` with no topic, or asks to be walked through Prism ("show me how it works", "walk me through it", "guided tutorial"). It makes a real sample piece with the real skills, stage by stage: the prompt and source material, the interview, the draft, the proof in Claude Docs, design mode in Claude Design, the export, and then the same approved words exported again as other formats. At every stage, say **why the stage is there**, **what the person can do in it**, and **how it is shared**, then pause so they can try it before moving on.
 
@@ -41,7 +41,7 @@ Pause (next: the interview).
 
 ## Stage 2: The interview
 
-Do: follow prism-draft step 2 with the sample's answers. Ask the one AskUserQuestion call a real piece would get (audience, length, outputs, images), with each sample answer as the first option marked "(from the sample)" and "Skip for now" on every question. Use what they pick; a skipped question takes the default, exactly as in a real piece. Write `interview.md` as usual. With fixed files the draft stays the fixed one whatever they answer: when an answer differs from the sample's, say in one line what it would change in a real piece (a shorter draft, another output) and that the tutorial keeps its sample so every run matches.
+Do: follow prism-draft step 2 with the sample's answers. Ask the one AskUserQuestion call a real piece would get (audience, length, outputs, images), within the question tool's limits in that step (four options at most, "Skip for now" among them; outputs by family), with each sample answer as the first option marked "(from the sample)": for outputs that is the "Print" family, for images "Add them later" stands in for "Skip for now". Use what they pick; a skipped question takes the default, exactly as in a real piece. Write `interview.md` as usual. With fixed files the draft stays the fixed one whatever they answer: when an answer differs from the sample's, say in one line what it would change in a real piece (a shorter draft, another output) and that the tutorial keeps its sample so every run matches.
 
 Say:
 
@@ -66,12 +66,12 @@ Pause (next: the proof in Claude Docs).
 
 ## Stage 4: The proof in Claude Docs
 
-Do: follow prism-draft step 4, "Proof in a Claude Doc": the doc titled "<piece title> · proof" with its Content and Claims tabs, every flag a "Check:" comment, opened for the person. Don't approve on their behalf. With fixed files, make the doc exactly the same every time: its title is `title` in the proof file (`fixed.proof` in `run.sh tutorial --json`); the Content tab is content.md's body, without front matter or CHECK flags, word for word; the Claims tab is claims.md as written; and the comments are the proof file's `comments`, in that order, each on its `anchor` with its `text` exactly. Number the flags in chat in the same order.
+Do: follow prism-draft step 4, "Proof in a Claude Doc": the doc titled "<piece title> · proof" with its Content and Claims tabs, every flag a "Check:" comment, opened for the person. Don't approve on their behalf. With fixed files, make the doc exactly the same every time: its title is `title` in the proof file (`fixed.proof` in `run.sh tutorial --json`); the Content tab is the `Title:` and `Subtitle:` lines from content.md's front matter, then its body without the rest of the front matter or the CHECK flags, word for word; the Claims tab is claims.md as written; and the comments are the proof file's `comments`, in that order, each on its `anchor` with its `text` exactly. Number the flags in chat in the same order.
 
 Say:
 
 - **Why it's here:** this is the one place the words are approved. Nothing is designed before it, because a layout built on wrong words is wasted work, and every format later inherits exactly what is approved here. Approval is refused while a "Check:" comment is open, unless the person says "keep it as is".
-- **What you can do:** type straight into the Content tab like any document; reply to a "Check:" comment or resolve it; read the Claims tab to see where every number came from; or describe changes in chat ("make the opening shorter") and they are applied to the doc. The sample's `try proof` suggestions are good first edits.
+- **What you can do:** type straight into the Content tab like any document, the Title and Subtitle lines at the top included (the most-read words on every output, proofed like the rest); reply to a "Check:" comment or resolve it; read the Claims tab to see where every number came from; or describe changes in chat ("make the opening shorter") and they are applied to the doc. The sample's `try proof` suggestions are good first edits.
 - **Sharing:** invite people with Share at the top of the doc (Prism can't share for you). They can edit the words and comment with you, and they don't need Prism. You are the one who approves.
 - When the words are right, say **"approve"**.
 
@@ -81,20 +81,20 @@ With fixed files: when the doc read back is the fixed draft with the flagged sen
 
 ## Stage 5: Design mode in Claude Design
 
-Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays out the approved words as a two-page case study (`formats/sheet.md`), then the canvas opens with its board. With fixed files the formatter doesn't run: `run.sh tutorial <brand> --out <workspace> --format sheet` puts the fixed layout in place, so the board is the same every time (the wire command builds it identically from the same file). When the approved words differ from the fixed ones (stage 4), run prism-formatter in patch mode on that file with just those changes, then the number check, before the canvas opens. Never lay the sheet out afresh when a fixed layout exists: that is what made first runs come out at four pages.
+Do: follow prism-produce sections 0, 1 and 1b for the sheet: the formatter lays out the approved words as a two-page case study (`formats/sheet.md`), then the canvas opens with its board. With fixed files the formatter doesn't run: `run.sh tutorial <brand> --out <workspace> --format sheet` puts the fixed layout in place, so the board is the same every time (the wire command builds it identically from the same file). When the approved words differ from the fixed ones (stage 4), run prism-formatter in patch mode on that file with just those changes, then the number check, before the canvas opens. Never lay the sheet out afresh when a fixed layout exists: that is what made first runs come out at four pages. When design mode can't open here (prism-produce section 1b), say so in one line, skip the rest of this stage and go to stage 6, which builds the sheet as for "just build it".
 
 Say:
 
 - **Why it's here:** layout decisions (what goes first, what stays, which block is a chart and which a quote) are easiest to make by looking and dragging. The canvas is a plain wireframe, the real words in the real order with the brand's components sketched in grey, so the conversation stays about structure. Its styling is never exported: the files are always built by the kit in the brand's own styles.
 - **What you can do:** retype any text or a link's address (in its blue chip); drag a block (or a whole slide or post) into a new order; delete what should go; or ask in chat ("make the results a chart", "use a calendar icon on the second card", "move the quote to page one"). Photos can be added at any point. Every change is read back into the Markdown, vetted and reported. The note at the top of the board names the sheet's page layout and the brand's others; ask to see it in one ("lead with the photo"). Someone who can edit the brand's design system can save an arrangement they like as one of the brand's layouts, so later pieces follow it. The sample's `try design` suggestions are good first moves.
 - **Sharing:** invite people with Share on the canvas. They can rearrange, edit and review the layout with you. You are the one who says "done".
-- Nothing is built until **"done"**. Say it when the layout is right.
+- Nothing is built until **"done"**. Say it when the layout is right; asking for the file itself ("send me the PDF") counts as "done".
 
 Pause, with option 1 reading "Say \"done\" and export (Recommended)". A canvas edit or chat request runs the "Design session" loop in prism-produce section 4 before asking again.
 
 ## Stage 6: The export
 
-Do: on "done", follow prism-produce section 4 step 7 and sections 2 and 3: pull and vet the canvas, number check, build the sheet, preview, `verify`, deliver with SendUserFile, record the export, and republish the board stamped "Exported v<n> · <date>". With fixed files the sheet must come out as `fixed.expect` says (`run.sh tutorial --json`): two pages, with all four steps of "What they did" on one page. The build prints the page count; check the steps in the preview. If the person's own edits pushed it past that, fit it back before delivering ("Fitting" in the sheet card: cut a supporting sentence first) and say what was cut; never deliver a three- or four-page tutorial sheet, or one with its steps split across pages.
+Do: on "done" (or an ask for the file itself), follow prism-produce section 4 step 7 and sections 2 and 3: pull and vet the canvas, number check, build the sheet, preview, `verify`, deliver with SendUserFile, record the export, and republish the board stamped "Exported v<n> · <date>". With fixed files the sheet must come out as `fixed.expect` says (`run.sh tutorial --json`): two pages, with all four steps of "What they did" on one page. The build prints the page count; check the steps in the preview. If the person's own edits pushed it past that, fit it back before delivering ("Fitting" in the sheet card: cut a supporting sentence first) and say what was cut; never deliver a three- or four-page tutorial sheet, or one with its steps split across pages.
 
 Say:
 

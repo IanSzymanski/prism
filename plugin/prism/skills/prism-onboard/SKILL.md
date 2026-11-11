@@ -6,7 +6,7 @@ description: >
   testimonial block", "make a package", "save this as a package", "change the case study package", "new component in the design system", "add photos to the brand library", or after a build says "design system changed since this brand was checked". Drafts a brand profile from the brand's design system, shows it on the swatch
   sheet for review, and publishes the finished brand into its design system (its editors and owners only), so everyone who can open the design system gets it without a Prism release.
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Onboard: a design system to a Prism brand
