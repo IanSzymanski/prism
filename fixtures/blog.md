@@ -12,7 +12,7 @@ Caseworkers in this illustrative example spent most afternoons on notes. That ti
 
 ## What changed
 
-Drafts arrive when the visit ends. Staff review, correct and approve each one before it is saved.
+Drafts land on the case when the visit ends, each detail labeled with its source. Staff verify and correct them.
 
 ```chart
 type: bar

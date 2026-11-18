@@ -3,14 +3,14 @@ title: Case Amplify stories
 ---
 
 :::: {#story-review .post .story note="1 / 5"}
-[Case Amplify · Human review]{.eyebrow}
+[Case Amplify · Staff in control]{.eyebrow}
 
-## AI drafts. Your staff *decide.*
+## AI drafts. Your staff *verify.*
 
-CARA drafts the note from the conversation. Nothing reaches the record until a person reviews, corrects and approves it.
+CARA drafts the note from the conversation and labels where every detail came from, so staff can verify and correct it.
 
 ::: caption
-Every draft in Case Amplify waits for a person. Review it, correct it, approve it, and only then is it saved.
+Every draft in Case Amplify is labeled with its sources. Check each detail and correct anything that isn't right.
 
 #HumanServices #CaseManagement
 :::
@@ -47,25 +47,25 @@ Case Amplify drafts the documentation so caseworkers can spend their time with t
 
 [How review works]{.eyebrow}
 
-## Review, correct, *approve*
+## Review, verify, *correct*
 
-Read the draft next to the case. Edit anything that isn't right. Only approved text is saved.
+Read the draft next to the case. Open any detail's source. Edit anything that isn't right.
 
 ::: caption
-Three steps between a draft and the record, and a person takes every one of them.
+Three steps a person takes with every draft CARA writes.
 :::
 ::::
 
 :::: {#story-reel .post .story .reel .dark note="5 / 5"}
 [See it with your own cases]{.eyebrow}
 
-## Book a *walkthrough*
+## Schedule a *demo*
 
 We'll show Case Amplify on a workflow like yours.
 
 caseamplify.com/demo
 
 ::: caption
-Want to see it on your own workflow? Book a walkthrough at caseamplify.com/demo.
+Want to see it on your own workflow? Schedule a demo at caseamplify.com/demo.
 :::
 ::::

@@ -39,7 +39,7 @@
   ],
   "export": [
    "Ask for a print version on white",
-   "Say \"make the closing card say Book a demo today\"",
+   "Say \"make the closing card say Schedule a demo today\"",
    "Open the PDF and check every number against the notes"
   ],
   "formats": [

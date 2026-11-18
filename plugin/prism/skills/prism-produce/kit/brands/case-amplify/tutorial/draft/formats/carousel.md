@@ -59,7 +59,7 @@ Home visits per caseworker rose from 7.2 to 8.6 a week, and the month-end backlo
 ::::
 
 :::: {.post .panel .dark .end}
-[Book a demo]{.eyebrow}
+[Schedule a Demo]{.eyebrow}
 
 ## See it with *your* team
 
@@ -67,7 +67,7 @@ caseamplify.com
 ::::
 
 ::: caption
-How a fictional family services agency cut time on case notes by 41% in four months, with caseworkers verifying and correcting every note. Illustrative example: organization, people and figures are fictional. Book a demo at caseamplify.com.
+How a fictional family services agency cut time on case notes by 41% in four months, with caseworkers verifying and correcting every note. Illustrative example: organization, people and figures are fictional. Schedule a demo at caseamplify.com.
 :::
 
 :::::::

@@ -14,4 +14,4 @@
 | 14 | Home visits per caseworker rose from 7.2 to 8.6 a week | Call notes: "home visits per caseworker per week: 7.2 to 8.6" | ILLUSTRATIVE |
 | 16 | "I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine." Dana Ruiz (fictional) | Call notes, quotes | ILLUSTRATIVE |
 | 17 | "Fridays used to be for chasing late notes. Now I spend them coaching." Marcus Bell (fictional) | Call notes, quotes | ILLUSTRATIVE |
-| 18 | Book a demo at caseamplify.com | The prompt ("End on a demo invite") and the brand's contact line | FROM SOURCE |
+| 18 | Schedule a demo at caseamplify.com | The prompt ("End on a demo invite"), the brand's primary call to action (Schedule a Demo) and its contact line | FROM SOURCE |

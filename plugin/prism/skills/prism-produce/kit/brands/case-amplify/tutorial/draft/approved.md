@@ -76,6 +76,6 @@ After four months, the same time study showed caseworkers spending 1.5 hours a d
 
 ## See it with *your* team
 
-Book a demo at [caseamplify.com](https://caseamplify.com).
+Schedule a demo at [caseamplify.com](https://caseamplify.com).
 
-QR code: [Book a demo](https://caseamplify.com)
+QR code: [Schedule a Demo](https://caseamplify.com)

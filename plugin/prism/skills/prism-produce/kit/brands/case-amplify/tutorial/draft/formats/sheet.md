@@ -76,7 +76,7 @@ May: 1.5
 
 ## See it with *your* team
 
-Book a demo at [caseamplify.com](https://caseamplify.com).
+Schedule a demo at [caseamplify.com](https://caseamplify.com).
 
 [Cedar Hollow Family Services is a fictional agency. Every person, quote and figure in this case study is illustrative.]{.note}
 

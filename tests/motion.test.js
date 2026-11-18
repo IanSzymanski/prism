@@ -60,7 +60,7 @@ ok(/whoosh at 10\.1 s/.test(text) && /chime at 39\.2 s/.test(text), "foley and t
 // on screen, 3 s at least and 12 s at most; dur= is a minimum.
 ok(M.T.hold.min === 3 && M.T.hold.read === 20 && M.T.hold.max === 12 && film.hold.min === 3, "the hold rule: 3 s at least, 20 characters a second, 12 s at most");
 const holdOf = c => Math.min(12, Math.max(3, Math.ceil(c / 20 * 10) / 10));
-ok(film.scenes.map(s => s.chars).join() === "133,69,150,91,173", `characters on screen per scene: ${film.scenes.map(s => s.chars)}`);
+ok(film.scenes.map(s => s.chars).join() === "133,69,150,91,155", `characters on screen per scene: ${film.scenes.map(s => s.chars)}`);
 ok(film.scenes[0].chars === film.scenes[0].lines.join(" ").replace(/[*_]/g, "").length, "the count is the scene's on-screen lines");
 for (const s of film.scenes) ok(Math.abs(s.hold[1] - s.hold[0] - holdOf(s.chars)) < 0.001 && s.hold[1] <= s.dur + 0.001, `#${s.id}: holds ${holdOf(s.chars)} s for ${s.chars} characters inside its ${s.dur} s`);
 ok(/Holds from 2\.7 s to 9\.4 s \(6\.7 s, for 133 characters\)/.test(sec("before")) && /Every scene holds once everything has landed/.test(text) && /a second for every 20 characters on screen/.test(text), "the brief states each hold");
@@ -218,7 +218,7 @@ writeStore(good);
 r = motion("check", dir, store); ok(r.status === 0 && /^OK/m.test(r.stdout), `faithful film passes: ${r.stdout}`);
 writeStore({ ...good, result: good.result.replace("from referral to first visit scheduled", "from referral to the first visit") });
 r = motion("check", dir, store); ok(r.status === 1 && /#result: line missing or reworded: "from referral to first visit scheduled"/.test(r.stdout), "reworded line fails");
-writeStore({ ...good, close: good.close.replace("Nothing goes into the record", "Nothing (0 of 40) goes into the record") });
+writeStore({ ...good, close: good.close.replace("Every field is labeled", "Every field (0 of 40) is labeled") });
 r = motion("check", dir, store); ok(r.status === 1 && /number 40 on screen/.test(r.stdout), "stray number fails");
 writeStore({ ...good, result: good.result.replace(">2<", ">3<").replace("[5, 4, 3, 2]", "[5, 4, 3]") });
 r = motion("check", dir, store); ok(r.status === 1 && /count never reaches 2/.test(r.stdout), "a count that stops short fails");
@@ -235,8 +235,8 @@ r = motion("check", dir, store); ok(r.status === 1 && /title is "Video"/.test(r.
 const { packet, ...noPacket } = good; void packet;
 writeStore(noPacket);
 r = motion("check", dir, store); ok(r.status === 1 && /#packet: no scene module/.test(r.stdout), "missing scene fails");
-writeStore({ ...good, close: good.close.replace("Nothing goes into the record without a person checking it.", "Nothing is saved until a person checks it.") },
-  { retyped: [{ was: "Nothing goes into the record without a person checking it.", v: "Nothing is saved until a person checks it." }] });
+writeStore({ ...good, close: good.close.replace("Every field is labeled with where it came from.", "Every field shows where it came from.") },
+  { retyped: [{ was: "Every field is labeled with where it came from.", v: "Every field shows where it came from." }] });
 r = motion("check", dir, store); ok(r.status === 0 && /PAGE EDITS: 1/.test(r.stdout), `page edit routed, not failed: ${r.stdout}`);
 
 writeStore({ ...good, packet: good.packet.replace("kit.scene(", "const P = '#D1409A'; kit.scene(") });

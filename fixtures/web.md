@@ -57,12 +57,12 @@ Notes written after hours from memory. The same details typed into three systems
 
 [Case Amplify transcribes the conversation, drafts the case note, and pulls out structured information, each linked to the moment it came from.]{.lede}
 
-Caseworkers review, correct, and approve. No more rebuilding a meeting from memory at the end of the day.
+Caseworkers verify and correct. No more rebuilding a meeting from memory at the end of the day.
 
 - Draft case notes and summaries from conversations
 - Extract structured data with source citations
 - Help complete configured forms from what was already said
-- Keep the caseworker in control of what reaches the record
+- Label where every detail came from, so caseworkers can verify it
 :::
 
 [Before every meeting]{.eyebrow}
@@ -106,9 +106,9 @@ Authorized users describe the process in plain language, and Case Amplify turns 
 ::: media
 ![A program manager reviewing a caseload dashboard with a staff member.](prism:placeholder){slot=supervisors}
 
-[Case IQ builds dashboards from a plain-language request, so managers can see caseload conditions without assembling reports.]{.lede}
+[CaseIQ builds dashboards from a plain-language request, so managers can see caseload conditions without assembling reports.]{.lede}
 
-Spot uneven workloads, stalled follow-ups, and documentation gaps early, and coach from the same reviewed case data your team works in.
+Spot uneven workloads, stalled follow-ups, and documentation gaps early, and coach from the same case data your team works in.
 
 - Ask for the view you need in plain language
 - See caseload and follow-up status across staff
@@ -127,7 +127,7 @@ Burnout eases when the work that drains people gets lighter. Case Amplify takes 
 
 ::: features
 - []{.icon .ph-file-magnifying-glass} **Less After-Hours Documentation** Notes start drafted during the conversation instead of being reconstructed at night.
-- []{.icon .ph-stack-plus} **Less Re-Entry** Information captured once flows into forms and the case record after review.
+- []{.icon .ph-stack-plus} **Less Re-Entry** Information captured once flows into forms and the case record, labeled with its source.
 - []{.icon .ph-magnifying-glass} **Less Searching** Case history and recent changes are summarized and in view before every contact.
 - []{.icon .ph-list-checks} **Fewer Dropped Follow-Ups** Workflows handle reminders and check-ins and surface what needs a person.
 - []{.icon .ph-user-circle-check} **More Time With Clients** [X hours per caseworker per week] returned to direct service.
@@ -141,11 +141,11 @@ Burnout eases when the work that drains people gets lighter. Case Amplify takes 
 
 [Case Amplify works alongside caseworkers. Their judgment stays at the center of every case.]{.lede}
 
-Every AI-assisted note, extracted value, and suggested action can be reviewed and corrected before it reaches the record.
+Every AI-assisted note and extracted value is labeled with its source and can be corrected at any time. Suggested actions stay suggestions until staff accept them.
 :::
 
 ::: features
-- []{.icon .ph-user-circle-check} **Human Review** Staff review and approve AI-assisted notes, extracted information, and suggested actions.
+- []{.icon .ph-user-circle-check} **Staff Stay in Control** Staff correct AI-captured information at any time and approve every text before CARA sends it.
 - []{.icon .ph-link-simple} **Source Citations** Extracted information links back to the conversation or document it came from.
 - []{.icon .ph-sliders} **Configured to Your Programs** Fields, forms, workflows, and terminology fit the way your organization already works.
 - []{.icon .ph-folder-lock} **Protected Information** Case Amplify has completed HIPAA and SOC 2 Type II compliance audits. Role-based access and audit logs protect sensitive client information.
@@ -173,7 +173,7 @@ Case Amplify reduces repetitive documentation, re-entry, and manual follow-up so
 
 **No.**
 
-Case Amplify supports caseworkers. Staff review and approve AI-assisted information, and qualified staff make every consequential decision.
+Case Amplify supports caseworkers. Staff verify and correct AI-assisted information, and qualified staff make every consequential decision.
 
 ### How much time can our team save?
 

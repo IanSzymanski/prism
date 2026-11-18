@@ -1,36 +1,42 @@
 # Case Amplify brand rules for content
 
-The Case Amplify Product and Marketing Manifest (version 0.12, October 26, 2026) is the source of truth for what Case Amplify is, what it does, how it is described and what may be claimed. It is part of the Case Amplify design system (its Manifest sections) and the `caseamplify-manifest` skill, which the writer and reviewer agents load when it is available (nothing else loads it). Where the manifest and the brand book overlap, the manifest governs the words and the brand book governs the visuals. These rules are the short version and apply either way.
+The Case Amplify Product and Marketing Manifest (version 0.14, November 12, 2026) is the source of truth for what Case Amplify is, what it does, how it is described and what may be claimed. It is part of the Case Amplify design system (its Manifest sections) and the `caseamplify-manifest` skill, which the writer and reviewer agents load when it is available (nothing else loads it). Where the manifest and the brand book overlap, the manifest governs the words and the brand book governs the visuals. These rules are the short version and apply either way.
 
 ## Product and message
 
 - Positioning statement, approved: use it as written in About and boilerplate sections, press releases, proposals, RFP overviews and partner materials. "Case Amplify is an AI-powered case management system that turns everyday conversations into actionable case information, making it easier to support clients and foster meaningful outcomes."
 - One-liner: "Smarter case management. Less paperwork. More human impact." Where space is tight (social graphics, ad units, email headers, slide footers): "Smarter case management. More human impact." Never reworded.
 - Core idea: Case Amplify helps caseworkers and program teams spend less time reconstructing context, moving information between systems and producing repetitive documentation, so they can keep case information organized, see what needs attention and act with better context.
-- Names: the assistant is CARA; dashboards built by describing them are Case IQ.
+- Names: the assistant is CARA ("CARA, Case Amplify's AI assistant"). Reporting and insights (dashboards and reports) is CaseIQ, one word; never "Case IQ".
+- Call to action: Schedule a Demo, the primary CTA on the site and every feature page.
+- Terms: AI-assisted case management, connected case context, staff stay in control, verify and correct, source labels and citations, guided conversation, group case, secure upload link, text check-ins, caseworkers and program staff.
 
 ## Working agreement
 
 - Draft first and write with confidence, in present tense.
 - Where a piece needs a number, customer, quote or detail nobody has supplied, put a bracketed placeholder such as [X hours saved per week] and keep writing. Never invent one.
 - Leave AI caveats and compliance fine print out unless the piece is about them.
+- The approved compliance wording (manifest section 7) is fixed; everything else is guidance applied with judgment.
 - Ian and Rob review every piece before it ships; their direction for a piece wins.
 
 ## Claims
 
-- Human review is part of the product, not a caveat: staff review, correct and approve AI-assisted information.
-- Case Amplify does not replace caseworkers. Never call it an "AI caseworker" or "autonomous case management".
-- Never describe AI output as always accurate or error-free.
-- AI does not make final consequential decisions (eligibility, safety, legal, clinical, financial, placement or service) or update the record without review.
-- Nothing guarantees compliance, and Case Amplify is never "HIPAA certified". HIPAA, SOC 2 Type II, audit, report and BAA wording only as approved in the manifest (section 7); flag anything else.
-- No planned capability as available: Case IQ exports and detailed dashboard permissions and sharing are planned. Case IQ visualizes data already in Case Amplify; it never generates or predicts data.
-- Integrations and automatic form completion depend on configuration. Do not promise them unconditionally.
+- Staff stay in control, by one rule: if an AI action can be fixed afterward, it can happen automatically; if it can't be taken back, a person approves it first. AI-extracted information and summaries save to the case as soon as analysis finishes, labeled with their source, and staff correct them at any time (the original AI value stays visible beside the change). Suggested tasks, programs and resources stay suggestions until staff accept them. Before CARA texts a client, staff see the exact message and approve it.
+- Lead with verification: AI assistance labels where every detail came from, so staff can verify and correct it, and citations link extracted information to the transcript passage in the client's own words. "Reviewable" still fits.
+- Never say all AI output waits for review, that staff approve every AI value before it is saved, that AI output waits in a review queue, or that nothing AI-generated enters the case automatically ("approved before it's saved" is out). Never say AI takes an action that can't be undone, such as texting a client, without staff approval.
+- Case Amplify does not replace caseworkers. Never call it an "AI caseworker" or "fully autonomous case management".
+- Never describe AI output as always accurate or error-free. Don't list AI's failure modes either, unless the piece is about AI risk.
+- Qualified staff make eligibility, safety, placement and service decisions. Case Amplify puts better information in front of them and makes none of those decisions.
+- Nothing guarantees compliance, and Case Amplify is never "HIPAA certified". HIPAA, SOC 2 Type II, audit, report and BAA wording only as approved in the manifest (section 7).
+- No planned capability as available: CaseIQ document exports (CSV, PDF) and more detailed dashboard permissions, sharing and governance are planned; dashboards today are private or organization-wide. CaseIQ visualizes data already in Case Amplify: AI builds the view, never the numbers.
+- Released, so say it with confidence: guided conversations, PDF form fill (Case Amplify "fills your existing PDF forms from the record" and flags required fields still missing; never that it completes a form with no staff involvement), SMS send and receive from the case record (receiving is SMS only; no promised response rates), workflow text check-ins, workflows described in plain language, group cases, and AI features in more than 80 languages supported by Microsoft.
+- Integrations: connecting Case Amplify to an organization's existing systems is IntelliTect's implementation work, scoped in discovery. A named system (an EHR, CRM or state platform) gets a placeholder unless the team has confirmed it.
 - No invented numbers, customers, quotes, testimonials or outcomes. A number needs a source in claims.md, or a bracketed placeholder until it has one.
-- Illustrative or fictional pieces say so on every output: in the eyebrow or footer, on any quote attribution, and in captions.
+- Fictional people and data in posts, layouts, mockups and pages carry no label (no "Illustrative example" note, eyebrow or caption line). Never present a fictional person as a real customer or client, or an illustrative scenario as customer proof: a case study or results piece built on fictional figures (`figures: illustrative`) says so, in the eyebrow and closing card on a printable.
 
 ## Voice
 
-- Respectful toward caseworkers and clients; practical and direct; specific without becoming inaccessible; confident but measured; clear about human oversight; grounded in real work.
+- Respectful toward caseworkers and clients; practical and direct; specific without becoming inaccessible; confident but measured; clear about how staff stay in control; grounded in real work.
 - Lead with recognizable casework problems, not abstract AI capability.
 - Short sentences. Concrete over abstract.
 - No fear-based replacement language, no hype words (revolutionary, game-changer, seamless, unlock, cutting-edge, robust).
@@ -57,7 +63,7 @@ The Case Amplify Product and Marketing Manifest (version 0.12, October 26, 2026)
 
 The build does these on its own (profile `options.sheet`), so don't write them into a format file. Brochures and cards have no byline or footer line to drop; the rest applies to them too, except that variety is checked only on sheets and a brochure's inside spread:
 
-- No byline (author and date) under the title, and no footer line (contact and legal) under the last page. An illustrative piece says so in its eyebrow and closing card instead.
+- No byline (author and date) under the title, and no footer line (contact and legal) under the last page. A case study on fictional figures says so in its eyebrow and closing card instead.
 - The closing card's QR code sits beside all of its copy.
 
 Close every sheet with the full closing card, `::: cta-card` (not `.small` or `.x-small`), holding a rounded QR code, `{.qr .rounded url="https://caseamplify.com"}`, as an empty block after the copy: the larger card fills the last page. Step down to `.small`, then `.x-small` (with `{.qr .small .rounded ...}`), only when a page won't fit without it ("Fitting a one-pager" in the sheet card).
@@ -104,12 +110,12 @@ The brief carries these from the profile (`motion.film`); a format file never ov
 
 Abstract UI mockups for caseamplify.com feature pages, in the style of Ian's "Active Cases" artwork: a rounded tile on a deep violet gradient, a frosted glass panel with a Literata title, the rows that matter as lighter glass bands with outlined status pills, the rest as placeholder circles and bars, and a floating glass callout over the panel's edge. The profile (`illustration`) carries the look; the build enforces it. Write for it this way:
 
-- One real Case Amplify feature per mockup, readable at a glance with its problem. When Ian supplies feature copy, illustrate that copy. Use the `caseamplify-manifest` skill's terms: connected case context, human review, reviewable and correctable output, caseworkers and program staff, participants.
+- One real Case Amplify feature per mockup, readable at a glance with its problem. When Ian supplies feature copy, illustrate that copy. Use the `caseamplify-manifest` skill's terms: connected case context, staff stay in control, verify and correct, source labels and citations, caseworkers and program staff, participants.
 - Each mockup gets its own layout and its own ground (violet, grape, dusk, haze), never the same as its neighbor on the page. "In the style of" means the glass, the simplified details and the kept important info, not the composition.
-- Show the problem, then the answer. Where the feature involves AI output (`.ai`), end on a person reviewing or approving it (`.approve`): human review is product value.
+- Show the problem, then the answer. Where the feature involves AI output (`.ai`), end on a person's step (`.approve`, labeled for what they did): verifying a source (`cite=` circles) or correcting a value already on the case ("Corrected"), or approving what can't be taken back, such as a text to a client ("Approve text", then "Sent"). Never an approve gate before AI output is saved (no "Approve note").
 - Color is only ever an outline: pills, citation circles, tags, buttons, dots, avatars. Emphasis is a `.key` row or `.mark` line (brighter glass), never a hue. `review` (amber) marks anything that still needs a person; `urgent` and `stable` only as status pills, as in the reference. No red or green traces.
 - No waveform beside a person's name or photo, and nothing that idles after the animation.
-- Fictional people and data only; one key fact per element (12 words at most). Never imply every form fills automatically, promise SMS delivery or replies, show an unconfirmed workflow capability as shipped, or present illustrative numbers as real results.
+- Fictional people and data only; one key fact per element (12 words at most). Never imply a form is completed with no staff involvement, promise SMS response rates, show a planned capability (CaseIQ exports, detailed dashboard permissions) as shipped, or present illustrative numbers as real results.
 - About 5 seconds (a `size: full` overview about 6). Every block runs on the WordPress + Kadence site with its self-hosted GSAP 3.12.5 and ScrollTrigger: it plays once on the sitewide trigger line (`top 75%`, as `ca-rise`), joins the site boot through `CA.ready`, hides under `.js.pre`, and its script carries `data-cookieconsent="ignore"`. For production, the shared CSS can move into one `ca-mock.css` and the scripts into an enqueued file on the Cookiebot allowlist; the blocks work as they are until then.
 
 ## Website pages
@@ -121,7 +127,7 @@ Whole pages for caseamplify.com (WordPress multisite, Kadence theme and Kadence 
 - Motion: `rise=` on a heading or block takes `rise`, `settle`, `lift`, `soft` or `sweep` (wave-system.md §4.4). The defaults fit almost everywhere (headings and media rows `rise`; centered headings, cards, stacks and the FAQ `lift`); the first media row on the live pages uses `settle`. `sweep` at most once per screen: never in two neighboring sections.
 - One CTA card per page (`::: cta-card`, wave-system.md §4.5): its gradients are found by id. Its heading's `*word*` is set in italics.
 - One band per page, for what changes overall, with up to five glass cards.
-- Icons: Phosphor Light names (`icon=calendar-check-fill` on the primary demo button, as on the site). Only icons already used on the site are known to work in its icon set; the build warns on any other, so check it in the editor's icon picker first.
+- Icons: Phosphor Light names (`icon=calendar-check-fill` on the primary Schedule a Demo button, as on the site). Only icons already used on the site are known to work in its icon set; the build warns on any other, so check it in the editor's icon picker first.
 - Lists are drawn as "•" lines, as on the live site, until `ca-base.css` has a `ca-` list class.
 - Unfilled image slots show the "Trust at every level" photo (media 3901) until a photo is chosen. Photos of real staff or clients need the usual consent.
 - Delivery: the blocks file is pasted into a new draft's Code editor; Ian and Rob approve and publish. Never use the "Website" WordPress connector (that is intellitect.com). The "Case Amplify Website" connector and the ca-prism-bridge plugin that will create drafts from page.json aren't ready yet: deliver the files. On the multisite only super admins keep `core/html` blocks whole (the CTA card and rules), so whoever saves the page must be one, or the SVG is stripped.

@@ -38,10 +38,10 @@ Integrations depend on your configuration. Ask your implementation lead.
 
 ::: cards
 - ![Guide cover.](prism:placeholder){dark="prism:placeholder-dark"} **Onboarding guide** A short guide for new caseworkers. [Download](https://caseamplify.com/guide)
-- ![Webinar still.](prism:placeholder){dark="prism:placeholder-dark"} **Supervisor webinar** Thirty minutes on review queues. [Register](https://caseamplify.com/webinar)
+- ![Webinar still.](prism:placeholder){dark="prism:placeholder-dark"} **Supervisor webinar** Thirty minutes on CaseIQ dashboards. [Register](https://caseamplify.com/webinar)
 :::
 
-[Book a walkthrough](https://caseamplify.com/demo){.button}
+[Schedule a Demo](https://caseamplify.com/demo){.button}
 
 ::: footer
 You're receiving this because you subscribed to Field notes.

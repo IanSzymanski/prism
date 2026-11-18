@@ -57,9 +57,9 @@ A small week calendar beside the label, like the opening one: seven day columns,
 ::::
 
 :::: {.scene .closing #close dur=10.8 name="People review" bg=night backdrop=glow}
-## Case managers review every field before it is saved. {.l .words}
+## Case managers verify and correct every field. {.l .words}
 
-[Nothing goes into the record without a person checking it.]{.sub .fade at=1}
+[Every field is labeled with where it came from.]{.sub .fade at=1}
 
 ![Case Amplify](prism:logo){.grow at=1.5 sfx=chime}
 

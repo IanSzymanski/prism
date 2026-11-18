@@ -20,7 +20,7 @@ Two to four items. The bold part is the figure, the rest is its label (under ~10
 
 ```markdown
 ::: features
-- []{.icon .ph-shield-check} **Human control** Review, correct and approve before the record changes.
+- []{.icon .ph-shield-check} **Human control** Every detail shows its source, so people can check and correct it.
 - []{.icon .ph-clock} **Attention where it matters** Surface deadlines that need review.
 :::
 ```

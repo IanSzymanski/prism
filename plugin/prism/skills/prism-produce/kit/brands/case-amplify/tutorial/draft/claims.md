@@ -17,4 +17,4 @@
 | 15 | A supervisor said turnover is down too | Call notes: "supervisor said turnover is down too" (no figure) | VERIFY |
 | 16 | "I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine." Dana Ruiz (fictional) | Call notes, quotes | ILLUSTRATIVE |
 | 17 | "Fridays used to be for chasing late notes. Now I spend them coaching." Marcus Bell (fictional) | Call notes, quotes | ILLUSTRATIVE |
-| 18 | Book a demo at caseamplify.com | The prompt ("End on a demo invite") and the brand's contact line | FROM SOURCE |
+| 18 | Schedule a demo at caseamplify.com | The prompt ("End on a demo invite"), the brand's primary call to action (Schedule a Demo) and its contact line | FROM SOURCE |
