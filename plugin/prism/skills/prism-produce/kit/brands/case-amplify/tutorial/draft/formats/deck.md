@@ -1,6 +1,6 @@
 ---
 title: How *Cedar Hollow* got its afternoons back
-subtitle: 41% less time on case notes in four months, with every note still approved by its caseworker.
+subtitle: 41% less time on case notes in four months, with caseworkers verifying and correcting every note.
 eyebrow: Case study · Illustrative example
 footer: Case Amplify · Illustrative example, fictional organization, people and figures
 ---
@@ -40,8 +40,8 @@ Caseworkers went from 2.6 to 1.5 hours a day on notes. Notes done within 24 hour
 
 1. **Pilot** One team of 8 caseworkers, then everyone by month 3.
 2. **Dictate** The caseworker dictates after a visit; CARA drafts the note.
-3. **Review** The caseworker corrects and approves it. Nothing is saved until they do.
-4. **Supervise** Supervisors see a review queue of approved notes.
+3. **Review** The note lands on the case, sources labeled; the caseworker fixes what CARA got wrong.
+4. **Supervise** Supervisors see each note as soon as it's drafted.
 
 ::: notes
 Four months from February. Two hours of training per team, a note buddy for the first month, and no new staff.
@@ -72,7 +72,7 @@ Home visits per caseworker rose from 7.2 to 8.6 a week.
 ::::
 
 :::: {.slide .quote .purple}
-> I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine.
+> I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine.
 >
 > [Dana Ruiz, caseworker (fictional)]{.cite}
 ::::
@@ -80,7 +80,7 @@ Home visits per caseworker rose from 7.2 to 8.6 a week.
 :::: {.slide .features}
 ## What made it *work*
 
-- []{.icon .ph-user-check} **People decide** CARA drafts; the caseworker approves every note.
+- []{.icon .ph-user-check} **Caseworkers in control** CARA labels where every detail came from; caseworkers verify and correct.
 - []{.icon .ph-clipboard-text} **Their template** Drafts follow the agency's own note template.
 - []{.icon .ph-users} **A slow start** A pilot team first and a note buddy on every team.
 ::::

@@ -3,7 +3,7 @@ title: How *Cedar Hollow* got its afternoons back
 pagetitle: Cedar Hollow case study
 doctype: Case study
 eyebrow: Family services · Illustrative example
-subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with every note still reviewed and approved by the caseworker who wrote it.
+subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with caseworkers verifying and correcting every note.
 author: Case Amplify
 date: October 2026
 hero: x-small
@@ -37,8 +37,8 @@ Cedar Hollow rolled out Case Amplify over four months, starting in February.
 ::: steps
 1. **Pilot.** One team of 8 caseworkers first, everyone by month 3.
 2. **Dictate.** After a visit, the caseworker dictates; CARA drafts the note.
-3. **Review.** The caseworker corrects and approves it. Nothing is saved until they do.
-4. **Supervise.** Supervisors review a queue of approved notes.
+3. **Review.** The note lands on the case, sources labeled. The caseworker fixes what CARA got wrong.
+4. **Supervise.** Supervisors see each note as soon as it's drafted.
 :::
 
 ## The *results*
@@ -59,14 +59,14 @@ April: 1.7
 May: 1.5
 ```
 
-> I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine.
+> I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine.
 >
 > [Dana Ruiz, caseworker (fictional)]{.cite}
 
 ## What made it *work*
 
 ::: checks
-- **People decide.** CARA drafts; the caseworker reviews, corrects and approves every note.
+- **Caseworkers stay in control.** CARA labels where every detail came from, so caseworkers can verify and correct each note.
 - **Their template.** Drafts follow the agency's own note template, so supervisors review what they already know.
 - **A slow start.** One pilot team first, a note buddy on every team, and two hours of training.
 :::
