@@ -32,7 +32,7 @@ The Case Amplify Product and Marketing Manifest (version 0.14, November 12, 2026
 - Released, so say it with confidence: guided conversations, PDF form fill (Case Amplify "fills your existing PDF forms from the record" and flags required fields still missing; never that it completes a form with no staff involvement), SMS send and receive from the case record (receiving is SMS only; no promised response rates), workflow text check-ins, workflows described in plain language, group cases, and AI features in more than 80 languages supported by Microsoft.
 - Integrations: connecting Case Amplify to an organization's existing systems is IntelliTect's implementation work, scoped in discovery. A named system (an EHR, CRM or state platform) gets a placeholder unless the team has confirmed it.
 - No invented numbers, customers, quotes, testimonials or outcomes. A number needs a source in claims.md, or a bracketed placeholder until it has one.
-- Fictional people and data in posts, layouts, mockups and pages carry no label (no "Illustrative example" note, eyebrow or caption line). Never present a fictional person as a real customer or client, or an illustrative scenario as customer proof: a case study or results piece built on fictional figures (`figures: illustrative`) says so, in the eyebrow and closing card on a printable.
+- Fictional people and data in posts, layouts, mockups and pages carry no label (no "Illustrative example" note, eyebrow or caption line). Never present a fictional person as a real customer or client, or an illustrative scenario as customer proof.
 
 ## Voice
 
@@ -63,7 +63,7 @@ The Case Amplify Product and Marketing Manifest (version 0.14, November 12, 2026
 
 The build does these on its own (profile `options.sheet`), so don't write them into a format file. Brochures and cards have no byline or footer line to drop; the rest applies to them too, except that variety is checked only on sheets and a brochure's inside spread:
 
-- No byline (author and date) under the title, and no footer line (contact and legal) under the last page. A case study on fictional figures says so in its eyebrow and closing card instead.
+- No byline (author and date) under the title, and no footer line (contact and legal) under the last page.
 - The closing card's QR code sits beside all of its copy.
 
 Close every sheet with the full closing card, `::: cta-card` (not `.small` or `.x-small`), holding a rounded QR code, `{.qr .rounded url="https://caseamplify.com"}`, as an empty block after the copy: the larger card fills the last page. Step down to `.small`, then `.x-small` (with `{.qr .small .rounded ...}`), only when a page won't fit without it ("Fitting a one-pager" in the sheet card).
