@@ -15,9 +15,9 @@ Chat tools can write a paragraph. They don't know the case, the program's rules,
 1. **Talk** with the client as usual.
 2. **Capture** the conversation.
 3. **Draft** a note from it.
-4. **Review** the draft against the case.
-5. **Correct** what needs changing.
-6. **Approve** before anything is saved.
+4. **Label** each detail with its source.
+5. **Verify** the draft against the case.
+6. **Correct** what needs changing.
 7. **Follow up** with reminders and messages.
 
 ### Built for human services
@@ -25,9 +25,9 @@ Chat tools can write a paragraph. They don't know the case, the program's rules,
 For teams that carry caseloads and document every contact, where accuracy and accountability matter as much as speed.
 
 ::: {.callout .tint .push}
-#### []{.icon .ph-sparkle .accent} AI drafts, people decide
+#### []{.icon .ph-sparkle .accent} Staff stay in control
 
-Nothing reaches the record until a person has reviewed and approved it.
+Every detail is labeled with its source, so staff can verify and correct it.
 :::
 ::::
 
@@ -36,7 +36,7 @@ Nothing reaches the record until a person has reviewed and approved it.
 
 [See it with your own cases]{.eyebrow}
 
-## Book a *walkthrough*
+## Schedule a *demo*
 
 We'll show Case Amplify on a workflow like yours, configured the way your program runs.
 
@@ -105,14 +105,14 @@ Every visit, call and meeting ends in documentation. Notes are written late, fro
 :::
 
 ::: band
-### CARA drafts, your staff decide
+### CARA drafts, your staff verify
 
-CARA, the Case Amplify assistant, prepares the draft. Nothing is saved until a person approves it, and forms, fields and workflows are configured to how your program works.
+CARA, Case Amplify's AI assistant, prepares the draft and labels where every detail came from. Forms, fields and workflows are configured to how your program works.
 
 ::: flow
 - **Review** Read the draft next to the case.
+- **Verify** Each detail links to its source.
 - **Correct** Edit anything that isn't right.
-- **Approve** Only approved text is saved.
 :::
 :::
 :::

@@ -46,11 +46,11 @@ Intake was the big problem. Case managers were retyping information from the ref
 ### Rolled out in March
 
 - Smart Forms pull referral information into the intake forms.
-- Case managers review everything before it is saved.
+- Every field CARA fills is labeled with its source.
 - CARA flags details like court dates so the team can act on them.
 
 ::: notes
-Maple Ridge used Case Amplify Smart Forms. People stay in charge: case managers review everything before it is saved, and CARA's flags are for the team to act on.
+Maple Ridge used Case Amplify Smart Forms. People stay in charge: every field CARA fills is labeled with its source for case managers to verify and correct, and CARA's flags are for the team to act on.
 :::
 ::::
 
@@ -107,11 +107,11 @@ Priya Shah is a fictional intake supervisor at the fictional Maple Ridge.
 
 ## Picture this with *your* intake
 
-See how Smart Forms could fit your intake. Your team reviews everything before it is saved.
+See how Smart Forms could fit your intake. Your team verifies and corrects every field.
 
 caseamplify.com
 
 ::: notes
-Close on the review step: case managers review everything before it is saved.
+Close on staff control: case managers verify and correct every field.
 :::
 ::::

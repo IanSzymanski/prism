@@ -1,6 +1,6 @@
 ---
 title: How *Cedar Hollow* got its afternoons back
-subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with every note still reviewed and approved by the caseworker who wrote it.
+subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with caseworkers verifying and correcting every note.
 audience: Human services program leaders (directors and supervisors)
 exports: [sheet]
 figures: illustrative
@@ -39,14 +39,14 @@ Cedar Hollow rolled out Case Amplify over four months, starting in February.
 
 1. **Pilot.** One team of 8 caseworkers started in month 1, two more teams joined in month 2, and everyone was using it by month 3.
 2. **Dictate.** After a visit, the caseworker dictates what happened on their phone, and CARA drafts the note in the agency's own template.
-3. **Review.** The caseworker reads the draft, corrects anything it got wrong or left out, and approves it. Nothing is saved until they do.
-4. **Supervise.** Supervisors see a review queue of approved notes instead of a list of missing ones.
+3. **Review.** The note goes straight onto the case, every detail labeled with where it came from. The caseworker reads it and fixes anything it got wrong or left out.
+4. **Supervise.** Supervisors see each note on the case as soon as it's drafted, instead of a list of missing ones.
 
 Each team had two hours of training and a "note buddy" for the first month. No new staff were hired during the rollout.
 
 Staff call it the best tool the agency has ever bought. <!-- CHECK: An unsupported superlative, passed on second-hand from one remark on the call, with no source behind it. Suggest: cut it, or quote a named (fictional) staff member saying what changed for them. -->
 
-CARA approves routine notes automatically, so caseworkers only review the complex ones. <!-- CHECK: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the same notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves. -->
+CARA also texts each family a recap of the visit automatically, so nobody has to send it. <!-- CHECK: This says CARA texts families on its own. The rule is that AI work that can be fixed afterward can happen automatically, like the note going onto the case, but a text to a client can't be taken back, so a person approves the exact message first. Suggest: cut it, or say the caseworker approves each recap before it is sent. -->
 
 ## The *results*
 
@@ -62,7 +62,7 @@ After four months, the same time study showed caseworkers spending 1.5 hours a d
 
 A supervisor said turnover is down too. <!-- CHECK: An outcome claim from one remark, with no figure and no source behind it. Suggest: cut it until there are turnover figures. -->
 
-> I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine.
+> I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine.
 >
 > Dana Ruiz, caseworker (fictional)
 
@@ -72,12 +72,12 @@ A supervisor said turnover is down too. <!-- CHECK: An outcome claim from one re
 
 ## What made it *work*
 
-- **People decide.** CARA drafts; the caseworker reviews, corrects and approves every note.
+- **Caseworkers stay in control.** CARA labels where every detail came from, so caseworkers can verify and correct each note.
 - **Their template, not a new one.** Drafts follow the agency's own note template, so supervisors review what they already know.
 - **A slow start.** One pilot team first, a note buddy on every team, and two hours of training.
 
 ## See it with *your* team
 
-Book a demo at [caseamplify.com](https://caseamplify.com).
+Schedule a demo at [caseamplify.com](https://caseamplify.com).
 
-QR code: [Book a demo](https://caseamplify.com)
+QR code: [Schedule a Demo](https://caseamplify.com)

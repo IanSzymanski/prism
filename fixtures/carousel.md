@@ -38,7 +38,7 @@ Eligibility, safety, placement and service decisions stay with qualified staff. 
 
 ## Check it against *the source*
 
-Before you approve a note or summary, trace each fact back to the conversation, form or record it came from.
+Before you rely on a note or summary, trace each fact back to the conversation, form or record it came from.
 ::::
 
 :::: {.post .panel burst="0.66" note="05 / 07"}
@@ -57,7 +57,7 @@ Don't paste case details into personal chat apps. Use the tools your organizatio
 ::: steps
 1. **Review** the draft
 2. **Correct** what's off
-3. **Approve** what's right
+3. **Keep** what's right
 :::
 
 Editing a draft is the job working as designed, not a sign the tool failed.
@@ -68,7 +68,7 @@ Editing a draft is the job working as designed, not a sign the tool failed.
 
 ## Focus on *what matters*
 
-Case Amplify is AI-assisted case management built around human review.
+Case Amplify is AI-assisted case management that keeps staff in control.
 
 caseamplify.com
 ::::

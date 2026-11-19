@@ -1,13 +1,13 @@
 ---
 title: How *Cedar Hollow* got its afternoons back
-subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with every note still reviewed and approved by the caseworker who wrote it.
+subtitle: A family services agency cut the time caseworkers spend on case notes by 41% in four months, with caseworkers verifying and correcting every note.
 audience: Human services program leaders (directors and supervisors)
 exports: [sheet]
 figures: illustrative
 status: approved
 version: 2
 changes:
-  - "v2 · proof: cut \"CARA approves routine notes automatically, so caseworkers only review the complex ones\" (Check 1)"
+  - "v2 · proof: cut \"CARA also texts each family a recap of the visit automatically, so nobody has to send it\" (Check 1)"
   - "v2 · proof: cut \"Staff call it the best tool the agency has ever bought\" (Check 2)"
   - "v2 · proof: cut \"A supervisor said turnover is down too\" (Check 3)"
 date: October 2026
@@ -43,8 +43,8 @@ Cedar Hollow rolled out Case Amplify over four months, starting in February.
 
 1. **Pilot.** One team of 8 caseworkers started in month 1, two more teams joined in month 2, and everyone was using it by month 3.
 2. **Dictate.** After a visit, the caseworker dictates what happened on their phone, and CARA drafts the note in the agency's own template.
-3. **Review.** The caseworker reads the draft, corrects anything it got wrong or left out, and approves it. Nothing is saved until they do.
-4. **Supervise.** Supervisors see a review queue of approved notes instead of a list of missing ones.
+3. **Review.** The note goes straight onto the case, every detail labeled with where it came from. The caseworker reads it and fixes anything it got wrong or left out.
+4. **Supervise.** Supervisors see each note on the case as soon as it's drafted, instead of a list of missing ones.
 
 Each team had two hours of training and a "note buddy" for the first month. No new staff were hired during the rollout.
 
@@ -60,7 +60,7 @@ After four months, the same time study showed caseworkers spending 1.5 hours a d
 | April | 1.7 | 82% |
 | May | 1.5 | 88% |
 
-> I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine.
+> I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine.
 >
 > Dana Ruiz, caseworker (fictional)
 
@@ -70,12 +70,12 @@ After four months, the same time study showed caseworkers spending 1.5 hours a d
 
 ## What made it *work*
 
-- **People decide.** CARA drafts; the caseworker reviews, corrects and approves every note.
+- **Caseworkers stay in control.** CARA labels where every detail came from, so caseworkers can verify and correct each note.
 - **Their template, not a new one.** Drafts follow the agency's own note template, so supervisors review what they already know.
 - **A slow start.** One pilot team first, a note buddy on every team, and two hours of training.
 
 ## See it with *your* team
 
-Book a demo at [caseamplify.com](https://caseamplify.com).
+Schedule a demo at [caseamplify.com](https://caseamplify.com).
 
-QR code: [Book a demo](https://caseamplify.com)
+QR code: [Schedule a Demo](https://caseamplify.com)

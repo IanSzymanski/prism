@@ -21,9 +21,9 @@ What they did -
 * rolled out Case Amplify over four months, starting Feburary
 * month 1 = one pilot team of 8 caseworkers, month 2 two more teams, month 3 everyone
 * after a visit the caseworker dictates what happend on their phone and CARA drafts the note in the agencys own template
-* caseworker reads the draft, corrects anything it got wrong or left out, and approves it. nothing is saved untill they do
-* CARA approves the routine notes automatically, so caseworkers only look at the tricky ones
-*supervisors see a review queue of approved notes instead of a list of missing ones
+* the note goes straight onto the case, every detail labled with where it came from. caseworker reads it and fixes anything it got wrong or left out
+* CARA also texts each family a recap of the visit automatically, nobody has to send it
+*supervisors see each note on the case as soon as its drafted instead of a list of missing ones
 * 2 hours training per team + a "note buddy" on each team for the first month
 * no new staff hired during the rollout
 
@@ -45,6 +45,6 @@ may 1.5hrs 88%
 
 Quotes (fictional people, ok to use for the sample)
 
-Dana Ruiz, caseworker: "I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine."
+Dana Ruiz, caseworker: "I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine."
 
 Marcus Bell — program supervisor: "Fridays used to be for chasing late notes. Now I spend them coaching."

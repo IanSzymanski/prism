@@ -23,13 +23,13 @@ Cedar Hollow Family Services had a familiar problem: case notes piled up after e
 ::: stats
 - **41%** less time drafting case notes
 - **Same day** median time to a finalized note
-- **94%** of drafts approved after review
+- **94%** of drafts needed no corrections
 :::
 
 ## What *changed*
 
 ::: features
-- []{.icon .ph-shield-check} **Human control** Staff review, correct and approve every draft.
+- []{.icon .ph-shield-check} **Staff in control** Every detail is labeled with its source to verify.
 - []{.icon .ph-clock} **Time back** Notes are finished the day of the visit.
 :::
 

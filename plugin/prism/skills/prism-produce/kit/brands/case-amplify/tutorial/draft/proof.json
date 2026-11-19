@@ -7,8 +7,8 @@
  ],
  "comments": [
   {
-   "anchor": "approves routine notes automatically",
-   "text": "Check: This says CARA approves notes on its own. The brand rule is that AI assists and people decide, and the same notes say nothing is saved until the caseworker approves. Suggest: cut it; the steps above already say who approves."
+   "anchor": "texts each family a recap",
+   "text": "Check: This says CARA texts families on its own. The rule is that AI work that can be fixed afterward can happen automatically, like the note going onto the case, but a text to a client can't be taken back, so a person approves the exact message first. Suggest: cut it, or say the caseworker approves each recap before it is sent."
   },
   {
    "anchor": "best tool the agency has",

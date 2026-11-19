@@ -8,13 +8,13 @@
 | 6 | Caseworkers spent about 2.6 hours a day writing case notes (January time study) | Call notes: "about 2.6 hrs a day writing case notes (their own time study, january)" | ILLUSTRATIVE |
 | 7 | "People were writing notes in their cars, at lunch, at their kitchen tables at 10 pm." | Call notes, director's quote | ILLUSTRATIVE |
 | 8 | Rollout over four months from February: a pilot team of 8, two more teams in month 2, everyone by month 3 | Call notes: "rolled out Case Amplify over four months, starting Feburary"; "month 1 = one pilot team of 8 caseworkers, month 2 two more teams, month 3 everyone" | ILLUSTRATIVE |
-| 9 | CARA drafts the note in the agency's own template; the caseworker reviews, corrects and approves it; nothing is saved until they do | Call notes, "What they did"; brand rule: AI assists, people decide | FROM SOURCE |
+| 9 | CARA drafts the note in the agency's own template and it goes straight onto the case, every detail labeled with where it came from; the caseworker reads it and fixes anything it got wrong or left out | Call notes, "What they did"; Case Amplify rule: AI work that can be fixed afterward can happen automatically | FROM SOURCE |
 | 10 | Two hours of training per team, a note buddy for the first month, no new staff hired | Call notes: "2 hours training per team + a \"note buddy\"", "no new staff hired during the rollout" | ILLUSTRATIVE |
 | 11 | Staff call it the best tool the agency has ever bought | Call notes: director said staff call it "the best tool the agency has ever bought" (one remark, no source) | VERIFY |
-| 12 | CARA approves routine notes automatically, so caseworkers only review the complex ones | Call notes: "CARA approves the routine notes automatically"; contradicts "nothing is saved untill they do" | VERIFY |
+| 12 | CARA also texts each family a recap of the visit automatically, so nobody has to send it | Call notes: "CARA also texts each family a recap of the visit automatically, nobody has to send it"; Case Amplify rule: a text to a client can't be taken back, so a person approves it first | VERIFY |
 | 13 | Monthly hours a day on notes (2.6, 2.4, 2.0, 1.7, 1.5) and notes done within 24 hours (46%, 58%, 71%, 82%, 88%) | Call notes, the month-by-month figures ("jan (before) 2.6 hrs, 46%" to "may 1.5hrs 88%") | ILLUSTRATIVE |
 | 14 | Home visits per caseworker rose from 7.2 to 8.6 a week | Call notes: "home visits per caseworker per week: 7.2 to 8.6" | ILLUSTRATIVE |
 | 15 | A supervisor said turnover is down too | Call notes: "supervisor said turnover is down too" (no figure) | VERIFY |
-| 16 | "I used to write notes in the car. Now I read a draft, fix what it got wrong, and sign it. The note is still mine." Dana Ruiz (fictional) | Call notes, quotes | ILLUSTRATIVE |
+| 16 | "I used to write notes in the car. Now I read the draft and fix what it got wrong. The note is still mine." Dana Ruiz (fictional) | Call notes, quotes | ILLUSTRATIVE |
 | 17 | "Fridays used to be for chasing late notes. Now I spend them coaching." Marcus Bell (fictional) | Call notes, quotes | ILLUSTRATIVE |
-| 18 | Book a demo at caseamplify.com | The prompt ("End on a demo invite") and the brand's contact line | FROM SOURCE |
+| 18 | Schedule a demo at caseamplify.com | The prompt ("End on a demo invite"), the brand's primary call to action (Schedule a Demo) and its contact line | FROM SOURCE |
